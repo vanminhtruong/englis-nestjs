@@ -69,4 +69,27 @@ export default {
   previewImage: 'Xem ảnh',
   resetImage: 'Đặt lại',
   noImage: 'Chưa có hình ảnh',
+
+  // IPA Pronunciation
+  ipaBuilder: 'Trình xây dựng phiên âm IPA',
+  buildPronunciation: 'Xây dựng phiên âm của bạn bằng các ký hiệu IPA',
+  consonants: 'Phụ âm',
+  vowels: 'Nguyên âm',
+  diacritics: 'Dấu phụ',
+  stressMarks: 'Dấu trọng âm',
+  otherSymbols: 'Các ký hiệu khác',
+  manualInput: 'Nhập thủ công',
+  preview: 'Xem trước',
+  clear: 'Xóa',
+  backspace: 'Xóa lùi',
+  confirm: 'Xác nhận',
+
+  // Video
+  video: 'Video',
+  uploadVideo: 'Tải lên Video',
+  pasteVideoUrl: 'Dán URL Video',
+  videoUrlPlaceholder: 'Nhập URL video (YouTube, Vimeo, v.v.)...',
+  loadVideo: 'Tải Video',
+  removeVideo: 'Xóa Video',
+  noVideo: 'Không có video',
 }

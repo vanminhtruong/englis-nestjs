@@ -9,6 +9,7 @@ export default {
     loading: 'Loading...',
     error: 'Error',
     success: 'Success',
+    avatarPreview: 'Avatar Preview',
   },
   
   header: {

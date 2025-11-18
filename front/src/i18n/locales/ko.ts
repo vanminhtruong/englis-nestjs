@@ -9,6 +9,7 @@ export default {
     loading: '로딩 중...',
     error: '오류',
     success: '성공',
+    avatarPreview: '아바타 미리보기',
   },
   
   header: {

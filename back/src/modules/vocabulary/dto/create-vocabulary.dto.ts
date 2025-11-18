@@ -28,6 +28,10 @@ export class CreateVocabularyDto {
 
   @IsString()
   @IsOptional()
+  video?: string;
+
+  @IsString()
+  @IsOptional()
   audio?: string;
 
   @IsEnum(DifficultyLevel)

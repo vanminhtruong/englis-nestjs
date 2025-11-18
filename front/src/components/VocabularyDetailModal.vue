@@ -19,13 +19,26 @@
 
       <!-- Content - Scrollable -->
       <div class="flex-1 overflow-y-auto p-6 space-y-6">
-        <!-- Image -->
-        <div v-if="vocabulary?.image" class="w-full">
+        <!-- Media Display -->
+        <div v-if="vocabulary?.image || vocabulary?.video" class="w-full">
+          <!-- Image Display -->
           <img 
+            v-if="vocabulary?.image && !vocabulary?.video"
             :src="vocabulary.image.startsWith('data:') ? vocabulary.image : `http://localhost:3000${vocabulary.image}`" 
             :alt="vocabulary.word"
-            class="w-full h-64 object-cover rounded-xl"
+            class="w-full h-64 object-cover rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
+            @click="$emit('open-image', { src: vocabulary.image.startsWith('data:') ? vocabulary.image : `http://localhost:3000${vocabulary.image}`, alt: vocabulary.word })"
           />
+          <!-- Video Display -->
+          <div v-if="vocabulary?.video" class="w-full h-64 rounded-xl overflow-hidden bg-black">
+            <iframe
+              :src="vocabulary.video"
+              class="w-full h-full"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            ></iframe>
+          </div>
         </div>
 
         <!-- Word & Pronunciation -->
@@ -185,6 +198,7 @@ watch(() => props.show, (newValue) => {
 const emit = defineEmits<{
   close: []
   edit: [vocabulary: any]
+  'open-image': [payload: { src: string; alt: string }]
 }>()
 
 function handleSpeak() {

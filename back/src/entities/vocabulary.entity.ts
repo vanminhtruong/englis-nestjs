@@ -49,6 +49,9 @@ export class Vocabulary {
   image: string;
 
   @Column({ nullable: true })
+  video: string;
+
+  @Column({ nullable: true })
   audio: string;
 
   @Column({

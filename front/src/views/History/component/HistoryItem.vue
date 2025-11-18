@@ -4,14 +4,34 @@
       <!-- History Info -->
       <div class="flex-1 min-w-0">
         <div class="flex items-start gap-4">
-          <!-- Image (nếu có vocabulary) -->
-          <div v-if="history.vocabulary?.image" class="flex-shrink-0">
+          <!-- Media (nếu có vocabulary) -->
+          <div v-if="history.vocabulary?.image || history.vocabulary?.video" class="flex-shrink-0">
             <div class="w-20 h-20 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5">
-              <img 
-                :src="history.vocabulary.image.startsWith('data:') ? history.vocabulary.image : `http://localhost:3000${history.vocabulary.image}`"
-                :alt="history.vocabulary.word"
-                class="w-full h-full object-cover"
-              />
+              <!-- Image Display -->
+              <button
+                v-if="history.vocabulary?.image && !history.vocabulary?.video"
+                type="button"
+                class="w-full h-full group focus:outline-none focus:ring-2 focus:ring-primary-400"
+                @click="$emit('open-image', { src: history.vocabulary.image.startsWith('data:') ? history.vocabulary.image : `http://localhost:3000${history.vocabulary.image}`, alt: history.vocabulary.word })"
+              >
+                <img 
+                  :src="history.vocabulary.image.startsWith('data:') ? history.vocabulary.image : `http://localhost:3000${history.vocabulary.image}`"
+                  :alt="history.vocabulary.word"
+                  class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                />
+              </button>
+              <!-- Video Display -->
+              <button
+                v-if="history.vocabulary?.video"
+                type="button"
+                class="w-full h-full bg-gradient-to-br from-gray-900 to-black flex items-center justify-center group focus:outline-none focus:ring-2 focus:ring-primary-400 relative"
+                @click="$emit('open-video', { src: history.vocabulary.video, title: history.vocabulary.word })"
+              >
+                <div class="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-secondary-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white opacity-70 group-hover:opacity-100 transition-opacity relative z-10" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M5 3l14 9-14 9V3z"></path>
+                </svg>
+              </button>
             </div>
           </div>
 

@@ -5,18 +5,43 @@
       :key="vocab.id"
       class="bg-gradient-to-r from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10 rounded-2xl p-4 md:p-6 flex flex-col md:flex-row gap-4 items-start hover:shadow-xl transition-all"
     >
-      <button
-        v-if="vocab.image"
-        type="button"
-        class="w-full md:w-44 lg:w-52 h-40 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 flex-shrink-0 group focus:outline-none focus:ring-2 focus:ring-primary-400"
-        @click="emit('open-image', { src: resolveImageSrc(vocab.image), alt: vocab.word })"
-      >
-        <img
-          :src="resolveImageSrc(vocab.image)"
-          :alt="vocab.word"
-          class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-        />
-      </button>
+      <!-- Media Display -->
+      <div v-if="vocab.image || vocab.video" class="w-full md:w-44 lg:w-52 h-40 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 flex-shrink-0">
+        <!-- Image Display (only if no video) -->
+        <button
+          v-if="vocab.image && !vocab.video"
+          type="button"
+          class="w-full h-full group focus:outline-none focus:ring-2 focus:ring-primary-400"
+          @click="emit('open-image', { src: resolveImageSrc(vocab.image), alt: vocab.word })"
+        >
+          <img
+            :src="resolveImageSrc(vocab.image)"
+            :alt="vocab.word"
+            class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+          />
+        </button>
+
+        <!-- Video Display (prioritized over image) -->
+        <button
+          v-else-if="vocab.video"
+          type="button"
+          class="w-full h-full group focus:outline-none focus:ring-2 focus:ring-primary-400 relative overflow-hidden"
+          @click="emit('open-video', { src: vocab.video, title: vocab.word })"
+        >
+          <img 
+            v-if="getVideoThumbnail(vocab.video)"
+            :src="getVideoThumbnail(vocab.video)"
+            :alt="vocab.word"
+            class="w-full h-full object-cover"
+          />
+          <div v-else class="absolute inset-0 bg-gradient-to-br from-gray-900 to-black"></div>
+          <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-white opacity-80 group-hover:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M5 3l14 9-14 9V3z"></path>
+            </svg>
+          </div>
+        </button>
+      </div>
 
       <div class="flex-1 w-full min-w-0">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-2">
@@ -160,11 +185,30 @@ const emit = defineEmits<{
   (e: 'open-edit', vocab: Vocabulary): void
   (e: 'delete', id: string): void
   (e: 'open-image', payload: { src: string; alt: string }): void
+  (e: 'open-video', payload: { src: string; title: string }): void
 }>()
 
 const resolveImageSrc = (image: string) => {
   if (!image) return ''
   return image.startsWith('data:') ? image : `http://localhost:3000${image}`
+}
+
+const getVideoThumbnail = (videoUrl: string) => {
+  if (!videoUrl) return ''
+  
+  // YouTube URL
+  if (videoUrl.includes('youtube.com/embed/')) {
+    const videoId = videoUrl.split('youtube.com/embed/')[1]?.split('?')[0]
+    if (videoId) return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+  }
+  
+  // Vimeo URL
+  if (videoUrl.includes('vimeo.com')) {
+    const videoId = videoUrl.split('vimeo.com/')[1]?.split('?')[0]
+    if (videoId) return `https://vimeo.com/api/v2/video/${videoId}.json`
+  }
+  
+  return ''
 }
 </script>
 

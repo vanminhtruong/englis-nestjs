@@ -135,8 +135,33 @@
                 <div v-if="isCategoryExpanded(group.date, catGroup.category.id)" class="pl-8 pt-2 space-y-2">
                   <div v-for="vocab in catGroup.vocabularies" :key="vocab.id" class="p-3 rounded-lg bg-black/5 dark:bg-white/5">
                     <div class="flex gap-4">
-                      <div v-if="vocab.image" class="flex-shrink-0">
-                        <img :src="vocab.image.startsWith('data:') ? vocab.image : `http://localhost:3000${vocab.image}`" :alt="vocab.word" class="w-24 h-24 object-cover rounded-lg" />
+                      <!-- Media Display -->
+                      <div v-if="vocab.image || vocab.video" class="flex-shrink-0">
+                        <!-- Image Display -->
+                        <button
+                          v-if="vocab.image && !vocab.video"
+                          type="button"
+                          class="w-24 h-24 rounded-lg overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary-400"
+                          @click="openImagePreview({ src: vocab.image.startsWith('data:') ? vocab.image : `http://localhost:3000${vocab.image}`, alt: vocab.word })"
+                        >
+                          <img 
+                            :src="vocab.image.startsWith('data:') ? vocab.image : `http://localhost:3000${vocab.image}`" 
+                            :alt="vocab.word" 
+                            class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105" 
+                          />
+                        </button>
+                        <!-- Video Display -->
+                        <button
+                          v-if="vocab.video"
+                          type="button"
+                          class="w-24 h-24 rounded-lg overflow-hidden bg-gradient-to-br from-gray-900 to-black flex items-center justify-center group focus:outline-none focus:ring-2 focus:ring-primary-400 relative"
+                          @click="openVideoPreview({ src: vocab.video, title: vocab.word })"
+                        >
+                          <div class="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-secondary-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                          <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-white opacity-70 group-hover:opacity-100 transition-opacity relative z-10" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M5 3l14 9-14 9V3z"></path>
+                          </svg>
+                        </button>
                       </div>
                       <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-3 mb-2">
@@ -192,6 +217,24 @@
       :show="showDetailModal"
       :vocabulary="selectedVocabulary"
       @close="closeDetailModal"
+      @open-image="openImagePreview"
+    />
+
+    <!-- Image Preview Modal -->
+    <VocabularyImageViewer
+      :visible="imagePreview.visible"
+      :src="imagePreview.src"
+      :alt="imagePreview.alt"
+      :title="imagePreview.alt"
+      @close="closeImagePreview"
+    />
+
+    <!-- Video Preview Modal -->
+    <VideoZoomModal
+      :visible="videoPreview.visible"
+      :src="videoPreview.src"
+      :title="videoPreview.title"
+      @close="closeVideoPreview"
     />
 
     <!-- Move Category Modal -->
@@ -292,9 +335,21 @@ import { useVocabularyByDateMount } from './composable/manager-mount/useVocabula
 import { getIconComponent } from '../../utils/iconRenderer'
 
 const VocabularyDetailModal = defineAsyncComponent(() => import('../../components/VocabularyDetailModal.vue') as any)
+const VocabularyImageViewer = defineAsyncComponent(() => import('../../components/common/VocabularyImageViewer.vue') as any)
+const VideoZoomModal = defineAsyncComponent(() => import('../../components/common/VideoZoomModal.vue') as any)
 
 const showDetailModal = ref(false)
 const selectedVocabulary = ref(null)
+const imagePreview = ref({
+  visible: false,
+  src: '',
+  alt: '',
+})
+const videoPreview = ref({
+  visible: false,
+  src: '',
+  title: '',
+})
 
 function openDetailModal(vocab: any) {
   selectedVocabulary.value = vocab
@@ -304,6 +359,26 @@ function openDetailModal(vocab: any) {
 function closeDetailModal() {
   showDetailModal.value = false
   selectedVocabulary.value = null
+}
+
+function openImagePreview(payload: { src: string; alt: string }) {
+  imagePreview.value.src = payload.src
+  imagePreview.value.alt = payload.alt
+  imagePreview.value.visible = true
+}
+
+function closeImagePreview() {
+  imagePreview.value.visible = false
+}
+
+function openVideoPreview(payload: { src: string; title: string }) {
+  videoPreview.value.src = payload.src
+  videoPreview.value.title = payload.title
+  videoPreview.value.visible = true
+}
+
+function closeVideoPreview() {
+  videoPreview.value.visible = false
 }
 
 const { t } = useI18n({ useScope: 'global' })

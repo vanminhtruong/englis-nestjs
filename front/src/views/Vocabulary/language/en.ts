@@ -63,4 +63,27 @@ export default {
   previewImage: 'Image preview',
   resetImage: 'Reset',
   noImage: 'No image available',
+
+  // IPA Pronunciation
+  ipaBuilder: 'IPA Pronunciation Builder',
+  buildPronunciation: 'Build your pronunciation using IPA symbols',
+  consonants: 'Consonants',
+  vowels: 'Vowels',
+  diacritics: 'Diacritics',
+  stressMarks: 'Stress Marks',
+  otherSymbols: 'Other Symbols',
+  manualInput: 'Manual Input',
+  preview: 'Preview',
+  clear: 'Clear',
+  backspace: 'Backspace',
+  confirm: 'Confirm',
+
+  // Video
+  video: 'Video',
+  uploadVideo: 'Upload Video',
+  pasteVideoUrl: 'Paste Video URL',
+  videoUrlPlaceholder: 'Enter video URL (YouTube, Vimeo, etc.)...',
+  loadVideo: 'Load Video',
+  removeVideo: 'Remove Video',
+  noVideo: 'No video available',
 }

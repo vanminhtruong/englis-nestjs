@@ -9,6 +9,7 @@ export default {
     loading: 'Đang tải...',
     error: 'Lỗi',
     success: 'Thành công',
+    avatarPreview: 'Xem trước Avatar',
   },
   
   header: {

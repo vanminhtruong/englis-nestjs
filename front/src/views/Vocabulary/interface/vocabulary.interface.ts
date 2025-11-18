@@ -5,6 +5,7 @@ export interface VocabularyForm {
   example?: string
   exampleTranslation?: string
   image?: string
+  video?: string
   audio?: string
   difficulty: 'easy' | 'medium' | 'hard'
   tags?: string[]

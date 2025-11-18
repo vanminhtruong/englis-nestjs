@@ -1,6 +1,9 @@
 <template>
   <div class="bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10 rounded-2xl p-6 flex flex-col items-center text-center">
-    <div class="w-24 h-24 rounded-2xl overflow-hidden mb-4 border-2 border-primary-500/80 shadow-lg bg-gradient-to-br from-primary-500/40 to-secondary-500/40 flex items-center justify-center">
+    <div
+      class="w-24 h-24 rounded-2xl overflow-hidden mb-4 border-2 border-primary-500/80 shadow-lg bg-gradient-to-br from-primary-500/40 to-secondary-500/40 flex items-center justify-center cursor-pointer hover:shadow-xl hover:border-primary-600 transition-all"
+      @click="openAvatarZoom"
+    >
       <img
         v-if="avatar"
         :src="avatar"
@@ -14,6 +17,13 @@
         class="w-full h-full object-cover"
       />
     </div>
+
+    <AvatarZoomModal
+      :visible="isAvatarZoomVisible"
+      :src="currentAvatarSrc"
+      :user-name="profile?.fullName"
+      @close="closeAvatarZoom"
+    />
     <h2 class="text-2xl font-semibold text-gray-900 dark:text-white mb-1">
       {{ profile?.fullName || '-' }}
     </h2>
@@ -55,11 +65,13 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs } from 'vue'
+import { toRefs, ref, computed, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { PropType } from 'vue'
 import type { UserProfile } from '../interface/profile.interface'
 import { getIconComponent } from '../../../utils/iconRenderer'
+
+const AvatarZoomModal = defineAsyncComponent(() => import('../../../components/common/AvatarZoomModal.vue') as any)
 
 const props = defineProps({
   profile: {
@@ -74,6 +86,23 @@ const props = defineProps({
 
 const { profile, avatar } = toRefs(props)
 const { t } = useI18n()
+
+const isAvatarZoomVisible = ref(false)
+
+const currentAvatarSrc = computed(() => {
+  if (avatar.value) {
+    return avatar.value
+  }
+  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.value?.fullName}`
+})
+
+const openAvatarZoom = () => {
+  isAvatarZoomVisible.value = true
+}
+
+const closeAvatarZoom = () => {
+  isAvatarZoomVisible.value = false
+}
 
 const TotalScoreIcon = getIconComponent('bar-chart')
 const TotalWordsIcon = getIconComponent('book')

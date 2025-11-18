@@ -37,13 +37,30 @@
             <label class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
               {{ t('vocabulary.pronunciation') }} *
             </label>
-            <input
-              v-model="form.pronunciation"
-              type="text"
-              required
-              class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
+            <div class="relative">
+              <input
+                v-model="form.pronunciation"
+                type="text"
+                required
+                class="w-full px-4 py-3 pr-12 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+              <button
+                type="button"
+                @click="openIPAModal"
+                class="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-semibold text-lg transition-all"
+                title="Open IPA Pronunciation Builder"
+              >
+                +
+              </button>
+            </div>
           </div>
+
+          <IPAPronunciationModal
+            :visible="isIPAModalVisible"
+            :pronunciation="form.pronunciation"
+            @close="closeIPAModal"
+            @confirm="confirmIPAPronunciation"
+          />
         </div>
 
         <div>
@@ -207,94 +224,200 @@
           </div>
         </div>
 
+        <!-- Media Tabs -->
         <div>
-          <label class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2">
-            {{ t('vocabulary.image') }}
-          </label>
-          
-          <!-- Image Preview -->
-          <div v-if="imagePreview" class="relative w-full h-48 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 mb-3">
-            <img :src="imagePreview" alt="Preview" class="w-full h-full object-contain" />
+          <div class="flex gap-2 mb-4 border-b border-black/10 dark:border-white/10">
             <button
               type="button"
-              @click="removeImage"
-              class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
+              @click="activeMediaTab = 'image'"
+              :class="[
+                'px-4 py-2 font-medium text-sm transition-all border-b-2',
+                activeMediaTab === 'image'
+                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                  : 'border-transparent text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white'
+              ]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              {{ t('vocabulary.image') }}
+            </button>
+            <button
+              type="button"
+              @click="activeMediaTab = 'video'"
+              :class="[
+                'px-4 py-2 font-medium text-sm transition-all border-b-2',
+                activeMediaTab === 'video'
+                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                  : 'border-transparent text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white'
+              ]"
+            >
+              {{ t('vocabulary.video') }}
             </button>
           </div>
 
-          <!-- Upload Options -->
-          <div class="grid grid-cols-3 gap-2">
-            <!-- Option 1: Upload File -->
-            <button
-              type="button"
-              @click="$refs.fileInput.click()"
-              class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-500">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-              </svg>
-              <span class="text-xs text-black/70 dark:text-white/70 text-center">{{ t('vocabulary.uploadFile') }}</span>
-            </button>
+          <!-- Image Tab -->
+          <div v-if="activeMediaTab === 'image'">
+            <!-- Image Preview -->
+            <div v-if="imagePreview" class="relative w-full h-48 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 mb-3">
+              <img :src="imagePreview" alt="Preview" class="w-full h-full object-contain" />
+              <button
+                type="button"
+                @click="removeImage"
+                class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
 
-            <!-- Option 2: Paste URL -->
-            <button
-              type="button"
-              @click="showUrlInput = !showUrlInput"
-              class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-500">
-                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-              </svg>
-              <span class="text-xs text-black/70 dark:text-white/70 text-center">{{ t('vocabulary.pasteUrl') }}</span>
-            </button>
+            <!-- Image Upload Options -->
+            <div class="grid grid-cols-3 gap-2">
+              <!-- Option 1: Upload File -->
+              <button
+                type="button"
+                @click="$refs.fileInput.click()"
+                class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-500">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <span class="text-xs text-black/70 dark:text-white/70 text-center">{{ t('vocabulary.uploadFile') }}</span>
+              </button>
 
-            <!-- Option 3: Paste Image -->
-            <button
-              type="button"
-              @click="handlePasteImage"
-              class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-500">
-                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-              </svg>
-              <span class="text-xs text-black/70 dark:text-white/70 text-center">{{ t('vocabulary.pasteImage') }}</span>
-            </button>
-          </div>
+              <!-- Option 2: Paste URL -->
+              <button
+                type="button"
+                @click="showImageUrlInput = !showImageUrlInput"
+                class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-500">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <span class="text-xs text-black/70 dark:text-white/70 text-center">{{ t('vocabulary.pasteUrl') }}</span>
+              </button>
 
-          <!-- URL Input (hidden by default) -->
-          <div v-if="showUrlInput" class="mt-3">
+              <!-- Option 3: Paste Image -->
+              <button
+                type="button"
+                @click="handlePasteImage"
+                class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-500">
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                </svg>
+                <span class="text-xs text-black/70 dark:text-white/70 text-center">{{ t('vocabulary.pasteImage') }}</span>
+              </button>
+            </div>
+
+            <!-- Image URL Input (hidden by default) -->
+            <div v-if="showImageUrlInput" class="mt-3">
+              <input
+                v-model="imageUrl"
+                type="text"
+                :placeholder="t('vocabulary.imageUrlPlaceholder')"
+                @keyup.enter="handleImageUrlSubmit"
+                class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+              <button
+                type="button"
+                @click="handleImageUrlSubmit"
+                class="mt-2 w-full py-2 px-4 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all"
+              >
+                {{ t('vocabulary.loadImage') }}
+              </button>
+            </div>
+
             <input
-              v-model="imageUrl"
-              type="text"
-              :placeholder="t('vocabulary.imageUrlPlaceholder')"
-              @keyup.enter="handleUrlSubmit"
-              class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              type="file"
+              ref="fileInput"
+              @change="handleFileChange"
+              accept="image/*"
+              class="hidden"
             />
-            <button
-              type="button"
-              @click="handleUrlSubmit"
-              class="mt-2 w-full py-2 px-4 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all"
-            >
-              {{ t('vocabulary.loadImage') }}
-            </button>
           </div>
 
-          <input
-            type="file"
-            ref="fileInput"
-            @change="handleFileChange"
-            accept="image/*"
-            class="hidden"
-          />
+          <!-- Video Tab -->
+          <div v-if="activeMediaTab === 'video'">
+            <!-- Video Preview -->
+            <div v-if="videoPreview" class="relative w-full h-48 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 mb-3">
+              <iframe
+                :src="videoPreview"
+                class="w-full h-full"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+              <button
+                type="button"
+                @click="removeVideo"
+                class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Video Upload Options -->
+            <div class="grid grid-cols-2 gap-2">
+              <!-- Option 1: Upload Video File -->
+              <button
+                type="button"
+                @click="$refs.videoFileInput.click()"
+                class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-500">
+                  <path d="M23 7l-7 5 7 5V7z"></path>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                </svg>
+                <span class="text-xs text-black/70 dark:text-white/70 text-center">{{ t('vocabulary.uploadVideo') }}</span>
+              </button>
+
+              <!-- Option 2: Paste Video URL -->
+              <button
+                type="button"
+                @click="showVideoUrlInput = !showVideoUrlInput"
+                class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary-500">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                <span class="text-xs text-black/70 dark:text-white/70 text-center">{{ t('vocabulary.pasteVideoUrl') }}</span>
+              </button>
+            </div>
+
+            <!-- Video URL Input (hidden by default) -->
+            <div v-if="showVideoUrlInput" class="mt-3">
+              <input
+                v-model="videoUrl"
+                type="text"
+                :placeholder="t('vocabulary.videoUrlPlaceholder')"
+                @keyup.enter="handleVideoUrlSubmit"
+                class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+              <button
+                type="button"
+                @click="handleVideoUrlSubmit"
+                class="mt-2 w-full py-2 px-4 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all"
+              >
+                {{ t('vocabulary.loadVideo') }}
+              </button>
+            </div>
+
+            <input
+              type="file"
+              ref="videoFileInput"
+              @change="handleVideoFileChange"
+              accept="video/*"
+              class="hidden"
+            />
+          </div>
         </div>
 
       </form>
@@ -321,11 +444,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
 import apiService from '../../../services/api.service'
 import { getIconComponent } from '../../../utils/iconRenderer'
 import { useModalScrollLock } from '../../../composables/useModalScrollLock'
 import { websocketService } from '../../../services/websocket.service'
+
+const IPAPronunciationModal = defineAsyncComponent(() => import('../../../components/common/IPAPronunciationModal.vue') as any)
 
 const props = defineProps<{
   show: boolean
@@ -344,12 +469,18 @@ const emit = defineEmits<{
 const categories = ref<any[]>([])
 const tags = ref<any[]>([])
 const fileInput = ref<HTMLInputElement | null>(null)
+const videoFileInput = ref<HTMLInputElement | null>(null)
 const imagePreview = ref<string>('')
-const showUrlInput = ref(false)
+const videoPreview = ref<string>('')
+const showImageUrlInput = ref(false)
+const showVideoUrlInput = ref(false)
 const imageUrl = ref('')
+const videoUrl = ref('')
+const activeMediaTab = ref<'image' | 'video'>('image')
 
 const showCategoryDropdown = ref(false)
 const showTagDropdown = ref(false)
+const isIPAModalVisible = ref(false)
 
 const selectedCategory = computed({
   get: () => (props.form.categoryIds && props.form.categoryIds.length > 0) ? props.form.categoryIds[0] : '',
@@ -412,12 +543,12 @@ function handleFileChange(event: Event) {
   }
 }
 
-// Option 2: Paste URL
-function handleUrlSubmit() {
+// Option 2: Paste Image URL
+function handleImageUrlSubmit() {
   if (imageUrl.value.trim()) {
     imagePreview.value = imageUrl.value
     props.form.image = imageUrl.value
-    showUrlInput.value = false
+    showImageUrlInput.value = false
     imageUrl.value = ''
   }
 }
@@ -451,10 +582,64 @@ async function handlePasteImage() {
 function removeImage() {
   imagePreview.value = ''
   props.form.image = ''
-  showUrlInput.value = false
+  showImageUrlInput.value = false
   imageUrl.value = ''
   if (fileInput.value) {
     fileInput.value.value = ''
+  }
+}
+
+// Video handlers
+function handleVideoFileChange(event: Event) {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const result = e.target?.result as string
+      videoPreview.value = result
+      props.form.video = result
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+function handleVideoUrlSubmit() {
+  if (videoUrl.value.trim()) {
+    // Convert YouTube/Vimeo URLs to embed format
+    let embedUrl = videoUrl.value
+    
+    // YouTube URL conversion
+    if (videoUrl.value.includes('youtube.com') || videoUrl.value.includes('youtu.be')) {
+      const videoId = videoUrl.value.includes('youtu.be') 
+        ? videoUrl.value.split('youtu.be/')[1]?.split('?')[0]
+        : new URLSearchParams(new URL(videoUrl.value).search).get('v')
+      if (videoId) {
+        embedUrl = `https://www.youtube.com/embed/${videoId}`
+      }
+    }
+    // Vimeo URL conversion
+    else if (videoUrl.value.includes('vimeo.com')) {
+      const videoId = videoUrl.value.split('vimeo.com/')[1]?.split('?')[0]
+      if (videoId) {
+        embedUrl = `https://player.vimeo.com/video/${videoId}`
+      }
+    }
+    
+    videoPreview.value = embedUrl
+    props.form.video = embedUrl
+    showVideoUrlInput.value = false
+    videoUrl.value = ''
+  }
+}
+
+function removeVideo() {
+  videoPreview.value = ''
+  props.form.video = ''
+  showVideoUrlInput.value = false
+  videoUrl.value = ''
+  if (videoFileInput.value) {
+    videoFileInput.value.value = ''
   }
 }
 
@@ -544,5 +729,18 @@ function onSubmit() {
 
 function onClose() {
   emit('close')
+}
+
+function openIPAModal() {
+  isIPAModalVisible.value = true
+}
+
+function closeIPAModal() {
+  isIPAModalVisible.value = false
+}
+
+function confirmIPAPronunciation(pronunciation: string) {
+  props.form.pronunciation = pronunciation
+  closeIPAModal()
 }
 </script>

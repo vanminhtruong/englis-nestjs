@@ -60,6 +60,7 @@
           @open-edit="vocabularyState.openEditModal"
           @delete="vocabularyHandle.handleDelete"
           @open-image="openImagePreview"
+          @open-video="openVideoPreview"
         />
 
         <VocabularyList
@@ -74,6 +75,7 @@
           @open-edit="vocabularyState.openEditModal"
           @delete="vocabularyHandle.handleDelete"
           @open-image="openImagePreview"
+          @open-video="openVideoPreview"
         />
       </div>
 
@@ -100,6 +102,7 @@
       :vocabulary="vocabularyState.selectedVocabulary"
       @close="vocabularyState.closeDetailModal"
       @edit="vocabularyState.handleEditFromDetail"
+      @open-image="openImagePreview"
     />
 
     <VocabularyImageViewer
@@ -108,6 +111,13 @@
       :alt="imagePreview.alt"
       :title="imagePreview.title"
       @close="closeImagePreview"
+    />
+
+    <VideoZoomModal
+      :visible="videoPreview.visible"
+      :src="videoPreview.src"
+      :title="videoPreview.title"
+      @close="closeVideoPreview"
     />
   </div>
 </template>
@@ -131,6 +141,7 @@ const VocabularyList = defineAsyncComponent(() => import('./component/Vocabulary
 const VocabularyModal = defineAsyncComponent(() => import('./component/VocabularyModal.vue') as any)
 const VocabularyDetailModal = defineAsyncComponent(() => import('../../components/VocabularyDetailModal.vue') as any)
 const VocabularyImageViewer = defineAsyncComponent(() => import('../../components/common/VocabularyImageViewer.vue') as any)
+const VideoZoomModal = defineAsyncComponent(() => import('../../components/common/VideoZoomModal.vue') as any)
 const Pagination = defineAsyncComponent(() => import('../../components/Pagination.vue') as any)
 
 const { t, locale, mergeLocaleMessage } = useI18n()
@@ -165,6 +176,12 @@ const imagePreview = reactive({
   title: '',
 })
 
+const videoPreview = reactive({
+  visible: false,
+  src: '',
+  title: '',
+})
+
 function openImagePreview(payload: { src: string; alt: string }) {
   imagePreview.src = payload.src
   imagePreview.alt = payload.alt
@@ -174,6 +191,16 @@ function openImagePreview(payload: { src: string; alt: string }) {
 
 function closeImagePreview() {
   imagePreview.visible = false
+}
+
+function openVideoPreview(payload: { src: string; title: string }) {
+  videoPreview.src = payload.src
+  videoPreview.title = payload.title
+  videoPreview.visible = true
+}
+
+function closeVideoPreview() {
+  videoPreview.visible = false
 }
 
 function formatDate(dateString: string) {

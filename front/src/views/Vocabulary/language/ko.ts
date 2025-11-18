@@ -63,4 +63,27 @@ export default {
   previewImage: '이미지 미리보기',
   resetImage: '초기화',
   noImage: '이미지가 없습니다',
+
+  // IPA Pronunciation
+  ipaBuilder: 'IPA 발음 빌더',
+  buildPronunciation: 'IPA 기호를 사용하여 발음을 구성하세요',
+  consonants: '자음',
+  vowels: '모음',
+  diacritics: '발음 기호',
+  stressMarks: '강세 표시',
+  otherSymbols: '기타 기호',
+  manualInput: '수동 입력',
+  preview: '미리보기',
+  clear: '지우기',
+  backspace: '백스페이스',
+  confirm: '확인',
+
+  // Video
+  video: '비디오',
+  uploadVideo: '비디오 업로드',
+  pasteVideoUrl: '비디오 URL 붙여넣기',
+  videoUrlPlaceholder: '비디오 URL 입력 (YouTube, Vimeo 등)...',
+  loadVideo: '비디오 로드',
+  removeVideo: '비디오 제거',
+  noVideo: '비디오 없음',
 }

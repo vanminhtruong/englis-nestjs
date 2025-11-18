@@ -21,7 +21,12 @@
           @click="$emit('toggle-user-menu')"
           class="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
         >
-          <img :src="userAvatarSrc" alt="Avatar" class="w-8 h-8 rounded-full border-2 border-primary-500" />
+          <img
+            :src="userAvatarSrc"
+            alt="Avatar"
+            class="w-8 h-8 rounded-full border-2 border-primary-500 cursor-pointer hover:border-primary-600 transition-all"
+            @click.stop="openAvatarZoom"
+          />
           <div class="flex flex-col">
             <span class="font-medium text-gray-900 dark:text-white text-sm">{{ userInitials }}</span>
             <span class="text-xs text-gray-500 dark:text-gray-400">{{ userWordsCount }} {{ t('header.words') }}</span>
@@ -30,6 +35,12 @@
             <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
+
+        <AvatarZoomModal
+          :visible="isAvatarZoomVisible"
+          :src="userAvatarSrc"
+          @close="closeAvatarZoom"
+        />
 
         <Transition
           enter-active-class="transition-all duration-200 ease-out"
@@ -125,7 +136,12 @@
       @click="$emit('toggle-mobile-account-menu')"
       class="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
     >
-      <img :src="userAvatarSrc" alt="Avatar" class="w-9 h-9 rounded-full border border-primary-500" />
+      <img
+        :src="userAvatarSrc"
+        alt="Avatar"
+        class="w-9 h-9 rounded-full border border-primary-500 cursor-pointer hover:border-primary-600 transition-all"
+        @click.stop="openAvatarZoom"
+      />
     </button>
     <button
       @click="$emit('toggle-mobile-menu')"
@@ -145,11 +161,12 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from 'vue'
+import { defineAsyncComponent, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 const LanguageSwitcher = defineAsyncComponent(() => import('../../LanguageSwitcher.vue') as any)
+const AvatarZoomModal = defineAsyncComponent(() => import('../../common/AvatarZoomModal.vue') as any)
 
 const props = defineProps<{
   isDark: boolean
@@ -171,4 +188,14 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+const isAvatarZoomVisible = ref(false)
+
+const openAvatarZoom = () => {
+  isAvatarZoomVisible.value = true
+}
+
+const closeAvatarZoom = () => {
+  isAvatarZoomVisible.value = false
+}
 </script>

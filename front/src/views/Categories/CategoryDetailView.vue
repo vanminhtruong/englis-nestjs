@@ -64,13 +64,41 @@
                 :key="vocab.id"
                 class="bg-gradient-to-br from-white to-white/50 dark:from-white/5 dark:to-white/[0.02] border border-black/10 dark:border-white/10 rounded-2xl p-6 hover:shadow-xl transition-all"
               >
-                <!-- Image Preview -->
-                <div v-if="vocab.image" class="mb-4">
-                  <img 
-                    :src="vocab.image.startsWith('data:') ? vocab.image : `http://localhost:3000${vocab.image}`" 
-                    :alt="vocab.word"
-                    class="w-full h-32 object-cover rounded-xl"
-                  />
+                <!-- Media Preview -->
+                <div v-if="vocab.image || vocab.video" class="mb-4">
+                  <!-- Image Display -->
+                  <button
+                    v-if="vocab.image && !vocab.video"
+                    type="button"
+                    class="w-full h-32 rounded-xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary-400"
+                    @click="openImagePreview({ src: vocab.image.startsWith('data:') ? vocab.image : `http://localhost:3000${vocab.image}`, alt: vocab.word })"
+                  >
+                    <img 
+                      :src="vocab.image.startsWith('data:') ? vocab.image : `http://localhost:3000${vocab.image}`" 
+                      :alt="vocab.word"
+                      class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                    />
+                  </button>
+                  <!-- Video Display -->
+                  <button
+                    v-if="vocab.video"
+                    type="button"
+                    class="w-full h-32 rounded-xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary-400 relative"
+                    @click="openVideoPreview({ src: vocab.video, title: vocab.word })"
+                  >
+                    <img 
+                      v-if="getVideoThumbnail(vocab.video)"
+                      :src="getVideoThumbnail(vocab.video)"
+                      :alt="vocab.word"
+                      class="w-full h-full object-cover"
+                    />
+                    <div v-else class="absolute inset-0 bg-gradient-to-br from-gray-900 to-black"></div>
+                    <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-white opacity-80 group-hover:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M5 3l14 9-14 9V3z"></path>
+                      </svg>
+                    </div>
+                  </button>
                 </div>
 
                 <div class="flex items-start justify-between mb-4">
@@ -180,6 +208,24 @@
       :show="showDetailModal"
       :vocabulary="selectedVocabulary"
       @close="closeDetailModal"
+      @open-image="openImagePreview"
+    />
+
+    <!-- Image Preview Modal -->
+    <VocabularyImageViewer
+      :visible="imagePreview.visible"
+      :src="imagePreview.src"
+      :alt="imagePreview.alt"
+      :title="imagePreview.alt"
+      @close="closeImagePreview"
+    />
+
+    <!-- Video Preview Modal -->
+    <VideoZoomModal
+      :visible="videoPreview.visible"
+      :src="videoPreview.src"
+      :title="videoPreview.title"
+      @close="closeVideoPreview"
     />
   </div>
 </template>
@@ -196,9 +242,23 @@ import viLang from './language/vi'
 import koLang from './language/ko'
 
 const VocabularyDetailModal = defineAsyncComponent(() => import('../../components/VocabularyDetailModal.vue') as any)
+const VocabularyImageViewer = defineAsyncComponent(() => import('../../components/common/VocabularyImageViewer.vue') as any)
+const VideoZoomModal = defineAsyncComponent(() => import('../../components/common/VideoZoomModal.vue') as any)
 
 const showDetailModal = ref(false)
 const selectedVocabulary = ref(null)
+
+const imagePreview = ref({
+  visible: false,
+  src: '',
+  alt: '',
+})
+
+const videoPreview = ref({
+  visible: false,
+  src: '',
+  title: '',
+})
 
 function openDetailModal(vocab: any) {
   selectedVocabulary.value = vocab
@@ -208,6 +268,26 @@ function openDetailModal(vocab: any) {
 function closeDetailModal() {
   showDetailModal.value = false
   selectedVocabulary.value = null
+}
+
+function openImagePreview(payload: { src: string; alt: string }) {
+  imagePreview.value.src = payload.src
+  imagePreview.value.alt = payload.alt
+  imagePreview.value.visible = true
+}
+
+function closeImagePreview() {
+  imagePreview.value.visible = false
+}
+
+function openVideoPreview(payload: { src: string; title: string }) {
+  videoPreview.value.src = payload.src
+  videoPreview.value.title = payload.title
+  videoPreview.value.visible = true
+}
+
+function closeVideoPreview() {
+  videoPreview.value.visible = false
 }
 
 const { t, mergeLocaleMessage } = useI18n()
@@ -255,6 +335,24 @@ function handleSpeak(word: string) {
   }
   utterance.rate = 0.8
   window.speechSynthesis.speak(utterance)
+}
+
+function getVideoThumbnail(videoUrl: string) {
+  if (!videoUrl) return ''
+  
+  // YouTube URL
+  if (videoUrl.includes('youtube.com/embed/')) {
+    const videoId = videoUrl.split('youtube.com/embed/')[1]?.split('?')[0]
+    if (videoId) return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+  }
+  
+  // Vimeo URL
+  if (videoUrl.includes('vimeo.com')) {
+    const videoId = videoUrl.split('vimeo.com/')[1]?.split('?')[0]
+    if (videoId) return `https://vimeo.com/api/v2/video/${videoId}.json`
+  }
+  
+  return ''
 }
 
 onMounted(async () => {

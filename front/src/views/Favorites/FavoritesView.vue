@@ -36,8 +36,41 @@
           :key="vocab.id"
           class="bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10 rounded-2xl p-6 hover:shadow-xl transition-all"
         >
-          <div v-if="vocab.image" class="w-full h-40 mb-4 rounded-xl overflow-hidden">
-            <img :src="vocab.image.startsWith('data:') ? vocab.image : `http://localhost:3000${vocab.image}`" :alt="vocab.word" class="w-full h-full object-cover" />
+          <!-- Media Display -->
+          <div v-if="vocab.image || vocab.video" class="w-full h-40 mb-4 rounded-xl overflow-hidden">
+            <!-- Image Display -->
+            <button
+              v-if="vocab.image && !vocab.video"
+              type="button"
+              class="w-full h-full group focus:outline-none focus:ring-2 focus:ring-primary-400"
+              @click="openImagePreview({ src: vocab.image.startsWith('data:') ? vocab.image : `http://localhost:3000${vocab.image}`, alt: vocab.word })"
+            >
+              <img 
+                :src="vocab.image.startsWith('data:') ? vocab.image : `http://localhost:3000${vocab.image}`" 
+                :alt="vocab.word" 
+                class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105" 
+              />
+            </button>
+            <!-- Video Display -->
+            <button
+              v-if="vocab.video"
+              type="button"
+              class="w-full h-full group focus:outline-none focus:ring-2 focus:ring-primary-400 relative"
+              @click="openVideoPreview({ src: vocab.video, title: vocab.word })"
+            >
+              <img 
+                v-if="getVideoThumbnail(vocab.video)"
+                :src="getVideoThumbnail(vocab.video)"
+                :alt="vocab.word"
+                class="w-full h-full object-cover"
+              />
+              <div v-else class="absolute inset-0 bg-gradient-to-br from-gray-900 to-black"></div>
+              <div class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-white opacity-80 group-hover:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M5 3l14 9-14 9V3z"></path>
+                </svg>
+              </div>
+            </button>
           </div>
           <div class="flex items-start justify-between mb-4">
             <div class="flex-1">
@@ -109,7 +142,20 @@
         @update:page="handlePageChange"
         @page-change="handlePageChange"
       />
-      <VocabularyDetailModal :show="showDetailModal" :vocabulary="selectedVocabulary" @close="closeDetailModal" />
+      <VocabularyDetailModal :show="showDetailModal" :vocabulary="selectedVocabulary" @close="closeDetailModal" @open-image="openImagePreview" />
+      <VocabularyImageViewer
+        :visible="imagePreview.visible"
+        :src="imagePreview.src"
+        :alt="imagePreview.alt"
+        :title="imagePreview.alt"
+        @close="closeImagePreview"
+      />
+      <VideoZoomModal
+        :visible="videoPreview.visible"
+        :src="videoPreview.src"
+        :title="videoPreview.title"
+        @close="closeVideoPreview"
+      />
     </div>
   </div>
 </template>
@@ -133,10 +179,22 @@ mergeLocaleMessage('vi', { favorites: viLang })
 mergeLocaleMessage('ko', { favorites: koLang })
 
 const VocabularyDetailModal = defineAsyncComponent(() => import('../../components/VocabularyDetailModal.vue') as any)
+const VocabularyImageViewer = defineAsyncComponent(() => import('../../components/common/VocabularyImageViewer.vue') as any)
+const VideoZoomModal = defineAsyncComponent(() => import('../../components/common/VideoZoomModal.vue') as any)
 const Pagination = defineAsyncComponent(() => import('../../components/Pagination.vue') as any)
 
 const showDetailModal = ref(false)
 const selectedVocabulary = ref(null)
+const imagePreview = ref({
+  visible: false,
+  src: '',
+  alt: '',
+})
+const videoPreview = ref({
+  visible: false,
+  src: '',
+  title: '',
+})
 
 function openDetailModal(vocab: any) {
   selectedVocabulary.value = vocab
@@ -146,6 +204,44 @@ function openDetailModal(vocab: any) {
 function closeDetailModal() {
   showDetailModal.value = false
   selectedVocabulary.value = null
+}
+
+function openImagePreview(payload: { src: string; alt: string }) {
+  imagePreview.value.src = payload.src
+  imagePreview.value.alt = payload.alt
+  imagePreview.value.visible = true
+}
+
+function closeImagePreview() {
+  imagePreview.value.visible = false
+}
+
+function openVideoPreview(payload: { src: string; title: string }) {
+  videoPreview.value.src = payload.src
+  videoPreview.value.title = payload.title
+  videoPreview.value.visible = true
+}
+
+function closeVideoPreview() {
+  videoPreview.value.visible = false
+}
+
+function getVideoThumbnail(videoUrl: string) {
+  if (!videoUrl) return ''
+  
+  // YouTube URL
+  if (videoUrl.includes('youtube.com/embed/')) {
+    const videoId = videoUrl.split('youtube.com/embed/')[1]?.split('?')[0]
+    if (videoId) return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`
+  }
+  
+  // Vimeo URL
+  if (videoUrl.includes('vimeo.com')) {
+    const videoId = videoUrl.split('vimeo.com/')[1]?.split('?')[0]
+    if (videoId) return `https://vimeo.com/api/v2/video/${videoId}.json`
+  }
+  
+  return ''
 }
 
 const {
