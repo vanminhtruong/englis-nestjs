@@ -20,6 +20,7 @@ export function useCategoriesMount(
     categoriesService.setupWebSocketListeners(
       (category) => {
         // Chỉ thêm nếu từ user khác (tránh duplicate)
+        // addCategory sẽ tự kiểm tra xem category đã tồn tại chưa
         addCategory(category)
       },
       (category) => {

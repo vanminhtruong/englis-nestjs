@@ -23,7 +23,11 @@ export function useCategoriesState() {
   }
 
   function addCategory(category: Category) {
-    categories.value = sortCategories([category, ...categories.value])
+    // Kiểm tra xem category đã tồn tại chưa để tránh duplicate
+    const exists = categories.value.some(c => c.id === category.id)
+    if (!exists) {
+      categories.value = sortCategories([category, ...categories.value])
+    }
   }
 
   function updateCategory(id: string, category: Category) {
