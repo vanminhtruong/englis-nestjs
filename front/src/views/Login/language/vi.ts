@@ -1,0 +1,15 @@
+export default {
+  title: 'Đăng nhập',
+  subtitle: 'Chào mừng trở lại',
+  email: 'Email',
+  emailPlaceholder: 'Nhập email của bạn',
+  password: 'Mật khẩu',
+  passwordPlaceholder: 'Nhập mật khẩu',
+  loginButton: 'Đăng nhập',
+  noAccount: 'Chưa có tài khoản?',
+  register: 'Đăng ký',
+  registerLink: 'Đăng ký tại đây',
+  forgotPassword: 'Quên mật khẩu?',
+  emailRequired: 'Vui lòng nhập email',
+  passwordRequired: 'Vui lòng nhập mật khẩu',
+}

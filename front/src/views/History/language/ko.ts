@@ -1,0 +1,51 @@
+export default {
+  title: '연습 기록',
+  subtitle: '학습 진행 상황 및 연습 기록 보기',
+  table: {
+    word: '단어',
+    translation: '번역',
+    practiceType: '유형',
+    result: '결과',
+    score: '점수',
+    timeSpent: '시간',
+    date: '날짜',
+    actions: '작업',
+  },
+  practiceTypes: {
+    flashcard: '플래시카드',
+    multiple_choice: '객관식',
+    typing: '타이핑',
+    listening: '듣기',
+  },
+  result: {
+    correct: '정답',
+    incorrect: '오답',
+  },
+  filter: {
+    all: '전체',
+    correct: '정답만',
+    incorrect: '오답만',
+    today: '오늘',
+    week: '이번 주',
+    month: '이번 달',
+  },
+  stats: {
+    totalPractices: '총 연습',
+    correctAnswers: '정답 수',
+    accuracy: '정확도',
+    totalScore: '총 점수',
+    averageTime: '평균 시간',
+  },
+  empty: {
+    title: '연습 기록 없음',
+    message: '연습을 시작하면 여기에 기록이 표시됩니다',
+    action: '연습 시작',
+  },
+  actions: {
+    viewVocabulary: '상세 보기',
+    practiceAgain: '다시 연습',
+    edit: '단어 수정',
+    delete: '기록 삭제',
+  },
+  confirmDelete: '이 연습 기록을 삭제하시겠습니까?',
+}

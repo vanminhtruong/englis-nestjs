@@ -1,0 +1,51 @@
+export default {
+  title: 'Lịch Sử Luyện Tập',
+  subtitle: 'Xem tiến độ học tập và hồ sơ luyện tập của bạn',
+  table: {
+    word: 'Từ Vựng',
+    translation: 'Dịch',
+    practiceType: 'Loại',
+    result: 'Kết Quả',
+    score: 'Điểm',
+    timeSpent: 'Thời Gian',
+    date: 'Ngày',
+    actions: 'Thao Tác',
+  },
+  practiceTypes: {
+    flashcard: 'Flashcard',
+    multiple_choice: 'Trắc Nghiệm',
+    typing: 'Nhập Từ',
+    listening: 'Nghe',
+  },
+  result: {
+    correct: 'Đúng',
+    incorrect: 'Sai',
+  },
+  filter: {
+    all: 'Tất Cả',
+    correct: 'Chỉ Đúng',
+    incorrect: 'Chỉ Sai',
+    today: 'Hôm Nay',
+    week: 'Tuần Này',
+    month: 'Tháng Này',
+  },
+  stats: {
+    totalPractices: 'Tổng Luyện Tập',
+    correctAnswers: 'Câu Đúng',
+    accuracy: 'Độ Chính Xác',
+    totalScore: 'Tổng Điểm',
+    averageTime: 'Thời Gian TB',
+  },
+  empty: {
+    title: 'Chưa Có Lịch Sử',
+    message: 'Bắt đầu luyện tập để xem lịch sử tại đây',
+    action: 'Bắt Đầu Luyện Tập',
+  },
+  actions: {
+    viewVocabulary: 'Xem Chi Tiết',
+    practiceAgain: 'Luyện Lại',
+    edit: 'Sửa Từ Vựng',
+    delete: 'Xóa Lịch Sử',
+  },
+  confirmDelete: 'Bạn có chắc chắn muốn xóa bản ghi lịch sử này?',
+}

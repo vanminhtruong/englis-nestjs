@@ -1,0 +1,51 @@
+export default {
+  title: 'Practice History',
+  subtitle: 'View your learning progress and practice records',
+  table: {
+    word: 'Word',
+    translation: 'Translation',
+    practiceType: 'Type',
+    result: 'Result',
+    score: 'Score',
+    timeSpent: 'Time',
+    date: 'Date',
+    actions: 'Actions',
+  },
+  practiceTypes: {
+    flashcard: 'Flashcard',
+    multiple_choice: 'Multiple Choice',
+    typing: 'Typing',
+    listening: 'Listening',
+  },
+  result: {
+    correct: 'Correct',
+    incorrect: 'Incorrect',
+  },
+  filter: {
+    all: 'All',
+    correct: 'Correct Only',
+    incorrect: 'Incorrect Only',
+    today: 'Today',
+    week: 'This Week',
+    month: 'This Month',
+  },
+  stats: {
+    totalPractices: 'Total Practices',
+    correctAnswers: 'Correct Answers',
+    accuracy: 'Accuracy',
+    totalScore: 'Total Score',
+    averageTime: 'Avg Time',
+  },
+  empty: {
+    title: 'No Practice History',
+    message: 'Start practicing to see your history here',
+    action: 'Start Practice',
+  },
+  actions: {
+    viewVocabulary: 'View Details',
+    practiceAgain: 'Practice Again',
+    edit: 'Edit Vocabulary',
+    delete: 'Delete History',
+  },
+  confirmDelete: 'Are you sure you want to delete this history record?',
+}
