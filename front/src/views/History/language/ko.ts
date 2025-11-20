@@ -48,4 +48,13 @@ export default {
     delete: '기록 삭제',
   },
   confirmDelete: '이 연습 기록을 삭제하시겠습니까?',
+  confirmDeleteMany: '선택한 {count}개의 기록을 삭제하시겠습니까?',
+  confirmDeleteAll: '모든 기록을 삭제하시겠습니까? 이 작업은 취소할 수 없습니다!',
+  exitedPractice: '연습 종료 {mode}',
+  incompletePractice: '미완료 연습 {mode}: {status} ({answered}/{total})',
+  selectAll: '모두 선택',
+  deleteSelected: '선택 항목 삭제',
+  deleteAll: '모두 삭제',
+  selected: '{count}개 선택됨',
+  deleteSuccess: '기록이 성공적으로 삭제되었습니다',
 }

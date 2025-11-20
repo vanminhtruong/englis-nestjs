@@ -3,6 +3,8 @@ import type { History, HistoryFilter } from '../../interface'
 import apiService from '../../../../services/api.service'
 import type { Ref } from 'vue'
 
+import { useToast } from '../../../../composables/useToast'
+
 export function useHistoryHandle(
   histories: any,
   statistics: any,
@@ -13,6 +15,8 @@ export function useHistoryHandle(
   page: { value: number },
   limit: { value: number },
 ) {
+  const toast = useToast()
+
   const loadHistory = async (p?: number) => {
     loading.value = true
     try {
@@ -37,13 +41,22 @@ export function useHistoryHandle(
   }
 
   const handleNewHistory = (history: History) => {
+    console.log('=== Received new history via WebSocket ===');
+    console.log('History:', history);
+
     // Check duplicate trước khi thêm
     const existingIndex = histories.value.findIndex((h: History) => h.id === history.id)
+    console.log('Existing index:', existingIndex);
+
     if (existingIndex === -1) {
       // Add new history to the beginning of the list
       histories.value.unshift(history)
+      console.log('History added to list, total:', histories.value.length);
+
       // Reload statistics to update counts
       loadStatistics()
+    } else {
+      console.log('History already exists, skipping');
     }
   }
 
@@ -66,11 +79,15 @@ export function useHistoryHandle(
   }
 
   const deleteHistory = async (id: string) => {
-    const result = await historyService.deleteHistory(id)
-    if (result.success) {
-      handleHistoryDeleted(id)
-    }
-    return result
+    toast.confirm(t('history.confirmDelete'), async () => {
+      const result = await historyService.deleteHistory(id)
+      if (result.success) {
+        handleHistoryDeleted(id)
+        toast.showSuccess(t('history.deleteSuccess'))
+      } else {
+        toast.showError(result.error || 'Failed to delete history')
+      }
+    }, { type: 'error', label: t('history.actions.delete') })
   }
 
   const setFilter = (newFilter: Partial<HistoryFilter>) => {
@@ -104,17 +121,46 @@ export function useHistoryHandle(
   }
 
   const handleDeleteVocabulary = async (vocabularyId: string, word?: string) => {
-    if (!confirm(t('history.confirmDelete') + (word ? ` "${word}"?` : '?'))) {
-      return
-    }
+    toast.confirm(t('history.confirmDelete') + (word ? ` "${word}"?` : '?'), async () => {
+      try {
+        await apiService.vocabulary.delete(vocabularyId)
+        await loadStatistics()
+        toast.showSuccess(t('history.deleteSuccess'))
+      } catch (error: any) {
+        console.error('Failed to delete vocabulary:', error)
+        toast.showError(error.response?.data?.message || 'Failed to delete vocabulary')
+      }
+    }, { type: 'error', label: t('history.actions.delete') })
+  }
 
-    try {
-      await apiService.vocabulary.delete(vocabularyId)
-      await loadStatistics()
-    } catch (error) {
-      console.error('Failed to delete vocabulary:', error)
-      alert('Failed to delete vocabulary')
-    }
+  const deleteManyHistories = (ids: string[], onSuccess?: () => void) => {
+    toast.confirm(t('history.confirmDeleteMany', { count: ids.length }), async () => {
+      const result = await historyService.deleteMany(ids)
+      if (result.success) {
+        // Remove deleted histories from list
+        ids.forEach(id => handleHistoryDeleted(id))
+        if (onSuccess) onSuccess()
+        toast.showSuccess(t('history.deleteSuccess'))
+      } else {
+        toast.showError(result.error || 'Failed to delete histories')
+      }
+    }, { type: 'error', label: t('history.actions.delete') })
+  }
+
+  const deleteAllHistories = (onSuccess?: () => void) => {
+    toast.confirm(t('history.confirmDeleteAll'), async () => {
+      const result = await historyService.deleteAll()
+      if (result.success) {
+        // Clear all histories and reload
+        histories.value = []
+        await loadHistory()
+        await loadStatistics()
+        if (onSuccess) onSuccess()
+        toast.showSuccess(t('history.deleteSuccess'))
+      } else {
+        toast.showError(result.error || 'Failed to delete all histories')
+      }
+    }, { type: 'error', label: t('history.actions.delete') })
   }
 
   return {
@@ -127,5 +173,7 @@ export function useHistoryHandle(
     formatTime,
     formatDate,
     handleDeleteVocabulary,
+    deleteManyHistories,
+    deleteAllHistories,
   }
 }

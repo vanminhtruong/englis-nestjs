@@ -48,4 +48,13 @@ export default {
     delete: 'Delete History',
   },
   confirmDelete: 'Are you sure you want to delete this history record?',
+  confirmDeleteMany: 'Are you sure you want to delete {count} selected records?',
+  confirmDeleteAll: 'Are you sure you want to delete ALL history? This action cannot be undone!',
+  exitedPractice: 'Exited practice {mode}',
+  incompletePractice: 'Incomplete practice {mode}: {status} ({answered}/{total})',
+  selectAll: 'Select all',
+  deleteSelected: 'Delete selected',
+  deleteAll: 'Delete all',
+  selected: '{count} selected',
+  deleteSuccess: 'History deleted successfully',
 }

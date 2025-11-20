@@ -46,19 +46,43 @@ export class HistoryService {
     }
   }
 
+  async deleteMany(ids: string[]): Promise<{ success: boolean; error?: string }> {
+    try {
+      await apiService.history.deleteMany(ids)
+      return { success: true }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to delete histories',
+      }
+    }
+  }
+
+  async deleteAll(): Promise<{ success: boolean; error?: string }> {
+    try {
+      await apiService.history.deleteAll()
+      return { success: true }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to delete all histories',
+      }
+    }
+  }
+
   setupWebSocketListeners(onNewHistory: (history: History) => void, onHistoryDeleted: (historyId: string) => void) {
     // Cleanup old listeners nếu có
     this.cleanupWebSocketListeners()
-    
+
     // Tạo và lưu callbacks mới
     this.historyCreatedCallback = (data: History) => {
       onNewHistory(data)
     }
-    
+
     this.historyDeletedCallback = (data: { historyId: string }) => {
       onHistoryDeleted(data.historyId)
     }
-    
+
     // Register listeners
     websocketService.on('history:created', this.historyCreatedCallback)
     websocketService.on('history:deleted', this.historyDeletedCallback)
@@ -69,7 +93,7 @@ export class HistoryService {
       websocketService.off('history:created', this.historyCreatedCallback)
       this.historyCreatedCallback = null
     }
-    
+
     if (this.historyDeletedCallback) {
       websocketService.off('history:deleted', this.historyDeletedCallback)
       this.historyDeletedCallback = null

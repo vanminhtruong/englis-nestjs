@@ -73,10 +73,10 @@ export default {
       apiClient.post('/vocabulary/move-by-date', data),
   },
 
-  // Practice endpoints
   practice: {
     submit: (data: any) => apiClient.post('/practice/submit', data),
     getModes: () => apiClient.get('/practice-modes'),
+    saveIncomplete: (data: any) => apiClient.post('/practice/save-incomplete', data),
   },
 
   // History endpoints (unified history for all activities)
@@ -84,6 +84,8 @@ export default {
     getAll: (params?: { page?: number; limit?: number }) => apiClient.get('/history', { params }),
     getStatistics: () => apiClient.get('/history/statistics'),
     delete: (id: string) => apiClient.delete(`/history/${id}`),
+    deleteMany: (ids: string[]) => apiClient.post('/history/delete-many', { ids }),
+    deleteAll: () => apiClient.delete('/history/all'),
   },
 
   // Category endpoints

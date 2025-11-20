@@ -1,14 +1,14 @@
 export default {
   title: 'Practice',
   subtitle: 'Practice your vocabulary',
-  
+
   modes: 'Practice Modes',
   flashcard: 'Flashcard',
   multipleChoice: 'Multiple Choice',
   typing: 'Typing',
   listening: 'Listening',
   imageGuess: 'Image Guess',
-  
+
   start: 'Start',
   next: 'Next',
   submit: 'Submit Answer',
@@ -16,7 +16,7 @@ export default {
   correct: 'Correct',
   incorrect: 'Incorrect',
   finish: 'Finish',
-  
+
   statistics: 'Statistics',
   totalPractices: 'Total Practices',
   correctAnswers: 'Correct Answers',
@@ -25,31 +25,31 @@ export default {
   totalScore: 'Total Score',
   totalTime: 'Total Time',
   averageTime: 'Average Time',
-  
+
   question: 'Question',
   yourAnswer: 'Your Answer',
   correctAnswer: 'Correct Answer',
   score: 'Score',
   timeSpent: 'Time Spent',
-  
+
   noVocabulary: 'No vocabulary to practice',
   congratulations: 'Congratulations!',
   practiceComplete: 'You have completed the practice',
   yourScore: 'Your Score',
-  
+
   whatIsMeaning: 'What is the meaning of this word?',
   typeTheWord: 'Type the corresponding word',
   selectCorrectAnswer: 'Select the correct answer',
   guessFromImage: 'Guess the word from the picture',
-  
+
   clickToReveal: 'Click to reveal the meaning',
   reveal: 'Reveal Answer',
   didYouKnow: 'Did you know this?',
   iKnew: 'I Knew',
   iDidntKnow: "I Didn't Know",
-  
+
   seconds: 'seconds',
-  
+
   // Timer and start
   practice: 'Practice',
   readyToStart: 'Ready to Start',
@@ -60,7 +60,7 @@ export default {
   tryAgain: 'Try Again',
   continueNext: 'Continue',
   noAnswer: 'No Answer',
-  
+
   // Date selection
   practiceByDate: 'Practice by Date',
   selectDateToPractice: 'Select a specific date to practice',
@@ -70,9 +70,18 @@ export default {
   addVocabularyFirst: 'Add some vocabulary first to practice by date',
   selectModeForDate: 'Select practice mode',
   words: 'words',
-  
+
   // Timeout modal
   timeUpMessage: 'You ran out of time. Better luck next time!',
   backToMenu: 'Back to Menu',
   clickToType: 'Click on the boxes and start typing',
+
+  // Exit confirmation
+  exitConfirmation: {
+    title: 'Confirm Exit',
+    message: 'Are you sure you want to exit the practice session?',
+    warning: 'If you exit now, you won\'t receive any points and your progress will be saved.',
+    continue: 'Continue',
+    exit: 'Exit',
+  },
 }

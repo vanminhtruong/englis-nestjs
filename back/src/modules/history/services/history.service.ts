@@ -8,7 +8,7 @@ export class HistoryService {
   constructor(
     private readonly historyRepository: HistoryRepository,
     private readonly websocketGateway: VocabularyWebSocketGateway,
-  ) {}
+  ) { }
 
   async create(createHistoryDto: CreateHistoryDto) {
     const history = await this.historyRepository.create(createHistoryDto);
@@ -33,8 +33,28 @@ export class HistoryService {
 
   async delete(id: string, userId: string) {
     await this.historyRepository.deleteById(id, userId);
-    
+
     // Emit real-time event
     this.websocketGateway.emitHistoryDeleted(id, userId);
+  }
+
+  async deleteMany(ids: string[], userId: string) {
+    // Delete each history individually and emit events
+    for (const id of ids) {
+      await this.historyRepository.deleteById(id, userId);
+      this.websocketGateway.emitHistoryDeleted(id, userId);
+    }
+  }
+
+  async deleteAll(userId: string) {
+    const histories = await this.historyRepository.findByUser(userId);
+
+    // Delete all histories and emit events
+    for (const history of histories) {
+      await this.historyRepository.deleteById(history.id, userId);
+      this.websocketGateway.emitHistoryDeleted(history.id, userId);
+    }
+
+    return histories.length;
   }
 }

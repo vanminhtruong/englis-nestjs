@@ -23,6 +23,7 @@ export function usePracticeState() {
   const loadingModes = ref(true) // Start with loading true
   const modesLoaded = ref(false) // Track if we've attempted to load
   const loadingPracticeData = ref(false) // Loading vocabulary for practice
+  const showExitConfirmModal = ref(false)
 
   const session = reactive<PracticeSession>({
     mode: 'flashcard',
@@ -101,8 +102,8 @@ export function usePracticeState() {
     hasAnsweredQuestion.value = false
     showWrongAnswerModal.value = false
     showTimeoutModal.value = false
-     answerEffectType.value = null
-     answerEffectKey.value = 0
+    answerEffectType.value = null
+    answerEffectKey.value = 0
     if (timerInterval.value) {
       clearInterval(timerInterval.value)
     }
@@ -118,7 +119,7 @@ export function usePracticeState() {
       if (timeLeft.value <= 0) {
         clearInterval(timerInterval.value)
         hasAnsweredQuestion.value = true
-        
+
         // Record as incorrect answer
         const question = session.questions[session.currentIndex]
         if (question) {
@@ -128,7 +129,7 @@ export function usePracticeState() {
             timeSpent: 30
           })
         }
-        
+
         // For image_guess mode, show timeout modal instead of auto-next
         if (session.mode === 'image_guess') {
           showTimeoutModal.value = true
@@ -167,6 +168,7 @@ export function usePracticeState() {
     modesLoaded,
     loadingPracticeData,
     showTimeoutModal,
+    showExitConfirmModal,
     session,
     currentQuestion,
     progress,

@@ -48,4 +48,13 @@ export default {
     delete: 'Xóa Lịch Sử',
   },
   confirmDelete: 'Bạn có chắc chắn muốn xóa bản ghi lịch sử này?',
+  confirmDeleteMany: 'Bạn có chắc chắn muốn xóa {count} bản ghi đã chọn?',
+  confirmDeleteAll: 'Bạn có chắc chắn muốn xóa TẤT CẢ lịch sử? Hành động này không thể hoàn tác!',
+  exitedPractice: 'Đã thoát luyện tập {mode}',
+  incompletePractice: 'Luyện tập chưa hoàn thành {mode}: {status} ({answered}/{total})',
+  selectAll: 'Chọn tất cả',
+  deleteSelected: 'Xóa đã chọn',
+  deleteAll: 'Xóa tất cả',
+  selected: '{count} đã chọn',
+  deleteSuccess: 'Xóa lịch sử thành công',
 }

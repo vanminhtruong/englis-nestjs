@@ -52,7 +52,7 @@ export class PracticeService {
     try {
       const response = await apiService.vocabulary.getByLearningDate()
       const dateGroup = response.data.find((item: any) => item.date === date)
-      
+
       if (!dateGroup) {
         return { success: false, error: 'No vocabularies found for this date' }
       }
@@ -97,6 +97,18 @@ export class PracticeService {
       return {
         success: false,
         error: error.response?.data?.message || 'Failed to submit practice',
+      }
+    }
+  }
+
+  async saveIncomplete(data: any) {
+    try {
+      const response = await apiService.practice.saveIncomplete(data)
+      return { success: true, data: response.data }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to save incomplete practice',
       }
     }
   }

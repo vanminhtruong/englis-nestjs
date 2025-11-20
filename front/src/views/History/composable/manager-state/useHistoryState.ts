@@ -26,10 +26,10 @@ export function useHistoryState() {
     if (filter.value.dateRange && filter.value.dateRange !== 'all') {
       const now = new Date()
       const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-      
+
       result = result.filter(h => {
         const historyDate = new Date(h.createdAt)
-        
+
         switch (filter.value.dateRange) {
           case 'today':
             return historyDate >= today
@@ -50,6 +50,15 @@ export function useHistoryState() {
     return result
   })
 
+  const selectedIds = ref<Set<string>>(new Set())
+
+  const isAllSelected = computed(() => {
+    return filteredHistories.value.length > 0 &&
+      filteredHistories.value.every(h => selectedIds.value.has(h.id))
+  })
+
+  const hasSelected = computed(() => selectedIds.value.size > 0)
+
   function setMeta(meta: { page: number; limit: number; total: number; pageCount: number }) {
     page.value = meta.page
     limit.value = meta.limit
@@ -59,6 +68,26 @@ export function useHistoryState() {
 
   function setPage(p: number) { page.value = p }
   function setLimit(l: number) { limit.value = l }
+
+  function toggleSelection(id: string) {
+    if (selectedIds.value.has(id)) {
+      selectedIds.value.delete(id)
+    } else {
+      selectedIds.value.add(id)
+    }
+  }
+
+  function toggleSelectAll() {
+    if (isAllSelected.value) {
+      selectedIds.value.clear()
+    } else {
+      filteredHistories.value.forEach(h => selectedIds.value.add(h.id))
+    }
+  }
+
+  function clearSelection() {
+    selectedIds.value.clear()
+  }
 
   return {
     histories,
@@ -70,8 +99,14 @@ export function useHistoryState() {
     pageCount,
     filter,
     filteredHistories,
+    selectedIds,
+    isAllSelected,
+    hasSelected,
     setMeta,
     setPage,
     setLimit,
+    toggleSelection,
+    toggleSelectAll,
+    clearSelection,
   }
 }

@@ -2,7 +2,9 @@ import {
   Controller,
   Get,
   Delete,
+  Post,
   Param,
+  Body,
   UseGuards,
   Request,
   Query,
@@ -13,7 +15,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 @Controller('history')
 @UseGuards(JwtAuthGuard)
 export class HistoryController {
-  constructor(private readonly historyService: HistoryService) {}
+  constructor(private readonly historyService: HistoryService) { }
 
   @Get()
   async getHistory(
@@ -38,6 +40,18 @@ export class HistoryController {
   @Get('statistics')
   async getStatistics(@Request() req) {
     return this.historyService.getStatistics(req.user.id);
+  }
+
+  @Post('delete-many')
+  async deleteMany(@Body('ids') ids: string[], @Request() req) {
+    await this.historyService.deleteMany(ids, req.user.id);
+    return { message: `${ids.length} histories deleted successfully` };
+  }
+
+  @Delete('all')
+  async deleteAll(@Request() req) {
+    const count = await this.historyService.deleteAll(req.user.id);
+    return { message: `All ${count} histories deleted successfully` };
   }
 
   @Delete(':id')

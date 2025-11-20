@@ -30,13 +30,13 @@ export function usePracticeHandle(
   const { locale } = useI18n()
   async function handleStartPractice(mode: PracticeMode) {
     if (!loadingPracticeData) return
-    
+
     console.log('Starting practice with mode:', mode)
     loadingPracticeData.value = true
     try {
       const result = await practiceService.getVocabulariesForPractice(10)
       console.log('Vocabulary API result:', result)
-      
+
       if (result.success && result.data && result.data.length > 0) {
         const questions: PracticeQuestion[] = result.data.map((v: any) => ({
           vocabularyId: v.id,
@@ -149,7 +149,7 @@ export function usePracticeHandle(
 
   async function loadAvailableDates() {
     if (!loadingDates || !availableDates) return
-    
+
     loadingDates.value = true
     try {
       const result = await practiceService.getAvailableDates()
@@ -183,13 +183,13 @@ export function usePracticeHandle(
 
   async function handleStartPracticeByDate(mode: PracticeMode, date: string) {
     if (!loadingPracticeData) return
-    
+
     console.log('Starting practice by date:', date, 'mode:', mode)
     loadingPracticeData.value = true
     try {
       const result = await practiceService.getVocabulariesByDate(date, 10)
       console.log('Vocabulary by date API result:', result)
-      
+
       if (result.success && result.data && result.data.length > 0) {
         const questions: PracticeQuestion[] = result.data.map((v: any) => ({
           vocabularyId: v.id,

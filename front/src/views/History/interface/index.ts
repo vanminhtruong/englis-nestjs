@@ -24,6 +24,8 @@ export interface History {
     score?: number
     timeSpent?: number
     userAnswer?: string
+    descriptionKey?: string
+    descriptionData?: any
   }
   description?: string
   createdAt: string
