@@ -45,6 +45,9 @@ export class Vocabulary {
   @Column({ type: 'text', nullable: true })
   exampleTranslation: string;
 
+  @Column({ type: 'text', nullable: true })
+  note: string;
+
   @Column({ nullable: true })
   image: string;
 

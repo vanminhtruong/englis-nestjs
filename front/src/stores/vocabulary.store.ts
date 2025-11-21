@@ -8,6 +8,7 @@ export interface Vocabulary {
   meaning: string
   example?: string
   exampleTranslation?: string
+  note?: string
   image?: string
   audio?: string
   difficulty: 'easy' | 'medium' | 'hard'

@@ -27,6 +27,10 @@ export class UpdateVocabularyDto {
 
   @IsString()
   @IsOptional()
+  note?: string;
+
+  @IsString()
+  @IsOptional()
   image?: string;
 
   @IsString()
