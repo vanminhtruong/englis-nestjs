@@ -11,7 +11,7 @@ export default {
   hard: '어려움',
   noVocabulary: '아직 어휘가 없습니다',
   addFirstVocabulary: '첫 번째 어휘를 추가하세요',
-  
+
   word: '단어',
   pronunciation: '발음',
   meaning: '의미',
@@ -20,26 +20,26 @@ export default {
   difficulty: '난이도',
   tags: '태그 (쉼표로 구분)',
   categories: '카테고리',
-  
+
   edit: '편집',
   delete: '삭제',
   save: '저장',
   cancel: '취소',
   close: '닫기',
-  
+
   createTitle: '새 어휘 추가',
   editTitle: '어휘 편집',
   deleteConfirm: '이 단어를 삭제하시겠습니까?',
-  
+
   new: '새로운',
   learning: '학습 중',
   familiar: '익숙함',
   mastered: '숙달',
-  
+
   totalWords: '총 단어 수',
   correctCount: '정답',
   incorrectCount: '오답',
-  
+
   speak: '발음',
   favorite: '즐겨찾기에 추가',
   unfavorite: '즐겨찾기에서 제거',
@@ -50,7 +50,7 @@ export default {
   noFavorites: '즐겨찾는 어휘가 없습니다',
   addFavoriteHint: '어휘 카드의 별 아이콘을 클릭하여 즐겨찾기에 추가하세요',
   goToVocabulary: '어휘로 이동',
-  
+
   // Image upload
   image: '이미지',
   uploadFile: '파일 업로드',
@@ -86,4 +86,13 @@ export default {
   loadVideo: '비디오 로드',
   removeVideo: '비디오 제거',
   noVideo: '비디오 없음',
+
+  // Note
+  note: {
+    title: '"{word}"에 대한 메모',
+    edit: '메모 편집',
+    add: '메모 추가',
+    placeholder: '여기에 생각을 적으세요...',
+    save: '메모 저장',
+  }
 }

@@ -38,9 +38,17 @@ import aboutEn from '../views/About/language/en'
 import aboutVi from '../views/About/language/vi'
 import aboutKo from '../views/About/language/ko'
 
+const getInitialLocale = () => {
+  const savedLocale = localStorage.getItem('locale')
+  if (savedLocale && ['vi', 'en', 'ko'].includes(savedLocale)) {
+    return savedLocale
+  }
+  return 'vi'
+}
+
 const i18n = createI18n({
   legacy: false,
-  locale: 'vi',
+  locale: getInitialLocale(),
   fallbackLocale: 'en',
   messages: {
     en: {

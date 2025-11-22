@@ -11,7 +11,7 @@ export default {
   hard: 'Hard',
   noVocabulary: 'No vocabulary yet',
   addFirstVocabulary: 'Add your first vocabulary',
-  
+
   word: 'Word',
   pronunciation: 'Pronunciation',
   meaning: 'Meaning',
@@ -20,26 +20,26 @@ export default {
   difficulty: 'Difficulty',
   tags: 'Tags (comma separated)',
   categories: 'Categories',
-  
+
   edit: 'Edit',
   delete: 'Delete',
   save: 'Save',
   cancel: 'Cancel',
   close: 'Close',
-  
+
   createTitle: 'Add New Vocabulary',
   editTitle: 'Edit Vocabulary',
   deleteConfirm: 'Are you sure you want to delete this word?',
-  
+
   new: 'New',
   learning: 'Learning',
   familiar: 'Familiar',
   mastered: 'Mastered',
-  
+
   totalWords: 'Total Words',
   correctCount: 'Correct',
   incorrectCount: 'Incorrect',
-  
+
   speak: 'Speak',
   favorite: 'Add to favorites',
   unfavorite: 'Remove from favorites',
@@ -50,7 +50,7 @@ export default {
   noFavorites: 'No favorite vocabulary yet',
   addFavoriteHint: 'Click the star icon on vocabulary cards to add them to favorites',
   goToVocabulary: 'Go to Vocabulary',
-  
+
   // Image upload
   image: 'Image',
   uploadFile: 'Upload File',
@@ -86,4 +86,13 @@ export default {
   loadVideo: 'Load Video',
   removeVideo: 'Remove Video',
   noVideo: 'No video available',
+
+  // Note
+  note: {
+    title: 'Note for "{word}"',
+    edit: 'Edit Note',
+    add: 'Add Note',
+    placeholder: 'Write your thoughts here...',
+    save: 'Save Note',
+  }
 }

@@ -30,11 +30,22 @@
             <h1
               class="text-5xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"
             >
-              {{ t("home.heroTitlePrefix") }}
-              <span
-                class="bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent"
-                >{{ t("home.heroTitleBrand") }}</span
-              >
+              <span class="block min-h-[1.2em]">
+                {{ displayedPrefix
+                }}<span
+                  v-if="typingPhase === 'prefix'"
+                  class="animate-pulse inline-block align-middle h-[0.8em] w-[2px] bg-current ml-1"
+                ></span>
+              </span>
+              <span class="block min-h-[1.2em]">
+                <span
+                  class="bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent"
+                  >{{ displayedBrand }}</span
+                ><span
+                  v-if="typingPhase !== 'prefix'"
+                  class="animate-pulse inline-block align-middle h-[0.8em] w-[2px] bg-primary-500 ml-1"
+                ></span>
+              </span>
             </h1>
             <p
               class="text-xl text-gray-600 dark:text-gray-400 mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0"
@@ -92,13 +103,26 @@
               >
                 <div class="bg-white dark:bg-black rounded-3xl p-8">
                   <div
-                    class="aspect-square bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-2xl flex items-center justify-center overflow-hidden relative"
+                    class="aspect-square bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-2xl flex items-center justify-center"
                   >
-                    <!-- Background Glow for the Cube -->
-                    <div
-                      class="absolute inset-0 bg-gradient-to-tr from-primary-500/10 to-secondary-500/10 animate-pulse"
-                    ></div>
-                    <MagicCube />
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="120"
+                      height="120"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1"
+                      class="text-primary-500 dark:text-primary-400"
+                    >
+                      <path
+                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                      ></path>
+                      <polyline
+                        points="3.27 6.96 12 12.01 20.73 6.96"
+                      ></polyline>
+                      <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
                   </div>
                   <h3
                     class="text-2xl font-bold text-gray-900 dark:text-white mt-6 mb-2"
@@ -372,13 +396,85 @@
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { defineAsyncComponent } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
 
-const MagicCube = defineAsyncComponent(
-  () => import("../../components/MagicCube.vue")
-);
+const { t, locale } = useI18n();
 
-const { t } = useI18n();
+const displayedPrefix = ref("");
+const displayedBrand = ref("");
+const typingPhase = ref<"prefix" | "brand" | "done">("prefix");
+let isComponentMounted = false;
+let currentLoopId = 0;
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const typeText = async () => {
+  const myLoopId = ++currentLoopId;
+
+  while (isComponentMounted && myLoopId === currentLoopId) {
+    const prefix = t("home.heroTitlePrefix");
+    const brand = t("home.heroTitleBrand");
+
+    // Reset
+    displayedPrefix.value = "";
+    displayedBrand.value = "";
+    typingPhase.value = "prefix";
+
+    // Type prefix
+    for (const char of prefix) {
+      if (!isComponentMounted || myLoopId !== currentLoopId) return;
+      displayedPrefix.value += char;
+      await sleep(50 + Math.random() * 30);
+    }
+
+    typingPhase.value = "brand";
+
+    // Type brand
+    for (const char of brand) {
+      if (!isComponentMounted || myLoopId !== currentLoopId) return;
+      displayedBrand.value += char;
+      await sleep(50 + Math.random() * 30);
+    }
+
+    typingPhase.value = "done";
+
+    // Wait 1.2s before deleting
+    await sleep(1200);
+
+    if (!isComponentMounted || myLoopId !== currentLoopId) return;
+
+    // Delete Brand
+    typingPhase.value = "brand";
+    while (displayedBrand.value.length > 0) {
+      if (!isComponentMounted || myLoopId !== currentLoopId) return;
+      displayedBrand.value = displayedBrand.value.slice(0, -1);
+      await sleep(30);
+    }
+
+    // Delete Prefix
+    typingPhase.value = "prefix";
+    while (displayedPrefix.value.length > 0) {
+      if (!isComponentMounted || myLoopId !== currentLoopId) return;
+      displayedPrefix.value = displayedPrefix.value.slice(0, -1);
+      await sleep(30);
+    }
+
+    await sleep(500);
+  }
+};
+
+watch(locale, () => {
+  typeText();
+});
+
+onMounted(() => {
+  isComponentMounted = true;
+  typeText();
+});
+
+onBeforeUnmount(() => {
+  isComponentMounted = false;
+});
 </script>
 
 <script lang="ts">

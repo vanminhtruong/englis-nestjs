@@ -22,11 +22,7 @@ export function useLanguage() {
     currentLocale.value = code
   }
 
-  // Load saved locale on init
-  const savedLocale = localStorage.getItem('locale')
-  if (savedLocale && ['vi', 'en', 'ko'].includes(savedLocale)) {
-    currentLocale.value = savedLocale
-  }
+
 
   return {
     t,

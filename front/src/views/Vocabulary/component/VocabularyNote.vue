@@ -3,7 +3,7 @@
     <button
       @click="isOpen = true"
       class="p-2 text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-all relative group"
-      :title="note ? 'Edit Note' : 'Add Note'"
+      :title="note ? t('vocabulary.note.edit') : t('vocabulary.note.add')"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -47,12 +47,13 @@
           <h3
             class="text-xl font-handwriting font-bold text-gray-800 dark:text-gray-100 mb-4 flex items-center gap-2"
           >
-            <span class="text-2xl">📝</span> Note for "{{ word }}"
+            <span class="text-2xl">📝</span>
+            {{ t("vocabulary.note.title", { word }) }}
           </h3>
 
           <textarea
             v-model="localNote"
-            placeholder="Write your thoughts here..."
+            :placeholder="t('vocabulary.note.placeholder')"
             class="w-full h-48 bg-transparent border-none resize-none focus:ring-0 text-gray-800 dark:text-gray-200 text-lg font-handwriting leading-[2rem] bg-[length:100%_2rem] bg-[linear-gradient(transparent_95%,rgba(0,0,0,0.2)_95%)] dark:bg-[linear-gradient(transparent_95%,rgba(255,255,255,0.2)_95%)]"
           ></textarea>
 
@@ -61,7 +62,7 @@
               @click="close"
               class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
             >
-              Cancel
+              {{ t("vocabulary.cancel") }}
             </button>
             <button
               @click="save"
@@ -69,7 +70,7 @@
               :disabled="isUpdating"
             >
               <span v-if="isUpdating" class="animate-spin">⌛</span>
-              Save Note
+              {{ t("vocabulary.note.save") }}
             </button>
           </div>
         </div>
@@ -80,6 +81,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useVocabularyNoteHandle } from "../composable/manager-handle/useVocabularyNoteHandle";
 
 export default defineComponent({
@@ -100,6 +102,7 @@ export default defineComponent({
   },
   emits: ["update"],
   setup(props, { emit }) {
+    const { t } = useI18n();
     const isOpen = ref(false);
     const localNote = ref(props.note || "");
     const { updateNote, isUpdating } = useVocabularyNoteHandle();
@@ -125,6 +128,7 @@ export default defineComponent({
     };
 
     return {
+      t,
       isOpen,
       localNote,
       isUpdating,

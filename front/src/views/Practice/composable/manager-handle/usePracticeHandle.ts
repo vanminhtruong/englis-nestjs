@@ -15,6 +15,7 @@ export function usePracticeHandle(
   stopTimer: () => void,
   showWrongAnswerModal: any,
   hasAnsweredQuestion: any,
+  resetSession: () => void,
   showPractice?: any,
   showDateSelection?: any,
   availableDates?: any,
@@ -26,6 +27,7 @@ export function usePracticeHandle(
   loadingPracticeData?: any,
   answerEffectType?: any,
   answerEffectKey?: any,
+  showExitConfirmModal?: any,
 ) {
   const { locale } = useI18n()
   async function handleStartPractice(mode: PracticeMode) {
@@ -258,6 +260,133 @@ export function usePracticeHandle(
     }
   }
 
+  function selectMode(mode: "flashcard" | "typing" | "image_guess") {
+    handleStartPractice(mode)
+  }
+
+  function handleModeClick(mode: any) {
+    if (mode.key === "practice_by_date") {
+      showDateSelectionMode()
+    } else {
+      selectMode(mode.key as "flashcard" | "typing" | "image_guess")
+    }
+  }
+
+  function startPracticeSession() {
+    if (!showPractice) return
+    showPractice.value = true
+    showAnswer.value = false
+    userAnswer.value = ""
+    hasAnsweredQuestion.value = false
+    showWrongAnswerModal.value = false
+    startTimer()
+  }
+
+  function handleNextQuestion() {
+    nextQuestion()
+    startTimer()
+  }
+
+  function handleContinueAfterWrong() {
+    showWrongAnswerModal.value = false
+    if (!isLastQuestion.value) {
+      nextQuestion()
+      startTimer()
+    } else {
+      showAnswer.value = true
+    }
+  }
+
+  function showDateSelectionMode() {
+    if (!showDateSelection) return
+    showDateSelection.value = true
+    loadAvailableDates()
+  }
+
+  function backToModeSelection() {
+    resetSession()
+    if (showDateSelection) {
+      showDateSelection.value = false
+    }
+    if (selectedDate) {
+      selectedDate.value = null
+    }
+  }
+
+  function selectDate(date: string) {
+    if (!selectedDate) return
+    selectedDate.value = date
+  }
+
+  function startPracticeByDate(mode: "flashcard" | "typing" | "image_guess") {
+    if (selectedDate && selectedDate.value) {
+      handleStartPracticeByDate(mode, selectedDate.value)
+    }
+  }
+
+  function onSubmitAnswer(value: string) {
+    userAnswer.value = (value ?? "").toString()
+    handleSubmitAnswer()
+  }
+
+  async function handleConfirmExit() {
+    try {
+      const answeredQuestions: any[] = []
+      session.answers.forEach((answer: any, vocabularyId: string) => {
+        answeredQuestions.push({
+          vocabularyId,
+          isCorrect: answer.isCorrect,
+          userAnswer: answer.answer,
+          timeSpent: answer.timeSpent,
+        })
+      })
+
+      if (
+        currentQuestion.value &&
+        !session.answers.has(currentQuestion.value.vocabularyId)
+      ) {
+        const timeSpent = Math.round(
+          (Date.now() - currentQuestionStartTime.value) / 1000
+        )
+        answeredQuestions.push({
+          vocabularyId: currentQuestion.value.vocabularyId,
+          isCorrect: false,
+          userAnswer: "",
+          timeSpent: Math.max(0, timeSpent),
+        })
+      }
+
+      console.log("Exiting practice with answers:", answeredQuestions)
+      console.log("Practice mode:", session.mode)
+
+      if (answeredQuestions.length > 0) {
+        const result = await practiceService.saveIncomplete({
+          practiceType: session.mode,
+          questions: answeredQuestions,
+          totalQuestions: session.questions.length,
+          answeredCount: answeredQuestions.length,
+          isComplete: false,
+        })
+        console.log("Save incomplete result:", result)
+      } else {
+        console.log("No answered questions to save")
+      }
+
+      if (showExitConfirmModal) {
+        showExitConfirmModal.value = false
+      }
+      stopTimer()
+      backToModeSelection()
+    } catch (error) {
+      console.error("Error saving incomplete practice:", error)
+      if (showExitConfirmModal) {
+        showExitConfirmModal.value = false
+      }
+      stopTimer()
+      backToModeSelection()
+    }
+  }
+
   return {
     handleStartPractice,
     handleSubmitAnswer,
@@ -266,5 +395,16 @@ export function usePracticeHandle(
     handleStartPracticeByDate,
     loadPracticeModes,
     checkAnswer,
+    selectMode,
+    handleModeClick,
+    startPracticeSession,
+    handleNextQuestion,
+    handleContinueAfterWrong,
+    showDateSelectionMode,
+    backToModeSelection,
+    selectDate,
+    startPracticeByDate,
+    onSubmitAnswer,
+    handleConfirmExit,
   }
 }

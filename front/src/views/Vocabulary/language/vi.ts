@@ -13,7 +13,7 @@ export default {
   hard: 'Khó',
   noVocabulary: 'Chưa có từ vựng nào',
   addFirstVocabulary: 'Thêm từ vựng đầu tiên của bạn',
-  
+
   // Form fields
   word: 'Từ',
   pronunciation: 'Phiên âm',
@@ -21,30 +21,30 @@ export default {
   example: 'Ví dụ',
   exampleTranslation: 'Dịch ví dụ',
   difficulty: 'Độ khó',
-  
+
   // Actions
   edit: 'Sửa',
   delete: 'Xóa',
   save: 'Lưu',
   cancel: 'Hủy',
   close: 'Đóng',
-  
+
   // Modal
   createTitle: 'Thêm từ vựng mới',
   editTitle: 'Chỉnh sửa từ vựng',
   deleteConfirm: 'Bạn có chắc muốn xóa từ này?',
-  
+
   // Mastery levels
   new: 'Mới',
   learning: 'Đang học',
   familiar: 'Quen thuộc',
   mastered: 'Thành thạo',
-  
+
   // Stats
   totalWords: 'Tổng số từ',
   correctCount: 'Đúng',
   incorrectCount: 'Sai',
-  
+
   // Features
   speak: 'Phát âm',
   favorite: 'Thêm vào yêu thích',
@@ -56,7 +56,7 @@ export default {
   noFavorites: 'Chưa có từ vựng yêu thích',
   addFavoriteHint: 'Nhấn vào biểu tượng ngôi sao trên thẻ từ vựng để thêm vào yêu thích',
   goToVocabulary: 'Đến Từ vựng',
-  
+
   // Image upload
   image: 'Hình ảnh',
   uploadFile: 'Tải lên',
@@ -92,4 +92,13 @@ export default {
   loadVideo: 'Tải Video',
   removeVideo: 'Xóa Video',
   noVideo: 'Không có video',
+
+  // Note
+  note: {
+    title: 'Ghi chú cho "{word}"',
+    edit: 'Sửa ghi chú',
+    add: 'Thêm ghi chú',
+    placeholder: 'Viết suy nghĩ của bạn ở đây...',
+    save: 'Lưu ghi chú',
+  }
 }
