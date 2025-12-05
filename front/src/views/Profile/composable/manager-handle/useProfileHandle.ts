@@ -54,9 +54,46 @@ export function useProfileHandle(
     authStore.updateUser(updated)
   }
 
+  const handleExport = async () => {
+    const result = await profileService.exportData()
+    if (result.success) {
+      showSuccess(t('profile.messages.exportSuccess') || 'Data exported successfully')
+    } else {
+      showError(result.error || t('profile.messages.exportError') || 'Failed to export data')
+    }
+  }
+
+  const handleImport = async (file: File) => {
+    setLoading(true)
+    const result = await profileService.importData(file)
+    if (result.success) {
+      if (result.noChanges) {
+        showError(t('profile.messages.importNoChanges') || 'This data already exists')
+      } else {
+        const stats = result.stats
+        if (stats) {
+          const statsMessage = t('profile.messages.importStats', {
+            new: stats.newVocabularies,
+            updated: stats.updatedVocabularies,
+            skipped: stats.skippedVocabularies,
+          })
+          showSuccess(`${t('profile.messages.importSuccess')}. ${statsMessage}`)
+        } else {
+          showSuccess(t('profile.messages.importSuccess') || 'Data imported successfully')
+        }
+        await loadProfile()
+      }
+    } else {
+      showError(result.error || t('profile.messages.importError') || 'Failed to import data')
+    }
+    setLoading(false)
+  }
+
   return {
     loadProfile,
     handleSave,
     handleProfileUpdatedFromWS,
+    handleExport,
+    handleImport,
   }
 }

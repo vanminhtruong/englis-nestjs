@@ -3,6 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { User } from '../../entities/user.entity';
+import { Vocabulary } from '../../entities/vocabulary.entity';
+import { PracticeHistory } from '../../entities/practice-history.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './services/auth.service';
 import { AuthHashService } from './services/auth-hash.service';
@@ -13,7 +15,7 @@ import { WebsocketModule } from '../websocket/websocket.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, Vocabulary, PracticeHistory]),
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'your-secret-key-here',
@@ -31,4 +33,4 @@ import { WebsocketModule } from '../websocket/websocket.module';
   ],
   exports: [AuthService, JwtStrategy, UserRepository],
 })
-export class AuthModule {}
+export class AuthModule { }

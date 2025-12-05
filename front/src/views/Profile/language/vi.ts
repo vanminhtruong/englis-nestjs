@@ -1,6 +1,8 @@
 export default {
   title: 'Hồ sơ',
   subtitle: 'Quản lý thông tin cá nhân và tuỳ chọn của bạn',
+  exportData: 'Xuất dữ liệu',
+  importData: 'Nhập dữ liệu',
   sections: {
     overview: 'Tổng quan',
     accountInfo: 'Thông tin tài khoản',
@@ -25,5 +27,11 @@ export default {
   messages: {
     updateSuccess: 'Cập nhật hồ sơ thành công',
     updateError: 'Cập nhật hồ sơ thất bại',
+    exportSuccess: 'Xuất dữ liệu thành công',
+    exportError: 'Xuất dữ liệu thất bại',
+    importSuccess: 'Nhập dữ liệu thành công',
+    importError: 'Nhập dữ liệu thất bại',
+    importNoChanges: 'Dữ liệu này đã tồn tại rồi',
+    importStats: 'Đã thêm {new} từ mới, cập nhật {updated} từ, bỏ qua {skipped} từ trùng lặp',
   },
 }

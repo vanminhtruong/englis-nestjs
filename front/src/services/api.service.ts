@@ -50,6 +50,13 @@ export default {
       apiClient.put('/auth/categories-layout', { layout }),
     recalculateWords: () => apiClient.post('/auth/recalculate-words'),
     updateProfile: (data: any) => apiClient.put('/auth/profile', data),
+    exportData: () => apiClient.get('/auth/export', { responseType: 'blob' }),
+    importData: (formData: FormData) =>
+      apiClient.post('/auth/import', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }),
   },
 
   // Vocabulary endpoints

@@ -12,6 +12,7 @@ import { CategoryModule } from './modules/category/category.module';
 import { HistoryModule } from './modules/history/history.module';
 import { TagModule } from './modules/tag/tag.module';
 import { VoiceModule } from './modules/voice/voice.module';
+import { LearningProgressModule } from './modules/learning-progress/learning-progress.module';
 
 @Module({
   imports: [
@@ -25,8 +26,9 @@ import { VoiceModule } from './modules/voice/voice.module';
     HistoryModule,
     TagModule,
     VoiceModule,
+    LearningProgressModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

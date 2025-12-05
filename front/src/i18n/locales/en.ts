@@ -11,7 +11,7 @@ export default {
     success: 'Success',
     avatarPreview: 'Avatar Preview',
   },
-  
+
   header: {
     home: 'Home',
     vocabulary: 'Vocabulary',
@@ -23,6 +23,7 @@ export default {
     about: 'About',
     favorites: 'Favorites',
     history: 'Practice History',
+    learningProgress: 'Learning Progress',
     profile: 'Profile',
     voiceSettings: 'Voice settings',
     login: 'Login',
@@ -31,7 +32,7 @@ export default {
     words: 'words',
     language: 'Language',
   },
-  
+
   footer: {
     brandTitle: 'VocabMaster',
     brandDescription: 'Your smart vocabulary trainer. Learn, review, and master words across multiple languages.',

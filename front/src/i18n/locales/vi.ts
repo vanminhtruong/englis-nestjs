@@ -11,7 +11,7 @@ export default {
     success: 'Thành công',
     avatarPreview: 'Xem trước Avatar',
   },
-  
+
   header: {
     home: 'Trang chủ',
     vocabulary: 'Từ vựng',
@@ -23,6 +23,7 @@ export default {
     about: 'Giới thiệu',
     favorites: 'Yêu thích',
     history: 'Lịch Sử Luyện Tập',
+    learningProgress: 'Tiến độ học',
     profile: 'Hồ sơ',
     voiceSettings: 'Cài đặt giọng nói',
     login: 'Đăng nhập',
@@ -31,7 +32,7 @@ export default {
     words: 'từ',
     language: 'Ngôn ngữ',
   },
-  
+
   footer: {
     brandTitle: 'VocabMaster',
     brandDescription: 'Trợ lý luyện từ vựng thông minh. Học, ôn tập và làm chủ từ vựng đa ngôn ngữ.',

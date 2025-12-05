@@ -8,7 +8,7 @@ export class UserRepository {
   constructor(
     @InjectRepository(User)
     private readonly repository: Repository<User>,
-  ) {}
+  ) { }
 
   async findByEmail(email: string): Promise<User | null> {
     return this.repository.findOne({ where: { email } });
@@ -16,6 +16,13 @@ export class UserRepository {
 
   async findById(id: string): Promise<User | null> {
     return this.repository.findOne({ where: { id } });
+  }
+
+  async findByIdWithRelations(id: string): Promise<User | null> {
+    return this.repository.findOne({
+      where: { id },
+      relations: ['vocabularies', 'practiceHistories', 'practiceHistories.vocabulary'],
+    });
   }
 
   async create(userData: Partial<User>): Promise<User> {
@@ -47,9 +54,9 @@ export class UserRepository {
       .from('vocabularies', 'vocabulary')
       .where('vocabulary.userId = :userId', { userId: id })
       .getRawOne();
-    
+
     const totalWords = parseInt(vocabularyCount.count) || 0;
-    
+
     await this.repository.update(id, { totalWords });
   }
 }

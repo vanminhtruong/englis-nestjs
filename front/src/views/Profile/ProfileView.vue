@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-white dark:bg-black p-4 md:p-8">
     <div class="max-w-5xl mx-auto">
-      <ProfileHeader :t="t" />
+      <ProfileHeader :t="t" @export="handleExport" @import="handleImport" />
 
       <div v-if="loading" class="flex items-center justify-center py-16">
         <div
@@ -53,8 +53,13 @@ mergeLocaleMessage("ko", { profile: koLang });
 const { profile, loading, saving, form, setProfile, setLoading, setSaving } =
   useProfileState();
 
-const { loadProfile, handleSave, handleProfileUpdatedFromWS } =
-  useProfileHandle(profile, form, setProfile, setLoading, setSaving);
+const {
+  loadProfile,
+  handleSave,
+  handleProfileUpdatedFromWS,
+  handleExport,
+  handleImport,
+} = useProfileHandle(profile, form, setProfile, setLoading, setSaving);
 
 useProfileMount(loadProfile, handleProfileUpdatedFromWS);
 </script>

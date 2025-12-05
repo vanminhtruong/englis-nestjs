@@ -6,7 +6,12 @@ import {
   Put,
   UseGuards,
   Request,
+  Res,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from './services/auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -20,7 +25,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly websocketGateway: VocabularyWebSocketGateway,
-  ) {}
+  ) { }
 
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
@@ -106,5 +111,27 @@ export class AuthController {
       id: updatedUser.id,
       vocabularyLayout: updatedUser.vocabularyLayout || 'grid',
     };
+  }
+
+  @Get('export')
+  @UseGuards(JwtAuthGuard)
+  async exportData(@Request() req, @Res() res: Response) {
+    const buffer = await this.authService.exportUserData(req.user.id);
+
+    res.set({
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': 'attachment; filename="profile_export.xlsx"',
+      'Content-Length': buffer.length,
+    });
+
+    res.end(buffer);
+  }
+
+  @Post('import')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async importData(@Request() req, @UploadedFile() file: Express.Multer.File) {
+    return this.authService.importUserData(req.user.id, file);
   }
 }

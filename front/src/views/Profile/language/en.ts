@@ -1,6 +1,8 @@
 export default {
   title: 'Profile',
   subtitle: 'Manage your personal information and preferences',
+  exportData: 'Export Data',
+  importData: 'Import Data',
   sections: {
     overview: 'Overview',
     accountInfo: 'Account Information',
@@ -25,5 +27,11 @@ export default {
   messages: {
     updateSuccess: 'Profile updated successfully',
     updateError: 'Failed to update profile',
+    exportSuccess: 'Data exported successfully',
+    exportError: 'Failed to export data',
+    importSuccess: 'Data imported successfully',
+    importError: 'Failed to import data',
+    importNoChanges: 'This data already exists',
+    importStats: 'Added {new} new words, updated {updated} words, skipped {skipped} duplicates',
   },
 }

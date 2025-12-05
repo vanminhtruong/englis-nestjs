@@ -11,7 +11,7 @@ export default {
     success: '성공',
     avatarPreview: '아바타 미리보기',
   },
-  
+
   header: {
     home: '홈',
     vocabulary: '어휘',
@@ -23,6 +23,7 @@ export default {
     about: '소개',
     favorites: '즐겨찾기',
     history: '연습 기록',
+    learningProgress: '학습 진척도',
     profile: '프로필',
     voiceSettings: '음성 설정',
     login: '로그인',
@@ -31,7 +32,7 @@ export default {
     words: '단어',
     language: '언어',
   },
-  
+
   footer: {
     brandTitle: 'VocabMaster',
     brandDescription: '스마트 어휘 트레이너. 여러 언어의 단어를 배우고, 복습하고, 마스터하세요.',

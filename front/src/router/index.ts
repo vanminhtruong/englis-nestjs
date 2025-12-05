@@ -86,6 +86,12 @@ const router = createRouter({
       name: 'about',
       component: () => import('../views/About/AboutView.vue'),
     },
+    {
+      path: '/learning-progress',
+      name: 'learning-progress',
+      component: () => import('../views/LearningProgress/LearningProgressView.vue'),
+      meta: { requiresAuth: true },
+    },
   ],
 })
 
