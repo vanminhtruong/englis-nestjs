@@ -3,13 +3,13 @@ import { ref } from 'vue'
 export function useModalState() {
   const showDetailModal = ref(false)
   const selectedVocabulary = ref(null)
-  
+
   const imagePreview = ref({
     visible: false,
     src: '',
     alt: '',
   })
-  
+
   const videoPreview = ref({
     visible: false,
     src: '',

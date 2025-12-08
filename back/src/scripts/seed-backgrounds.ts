@@ -1,0 +1,596 @@
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from '../app.module';
+import { BackgroundService } from '../modules/background/services/background.service';
+
+async function seedBackgrounds() {
+    const app = await NestFactory.createApplicationContext(AppModule);
+    const backgroundService = app.get(BackgroundService);
+
+    const backgrounds = [
+        // 🌸 Nature & Scenery
+        {
+            name: 'Sunset Beach',
+            url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80',
+            category: 'nature',
+            icon: '🏖️',
+            color: '#ff6b35',
+            sortOrder: 1,
+        },
+        {
+            name: 'Mountain Lake',
+            url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80',
+            category: 'nature',
+            icon: '🏔️',
+            color: '#4ecdc4',
+            sortOrder: 2,
+        },
+        {
+            name: 'Cherry Blossoms',
+            url: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1920&q=80',
+            category: 'nature',
+            icon: '🌸',
+            color: '#ffb6c1',
+            sortOrder: 3,
+        },
+        {
+            name: 'Forest Path',
+            url: 'https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80',
+            category: 'nature',
+            icon: '🌲',
+            color: '#228b22',
+            sortOrder: 4,
+        },
+        {
+            name: 'Northern Lights',
+            url: 'https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1920&q=80',
+            category: 'nature',
+            icon: '🌌',
+            color: '#00ff88',
+            sortOrder: 5,
+        },
+        {
+            name: 'Tropical Paradise',
+            url: 'https://images.unsplash.com/photo-1559827291-72ee739d0d9a?w=1920&q=80',
+            category: 'nature',
+            icon: '🌴',
+            color: '#00bcd4',
+            sortOrder: 6,
+        },
+        {
+            name: 'Lavender Fields',
+            url: 'https://images.unsplash.com/photo-1499002238440-d264edd596ec?w=1920&q=80',
+            category: 'nature',
+            icon: '💜',
+            color: '#9b59b6',
+            sortOrder: 7,
+        },
+        {
+            name: 'Ocean Waves',
+            url: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920&q=80',
+            category: 'nature',
+            icon: '🌊',
+            color: '#3498db',
+            sortOrder: 8,
+        },
+
+        // 🌆 City & Architecture
+        {
+            name: 'Night City',
+            url: 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1920&q=80',
+            category: 'city',
+            icon: '🌆',
+            color: '#1a1a2e',
+            sortOrder: 10,
+        },
+        {
+            name: 'Tokyo Lights',
+            url: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=1920&q=80',
+            category: 'city',
+            icon: '🗼',
+            color: '#ff4757',
+            sortOrder: 11,
+        },
+        {
+            name: 'Neon Streets',
+            url: 'https://images.unsplash.com/photo-1545486332-9e0999c535b2?w=1920&q=80',
+            category: 'city',
+            icon: '✨',
+            color: '#e91e63',
+            sortOrder: 12,
+        },
+        {
+            name: 'Kyoto Temple',
+            url: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1920&q=80',
+            category: 'city',
+            icon: '⛩️',
+            color: '#d32f2f',
+            sortOrder: 13,
+        },
+
+        // 🎨 Abstract & Artistic
+        {
+            name: 'Gradient Dream',
+            url: 'https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1920&q=80',
+            category: 'abstract',
+            icon: '🎨',
+            color: '#667eea',
+            sortOrder: 20,
+        },
+        {
+            name: 'Purple Aurora',
+            url: 'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1920&q=80',
+            category: 'abstract',
+            icon: '💫',
+            color: '#764ba2',
+            sortOrder: 21,
+        },
+        {
+            name: 'Colorful Smoke',
+            url: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920&q=80',
+            category: 'abstract',
+            icon: '🌈',
+            color: '#ff6b6b',
+            sortOrder: 22,
+        },
+        {
+            name: 'Geometric Blue',
+            url: 'https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?w=1920&q=80',
+            category: 'abstract',
+            icon: '🔷',
+            color: '#2980b9',
+            sortOrder: 23,
+        },
+        {
+            name: 'Pastel Waves',
+            url: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1920&q=80',
+            category: 'abstract',
+            icon: '🌊',
+            color: '#6dd5fa',
+            sortOrder: 24,
+        },
+        {
+            name: 'Dark Nebula',
+            url: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=1920&q=80',
+            category: 'abstract',
+            icon: '🌑',
+            color: '#2c3e50',
+            sortOrder: 25,
+        },
+
+        // 📚 Study & Focus
+        {
+            name: 'Cozy Library',
+            url: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=1920&q=80',
+            category: 'study',
+            icon: '📚',
+            color: '#8b4513',
+            sortOrder: 30,
+        },
+        {
+            name: 'Coffee & Book',
+            url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=1920&q=80',
+            category: 'study',
+            icon: '☕',
+            color: '#6f4e37',
+            sortOrder: 31,
+        },
+        {
+            name: 'Minimalist Desk',
+            url: 'https://images.unsplash.com/photo-1488998427799-e3362cec87c3?w=1920&q=80',
+            category: 'study',
+            icon: '🖥️',
+            color: '#95a5a6',
+            sortOrder: 32,
+        },
+        {
+            name: 'Rainy Window',
+            url: 'https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?w=1920&q=80',
+            category: 'study',
+            icon: '🌧️',
+            color: '#34495e',
+            sortOrder: 33,
+        },
+
+        // 🌙 Dark & Minimal
+        {
+            name: 'Dark Minimal',
+            url: 'https://images.unsplash.com/photo-1614850523459-c2f4c699c52e?w=1920&q=80',
+            category: 'minimal',
+            icon: '🌑',
+            color: '#121212',
+            sortOrder: 40,
+        },
+        {
+            name: 'Starry Night',
+            url: 'https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=1920&q=80',
+            category: 'minimal',
+            icon: '⭐',
+            color: '#0c0c0c',
+            sortOrder: 41,
+        },
+        {
+            name: 'Space Galaxy',
+            url: 'https://images.unsplash.com/photo-1464802686167-b939a6910659?w=1920&q=80',
+            category: 'minimal',
+            icon: '🌌',
+            color: '#1a1a3e',
+            sortOrder: 42,
+        },
+        {
+            name: 'Moon Light',
+            url: 'https://images.unsplash.com/photo-1532767153582-b1a0e5145009?w=1920&q=80',
+            category: 'minimal',
+            icon: '🌙',
+            color: '#2c3e50',
+            sortOrder: 43,
+        },
+
+        // 🎮 Anime & Illustration
+        {
+            name: 'Lo-Fi Cafe',
+            url: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1920&q=80',
+            category: 'aesthetic',
+            icon: '🎵',
+            color: '#ff9a9e',
+            sortOrder: 50,
+        },
+        {
+            name: 'Vintage Vibes',
+            url: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80',
+            category: 'aesthetic',
+            icon: '📻',
+            color: '#dda0dd',
+            sortOrder: 51,
+        },
+        {
+            name: 'Botanical Garden',
+            url: 'https://images.unsplash.com/photo-1520412099551-62b6bafeb5bb?w=1920&q=80',
+            category: 'aesthetic',
+            icon: '🌿',
+            color: '#27ae60',
+            sortOrder: 52,
+        },
+        {
+            name: 'Cozy Autumn',
+            url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=80',
+            category: 'aesthetic',
+            icon: '🍂',
+            color: '#d35400',
+            sortOrder: 53,
+        },
+
+        // 🌴 Los Angeles (6 ảnh)
+        {
+            name: 'LA Skyline',
+            url: 'https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?w=1920&q=80',
+            category: 'losangeles',
+            icon: '🌴',
+            color: '#ff6b35',
+            sortOrder: 60,
+        },
+        {
+            name: 'Hollywood Sign',
+            url: 'https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=1920&q=80',
+            category: 'losangeles',
+            icon: '🎬',
+            color: '#e74c3c',
+            sortOrder: 61,
+        },
+        {
+            name: 'Santa Monica Pier',
+            url: 'https://images.unsplash.com/photo-1534190760961-74e8c1c5c3da?w=1920&q=80',
+            category: 'losangeles',
+            icon: '🎡',
+            color: '#3498db',
+            sortOrder: 62,
+        },
+        {
+            name: 'Venice Beach',
+            url: 'https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?w=1920&q=80',
+            category: 'losangeles',
+            icon: '🏖️',
+            color: '#1abc9c',
+            sortOrder: 63,
+        },
+        {
+            name: 'LA Downtown Night',
+            url: 'https://images.unsplash.com/photo-1580655653885-65763b2597d0?w=1920&q=80',
+            category: 'losangeles',
+            icon: '🌃',
+            color: '#9b59b6',
+            sortOrder: 64,
+        },
+        {
+            name: 'Griffith Observatory',
+            url: 'https://images.unsplash.com/photo-1581373449483-37449f962b6c?w=1920&q=80',
+            category: 'losangeles',
+            icon: '🔭',
+            color: '#2c3e50',
+            sortOrder: 65,
+        },
+
+        // 🇰🇷 Seoul (6 ảnh)
+        {
+            name: 'Seoul Tower',
+            url: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?w=1920&q=80',
+            category: 'seoul',
+            icon: '🗼',
+            color: '#e91e63',
+            sortOrder: 70,
+        },
+        {
+            name: 'Gyeongbokgung Palace',
+            url: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?w=1920&q=80',
+            category: 'seoul',
+            icon: '🏯',
+            color: '#d32f2f',
+            sortOrder: 71,
+        },
+        {
+            name: 'Hongdae Street',
+            url: 'https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=1920&q=80',
+            category: 'seoul',
+            icon: '🎸',
+            color: '#ff4081',
+            sortOrder: 72,
+        },
+        {
+            name: 'Bukchon Hanok',
+            url: 'https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=1920&q=80',
+            category: 'seoul',
+            icon: '🏠',
+            color: '#795548',
+            sortOrder: 73,
+        },
+        {
+            name: 'Myeongdong Night',
+            url: 'https://images.unsplash.com/photo-1546874177-9e664107314e?w=1920&q=80',
+            category: 'seoul',
+            icon: '🛍️',
+            color: '#ff5722',
+            sortOrder: 74,
+        },
+        {
+            name: 'Han River',
+            url: 'https://images.unsplash.com/photo-1601621915196-2621bfb0cd6e?w=1920&q=80',
+            category: 'seoul',
+            icon: '🌊',
+            color: '#03a9f4',
+            sortOrder: 75,
+        },
+
+        // 🗽 New York (6 ảnh)
+        {
+            name: 'NYC Skyline',
+            url: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1920&q=80',
+            category: 'newyork',
+            icon: '🏙️',
+            color: '#1a1a2e',
+            sortOrder: 80,
+        },
+        {
+            name: 'Times Square',
+            url: 'https://images.unsplash.com/photo-1560972550-aba3456b5564?w=1920&q=80',
+            category: 'newyork',
+            icon: '🎭',
+            color: '#ff4757',
+            sortOrder: 81,
+        },
+        {
+            name: 'Brooklyn Bridge',
+            url: 'https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?w=1920&q=80',
+            category: 'newyork',
+            icon: '🌉',
+            color: '#747d8c',
+            sortOrder: 82,
+        },
+        {
+            name: 'Central Park',
+            url: 'https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1920&q=80',
+            category: 'newyork',
+            icon: '🌳',
+            color: '#2ed573',
+            sortOrder: 83,
+        },
+        {
+            name: 'Statue of Liberty',
+            url: 'https://images.unsplash.com/photo-1485738422979-f5c462d49f74?w=1920&q=80',
+            category: 'newyork',
+            icon: '🗽',
+            color: '#26de81',
+            sortOrder: 84,
+        },
+        {
+            name: 'Manhattan Night',
+            url: 'https://images.unsplash.com/photo-1522083165195-3424ed129620?w=1920&q=80',
+            category: 'newyork',
+            icon: '🌃',
+            color: '#2f3542',
+            sortOrder: 85,
+        },
+
+        // 🎄 Christmas (9 ảnh)
+        {
+            name: 'Christmas Tree',
+            url: 'https://images.unsplash.com/photo-1543934638-bd2e138430c4?w=1920&q=80',
+            category: 'christmas',
+            icon: '🎄',
+            color: '#27ae60',
+            sortOrder: 90,
+        },
+        {
+            name: 'Christmas Lights',
+            url: 'https://images.unsplash.com/photo-1482517967863-00e15c9b44be?w=1920&q=80',
+            category: 'christmas',
+            icon: '✨',
+            color: '#f1c40f',
+            sortOrder: 91,
+        },
+        {
+            name: 'Snowy Christmas',
+            url: 'https://images.unsplash.com/photo-1544117519-31a4b719223d?w=1920&q=80',
+            category: 'christmas',
+            icon: '❄️',
+            color: '#ecf0f1',
+            sortOrder: 92,
+        },
+        {
+            name: 'Christmas Gifts',
+            url: 'https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=1920&q=80',
+            category: 'christmas',
+            icon: '🎁',
+            color: '#e74c3c',
+            sortOrder: 93,
+        },
+        {
+            name: 'Hot Chocolate',
+            url: 'https://images.unsplash.com/photo-1512474932049-78ac69ede12c?w=1920&q=80',
+            category: 'christmas',
+            icon: '☕',
+            color: '#8b4513',
+            sortOrder: 94,
+        },
+        {
+            name: 'Christmas Village',
+            url: 'https://images.unsplash.com/photo-1545622783-b3e021430fee?w=1920&q=80',
+            category: 'christmas',
+            icon: '🏘️',
+            color: '#2c3e50',
+            sortOrder: 95,
+        },
+        {
+            name: 'Santa Claus',
+            url: 'https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?w=1920&q=80',
+            category: 'christmas',
+            icon: '🎅',
+            color: '#c0392b',
+            sortOrder: 96,
+        },
+        {
+            name: 'Christmas Cookies',
+            url: 'https://images.unsplash.com/photo-1481391319762-47dff72954d9?w=1920&q=80',
+            category: 'christmas',
+            icon: '🍪',
+            color: '#d4a574',
+            sortOrder: 97,
+        },
+        {
+            name: 'Christmas Market',
+            url: 'https://images.unsplash.com/photo-1512389098783-66b81f86e199?w=1920&q=80',
+            category: 'christmas',
+            icon: '🎪',
+            color: '#9b59b6',
+            sortOrder: 98,
+        },
+
+        // 🐰 Easter (9 ảnh)
+        {
+            name: 'Easter Eggs',
+            url: 'https://images.unsplash.com/photo-1521967906867-14ec9d64bee8?w=1920&q=80',
+            category: 'easter',
+            icon: '🥚',
+            color: '#ff6b81',
+            sortOrder: 100,
+        },
+        {
+            name: 'Easter Bunny',
+            url: 'https://images.unsplash.com/photo-1522771930-78848d9293e8?w=1920&q=80',
+            category: 'easter',
+            icon: '🐰',
+            color: '#dfe6e9',
+            sortOrder: 101,
+        },
+        {
+            name: 'Spring Flowers',
+            url: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1920&q=80',
+            category: 'easter',
+            icon: '🌷',
+            color: '#fd79a8',
+            sortOrder: 102,
+        },
+        {
+            name: 'Easter Basket',
+            url: 'https://images.unsplash.com/photo-1457301353672-324d6d14f471?w=1920&q=80',
+            category: 'easter',
+            icon: '🧺',
+            color: '#a29bfe',
+            sortOrder: 103,
+        },
+        {
+            name: 'Pastel Colors',
+            url: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=1920&q=80',
+            category: 'easter',
+            icon: '🎨',
+            color: '#74b9ff',
+            sortOrder: 104,
+        },
+        {
+            name: 'Cherry Blossom Easter',
+            url: 'https://images.unsplash.com/photo-1522383225653-ed111181a951?w=1920&q=80',
+            category: 'easter',
+            icon: '🌸',
+            color: '#ffeaa7',
+            sortOrder: 105,
+        },
+        {
+            name: 'Easter Chicks',
+            url: 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?w=1920&q=80',
+            category: 'easter',
+            icon: '🐣',
+            color: '#fdcb6e',
+            sortOrder: 106,
+        },
+        {
+            name: 'Easter Garden',
+            url: 'https://images.unsplash.com/photo-1455659817273-f96807779a8a?w=1920&q=80',
+            category: 'easter',
+            icon: '🌻',
+            color: '#00b894',
+            sortOrder: 107,
+        },
+        {
+            name: 'Easter Morning',
+            url: 'https://images.unsplash.com/photo-1519378058457-4c29a0a2efac?w=1920&q=80',
+            category: 'easter',
+            icon: '🌅',
+            color: '#fab1a0',
+            sortOrder: 108,
+        },
+    ];
+
+    // Categories data
+    const categories = [
+        { value: 'all', label: 'Tất cả', icon: '🌟', sortOrder: 0 },
+        { value: 'nature', label: 'Thiên nhiên', icon: '🌸', sortOrder: 1 },
+        { value: 'city', label: 'Thành phố', icon: '🌆', sortOrder: 2 },
+        { value: 'abstract', label: 'Nghệ thuật', icon: '🎨', sortOrder: 3 },
+        { value: 'study', label: 'Học tập', icon: '📚', sortOrder: 4 },
+        { value: 'minimal', label: 'Tối giản', icon: '🌙', sortOrder: 5 },
+        { value: 'aesthetic', label: 'Thẩm mỹ', icon: '✨', sortOrder: 6 },
+        { value: 'losangeles', label: 'Los Angeles', icon: '🌴', sortOrder: 7 },
+        { value: 'seoul', label: 'Seoul', icon: '🇰🇷', sortOrder: 8 },
+        { value: 'newyork', label: 'New York', icon: '🗽', sortOrder: 9 },
+        { value: 'christmas', label: 'Giáng sinh', icon: '🎄', sortOrder: 10 },
+        { value: 'easter', label: 'Phục sinh', icon: '🐰', sortOrder: 11 },
+    ];
+
+    try {
+        // Seed categories first
+        await backgroundService.upsertCategories(categories);
+        const allCategories = await backgroundService.getCategories();
+        console.log(`✅ Successfully seeded ${allCategories.length} categories!`);
+        console.log('📁 Categories:', allCategories.map((c) => `${c.icon} ${c.label}`).join(', '));
+
+        // Seed backgrounds
+        await backgroundService.upsertMany(backgrounds);
+        const all = await backgroundService.findAll();
+        console.log(`✅ Successfully seeded ${all.length} backgrounds!`);
+    } catch (error) {
+        console.error('❌ Error seeding:', error);
+    }
+
+    await app.close();
+}
+
+seedBackgrounds();
+

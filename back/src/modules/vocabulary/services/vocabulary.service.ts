@@ -12,7 +12,7 @@ export class VocabularyService {
     private readonly crudService: VocabularyCrudService,
     private readonly searchService: VocabularySearchService,
     private readonly vocabularyRepository: VocabularyRepository,
-  ) {}
+  ) { }
 
   async findAll(userId: string) {
     return this.crudService.findAll(userId);
@@ -86,5 +86,9 @@ export class VocabularyService {
       toDate,
       categoryId,
     );
+  }
+
+  async updateTopic(userId: string, date: string, topic: string, icon?: string, color?: string) {
+    return this.vocabularyRepository.updateTopic(userId, date, topic, icon, color);
   }
 }

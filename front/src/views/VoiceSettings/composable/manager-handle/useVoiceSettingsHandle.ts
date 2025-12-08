@@ -14,8 +14,21 @@ export function useVoiceSettingsHandle() {
       return
     }
 
-    // Chọn voice trong browser theo language của cấu hình
-    const browserVoice = getPreferredVoice(voice.languageCode || 'en-US')
+    // Lấy tất cả browser voices
+    const allVoices = window.speechSynthesis.getVoices()
+
+    // Tìm chính xác voice theo voiceURI (key)
+    let browserVoice = allVoices.find((v) => v.voiceURI === voice.key)
+
+    // Nếu không tìm thấy, thử tìm theo tên
+    if (!browserVoice) {
+      browserVoice = allVoices.find((v) => v.name === voice.displayName?.split(' · ')[0])
+    }
+
+    // Fallback: tìm theo language code
+    if (!browserVoice) {
+      browserVoice = getPreferredVoice(voice.languageCode || 'en-US') ?? undefined
+    }
 
     try {
       if (browserVoice) {
@@ -24,6 +37,9 @@ export function useVoiceSettingsHandle() {
     } catch {
       // ignore storage error
     }
+
+    // Cancel any ongoing speech
+    window.speechSynthesis.cancel()
 
     const utterance = new SpeechSynthesisUtterance(t('voiceSettings.previewSample'))
     if (browserVoice) {

@@ -228,7 +228,10 @@ export function usePracticeHandle(
   function checkAnswer(): boolean {
     if (!currentQuestion.value) return false
 
-    const correctRaw = (currentQuestion.value.meaning ?? '').toString()
+    // For image_guess mode, compare with word (English), otherwise compare with meaning (Vietnamese)
+    const correctRaw = session.mode === 'image_guess'
+      ? (currentQuestion.value.word ?? '').toString()
+      : (currentQuestion.value.meaning ?? '').toString()
     const userRaw = (userAnswer.value ?? '').toString()
 
     const correct = normalizeAnswer(correctRaw)

@@ -12,6 +12,15 @@ export default {
     avatarPreview: '아바타 미리보기',
   },
 
+  background: {
+    selectBackground: '배경 선택',
+    clear: '지우기',
+    noBackgrounds: '배경이 없습니다',
+    staticBg: '정적 배경',
+    animatedBg: '동적 배경',
+    flowerGrow: '꽃 피우기',
+  },
+
   header: {
     home: '홈',
     vocabulary: '어휘',

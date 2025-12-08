@@ -1,18 +1,22 @@
 <template>
-  <div class="min-h-screen bg-white dark:bg-black py-8">
+  <div class="min-h-screen py-8 bg-white dark:bg-black">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <!-- Header -->
       <div class="mb-8">
-        <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent mb-2">
-          {{ tr('title') }}
+        <h1
+          class="text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent mb-2"
+        >
+          {{ tr("title") }}
         </h1>
         <p class="text-lg text-black/60 dark:text-white/70">
-          {{ tr('subtitle') }}
+          {{ tr("subtitle") }}
         </p>
       </div>
 
       <!-- Actions Bar -->
-      <div class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <div
+        class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
+      >
         <VocabularySearchBar
           v-model="searchQuery"
           :placeholder="'Search vocabularies...'"
@@ -28,32 +32,50 @@
 
       <!-- Loading State -->
       <div v-if="loading" class="flex items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 dark:border-primary-400"></div>
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 dark:border-primary-400"
+        ></div>
       </div>
 
       <!-- No Data State -->
-      <div v-else-if="filteredVocabularies.length === 0" class="text-center py-20">
+      <div
+        v-else-if="filteredVocabularies.length === 0"
+        class="text-center py-20"
+      >
         <div class="text-6xl mb-4">📅</div>
-        <h3 class="text-2xl font-bold text-black dark:text-white mb-2">{{ tr('noData') }}</h3>
-        <p class="text-black/60 dark:text-white/70">{{ tr('subtitle') }}</p>
+        <h3 class="text-2xl font-bold text-black dark:text-white mb-2">
+          {{ tr("noData") }}
+        </h3>
+        <p class="text-black/60 dark:text-white/70">{{ tr("subtitle") }}</p>
       </div>
 
       <!-- Date Groups -->
       <div v-else class="space-y-6">
-        <div
+        <DateGroupCard
           v-for="group in filteredVocabularies"
           :key="group.date"
-          class="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl border border-black/10 dark:border-white/10 shadow-lg overflow-hidden"
+          :item-id="group.date"
+          :class="{ 'z-50 relative': currentEditingDate === group.date }"
         >
-          <!-- Date Header -->
-          <DateGroupHeader
-            :day-number="new Date(group.date).getDate()"
-            :formatted-date="formatDate(group.date)"
-            :count="group.count"
-            :words-count-text="tr('wordsCount')"
-            :is-expanded="isDateExpanded(group.date)"
-            @toggle="toggleDate(group.date)"
-          />
+          <!-- Date Header Slot -->
+          <template #header>
+            <DateGroupHeader
+              :day-number="new Date(group.date).getDate()"
+              :formatted-date="formatDate(group.date)"
+              :count="group.count"
+              :words-count-text="tr('wordsCount')"
+              :is-expanded="isDateExpanded(group.date)"
+              :topic="group.topic"
+              :icon="group.icon"
+              :color="group.color"
+              @toggle="toggleDate(group.date)"
+              @update-topic="
+                (topic, icon, color) =>
+                  updateTopic(group.date, topic, icon, color)
+              "
+              @editing-change="(val) => setEditingDate(group.date, val)"
+            />
+          </template>
 
           <!-- Vocabularies List -->
           <Transition
@@ -64,18 +86,35 @@
             leave-from-class="opacity-100 max-h-[10000px]"
             leave-to-class="opacity-0 max-h-0"
           >
-            <div v-if="isDateExpanded(group.date)" class="border-t border-black/10 dark:border-white/10 p-4 space-y-4">
-              <div v-for="catGroup in group.categories" :key="catGroup.category.id">
+            <div
+              v-if="isDateExpanded(group.date)"
+              class="border-t border-black/10 dark:border-white/10 p-4 space-y-4"
+            >
+              <div
+                v-for="catGroup in group.categories"
+                :key="catGroup.category.id"
+              >
                 <CategoryHeader
                   :category="catGroup.category"
                   :vocabulary-count="catGroup.vocabularies.length"
                   :icon-component="getIconComponent(catGroup.category.icon)"
-                  :is-expanded="isCategoryExpanded(group.date, catGroup.category.id)"
+                  :is-expanded="
+                    isCategoryExpanded(group.date, catGroup.category.id)
+                  "
                   :move-to-date-text="tr('moveToDate')"
                   @toggle="toggleCategory(group.date, catGroup.category.id)"
-                  @move="moveModalState.openMoveModal(group.date, catGroup.category.id, catGroup.category.name)"
+                  @move="
+                    moveModalState.openMoveModal(
+                      group.date,
+                      catGroup.category.id,
+                      catGroup.category.name
+                    )
+                  "
                 />
-                <div v-if="isCategoryExpanded(group.date, catGroup.category.id)" class="pl-8 pt-2 space-y-2">
+                <div
+                  v-if="isCategoryExpanded(group.date, catGroup.category.id)"
+                  class="pl-8 pt-2 space-y-2"
+                >
                   <VocabularyCard
                     v-for="vocab in catGroup.vocabularies"
                     :key="vocab.id"
@@ -91,7 +130,7 @@
               </div>
             </div>
           </Transition>
-        </div>
+        </DateGroupCard>
       </div>
     </div>
 
@@ -145,32 +184,53 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useVocabularyByDateState } from './composable/manager-state/useVocabularyByDateState'
-import { useVocabularyByDateHandle } from './composable/manager-handle/useVocabularyByDateHandle'
-import { useVocabularyByDateMount } from './composable/manager-mount/useVocabularyByDateMount'
-import { useModalState } from './composable/useModalState'
-import { useMoveModal } from './composable/useMoveModal'
-import { getIconComponent } from '../../utils/iconRenderer'
+import { computed, defineAsyncComponent, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useVocabularyByDateState } from "./composable/manager-state/useVocabularyByDateState";
+import { useVocabularyByDateHandle } from "./composable/manager-handle/useVocabularyByDateHandle";
+import { useVocabularyByDateMount } from "./composable/manager-mount/useVocabularyByDateMount";
+import { useModalState } from "./composable/manager-state/useModalState";
+import { useMoveModal } from "./composable/manager-state/useMoveModal";
+import { getIconComponent } from "../../utils/iconRenderer";
 
 // Local Components
-const VocabularySearchBar = defineAsyncComponent(() => import('./components/VocabularySearchBar.vue'))
-const ExpandCollapseButton = defineAsyncComponent(() => import('./components/ExpandCollapseButton.vue'))
-const DateGroupHeader = defineAsyncComponent(() => import('./components/DateGroupHeader.vue'))
-const CategoryHeader = defineAsyncComponent(() => import('./components/CategoryHeader.vue'))
-const VocabularyCard = defineAsyncComponent(() => import('./components/VocabularyCard.vue'))
-const MoveCategoryModal = defineAsyncComponent(() => import('./components/MoveCategoryModal.vue'))
+const VocabularySearchBar = defineAsyncComponent(
+  () => import("./components/VocabularySearchBar.vue")
+);
+const ExpandCollapseButton = defineAsyncComponent(
+  () => import("./components/ExpandCollapseButton.vue")
+);
+const DateGroupHeader = defineAsyncComponent(
+  () => import("./components/DateGroupHeader.vue")
+);
+const DateGroupCard = defineAsyncComponent(
+  () => import("./components/DateGroupCard.vue")
+);
+const CategoryHeader = defineAsyncComponent(
+  () => import("./components/CategoryHeader.vue")
+);
+const VocabularyCard = defineAsyncComponent(
+  () => import("./components/VocabularyCard.vue")
+);
+const MoveCategoryModal = defineAsyncComponent(
+  () => import("./components/MoveCategoryModal.vue")
+);
 
 // Global Components
-const VocabularyDetailModal = defineAsyncComponent(() => import('../../components/VocabularyDetailModal.vue') as any)
-const VocabularyImageViewer = defineAsyncComponent(() => import('../../components/common/VocabularyImageViewer.vue') as any)
-const VideoZoomModal = defineAsyncComponent(() => import('../../components/common/VideoZoomModal.vue') as any)
+const VocabularyDetailModal = defineAsyncComponent(
+  () => import("../../components/VocabularyDetailModal.vue") as any
+);
+const VocabularyImageViewer = defineAsyncComponent(
+  () => import("../../components/common/VocabularyImageViewer.vue") as any
+);
+const VideoZoomModal = defineAsyncComponent(
+  () => import("../../components/common/VideoZoomModal.vue") as any
+);
 
-const { t } = useI18n({ useScope: 'global' })
+const { t } = useI18n({ useScope: "global" });
 
 function tr(key: string) {
-  return t(`vocabularyByDate.${key}`)
+  return t(`vocabularyByDate.${key}`);
 }
 
 const {
@@ -180,12 +240,12 @@ const {
   expandedCategories,
   expandAll,
   searchQuery,
-} = useVocabularyByDateState()
+} = useVocabularyByDateState();
 
-const { 
-  loadData, 
-  handleSpeak, 
-  formatDate, 
+const {
+  loadData,
+  handleSpeak,
+  formatDate,
   filteredVocabularies,
   toggleDate,
   toggleExpandAll,
@@ -193,6 +253,7 @@ const {
   toggleCategory,
   isCategoryExpanded,
   moveCategoryToDate,
+  updateTopic,
 } = useVocabularyByDateHandle(
   vocabulariesByDate,
   loading,
@@ -200,17 +261,33 @@ const {
   expandedDates,
   expandedCategories,
   expandAll
-)
+);
 
-useVocabularyByDateMount(loadData)
+useVocabularyByDateMount(loadData);
 
 // Modal States
-const modalState = useModalState()
-const moveModalState = useMoveModal(vocabulariesByDate, formatDate, moveCategoryToDate)
+const modalState = useModalState();
+const moveModalState = useMoveModal(
+  vocabulariesByDate,
+  formatDate,
+  moveCategoryToDate
+);
 
 const selectedTargetDateLabel = computed(() => {
-  if (!moveModalState.selectedTargetDate.value) return tr('selectDatePlaceholder')
-  const group = vocabulariesByDate.value.find((g: any) => g.date === moveModalState.selectedTargetDate.value)
-  return group ? formatDate(group.date) : tr('selectDatePlaceholder')
-})
+  if (!moveModalState.selectedTargetDate.value)
+    return tr("selectDatePlaceholder");
+  const group = vocabulariesByDate.value.find(
+    (g: any) => g.date === moveModalState.selectedTargetDate.value
+  );
+  return group ? formatDate(group.date) : tr("selectDatePlaceholder");
+});
+
+const currentEditingDate = ref<string | null>(null);
+function setEditingDate(date: string, isEditing: boolean) {
+  if (isEditing) {
+    currentEditingDate.value = date;
+  } else if (currentEditingDate.value === date) {
+    currentEditingDate.value = null;
+  }
+}
 </script>

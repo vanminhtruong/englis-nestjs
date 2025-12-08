@@ -1,2 +1,2 @@
-export { useModalState } from './useModalState'
-export { useMoveModal } from './useMoveModal'
+export { useModalState } from './manager-state/useModalState'
+export { useMoveModal } from './manager-state/useMoveModal'

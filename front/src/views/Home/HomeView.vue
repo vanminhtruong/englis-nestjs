@@ -105,24 +105,7 @@
                   <div
                     class="aspect-square bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-2xl flex items-center justify-center"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="120"
-                      height="120"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1"
-                      class="text-primary-500 dark:text-primary-400"
-                    >
-                      <path
-                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-                      ></path>
-                      <polyline
-                        points="3.27 6.96 12 12.01 20.73 6.96"
-                      ></polyline>
-                      <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                    </svg>
+                    <Rotating3DCube :size="120" />
                   </div>
                   <h3
                     class="text-2xl font-bold text-gray-900 dark:text-white mt-6 mb-2"
@@ -396,7 +379,18 @@
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import {
+  ref,
+  onMounted,
+  onBeforeUnmount,
+  watch,
+  defineAsyncComponent,
+} from "vue";
+
+// Lazy load 3D Cube for better performance
+const Rotating3DCube = defineAsyncComponent(
+  () => import("./components/Rotating3DCube.vue")
+);
 
 const { t, locale } = useI18n();
 

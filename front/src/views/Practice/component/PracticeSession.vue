@@ -298,7 +298,9 @@
                   >{{ t("practice.correctAnswer") }}:</span
                 >
                 <span class="ml-2 text-black dark:text-white">{{
-                  currentQuestion.meaning
+                  session.mode === "image_guess"
+                    ? currentQuestion.word
+                    : currentQuestion.meaning
                 }}</span>
               </div>
               <div
@@ -333,7 +335,11 @@
     <!-- Timeout Modal -->
     <TimeoutModal
       :show="showTimeoutModal"
-      :correct-answer="currentQuestion?.meaning || ''"
+      :correct-answer="
+        session.mode === 'image_guess'
+          ? currentQuestion?.word || ''
+          : currentQuestion?.meaning || ''
+      "
       @close="emit('back')"
       @restart="emit('restart')"
     />
@@ -442,14 +448,14 @@ const hiddenInput = ref<HTMLInputElement | null>(null);
 
 // Calculate max length for user input (excluding hints and spaces)
 const maxInputLength = computed(() => {
-  if (!props.currentQuestion?.meaning) return 20;
+  if (!props.currentQuestion?.word) return 20;
 
-  const meaning = props.currentQuestion.meaning.toLowerCase();
-  const hintPositions = getHintPositions(meaning);
+  const word = props.currentQuestion.word.toLowerCase();
+  const hintPositions = getHintPositions(word);
   let count = 0;
 
-  for (let i = 0; i < meaning.length; i++) {
-    const char = meaning[i];
+  for (let i = 0; i < word.length; i++) {
+    const char = word[i];
     if (char !== " " && !hintPositions.includes(i)) {
       count++;
     }
@@ -506,19 +512,19 @@ interface LetterBox {
 }
 
 function getLetterBoxes(): LetterBox[] {
-  if (!props.currentQuestion?.meaning) return [];
+  if (!props.currentQuestion?.word) return [];
 
-  const meaning = props.currentQuestion.meaning.toLowerCase();
+  const word = props.currentQuestion.word.toLowerCase();
   const userInput = localUserAnswer.value.toLowerCase();
   const boxes: LetterBox[] = [];
 
   // Generate hint positions (max 2 letters)
-  const hintPositions = getHintPositions(meaning);
+  const hintPositions = getHintPositions(word);
 
   let userInputIndex = 0; // Separate index for userInput
 
-  for (let i = 0; i < meaning.length; i++) {
-    const char = meaning[i];
+  for (let i = 0; i < word.length; i++) {
+    const char = word[i];
 
     if (char === " ") {
       // Space between words
@@ -583,18 +589,18 @@ function updateLetterBoxes() {
 
 // Build complete answer for image_guess mode by combining hints and user input
 function buildCompleteAnswer(): string {
-  if (props.session.mode !== "image_guess" || !props.currentQuestion?.meaning) {
+  if (props.session.mode !== "image_guess" || !props.currentQuestion?.word) {
     return localUserAnswer.value;
   }
 
-  const meaning = props.currentQuestion.meaning.toLowerCase();
+  const word = props.currentQuestion.word.toLowerCase();
   const userInput = localUserAnswer.value.toLowerCase();
-  const hintPositions = getHintPositions(meaning);
+  const hintPositions = getHintPositions(word);
   let result = "";
   let userInputIndex = 0;
 
-  for (let i = 0; i < meaning.length; i++) {
-    const char = meaning[i];
+  for (let i = 0; i < word.length; i++) {
+    const char = word[i];
 
     if (char === " ") {
       result += " ";

@@ -78,6 +78,8 @@ export default {
     getByLearningDate: () => apiClient.get('/vocabulary/by-learning-date'),
     moveByLearningDate: (data: { fromDate: string; toDate: string; categoryId: string }) =>
       apiClient.post('/vocabulary/move-by-date', data),
+    updateCategoryTopic: (data: { date: string; topic: string; icon?: string; color?: string }) =>
+      apiClient.put('/vocabulary/category-topic/update', data),
   },
 
   practice: {
@@ -118,5 +120,12 @@ export default {
   voice: {
     getAll: () => apiClient.get('/voice'),
     setPreferred: (voiceKey: string) => apiClient.post('/voice/preferred', { voiceKey }),
+  },
+
+  // Background endpoints
+  background: {
+    getAll: (category?: string) => apiClient.get('/backgrounds', { params: category ? { category } : {} }),
+    getCategories: () => apiClient.get('/backgrounds/categories'),
+    getById: (id: string) => apiClient.get(`/backgrounds/${id}`),
   },
 }

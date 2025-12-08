@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Vocabulary } from '../../../entities/vocabulary.entity';
 import { Category } from '../../../entities/category.entity';
+import { CategoryDateTopic } from '../../../entities/category-date-topic.entity';
 
 @Injectable()
 export class VocabularyRepository {
@@ -11,7 +12,9 @@ export class VocabularyRepository {
     private readonly repository: Repository<Vocabulary>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
-  ) {}
+    @InjectRepository(CategoryDateTopic)
+    private readonly topicRepository: Repository<CategoryDateTopic>,
+  ) { }
 
   async findAll(userId: string): Promise<Vocabulary[]> {
     return this.repository.find({
@@ -66,14 +69,14 @@ export class VocabularyRepository {
   async create(vocabularyData: Partial<Vocabulary> & { categoryIds?: string[] }): Promise<Vocabulary> {
     const { categoryIds, ...data } = vocabularyData;
     const vocabulary = this.repository.create(data);
-    
+
     if (categoryIds && categoryIds.length > 0) {
       const categories = await this.categoryRepository.find({
         where: { id: In(categoryIds), userId: vocabularyData.userId },
       });
       vocabulary.categories = categories;
     }
-    
+
     return this.repository.save(vocabulary);
   }
 
@@ -83,16 +86,16 @@ export class VocabularyRepository {
     vocabularyData: Partial<Vocabulary> & { categoryIds?: string[] },
   ): Promise<Vocabulary | null> {
     const { categoryIds, ...data } = vocabularyData;
-    
+
     const vocabulary = await this.repository.findOne({
       where: { id, userId },
       relations: ['categories'],
     });
-    
+
     if (!vocabulary) return null;
-    
+
     Object.assign(vocabulary, data);
-    
+
     if (categoryIds !== undefined) {
       if (categoryIds.length > 0) {
         const categories = await this.categoryRepository.find({
@@ -103,7 +106,7 @@ export class VocabularyRepository {
         vocabulary.categories = [];
       }
     }
-    
+
     return this.repository.save(vocabulary);
   }
 
@@ -242,13 +245,38 @@ export class VocabularyRepository {
     }, {} as Record<string, Vocabulary[]>);
 
     // Convert to array format with date and vocabularies
-    return Object.entries(groupedByDate)
+    const result = Object.entries(groupedByDate)
       .map(([date, vocabs]) => ({
         date,
         count: vocabs.length,
         vocabularies: vocabs,
       }))
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    const topics = await this.topicRepository.find({ where: { userId } });
+    const topicMap = new Map(topics.map(t => [t.date, t]));
+
+    return result.map(group => {
+      const topicData = topicMap.get(group.date);
+      return {
+        ...group,
+        topic: topicData?.topic || '',
+        icon: topicData?.icon || '',
+        color: topicData?.color || ''
+      };
+    });
+  }
+
+  async updateTopic(userId: string, date: string, topic: string, icon?: string, color?: string): Promise<CategoryDateTopic> {
+    let dateTopic = await this.topicRepository.findOne({ where: { userId, date } });
+    if (dateTopic) {
+      dateTopic.topic = topic;
+      if (icon !== undefined) dateTopic.icon = icon;
+      if (color !== undefined) dateTopic.color = color;
+    } else {
+      dateTopic = this.topicRepository.create({ userId, date, topic, icon, color });
+    }
+    return this.topicRepository.save(dateTopic);
   }
 
   async moveByLearningDate(

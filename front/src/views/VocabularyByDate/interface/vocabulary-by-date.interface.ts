@@ -1,6 +1,9 @@
 export interface VocabularyByDate {
   date: string;
   count: number;
+  topic?: string;
+  icon?: string;
+  color?: string;
   categories: CategoryGroup[];
 }
 

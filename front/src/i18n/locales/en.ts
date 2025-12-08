@@ -12,6 +12,15 @@ export default {
     avatarPreview: 'Avatar Preview',
   },
 
+  background: {
+    selectBackground: 'Select Background',
+    clear: 'Clear',
+    noBackgrounds: 'No backgrounds available',
+    staticBg: 'Static',
+    animatedBg: 'Animated',
+    flowerGrow: 'Flower Bloom',
+  },
+
   header: {
     home: 'Home',
     vocabulary: 'Vocabulary',

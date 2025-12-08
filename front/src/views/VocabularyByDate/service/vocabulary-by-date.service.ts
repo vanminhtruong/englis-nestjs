@@ -9,8 +9,8 @@ export class VocabularyByDateService {
       return { success: true, data: response.data }
     } catch (error: any) {
       console.error('Error loading vocabularies by date:', error)
-      const errorMessage = error.response?.data?.message 
-        || error.message 
+      const errorMessage = error.response?.data?.message
+        || error.message
         || 'Failed to load vocabularies by date'
       return {
         success: false,
@@ -26,6 +26,16 @@ export class VocabularyByDateService {
       return { success: true }
     } catch (error: any) {
       const message = error.response?.data?.message || error.message || 'Failed to move vocabularies'
+      return { success: false, error: message }
+    }
+  }
+
+  async updateCategoryTopic(data: { date: string; topic: string; icon?: string; color?: string }): Promise<{ success: boolean; error?: string }> {
+    try {
+      await apiService.vocabulary.updateCategoryTopic(data)
+      return { success: true }
+    } catch (error: any) {
+      const message = error.response?.data?.message || error.message || 'Failed to update topic'
       return { success: false, error: message }
     }
   }

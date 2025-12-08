@@ -12,6 +12,15 @@ export default {
     avatarPreview: 'Xem trước Avatar',
   },
 
+  background: {
+    selectBackground: 'Chọn Hình Nền',
+    clear: 'Xóa nền',
+    noBackgrounds: 'Không có hình nền nào',
+    staticBg: 'Nền tĩnh',
+    animatedBg: 'Nền động',
+    flowerGrow: 'Hoa nở',
+  },
+
   header: {
     home: 'Trang chủ',
     vocabulary: 'Từ vựng',

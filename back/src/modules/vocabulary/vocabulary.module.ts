@@ -2,6 +2,7 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Vocabulary } from '../../entities/vocabulary.entity';
 import { Category } from '../../entities/category.entity';
+import { CategoryDateTopic } from '../../entities/category-date-topic.entity';
 import { VocabularyController } from './vocabulary.controller';
 import { VocabularyService } from './services/vocabulary.service';
 import { VocabularyCrudService } from './services/vocabulary-crud.service';
@@ -15,7 +16,7 @@ import { WebsocketModule } from '../websocket/websocket.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Vocabulary, Category]),
+    TypeOrmModule.forFeature([Vocabulary, Category, CategoryDateTopic]),
     AuthModule,
     forwardRef(() => HistoryModule),
     forwardRef(() => WebsocketModule),
@@ -30,4 +31,4 @@ import { WebsocketModule } from '../websocket/websocket.module';
   ],
   exports: [VocabularyService, VocabularyRepository],
 })
-export class VocabularyModule {}
+export class VocabularyModule { }

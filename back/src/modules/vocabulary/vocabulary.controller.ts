@@ -21,6 +21,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UploadService } from '../../common/services/upload.service';
 import { MoveVocabularyByDateDto } from './dto/move-vocabulary-by-date.dto';
 import { VocabularyWebSocketGateway } from '../websocket/websocket.gateway';
+import { UpdateCategoryTopicDto } from './dto/update-category-topic.dto';
 
 @Controller('vocabulary')
 @UseGuards(JwtAuthGuard)
@@ -29,7 +30,7 @@ export class VocabularyController {
     private readonly vocabularyService: VocabularyService,
     private readonly uploadService: UploadService,
     private readonly websocketGateway: VocabularyWebSocketGateway,
-  ) {}
+  ) { }
 
   @Get()
   async findAll(
@@ -179,5 +180,12 @@ export class VocabularyController {
     await this.vocabularyService.moveByLearningDate(req.user.id, dto);
     this.websocketGateway.emitVocabularyByDateRefresh(req.user.id);
     return { message: 'Vocabularies moved successfully' };
+  }
+  @Put('category-topic/update')
+  async updateCategoryTopic(
+    @Body() dto: UpdateCategoryTopicDto,
+    @Request() req,
+  ) {
+    return this.vocabularyService.updateTopic(req.user.id, dto.date, dto.topic, dto.icon, dto.color);
   }
 }

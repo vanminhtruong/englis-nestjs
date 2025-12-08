@@ -13,6 +13,7 @@ import { HistoryModule } from './modules/history/history.module';
 import { TagModule } from './modules/tag/tag.module';
 import { VoiceModule } from './modules/voice/voice.module';
 import { LearningProgressModule } from './modules/learning-progress/learning-progress.module';
+import { BackgroundModule } from './modules/background/background.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { LearningProgressModule } from './modules/learning-progress/learning-pro
     TagModule,
     VoiceModule,
     LearningProgressModule,
+    BackgroundModule,
   ],
   controllers: [AppController],
   providers: [AppService],

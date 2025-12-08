@@ -42,6 +42,9 @@ export function useVocabularyByDateHandle(
           return {
             date: dateGroup.date,
             count: dateGroup.count,
+            topic: dateGroup.topic,
+            icon: dateGroup.icon,
+            color: dateGroup.color,
             categories: Array.from(categoriesMap.values())
           };
         });
@@ -171,6 +174,21 @@ export function useVocabularyByDateHandle(
     }
   }
 
+  async function updateTopic(date: string, topic: string, icon?: string, color?: string) {
+    if (!date) return
+    const result = await vocabularyByDateService.updateCategoryTopic({ date, topic, icon, color })
+    if (result.success) {
+      const groupInState = vocabulariesByDate.value.find(g => g.date === date);
+      if (groupInState) {
+        groupInState.topic = topic;
+        if (icon !== undefined) groupInState.icon = icon;
+        if (color !== undefined) groupInState.color = color;
+      }
+    } else {
+      console.error('Failed to update topic:', result.error)
+    }
+  }
+
   return {
     loadData,
     handleSpeak,
@@ -183,5 +201,6 @@ export function useVocabularyByDateHandle(
     toggleCategory,
     isCategoryExpanded,
     moveCategoryToDate,
+    updateTopic,
   }
 }
