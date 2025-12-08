@@ -76,17 +76,8 @@ export class PracticeService {
     }
   }
 
-  async getPracticeModes(): Promise<{ success: boolean; data?: PracticeMode[]; error?: string }> {
-    try {
-      const response = await apiService.practice.getModes()
-      return { success: true, data: response.data }
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.response?.data?.message || 'Failed to load practice modes',
-      }
-    }
-  }
+  // getPracticeModes() removed - practice modes are now hardcoded in usePracticeState.ts
+
 
   async submitPractice(data: any) {
     try {

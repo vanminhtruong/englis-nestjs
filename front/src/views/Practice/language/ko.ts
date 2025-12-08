@@ -3,11 +3,34 @@ export default {
   subtitle: '어휘를 연습하세요',
 
   modes: '연습 모드',
+  // Mode names
   flashcard: '플래시카드',
   multipleChoice: '객관식',
   typing: '타이핑',
   listening: '듣기',
   imageGuess: '이미지 퀴즈',
+  practiceByDateMode: '날짜별 연습',
+  ballShooting: '공 쏘기',
+
+  // Mode descriptions
+  modeDescriptions: {
+    flashcard: '이 단어의 의미는 무엇입니까?',
+    typing: '해당 단어를 임력하세요',
+    practiceByDate: '연습할 특정 날짜를 선택하세요',
+    imageGuess: '이미지를 보고 단어를 맞춰보세요',
+    multipleChoice: '정답을 선택하세요',
+    listening: '듣고 단어를 알아맞춰보세요',
+    ballShooting: '올바른 단어가 있는 공을 쏘세요!',
+  },
+
+  // Ball Shooting Game
+  ballShootingHint1: '공을 클릭하여 쏘세요',
+  ballShootingHint2: '단어를 표시된 의미와 일치시키세요',
+  ballShootingHint3: '콤보를 만들어 보너스 점수를 받으세요!',
+
+  // Mode selection UI
+  modesSubtitle: '연습 스타일을 선택하고 학습을 시작하세요',
+  loadingModes: '연습 모드를 준비하는 중...',
 
   start: '시작',
   next: '다음',

@@ -1,7 +1,8 @@
 <template>
   <div class="min-h-screen bg-white dark:bg-black p-4 md:p-8">
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-4xl mx-auto" :class="{ 'max-w-6xl': isBallShootingMode }">
       <h1
+        v-if="!isBallShootingMode"
         class="text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent mb-8"
       >
         {{ t("practice.title") }}
@@ -9,6 +10,7 @@
 
       <!-- Answer Effects -->
       <AnswerEffect
+        v-if="!isBallShootingMode"
         :type="practiceState.answerEffectType.value"
         :trigger-key="practiceState.answerEffectKey.value"
       />
@@ -42,19 +44,29 @@
         @start-practice-by-date="practiceHandle.startPracticeByDate"
       />
 
-      <!-- Mode Selection with Start Button -->
+      <!-- Ball Shooting Game Mode -->
+      <BallShootingGame
+        v-else-if="isBallShootingMode && practiceState.isStarted.value"
+        :questions="ballShootingQuestions"
+        @back="practiceHandle.backToModeSelection"
+        @complete="handleBallShootingComplete"
+      />
+
+      <!-- Mode Selection with Start Button (for other modes) -->
       <ModeSelectionWithStart
         v-else-if="
-          practiceState.isStarted.value && !practiceState.showPractice.value
+          practiceState.isStarted.value &&
+          !practiceState.showPractice.value &&
+          !isBallShootingMode
         "
         :session="practiceState.session"
         @back="practiceHandle.backToModeSelection"
         @start-session="practiceHandle.startPracticeSession"
       />
 
-      <!-- Practice Session -->
+      <!-- Practice Session (for other modes) -->
       <PracticeSession
-        v-else
+        v-else-if="!isBallShootingMode"
         :session="practiceState.session"
         :current-question="practiceState.currentQuestion.value"
         :progress="practiceState.progress.value"
@@ -77,6 +89,7 @@
 
       <!-- Exit Confirmation Modal -->
       <ExitConfirmationModal
+        v-if="!isBallShootingMode"
         :show="practiceState.showExitConfirmModal.value"
         @confirm="practiceHandle.handleConfirmExit"
         @cancel="practiceState.showExitConfirmModal.value = false"
@@ -86,11 +99,12 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent } from "vue";
+import { defineAsyncComponent, computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { usePracticeState } from "./composable/manager-state/usePracticeState";
 import { usePracticeHandle } from "./composable/manager-handle/usePracticeHandle";
 import { usePracticeMount } from "./composable/manager-mount/usePracticeMount";
+import { practiceService } from "./service/practice.service";
 import enLang from "./language/en";
 import viLang from "./language/vi";
 import koLang from "./language/ko";
@@ -109,10 +123,13 @@ const PracticeSession = defineAsyncComponent(
   () => import("./component/PracticeSession.vue")
 );
 const AnswerEffect = defineAsyncComponent(
-  () => import("../../components/AnswerEffect.vue")
+  () => import("../../components/AnswerEffect.vue") as any
 );
 const ExitConfirmationModal = defineAsyncComponent(
   () => import("./component/ExitConfirmationModal.vue")
+);
+const BallShootingGame = defineAsyncComponent(
+  () => import("./component/BallShootingGame/BallShootingGame.vue")
 );
 
 const { t, mergeLocaleMessage } = useI18n();
@@ -153,4 +170,57 @@ const practiceHandle = usePracticeHandle(
 );
 
 usePracticeMount(practiceHandle.loadPracticeModes);
+
+// Ball Shooting Mode State
+const ballShootingQuestions = ref<any[]>([]);
+
+const isBallShootingMode = computed(() => {
+  return practiceState.session.mode === "ball_shooting";
+});
+
+// Watch for ball_shooting mode selection
+watch(
+  () => practiceState.session.mode,
+  async (newMode) => {
+    if (
+      newMode === "ball_shooting" &&
+      practiceState.session.questions.length > 0
+    ) {
+      ballShootingQuestions.value = practiceState.session.questions.map(
+        (q) => ({
+          vocabularyId: q.vocabularyId,
+          word: q.word,
+          pronunciation: q.pronunciation,
+          meaning: q.meaning,
+          example: q.example,
+          image: q.image,
+        })
+      );
+    }
+  },
+  { immediate: true }
+);
+
+// Handle Ball Shooting game completion
+async function handleBallShootingComplete(results: any) {
+  console.log("Ball Shooting completed:", results);
+
+  // Submit results to backend for each answered question
+  for (const result of results.results) {
+    try {
+      await practiceService.submitPractice({
+        vocabularyId: result.vocabularyId,
+        practiceType: "ball_shooting",
+        isCorrect: result.isCorrect,
+        userAnswer: result.word,
+        timeSpent: Math.round(result.timeSpent),
+        score: result.isCorrect ? Math.round(100 * result.comboMultiplier) : 0,
+        questionStartTime: Date.now() - result.timeSpent * 1000,
+      });
+    } catch (error) {
+      console.error("Failed to submit ball shooting result:", error);
+    }
+  }
+}
 </script>
+

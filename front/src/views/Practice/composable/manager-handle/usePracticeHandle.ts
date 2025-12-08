@@ -241,35 +241,24 @@ export function usePracticeHandle(
     return correct === user
   }
 
+  // Practice modes are now hardcoded in usePracticeState.ts
+  // This function is kept for compatibility but doesn't do anything
   async function loadPracticeModes() {
-    console.log('Loading practice modes from API...')
-    loadingModes.value = true
-    try {
-      const result = await practiceService.getPracticeModes()
-      console.log('Practice modes API result:', result)
-      if (result.success && result.data) {
-        practiceModes.value = result.data
-        console.log('Loaded practice modes:', result.data)
-      } else {
-        console.error('Failed to load practice modes:', result.error)
-        practiceModes.value = []
-      }
-    } catch (error) {
-      console.error('Error loading practice modes:', error)
-      practiceModes.value = []
-    } finally {
-      loadingModes.value = false
-      modesLoaded.value = true
-    }
+    console.log('Practice modes are hardcoded - no API call needed')
+    // Modes are already loaded from hardcoded values in usePracticeState
+    // No API call required
   }
 
-  function selectMode(mode: "flashcard" | "typing" | "image_guess") {
+  function selectMode(mode: "flashcard" | "typing" | "image_guess" | "ball_shooting") {
     handleStartPractice(mode)
   }
 
   function handleModeClick(mode: any) {
     if (mode.key === "practice_by_date") {
       showDateSelectionMode()
+    } else if (mode.key === "ball_shooting") {
+      // Ball shooting mode is handled differently in PracticeView
+      selectMode("ball_shooting")
     } else {
       selectMode(mode.key as "flashcard" | "typing" | "image_guess")
     }

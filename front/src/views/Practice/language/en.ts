@@ -3,11 +3,34 @@ export default {
   subtitle: 'Practice your vocabulary',
 
   modes: 'Practice Modes',
+  // Mode names
   flashcard: 'Flashcard',
   multipleChoice: 'Multiple Choice',
   typing: 'Typing',
   listening: 'Listening',
   imageGuess: 'Image Guess',
+  practiceByDateMode: 'Practice by Date',
+  ballShooting: 'Ball Shooting',
+
+  // Mode descriptions
+  modeDescriptions: {
+    flashcard: 'What is the meaning of this word?',
+    typing: 'Type the corresponding word',
+    practiceByDate: 'Select a specific date to practice',
+    imageGuess: 'Guess the meaning from the image',
+    multipleChoice: 'Select the correct answer',
+    listening: 'Listen and identify the word',
+    ballShooting: 'Shoot the ball with the correct word!',
+  },
+
+  // Ball Shooting Game
+  ballShootingHint1: 'Click on balls to shoot them',
+  ballShootingHint2: 'Match the word to the meaning shown',
+  ballShootingHint3: 'Build combos for bonus points!',
+
+  // Mode selection UI
+  modesSubtitle: 'Choose your practice style and start learning',
+  loadingModes: 'Preparing your practice modes...',
 
   start: 'Start',
   next: 'Next',

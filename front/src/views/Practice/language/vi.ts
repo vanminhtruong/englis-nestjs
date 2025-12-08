@@ -4,11 +4,34 @@ export default {
 
   // Practice modes
   modes: 'Chế độ luyện tập',
+  // Mode names
   flashcard: 'Flashcard',
   multipleChoice: 'Trắc nghiệm',
   typing: 'Điền từ',
   listening: 'Nghe',
   imageGuess: 'Đuổi hình bắt chữ',
+  practiceByDateMode: 'Luyện tập theo ngày',
+  ballShooting: 'Bắn Bóng',
+
+  // Mode descriptions
+  modeDescriptions: {
+    flashcard: 'Nghĩa của từ này là gì?',
+    typing: 'Nhập từ tương ứng',
+    practiceByDate: 'Chọn ngày cụ thể để luyện tập',
+    imageGuess: 'Đoán nghĩa từ hình ảnh',
+    multipleChoice: 'Chọn đáp án đúng',
+    listening: 'Nghe và nhận biết từ',
+    ballShooting: 'Bắn quả bóng chứa từ đúng!',
+  },
+
+  // Ball Shooting Game
+  ballShootingHint1: 'Nhấp vào bóng để bắn',
+  ballShootingHint2: 'Ghép từ với nghĩa hiển thị',
+  ballShootingHint3: 'Tạo combo để được thưởng điểm!',
+
+  // Mode selection UI
+  modesSubtitle: 'Chọn kiểu luyện tập và bắt đầu học',
+  loadingModes: 'Đang chuẩn bị chế độ luyện tập...',
 
   // Actions
   start: 'Bắt đầu',

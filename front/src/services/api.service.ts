@@ -84,7 +84,7 @@ export default {
 
   practice: {
     submit: (data: any) => apiClient.post('/practice/submit', data),
-    getModes: () => apiClient.get('/practice-modes'),
+    // getModes removed - practice modes are now hardcoded in frontend
     saveIncomplete: (data: any) => apiClient.post('/practice/save-incomplete', data),
   },
 

@@ -58,7 +58,7 @@
           :class="{ 'z-50 relative': currentEditingDate === group.date }"
         >
           <!-- Date Header Slot -->
-          <template #header>
+          <template #header="{ hasBackground }">
             <DateGroupHeader
               :day-number="new Date(group.date).getDate()"
               :formatted-date="formatDate(group.date)"
@@ -68,6 +68,7 @@
               :topic="group.topic"
               :icon="group.icon"
               :color="group.color"
+              :has-background="hasBackground"
               @toggle="toggleDate(group.date)"
               @update-topic="
                 (topic, icon, color) =>

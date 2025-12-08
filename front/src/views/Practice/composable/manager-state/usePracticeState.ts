@@ -2,6 +2,61 @@ import { ref, reactive, computed } from 'vue'
 import type { PracticeSession, PracticeQuestion, PracticeMode, DateOption } from '../../interface/practice.interface'
 import type { PracticeMode as PracticeModeEntity } from '../../service/practice.service'
 
+// Hardcoded practice modes - uses translation keys for name and description
+// The actual translation happens in PracticeModeSelection component
+const HARDCODED_PRACTICE_MODES: PracticeModeEntity[] = [
+  {
+    id: 'flashcard',
+    key: 'flashcard',
+    name: 'flashcard', // translation key: practice.flashcard
+    description: 'flashcard', // translation key: practice.modeDescriptions.flashcard
+    icon: '🎴',
+    color: 'from-primary-500 to-secondary-500',
+    isActive: true,
+    sortOrder: 1,
+  },
+  {
+    id: 'typing',
+    key: 'typing',
+    name: 'typing', // translation key: practice.typing
+    description: 'typing', // translation key: practice.modeDescriptions.typing
+    icon: '⌨️',
+    color: 'from-purple-500 to-pink-500',
+    isActive: true,
+    sortOrder: 2,
+  },
+  {
+    id: 'practice_by_date',
+    key: 'practice_by_date',
+    name: 'practiceByDateMode', // translation key: practice.practiceByDateMode
+    description: 'practiceByDate', // translation key: practice.modeDescriptions.practiceByDate
+    icon: '📅',
+    color: 'from-orange-500 to-red-500',
+    isActive: true,
+    sortOrder: 3,
+  },
+  {
+    id: 'image_guess',
+    key: 'image_guess',
+    name: 'imageGuess', // translation key: practice.imageGuess
+    description: 'imageGuess', // translation key: practice.modeDescriptions.imageGuess
+    icon: '🖼️',
+    color: 'from-pink-500 to-rose-500',
+    isActive: true,
+    sortOrder: 4,
+  },
+  {
+    id: 'ball_shooting',
+    key: 'ball_shooting',
+    name: 'ballShooting', // translation key: practice.ballShooting
+    description: 'ballShooting', // translation key: practice.modeDescriptions.ballShooting
+    icon: '🎯',
+    color: 'from-cyan-500 to-blue-500',
+    isActive: true,
+    sortOrder: 5,
+  },
+]
+
 export function usePracticeState() {
   const isStarted = ref(false)
   const showPractice = ref(false)
@@ -19,9 +74,10 @@ export function usePracticeState() {
   const availableDates = ref<DateOption[]>([])
   const selectedDate = ref<string | null>(null)
   const loadingDates = ref(false)
-  const practiceModes = ref<PracticeModeEntity[]>([])
-  const loadingModes = ref(true) // Start with loading true
-  const modesLoaded = ref(false) // Track if we've attempted to load
+  // Use hardcoded modes directly - no API needed
+  const practiceModes = ref<PracticeModeEntity[]>(HARDCODED_PRACTICE_MODES)
+  const loadingModes = ref(false) // No loading needed since modes are hardcoded
+  const modesLoaded = ref(true) // Already loaded since hardcoded
   const loadingPracticeData = ref(false) // Loading vocabulary for practice
   const showExitConfirmModal = ref(false)
 

@@ -10,10 +10,12 @@
         :class="[
           isEditing
             ? 'bg-white dark:bg-zinc-800 border-primary-500 ring-2 ring-primary-500/20'
+            : hasBackground
+            ? 'bg-black/40 backdrop-blur-md border-white/20 shadow-lg'
             : 'bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 hover:border-primary-500 dark:hover:border-primary-500 hover:shadow-md',
         ]"
         :style="
-          !isEditing && color && color !== '#000000'
+          !isEditing && !hasBackground && color && color !== '#000000'
             ? { borderColor: color, boxShadow: `inset 0 0 0 100px ${color}10` }
             : {}
         "
@@ -25,8 +27,11 @@
             <div
               v-if="icon"
               class="icon-wrapper"
+              :class="{ 'bg-white/20': hasBackground }"
               :style="
-                color && color !== '#000000'
+                hasBackground
+                  ? { color: '#ffffff' }
+                  : color && color !== '#000000'
                   ? {
                       backgroundColor: `${color}20`,
                       color: color,
@@ -37,7 +42,11 @@
               <component :is="getIconComponent(icon)" class="w-4 h-4" />
             </div>
             <!-- Default icon when no icon selected -->
-            <div v-else-if="topic" class="icon-wrapper default-icon">
+            <div
+              v-else-if="topic"
+              class="icon-wrapper"
+              :class="hasBackground ? 'bg-white/20 text-white' : 'default-icon'"
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="w-4 h-4"
@@ -58,9 +67,16 @@
             <!-- Topic Text -->
             <span
               class="topic-text"
-              :class="[topic ? 'has-topic' : 'no-topic']"
+              :class="[
+                topic ? 'has-topic' : 'no-topic',
+                hasBackground ? 'text-white' : '',
+              ]"
               :style="
-                topic && color && color !== '#000000' && !isDarkColor(color)
+                !hasBackground &&
+                topic &&
+                color &&
+                color !== '#000000' &&
+                !isDarkColor(color)
                   ? { color: color }
                   : {}
               "
@@ -71,7 +87,14 @@
           </div>
 
           <!-- Edit Button -->
-          <button @click="startEditing" class="edit-btn" title="Edit topic">
+          <button
+            @click="startEditing"
+            class="edit-btn"
+            :class="{
+              'text-white/80 hover:text-white hover:bg-white/20': hasBackground,
+            }"
+            title="Edit topic"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="edit-icon"
@@ -232,6 +255,7 @@ const props = defineProps<{
   topic?: string;
   icon?: string;
   color?: string;
+  hasBackground?: boolean;
 }>();
 
 // Extract month abbreviation from formattedDate

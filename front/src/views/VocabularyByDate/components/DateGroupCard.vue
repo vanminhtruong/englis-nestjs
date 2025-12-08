@@ -20,7 +20,7 @@
       <!-- Header with Background Picker -->
       <div class="flex items-center">
         <div class="flex-1">
-          <slot name="header"></slot>
+          <slot name="header" :has-background="hasBackground"></slot>
         </div>
         <!-- Background Picker Button -->
         <div class="px-4 py-2">
@@ -232,7 +232,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import api from "../../../services/api.service";
 import { useItemBackground } from "../../../composables/useBackgroundState";
 
@@ -263,17 +263,24 @@ const categories = ref<{ value: string; label: string; icon: string }[]>([]);
 const activeCategory = ref("all");
 const selectedUrl = computed(() => backgroundUrl.value);
 
-// Calculate picker position based on card position
-const pickerPosition = computed(() => {
-  if (!cardRef.value) {
-    return { top: "100px", right: "20px" };
-  }
+// Reactive picker position
+const pickerPosition = ref({ top: "100px", right: "20px" });
+
+const updatePickerPosition = () => {
+  if (!cardRef.value) return;
   const rect = cardRef.value.getBoundingClientRect();
-  return {
+  pickerPosition.value = {
     top: `${rect.top + 60}px`,
     right: `${window.innerWidth - rect.right + 10}px`,
   };
-});
+};
+
+// Handle scroll - close picker when scrolling
+const handleScroll = () => {
+  if (showPicker.value) {
+    closePicker();
+  }
+};
 
 // Drag to scroll
 const categoryTabsRef = ref<HTMLElement | null>(null);
@@ -319,8 +326,11 @@ const filteredBackgrounds = computed(() => {
 
 const togglePicker = () => {
   showPicker.value = !showPicker.value;
-  if (showPicker.value && backgrounds.value.length === 0) {
-    loadData();
+  if (showPicker.value) {
+    updatePickerPosition();
+    if (backgrounds.value.length === 0) {
+      loadData();
+    }
   }
 };
 
@@ -358,6 +368,14 @@ onMounted(() => {
   if (backgroundUrl.value) {
     loadData();
   }
+  // Add scroll listener to parent scrollable elements
+  window.addEventListener("scroll", handleScroll, true);
+  window.addEventListener("resize", closePicker);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll, true);
+  window.removeEventListener("resize", closePicker);
 });
 </script>
 

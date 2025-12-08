@@ -17,6 +17,7 @@ export enum HistoryAction {
   PRACTICE_MULTIPLE_CHOICE = 'practice_multiple_choice',
   PRACTICE_TYPING = 'practice_typing',
   PRACTICE_LISTENING = 'practice_listening',
+  PRACTICE_BALL_SHOOTING = 'practice_ball_shooting',
 }
 
 @Entity('histories')
@@ -36,10 +37,12 @@ export class History {
   action: HistoryAction;
 
   // Lưu thông tin chi tiết về action
-  @Column({ type: 'text', nullable: true, transformer: {
-    to: (value: any) => value ? JSON.stringify(value) : null,
-    from: (value: string) => value ? JSON.parse(value) : null,
-  }})
+  @Column({
+    type: 'text', nullable: true, transformer: {
+      to: (value: any) => value ? JSON.stringify(value) : null,
+      from: (value: string) => value ? JSON.parse(value) : null,
+    }
+  })
   metadata: {
     // For vocabulary actions
     word?: string;

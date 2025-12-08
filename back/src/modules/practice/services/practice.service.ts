@@ -63,6 +63,9 @@ export class PracticeService {
       case 'image_guess':
         historyAction = HistoryAction.PRACTICE_TYPING; // Use typing action for image_guess
         break;
+      case 'ball_shooting':
+        historyAction = HistoryAction.PRACTICE_BALL_SHOOTING;
+        break;
       default:
         historyAction = HistoryAction.PRACTICE_FLASHCARD;
     }
@@ -139,6 +142,9 @@ export class PracticeService {
           break;
         case 'image_guess':
           historyAction = HistoryAction.PRACTICE_TYPING; // Use typing action for image_guess
+          break;
+        case 'ball_shooting':
+          historyAction = HistoryAction.PRACTICE_BALL_SHOOTING;
           break;
         default:
           historyAction = HistoryAction.PRACTICE_FLASHCARD;
