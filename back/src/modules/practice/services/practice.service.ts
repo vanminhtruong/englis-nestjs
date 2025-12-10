@@ -66,6 +66,9 @@ export class PracticeService {
       case 'ball_shooting':
         historyAction = HistoryAction.PRACTICE_BALL_SHOOTING;
         break;
+      case 'snake':
+        historyAction = HistoryAction.PRACTICE_SNAKE;
+        break;
       default:
         historyAction = HistoryAction.PRACTICE_FLASHCARD;
     }
@@ -145,6 +148,9 @@ export class PracticeService {
           break;
         case 'ball_shooting':
           historyAction = HistoryAction.PRACTICE_BALL_SHOOTING;
+          break;
+        case 'snake':
+          historyAction = HistoryAction.PRACTICE_SNAKE;
           break;
         default:
           historyAction = HistoryAction.PRACTICE_FLASHCARD;

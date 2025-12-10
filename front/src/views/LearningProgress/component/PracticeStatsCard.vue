@@ -101,6 +101,19 @@
           t("learningProgress.practice.listening")
         }}</span>
       </div>
+
+      <!-- Snake Game -->
+      <div class="practice-type-card">
+        <div
+          class="practice-icon bg-gradient-to-br from-emerald-400 to-green-600"
+        >
+          <span class="text-xl">🐍</span>
+        </div>
+        <span class="practice-count">{{ practiceStats.snakeCount }}</span>
+        <span class="practice-label">{{
+          t("practice.snakeGame") || "Snake Game"
+        }}</span>
+      </div>
     </div>
 
     <!-- Accuracy Chart -->

@@ -45,6 +45,7 @@
       />
 
       <!-- Ball Shooting Game Mode -->
+      <!-- Ball Shooting Game Mode -->
       <BallShootingGame
         v-else-if="isBallShootingMode && practiceState.isStarted.value"
         :questions="ballShootingQuestions"
@@ -52,12 +53,21 @@
         @complete="handleBallShootingComplete"
       />
 
+      <!-- Snake Game Mode -->
+      <SnakeGame
+        v-else-if="isSnakeMode && practiceState.isStarted.value"
+        :questions="snakeQuestions"
+        @back="practiceHandle.backToModeSelection"
+        @complete="handleSnakeComplete"
+      />
+
       <!-- Mode Selection with Start Button (for other modes) -->
       <ModeSelectionWithStart
         v-else-if="
           practiceState.isStarted.value &&
           !practiceState.showPractice.value &&
-          !isBallShootingMode
+          !isBallShootingMode &&
+          !isSnakeMode
         "
         :session="practiceState.session"
         @back="practiceHandle.backToModeSelection"
@@ -66,7 +76,7 @@
 
       <!-- Practice Session (for other modes) -->
       <PracticeSession
-        v-else-if="!isBallShootingMode"
+        v-else-if="!isBallShootingMode && !isSnakeMode"
         :session="practiceState.session"
         :current-question="practiceState.currentQuestion.value"
         :progress="practiceState.progress.value"
@@ -130,6 +140,9 @@ const ExitConfirmationModal = defineAsyncComponent(
 );
 const BallShootingGame = defineAsyncComponent(
   () => import("./component/BallShootingGame/BallShootingGame.vue")
+);
+const SnakeGame = defineAsyncComponent(
+  () => import("./component/SnakeGame/SnakeGame.vue")
 );
 
 const { t, mergeLocaleMessage } = useI18n();
@@ -219,6 +232,51 @@ async function handleBallShootingComplete(results: any) {
       });
     } catch (error) {
       console.error("Failed to submit ball shooting result:", error);
+    }
+  }
+}
+
+// Snake Game Logic
+const snakeQuestions = ref<any[]>([]);
+
+const isSnakeMode = computed(() => {
+  return practiceState.session.mode === "snake";
+});
+
+watch(
+  () => practiceState.session.mode,
+  async (newMode) => {
+    if (newMode === "snake" && practiceState.session.questions.length > 0) {
+      snakeQuestions.value = practiceState.session.questions.map((q) => ({
+        vocabularyId: q.vocabularyId,
+        word: q.word,
+        pronunciation: q.pronunciation,
+        meaning: q.meaning,
+        example: q.example,
+        image: q.image,
+      }));
+    }
+  },
+  { immediate: true }
+);
+
+async function handleSnakeComplete(results: any) {
+  console.log("Snake Game completed:", results);
+
+  // Submit results
+  for (const result of results.results) {
+    try {
+      await practiceService.submitPractice({
+        vocabularyId: result.vocabularyId,
+        practiceType: "snake", // Use 'snake' as practiceType
+        isCorrect: result.isCorrect,
+        userAnswer: result.isCorrect ? "Correct" : "Incorrect", // Or meaningful answer if available
+        timeSpent: Math.round(result.timeSpent),
+        score: result.score,
+        questionStartTime: Date.now() - result.timeSpent * 1000,
+      });
+    } catch (error) {
+      console.error("Failed to submit snake result:", error);
     }
   }
 }

@@ -18,6 +18,7 @@ export enum HistoryAction {
   PRACTICE_TYPING = 'practice_typing',
   PRACTICE_LISTENING = 'practice_listening',
   PRACTICE_BALL_SHOOTING = 'practice_ball_shooting',
+  PRACTICE_SNAKE = 'practice_snake',
 }
 
 @Entity('histories')

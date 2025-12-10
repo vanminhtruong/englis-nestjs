@@ -21,6 +21,7 @@ export interface PracticeStats {
     multipleChoiceCount: number
     typingCount: number
     listeningCount: number
+    snakeCount: number
     correctAnswers: number
     wrongAnswers: number
     accuracy: number

@@ -16,6 +16,7 @@ export enum PracticeType {
   LISTENING = 'listening',
   IMAGE_GUESS = 'image_guess',
   BALL_SHOOTING = 'ball_shooting',
+  SNAKE = 'snake',
 }
 
 @Entity('practice_histories')

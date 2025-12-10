@@ -150,6 +150,7 @@ const MODE_ICONS: Record<string, string> = {
   multiple_choice: "📝",
   listening: "🎧",
   ball_shooting: "🎯",
+  snake: "🐍",
 };
 
 function getModeIcon(key: string): string {
@@ -165,6 +166,7 @@ const MODE_NAME_KEYS: Record<string, string> = {
   multipleChoice: "practice.multipleChoice",
   listening: "practice.listening",
   ballShooting: "practice.ballShooting",
+  snake: "practice.snakeGame",
 };
 
 // Translation keys mapping for mode descriptions
@@ -176,6 +178,7 @@ const MODE_DESC_KEYS: Record<string, string> = {
   multipleChoice: "practice.modeDescriptions.multipleChoice",
   listening: "practice.modeDescriptions.listening",
   ballShooting: "practice.modeDescriptions.ballShooting",
+  snake: "practice.modeDescriptions.snakeGame",
 };
 
 function getModeName(nameKey: string): string {
@@ -468,6 +471,13 @@ function getModeDescription(descKey: string): string {
 }
 .mode-ball_shooting {
   --glow-color: rgba(6, 182, 212, 0.5);
+}
+
+.mode-snake .bg-gradient {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+.mode-snake {
+  --glow-color: rgba(16, 185, 129, 0.5);
 }
 
 /* Card Content */

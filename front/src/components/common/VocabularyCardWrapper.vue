@@ -1,6 +1,6 @@
 <template>
   <div
-    class="rounded-2xl border p-6 transition-all duration-500 overflow-hidden relative hover:shadow-xl group"
+    class="rounded-2xl border p-6 transition-all duration-500 relative hover:shadow-xl group"
     :class="[
       hasBackground || hasAnimatedBg
         ? 'border-white/20'
@@ -8,20 +8,25 @@
     ]"
     :style="hasBackground && !hasAnimatedBg ? backgroundStyle : {}"
   >
-    <!-- Animated Background -->
-    <FlowerGrowAnimation v-if="hasAnimatedBg" />
-
-    <!-- Static Background Overlay -->
+    <!-- Background Wrapper (Clip background effects but not popup) -->
     <div
-      v-if="hasBackground && !hasAnimatedBg"
-      class="absolute inset-0 bg-gradient-to-br from-black/40 via-black/20 to-black/50 pointer-events-none z-0"
-    ></div>
+      class="absolute inset-0 rounded-2xl overflow-hidden z-0 pointer-events-none"
+    >
+      <!-- Animated Background -->
+      <FlowerGrowAnimation v-if="hasAnimatedBg" />
 
-    <!-- Animated Background Overlay -->
-    <div
-      v-if="hasAnimatedBg"
-      class="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/30 pointer-events-none z-[1]"
-    ></div>
+      <!-- Static Background Overlay -->
+      <div
+        v-if="hasBackground && !hasAnimatedBg"
+        class="absolute inset-0 bg-gradient-to-br from-black/40 via-black/20 to-black/50"
+      ></div>
+
+      <!-- Animated Background Overlay -->
+      <div
+        v-if="hasAnimatedBg"
+        class="absolute inset-0 bg-gradient-to-br from-black/20 via-transparent to-black/30"
+      ></div>
+    </div>
 
     <!-- Background Picker Button -->
     <button
@@ -78,7 +83,7 @@
     >
       <div
         v-if="showPicker"
-        class="absolute top-12 right-3 w-80 max-h-[70vh] bg-white dark:bg-black backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden z-50"
+        class="absolute top-12 right-3 w-80 max-h-[450px] bg-white dark:bg-black rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden z-50 flex flex-col"
       >
         <!-- Header -->
         <div
@@ -183,7 +188,10 @@
           </div>
 
           <!-- Backgrounds Grid -->
-          <div v-else class="p-2 max-h-[40vh] overflow-y-auto scrollbar-thin">
+          <div
+            v-else
+            class="p-2 max-h-[250px] overflow-y-auto scrollbar-thin optimized-list"
+          >
             <div class="grid grid-cols-3 gap-1.5">
               <button
                 v-for="bg in filteredBackgrounds"
@@ -199,8 +207,9 @@
                 <img
                   :src="bg.url"
                   :alt="bg.name"
-                  class="w-full h-full object-cover transition-transform group-hover:scale-110"
+                  class="w-full h-full object-cover"
                   loading="lazy"
+                  decoding="async"
                 />
                 <div
                   v-if="selectedUrl === bg.url"
@@ -227,7 +236,7 @@
 
         <!-- Animated Backgrounds -->
         <template v-else>
-          <div class="p-3 max-h-[45vh] overflow-y-auto scrollbar-thin">
+          <div class="p-3 max-h-[250px] overflow-y-auto scrollbar-thin">
             <div class="grid grid-cols-2 gap-2">
               <button
                 v-for="anim in animatedBackgrounds"
@@ -474,5 +483,10 @@ const clearBackground = () => {
 .scrollbar-thin::-webkit-scrollbar-thumb {
   border-radius: 9999px;
   background: rgba(var(--primary-500), 0.3);
+}
+
+.optimized-list {
+  content-visibility: auto;
+  contain-intrinsic-size: 250px;
 }
 </style>

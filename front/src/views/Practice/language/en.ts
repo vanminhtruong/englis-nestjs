@@ -11,6 +11,7 @@ export default {
   imageGuess: 'Image Guess',
   practiceByDateMode: 'Practice by Date',
   ballShooting: 'Ball Shooting',
+  snakeGame: 'Snake Game',
 
   // Mode descriptions
   modeDescriptions: {
@@ -21,6 +22,7 @@ export default {
     multipleChoice: 'Select the correct answer',
     listening: 'Listen and identify the word',
     ballShooting: 'Shoot the ball with the correct word!',
+    snakeGame: 'Control the snake to eat the correct meaning!',
   },
 
   // Ball Shooting Game

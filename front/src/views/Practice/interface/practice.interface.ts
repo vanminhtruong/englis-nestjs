@@ -8,7 +8,7 @@ export interface PracticeQuestion {
   options?: string[]
 }
 
-export type PracticeMode = 'flashcard' | 'multiple_choice' | 'typing' | 'listening' | 'image_guess' | 'ball_shooting'
+export type PracticeMode = 'flashcard' | 'multiple_choice' | 'typing' | 'listening' | 'image_guess' | 'ball_shooting' | 'snake'
 
 export interface DateOption {
   date: string

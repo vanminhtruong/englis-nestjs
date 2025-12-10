@@ -12,6 +12,7 @@ export default {
   imageGuess: 'Đuổi hình bắt chữ',
   practiceByDateMode: 'Luyện tập theo ngày',
   ballShooting: 'Bắn Bóng',
+  snakeGame: 'Rắn Săn Mồi',
 
   // Mode descriptions
   modeDescriptions: {
@@ -22,6 +23,7 @@ export default {
     multipleChoice: 'Chọn đáp án đúng',
     listening: 'Nghe và nhận biết từ',
     ballShooting: 'Bắn quả bóng chứa từ đúng!',
+    snakeGame: 'Điều khiển rắn ăn từ vựng có nghĩa đúng!',
   },
 
   // Ball Shooting Game

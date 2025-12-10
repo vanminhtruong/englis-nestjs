@@ -66,6 +66,8 @@ export class LearningProgressRepository {
             HistoryAction.PRACTICE_MULTIPLE_CHOICE,
             HistoryAction.PRACTICE_TYPING,
             HistoryAction.PRACTICE_LISTENING,
+            HistoryAction.PRACTICE_BALL_SHOOTING,
+            HistoryAction.PRACTICE_SNAKE,
         ];
 
         const practiceHistories = histories.filter(h =>
@@ -83,6 +85,9 @@ export class LearningProgressRepository {
         ).length;
         const listeningCount = practiceHistories.filter(
             h => h.action === HistoryAction.PRACTICE_LISTENING
+        ).length;
+        const snakeCount = practiceHistories.filter(
+            h => h.action === HistoryAction.PRACTICE_SNAKE
         ).length;
 
         const correctAnswers = practiceHistories.filter(
@@ -107,6 +112,7 @@ export class LearningProgressRepository {
             multipleChoiceCount,
             typingCount,
             listeningCount,
+            snakeCount,
             correctAnswers,
             wrongAnswers,
             accuracy,
@@ -134,6 +140,8 @@ export class LearningProgressRepository {
             HistoryAction.PRACTICE_MULTIPLE_CHOICE,
             HistoryAction.PRACTICE_TYPING,
             HistoryAction.PRACTICE_LISTENING,
+            HistoryAction.PRACTICE_BALL_SHOOTING,
+            HistoryAction.PRACTICE_SNAKE,
         ];
 
         const practiceHistories = histories.filter(h =>
@@ -231,6 +239,8 @@ export class LearningProgressRepository {
                 HistoryAction.PRACTICE_MULTIPLE_CHOICE,
                 HistoryAction.PRACTICE_TYPING,
                 HistoryAction.PRACTICE_LISTENING,
+                HistoryAction.PRACTICE_BALL_SHOOTING,
+                HistoryAction.PRACTICE_SNAKE,
             ];
 
             const practiceCount = practiceHistories.filter(h =>
@@ -272,6 +282,8 @@ export class LearningProgressRepository {
             HistoryAction.PRACTICE_MULTIPLE_CHOICE,
             HistoryAction.PRACTICE_TYPING,
             HistoryAction.PRACTICE_LISTENING,
+            HistoryAction.PRACTICE_BALL_SHOOTING,
+            HistoryAction.PRACTICE_SNAKE,
         ];
 
         const practiceHistories = histories.filter(h =>

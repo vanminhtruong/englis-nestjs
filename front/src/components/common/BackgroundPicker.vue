@@ -38,7 +38,7 @@
       <div
         v-if="isOpen"
         v-click-outside="closePicker"
-        class="absolute top-full right-0 mt-2 w-80 max-h-[70vh] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-black/10 dark:border-white/10 overflow-hidden z-50"
+        class="absolute top-full right-0 mt-2 w-80 max-h-[50vh] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-black/10 dark:border-white/10 overflow-hidden z-50"
       >
         <!-- Header -->
         <div
@@ -95,7 +95,7 @@
         <!-- Backgrounds Grid -->
         <div
           v-else
-          class="p-3 max-h-[50vh] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-500/30 hover:scrollbar-thumb-primary-500/50"
+          class="p-3 max-h-[35vh] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-500/30 hover:scrollbar-thumb-primary-500/50"
         >
           <div class="grid grid-cols-3 gap-2">
             <button
@@ -257,16 +257,45 @@ watch(
 // Custom directive for click outside
 const vClickOutside = {
   mounted(el: any, binding: any) {
-    el.clickOutsideEvent = (event: Event) => {
-      if (!(el === event.target || el.contains(event.target))) {
+    let isMouseDownInside = false;
+    let startX = 0;
+    let startY = 0;
+
+    el.mouseDownEvent = (event: MouseEvent) => {
+      isMouseDownInside = el.contains(event.target as Node);
+      startX = event.clientX;
+      startY = event.clientY;
+    };
+
+    el.clickOutsideEvent = (event: MouseEvent) => {
+      // Check if click is on the window scrollbar
+      const isScrollbar =
+        event.clientX >= document.documentElement.clientWidth ||
+        event.clientY >= document.documentElement.clientHeight;
+
+      // Check if mouse moved significantly (drag)
+      const moved =
+        Math.abs(event.clientX - startX) > 5 ||
+        Math.abs(event.clientY - startY) > 5;
+
+      if (
+        !isScrollbar &&
+        !moved &&
+        !isMouseDownInside &&
+        !el.contains(event.target as Node)
+      ) {
         binding.value();
       }
+      isMouseDownInside = false;
     };
+
     setTimeout(() => {
+      document.addEventListener("mousedown", el.mouseDownEvent);
       document.addEventListener("click", el.clickOutsideEvent);
     }, 0);
   },
   unmounted(el: any) {
+    document.removeEventListener("mousedown", el.mouseDownEvent);
     document.removeEventListener("click", el.clickOutsideEvent);
   },
 };

@@ -55,6 +55,16 @@ const HARDCODED_PRACTICE_MODES: PracticeModeEntity[] = [
     isActive: true,
     sortOrder: 5,
   },
+  {
+    id: 'snake',
+    key: 'snake',
+    name: 'snakeGame', // translation key: practice.snakeGame
+    description: 'snakeGame', // translation key: practice.modeDescriptions.snakeGame
+    icon: '🐍',
+    color: 'from-green-500 to-emerald-500',
+    isActive: true,
+    sortOrder: 6,
+  },
 ]
 
 export function usePracticeState() {

@@ -9,10 +9,10 @@ export class LoginService {
     try {
       const response = await apiService.auth.login({ email, password })
       const { user, token } = response.data
-      
+
       this.authStore.setAuth(user, token)
       websocketService.connect()
-      
+
       return { success: true, user }
     } catch (error: any) {
       return {

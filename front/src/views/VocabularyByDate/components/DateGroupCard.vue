@@ -77,7 +77,7 @@
       >
         <div
           v-if="showPicker"
-          class="fixed w-80 max-h-[70vh] bg-white dark:bg-black backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden z-[9999]"
+          class="fixed w-80 max-h-[50vh] bg-white dark:bg-black backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden z-[9999]"
           :style="pickerPosition"
         >
           <!-- Header -->
@@ -158,7 +158,7 @@
           </div>
 
           <!-- Backgrounds Grid -->
-          <div v-else class="p-3 max-h-[50vh] overflow-y-auto scrollbar-thin">
+          <div v-else class="p-3 max-h-[35vh] overflow-y-auto scrollbar-thin">
             <div class="grid grid-cols-3 gap-2">
               <button
                 v-for="bg in filteredBackgrounds"
@@ -278,7 +278,7 @@ const updatePickerPosition = () => {
 // Handle scroll - close picker when scrolling
 const handleScroll = () => {
   if (showPicker.value) {
-    closePicker();
+    requestAnimationFrame(updatePickerPosition);
   }
 };
 
