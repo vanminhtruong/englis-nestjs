@@ -37,16 +37,19 @@ export function useProfileHandle(
     }
 
     const result = await profileService.updateProfile(payload)
+    let success = false
 
     if (result.success && result.data) {
       setProfile(result.data)
       authStore.updateUser(result.data)
       showSuccess(t('profile.messages.updateSuccess'))
+      success = true
     } else if (!result.success && result.error) {
       showError(result.error || t('profile.messages.updateError'))
     }
 
     setSaving(false)
+    return success
   }
 
   const handleProfileUpdatedFromWS = (updated: UserProfile) => {

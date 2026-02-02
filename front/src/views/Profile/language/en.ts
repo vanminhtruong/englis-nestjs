@@ -1,6 +1,7 @@
 export default {
   title: 'Profile',
   subtitle: 'Manage your personal information and preferences',
+  editProfile: 'Edit Profile',
   exportData: 'Export Data',
   importData: 'Import Data',
   sections: {

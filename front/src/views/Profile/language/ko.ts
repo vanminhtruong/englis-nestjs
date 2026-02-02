@@ -1,6 +1,7 @@
 export default {
   title: '프로필',
   subtitle: '개인 정보와 환경 설정을 관리하세요',
+  editProfile: '프로필 수정',
   exportData: '데이터 내보내기',
   importData: '데이터 가져오기',
   sections: {

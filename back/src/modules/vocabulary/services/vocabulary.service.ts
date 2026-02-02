@@ -91,4 +91,8 @@ export class VocabularyService {
   async updateTopic(userId: string, date: string, topic: string, icon?: string, color?: string) {
     return this.vocabularyRepository.updateTopic(userId, date, topic, icon, color);
   }
+
+  async updateFilterState(userId: string, isExpanded: boolean) {
+    return this.vocabularyRepository.updateFilterState(userId, isExpanded);
+  }
 }

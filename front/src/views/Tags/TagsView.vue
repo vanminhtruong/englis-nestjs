@@ -50,6 +50,7 @@ import { useTagsMount } from "./composable/manager-mount/useTagsMount";
 import enLang from "./language/en";
 import viLang from "./language/vi";
 import koLang from "./language/ko";
+import zhCNLang from "./language/zh-CN";
 
 const TagsHeader = defineAsyncComponent(
   () => import("./component/TagsHeader.vue") as any
@@ -75,6 +76,7 @@ const { t, mergeLocaleMessage } = useI18n();
 mergeLocaleMessage("en", { tags: enLang });
 mergeLocaleMessage("vi", { tags: viLang });
 mergeLocaleMessage("ko", { tags: koLang });
+mergeLocaleMessage("zh-CN", { tags: zhCNLang });
 
 const {
   tags,

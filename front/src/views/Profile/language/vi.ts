@@ -1,6 +1,7 @@
 export default {
   title: 'Hồ sơ',
   subtitle: 'Quản lý thông tin cá nhân và tuỳ chọn của bạn',
+  editProfile: 'Chỉnh sửa hồ sơ',
   exportData: 'Xuất dữ liệu',
   importData: 'Nhập dữ liệu',
   sections: {

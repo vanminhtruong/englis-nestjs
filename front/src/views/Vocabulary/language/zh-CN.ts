@@ -1,0 +1,98 @@
+export default {
+    title: '词汇管理',
+    addNew: '添加新单词',
+    search: '搜索词汇...',
+    filter: '按难度筛选',
+    gridView: '网格视图',
+    listView: '列表视图',
+    all: '全部',
+    easy: '简单',
+    medium: '中等',
+    hard: '困难',
+    noVocabulary: '暂无词汇',
+    addFirstVocabulary: '添加您的第一个词汇',
+
+    word: '单词',
+    pronunciation: '发音',
+    meaning: '含义',
+    example: '例句',
+    exampleTranslation: '例句翻译',
+    difficulty: '难度',
+    tags: '标签（用逗号分隔）',
+    categories: '分类',
+
+    edit: '编辑',
+    delete: '删除',
+    save: '保存',
+    cancel: '取消',
+    close: '关闭',
+
+    createTitle: '添加新词汇',
+    editTitle: '编辑词汇',
+    deleteConfirm: '您确定要删除这个单词吗？',
+
+    new: '新词',
+    learning: '学习中',
+    familiar: '熟悉',
+    mastered: '已掌握',
+
+    totalWords: '总单词数',
+    correctCount: '正确',
+    incorrectCount: '错误',
+
+    speak: '朗读',
+    favorite: '添加到收藏',
+    unfavorite: '取消收藏',
+    pin: '置顶',
+    unpin: '取消置顶',
+    createdAt: '创建于',
+    favorites: '收藏',
+    noFavorites: '暂无收藏词汇',
+    addFavoriteHint: '点击词汇卡片上的星标图标将其添加到收藏',
+    goToVocabulary: '前往词汇',
+
+    // Image upload
+    image: '图片',
+    uploadFile: '上传文件',
+    pasteUrl: '粘贴链接',
+    pasteImage: '粘贴图片',
+    imageUrlPlaceholder: '输入图片链接...',
+    loadImage: '加载图片',
+    selectCategory: '选择分类',
+
+    previewImage: '图片预览',
+    resetImage: '重置',
+    noImage: '暂无图片',
+
+    // IPA Pronunciation
+    ipaBuilder: 'IPA发音构建器',
+    buildPronunciation: '使用IPA符号构建发音',
+    consonants: '辅音',
+    vowels: '元音',
+    diacritics: '变音符号',
+    stressMarks: '重音符号',
+    otherSymbols: '其他符号',
+    manualInput: '手动输入',
+    preview: '预览',
+    clear: '清除',
+    backspace: '退格',
+    confirm: '确认',
+
+    // Video
+    video: '视频',
+    uploadVideo: '上传视频',
+    pasteVideoUrl: '粘贴视频链接',
+    videoUrlPlaceholder: '输入视频链接（YouTube、Vimeo等）...',
+    loadVideo: '加载视频',
+    removeVideo: '删除视频',
+    noVideo: '暂无视频',
+
+    // Note
+    note: {
+        title: '"{word}"的笔记',
+        edit: '编辑笔记',
+        add: '添加笔记',
+        placeholder: '在这里写下您的想法...',
+        save: '保存笔记',
+    }
+}

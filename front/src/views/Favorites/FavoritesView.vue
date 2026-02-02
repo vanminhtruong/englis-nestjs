@@ -299,6 +299,7 @@ import { useFavoritesMount } from "./composable/manager-mount/useFavoritesMount"
 import enLang from "./language/en";
 import viLang from "./language/vi";
 import koLang from "./language/ko";
+import zhCNLang from "./language/zh-CN";
 
 const { t, mergeLocaleMessage } = useI18n();
 
@@ -306,6 +307,7 @@ const { t, mergeLocaleMessage } = useI18n();
 mergeLocaleMessage("en", { favorites: enLang });
 mergeLocaleMessage("vi", { favorites: viLang });
 mergeLocaleMessage("ko", { favorites: koLang });
+mergeLocaleMessage("zh-CN", { favorites: zhCNLang });
 
 const VocabularyDetailModal = defineAsyncComponent(
   () => import("../../components/VocabularyDetailModal.vue") as any

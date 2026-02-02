@@ -51,6 +51,7 @@ import { useCategoriesMount } from "./composable/manager-mount/useCategoriesMoun
 import enLang from "./language/en";
 import viLang from "./language/vi";
 import koLang from "./language/ko";
+import zhCNLang from "./language/zh-CN";
 
 const CategoriesHeader = defineAsyncComponent(
   () => import("./component/CategoriesHeader.vue") as any
@@ -76,6 +77,7 @@ const { mergeLocaleMessage } = useI18n();
 mergeLocaleMessage("en", { categories: enLang });
 mergeLocaleMessage("vi", { categories: viLang });
 mergeLocaleMessage("ko", { categories: koLang });
+mergeLocaleMessage("zh-CN", { categories: zhCNLang });
 
 const {
   categories,

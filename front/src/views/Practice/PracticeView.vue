@@ -118,6 +118,7 @@ import { practiceService } from "./service/practice.service";
 import enLang from "./language/en";
 import viLang from "./language/vi";
 import koLang from "./language/ko";
+import zhCNLang from "./language/zh-CN";
 
 // Async Components
 const PracticeModeSelection = defineAsyncComponent(
@@ -151,6 +152,7 @@ const { t, mergeLocaleMessage } = useI18n();
 mergeLocaleMessage("en", { practice: enLang });
 mergeLocaleMessage("vi", { practice: viLang });
 mergeLocaleMessage("ko", { practice: koLang });
+mergeLocaleMessage("zh-CN", { practice: zhCNLang });
 
 const practiceState = usePracticeState();
 

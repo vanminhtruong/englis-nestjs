@@ -310,4 +310,8 @@ export class VocabularyRepository {
 
     await this.repository.save(toMove);
   }
+
+  async updateFilterState(userId: string, isExpanded: boolean): Promise<void> {
+    await this.repository.update({ userId }, { isFilterExpanded: isExpanded });
+  }
 }

@@ -113,4 +113,7 @@ export class Vocabulary {
 
   @Column({ type: 'datetime', nullable: true })
   nextReviewAt: Date;
+
+  @Column({ default: true })
+  isFilterExpanded: boolean;
 }

@@ -67,6 +67,26 @@ async function seedVoices() {
       isActive: true,
       sortOrder: 6,
     },
+    {
+      key: 'zh-cn-standard-female-1',
+      name: '简体中文 女声 1',
+      languageCode: 'zh-CN',
+      gender: 'female' as const,
+      provider: 'browser',
+      isDefault: false,
+      isActive: true,
+      sortOrder: 7,
+    },
+    {
+      key: 'zh-cn-standard-male-1',
+      name: '简体中文 男声 1',
+      languageCode: 'zh-CN',
+      gender: 'male' as const,
+      provider: 'browser',
+      isDefault: false,
+      isActive: true,
+      sortOrder: 8,
+    },
   ];
 
   try {

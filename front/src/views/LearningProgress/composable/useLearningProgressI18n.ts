@@ -4,6 +4,7 @@ import { useLanguage } from '../../../composables/useLanguage'
 import viMessages from '../language/vi'
 import enMessages from '../language/en'
 import koMessages from '../language/ko'
+import zhCNMessages from '../language/zh-CN'
 
 export function useLearningProgressI18n() {
     const { locale, mergeLocaleMessage } = useI18n()
@@ -13,13 +14,16 @@ export function useLearningProgressI18n() {
     mergeLocaleMessage('vi', { learningProgress: viMessages })
     mergeLocaleMessage('en', { learningProgress: enMessages })
     mergeLocaleMessage('ko', { learningProgress: koMessages })
+    mergeLocaleMessage('zh-CN', { learningProgress: zhCNMessages })
 
     // Watch for locale changes
     watch(currentLocale, () => {
         mergeLocaleMessage('vi', { learningProgress: viMessages })
         mergeLocaleMessage('en', { learningProgress: enMessages })
         mergeLocaleMessage('ko', { learningProgress: koMessages })
+        mergeLocaleMessage('zh-CN', { learningProgress: zhCNMessages })
     })
 
     return { locale }
 }
+

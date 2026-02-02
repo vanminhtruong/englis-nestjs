@@ -65,6 +65,7 @@ import { useCategoryDetailMount } from "./composable/manager-mount/useCategoryDe
 import enLang from "./language/en";
 import viLang from "./language/vi";
 import koLang from "./language/ko";
+import zhCNLang from "./language/zh-CN";
 
 const CategoryDetailLoading = defineAsyncComponent(
   () => import("./component/CategoryDetailLoading.vue") as any
@@ -92,6 +93,7 @@ const { mergeLocaleMessage } = useI18n();
 mergeLocaleMessage("en", { categories: enLang });
 mergeLocaleMessage("vi", { categories: viLang });
 mergeLocaleMessage("ko", { categories: koLang });
+mergeLocaleMessage("zh-CN", { categories: zhCNLang });
 
 const detailState = useCategoryDetailState();
 

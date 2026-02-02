@@ -1,0 +1,18 @@
+export default {
+    title: '语音设置',
+    subtitle: '选择您用于发音和听力练习的首选语音。',
+    defaultVoiceTitle: '默认练习语音',
+    defaultVoiceDescription: '此语音将用于练习和词汇发音。',
+    language: '语言',
+    voice: '语音',
+    preview: '预览',
+    save: '保存更改',
+    browserVoicesTitle: '浏览器语音',
+    browserVoicesDescription: '这些语音由您的浏览器通过 Web Speech API 提供。',
+    noVoices: '没有可用的浏览器语音。请尝试刷新页面或使用其他浏览器。',
+    previewSample: '这是用于语音预览的示例句子。',
+    previewNotSupported: '此浏览器不支持文字转语音。',
+    loadError: '无法从服务器加载语音。',
+    saveSuccess: '首选语音已成功更新。',
+    saveError: '保存首选语音失败。',
+}

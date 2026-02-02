@@ -80,6 +80,8 @@ export default {
       apiClient.post('/vocabulary/move-by-date', data),
     updateCategoryTopic: (data: { date: string; topic: string; icon?: string; color?: string }) =>
       apiClient.put('/vocabulary/category-topic/update', data),
+    updateFilterState: (isExpanded: boolean) =>
+      apiClient.patch('/vocabulary/settings/filter-state', { isExpanded }),
   },
 
   practice: {

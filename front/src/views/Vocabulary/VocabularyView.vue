@@ -17,6 +17,7 @@
             :difficulty-label="t(vocabularyState.difficultyLabel)"
             :show-difficulty-dropdown="vocabularyState.showDifficultyDropdown"
             :current-difficulty="vocabularyState.filter.difficulty"
+            :is-filters-expanded="isFiltersExpanded"
             :labels="{
               searchPlaceholder: t('vocabulary.search'),
               addNew: t('vocabulary.addNew'),
@@ -30,6 +31,7 @@
               vocabularyState.showDifficultyDropdown =
                 !vocabularyState.showDifficultyDropdown
             "
+            @update:is-filters-expanded="handleFilterToggle"
             @set-difficulty="vocabularyState.setDifficultyFilter"
             @create="vocabularyState.openCreateModal"
           />
@@ -179,8 +181,10 @@ import {
   ref,
   onMounted,
   onUnmounted,
+  watch,
 } from "vue";
 import { useI18n } from "vue-i18n";
+import apiService from "../../services/api.service";
 import { useVocabularyState } from "./composable/manager-state/useVocabularyState";
 import { useVocabularyHandle } from "./composable/manager-handle/useVocabularyHandle";
 import { useVocabularyMount } from "./composable/manager-mount/useVocabularyMount";
@@ -189,6 +193,7 @@ import { useVocabularyLayoutHandle } from "./composable/manager-handle/useVocabu
 import enLang from "./language/en";
 import viLang from "./language/vi";
 import koLang from "./language/ko";
+import zhCNLang from "./language/zh-CN";
 
 const VocabularyHeader = defineAsyncComponent(
   () => import("./component/VocabularyHeader.vue") as any
@@ -223,6 +228,7 @@ const { t, locale, mergeLocaleMessage } = useI18n();
 mergeLocaleMessage("en", { vocabulary: enLang });
 mergeLocaleMessage("vi", { vocabulary: viLang });
 mergeLocaleMessage("ko", { vocabulary: koLang });
+mergeLocaleMessage("zh-CN", { vocabulary: zhCNLang });
 
 const vocabularyStateStore = useVocabularyState();
 const vocabularyState = proxyRefs(vocabularyStateStore);
@@ -286,6 +292,7 @@ function formatDate(dateString: string) {
     en: "en-US",
     vi: "vi-VN",
     ko: "ko-KR",
+    "zh-CN": "zh-CN",
   };
   return date.toLocaleDateString(localeMap[locale.value] || "en-US", {
     year: "numeric",
@@ -299,6 +306,32 @@ useVocabularyMount();
 const controlsRef = ref<HTMLElement | null>(null);
 const showStickyAddButton = ref(false);
 let observer: IntersectionObserver | null = null;
+const isFiltersExpanded = ref(true);
+const isInitialized = ref(false);
+
+watch(
+  () => vocabularyState.store.vocabularies,
+  (newVal) => {
+    if (newVal && newVal.length > 0 && !isInitialized.value) {
+      // Check if isFilterExpanded is explicitly false in DB
+      const dbValue = (newVal[0] as any).isFilterExpanded;
+      if (dbValue !== undefined) {
+        isFiltersExpanded.value = dbValue;
+      }
+      isInitialized.value = true;
+    }
+  },
+  { deep: true, immediate: true }
+);
+
+async function handleFilterToggle(value: boolean) {
+  isFiltersExpanded.value = value;
+  try {
+    await apiService.vocabulary.updateFilterState(value);
+  } catch (error) {
+    console.error("Failed to update filter state", error);
+  }
+}
 
 onMounted(() => {
   observer = new IntersectionObserver(

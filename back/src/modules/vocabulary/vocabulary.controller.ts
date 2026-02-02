@@ -103,6 +103,12 @@ export class VocabularyController {
     return this.vocabularyService.findByLearningDate(req.user.id);
   }
 
+  @Patch('settings/filter-state')
+  async updateFilterState(@Body('isExpanded') isExpanded: boolean, @Request() req) {
+    await this.vocabularyService.updateFilterState(req.user.id, isExpanded);
+    return { success: true };
+  }
+
   @Get(':id')
   async findById(@Param('id') id: string, @Request() req) {
     return this.vocabularyService.findById(id, req.user.id);
