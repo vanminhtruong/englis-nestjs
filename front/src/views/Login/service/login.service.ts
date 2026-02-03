@@ -5,9 +5,9 @@ import { websocketService } from '../../../services/websocket.service'
 export class LoginService {
   private authStore = useAuthStore()
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string, rememberMe: boolean = false) {
     try {
-      const response = await apiService.auth.login({ email, password })
+      const response = await apiService.auth.login({ email, password, rememberMe })
       const { user, token } = response.data
 
       this.authStore.setAuth(user, token)

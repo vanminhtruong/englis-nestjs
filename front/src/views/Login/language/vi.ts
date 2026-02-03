@@ -12,4 +12,5 @@ export default {
   forgotPassword: 'Quên mật khẩu?',
   emailRequired: 'Vui lòng nhập email',
   passwordRequired: 'Vui lòng nhập mật khẩu',
+  rememberMe: 'Ghi nhớ đăng nhập',
 }

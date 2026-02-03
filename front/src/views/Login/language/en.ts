@@ -10,4 +10,6 @@ export default {
   register: 'Register',
   emailRequired: 'Email is required',
   passwordRequired: 'Password is required',
+  rememberMe: 'Remember me',
+  forgotPassword: 'Forgot password?',
 }

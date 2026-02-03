@@ -10,4 +10,6 @@ export default {
     register: '注册',
     emailRequired: '邮箱是必填项',
     passwordRequired: '密码是必填项',
+    rememberMe: '记住我',
+    forgotPassword: '忘记密码？',
 }

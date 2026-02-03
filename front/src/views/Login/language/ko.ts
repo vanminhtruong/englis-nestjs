@@ -10,4 +10,6 @@ export default {
   register: '회원가입',
   emailRequired: '이메일을 입력하세요',
   passwordRequired: '비밀번호를 입력하세요',
+  rememberMe: '로그인 유지',
+  forgotPassword: '비밀번호를 잊으셨나요?',
 }

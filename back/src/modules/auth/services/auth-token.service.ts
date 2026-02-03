@@ -8,11 +8,12 @@ export interface JwtPayload {
 
 @Injectable()
 export class AuthTokenService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) { }
 
-  generateToken(userId: string, email: string): string {
+  generateToken(userId: string, email: string, rememberMe?: boolean): string {
     const payload: JwtPayload = { sub: userId, email };
-    return this.jwtService.sign(payload);
+    const expiresIn = rememberMe ? '30d' : '1d';
+    return this.jwtService.sign(payload, { expiresIn });
   }
 
   verifyToken(token: string): JwtPayload {

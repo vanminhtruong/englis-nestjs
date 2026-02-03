@@ -5,6 +5,7 @@ export function useLoginState() {
   const form = reactive<LoginForm>({
     email: '',
     password: '',
+    rememberMe: false,
   })
 
   const loading = ref(false)
@@ -13,6 +14,7 @@ export function useLoginState() {
   function resetForm() {
     form.email = ''
     form.password = ''
+    form.rememberMe = false
     error.value = null
   }
 

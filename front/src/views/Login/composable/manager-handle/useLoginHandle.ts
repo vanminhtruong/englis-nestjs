@@ -21,10 +21,16 @@ export function useLoginHandle(
     }
 
     setLoading(true)
-    const result = await loginService.login(form.email, form.password)
+    const result = await loginService.login(form.email, form.password, form.rememberMe)
     setLoading(false)
 
     if (result.success) {
+      if (form.rememberMe) {
+        localStorage.setItem('rememberedEmail', form.email)
+      } else {
+        localStorage.removeItem('rememberedEmail')
+      }
+
       toast.showSuccess('Login successful')
       router.push('/vocabulary')
     } else {

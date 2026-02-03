@@ -48,6 +48,30 @@
             />
           </div>
 
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <input
+                id="remember"
+                v-model="form.rememberMe"
+                type="checkbox"
+                class="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+              />
+              <label
+                for="remember"
+                class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer select-none"
+              >
+                {{ t("login.rememberMe") }}
+              </label>
+            </div>
+
+            <a
+              href="#"
+              class="text-sm text-primary-600 hover:text-primary-500 font-medium hover:underline"
+            >
+              {{ t("login.forgotPassword") }}
+            </a>
+          </div>
+
           <div
             v-if="error"
             class="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl"
@@ -90,5 +114,5 @@ const { t } = useI18n();
 const { form, loading, error, setLoading, setError } = useLoginState();
 const { handleLogin } = useLoginHandle(form, setLoading, setError);
 
-useLoginMount();
+useLoginMount(form);
 </script>

@@ -103,7 +103,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const token = this.tokenService.generateToken(user.id, user.email);
+    const token = this.tokenService.generateToken(user.id, user.email, loginDto.rememberMe);
 
     return {
       user: {
