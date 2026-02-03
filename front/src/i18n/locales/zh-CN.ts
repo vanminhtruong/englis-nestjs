@@ -10,6 +10,7 @@ export default {
     error: '错误',
     success: '成功',
     avatarPreview: '头像预览',
+    appName: 'VocabMaster',
   },
 
   background: {
@@ -40,6 +41,7 @@ export default {
     logout: '退出登录',
     words: '个单词',
     language: '语言',
+    logoutConfirm: '您确定要退出吗？',
   },
 
   footer: {

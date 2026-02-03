@@ -10,6 +10,7 @@ export default {
     error: '오류',
     success: '성공',
     avatarPreview: '아바타 미리보기',
+    appName: 'VocabMaster',
   },
 
   background: {
@@ -40,6 +41,7 @@ export default {
     logout: '로그아웃',
     words: '단어',
     language: '언어',
+    logoutConfirm: '정말 로그아웃 하시겠습니까?',
   },
 
   footer: {

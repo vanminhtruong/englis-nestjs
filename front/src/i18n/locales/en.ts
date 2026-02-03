@@ -10,6 +10,7 @@ export default {
     error: 'Error',
     success: 'Success',
     avatarPreview: 'Avatar Preview',
+    appName: 'VocabMaster',
   },
 
   background: {
@@ -40,6 +41,7 @@ export default {
     logout: 'Logout',
     words: 'words',
     language: 'Language',
+    logoutConfirm: 'Are you sure you want to logout?',
   },
 
   footer: {

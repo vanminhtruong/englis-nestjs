@@ -6,11 +6,11 @@ import type { VocabularyForm, VocabularyFilter } from '../../interface/vocabular
 export function useVocabularyState() {
   const store = useVocabularyStore()
   const authStore = useAuthStore()
-  
+
   const showModal = ref(false)
   const isEditing = ref(false)
   const editingId = ref<string | null>(null)
-  
+
   const form = reactive<VocabularyForm>({
     word: '',
     pronunciation: '',
@@ -69,7 +69,7 @@ export function useVocabularyState() {
     form.difficulty = vocabulary.difficulty
     form.tags = vocabulary.tags || []
     form.categoryIds = vocabulary.categories?.map((c: any) => c.id) || []
-    
+
     isEditing.value = true
     editingId.value = vocabulary.id
     showModal.value = true

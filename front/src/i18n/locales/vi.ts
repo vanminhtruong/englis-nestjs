@@ -10,6 +10,7 @@ export default {
     error: 'Lỗi',
     success: 'Thành công',
     avatarPreview: 'Xem trước Avatar',
+    appName: 'VocabMaster',
   },
 
   background: {
@@ -40,6 +41,7 @@ export default {
     logout: 'Đăng xuất',
     words: 'từ',
     language: 'Ngôn ngữ',
+    logoutConfirm: 'Bạn có chắc chắn muốn đăng xuất?',
   },
 
   footer: {

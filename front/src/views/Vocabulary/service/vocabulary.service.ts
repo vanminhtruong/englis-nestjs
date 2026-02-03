@@ -136,11 +136,11 @@ export class VocabularyService {
   }
 
   cleanupWebSocketListeners() {
-    websocketService.off('vocabulary:created', () => {})
-    websocketService.off('vocabulary:updated', () => {})
-    websocketService.off('vocabulary:deleted', () => {})
-    websocketService.off('vocabulary:favorited', () => {})
-    websocketService.off('vocabulary:pinned', () => {})
+    websocketService.off('vocabulary:created', () => { })
+    websocketService.off('vocabulary:updated', () => { })
+    websocketService.off('vocabulary:deleted', () => { })
+    websocketService.off('vocabulary:favorited', () => { })
+    websocketService.off('vocabulary:pinned', () => { })
   }
 }
 

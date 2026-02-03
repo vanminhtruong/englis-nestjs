@@ -3,7 +3,7 @@
     <VocabularyCardWrapper
       v-for="vocab in vocabularies"
       :key="vocab.id"
-      :item-id="`vocab-list-${vocab.id}`"
+      :item-id="`vocab-${vocab.id}`"
       class="group"
     >
       <template #default="{ hasBackground }">

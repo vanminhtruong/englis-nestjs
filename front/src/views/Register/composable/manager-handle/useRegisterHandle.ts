@@ -1,6 +1,8 @@
 import { useRouter } from 'vue-router'
 import { registerService } from '../../service/register.service'
 import type { RegisterForm } from '../../interface/register.interface'
+import { useAuthValidation } from '../../../../composables/useAuthValidation'
+import { useToast } from '../../../../composables/useToast'
 
 export function useRegisterHandle(
   form: RegisterForm,
@@ -8,22 +10,13 @@ export function useRegisterHandle(
   setError: (message: string | null) => void
 ) {
   const router = useRouter()
+  const { validateRegister } = useAuthValidation()
+  const toast = useToast()
 
   async function handleRegister() {
     setError(null)
-    
-    if (!form.fullName || !form.email || !form.password || !form.confirmPassword) {
-      setError('Please fill in all fields')
-      return
-    }
 
-    if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match')
-      return
-    }
-
-    if (form.password.length < 6) {
-      setError('Password must be at least 6 characters')
+    if (!validateRegister(form)) {
       return
     }
 
@@ -32,9 +25,11 @@ export function useRegisterHandle(
     setLoading(false)
 
     if (result.success) {
+      toast.showSuccess('Registration successful! Please login.')
       router.push('/login')
     } else {
-      setError(result.error || 'Registration failed')
+      const errorMessage = result.error || 'Registration failed'
+      toast.showError(errorMessage)
     }
   }
 
