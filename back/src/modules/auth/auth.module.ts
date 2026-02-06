@@ -1,4 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -18,9 +19,13 @@ import { WebsocketModule } from '../websocket/websocket.module';
   imports: [
     TypeOrmModule.forFeature([User, Vocabulary, PracticeHistory]),
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'your-secret-key-here',
-      signOptions: { expiresIn: '7d' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET') || 'your-secret-key-here',
+        signOptions: { expiresIn: '7d' },
+      }),
+      inject: [ConfigService],
     }),
     forwardRef(() => WebsocketModule),
   ],

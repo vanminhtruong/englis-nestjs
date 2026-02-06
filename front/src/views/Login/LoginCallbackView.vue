@@ -15,7 +15,7 @@
 import { onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/auth.store";
-import apiService from "../../services/api.service";
+import { apiClient } from "../../services/api.service";
 
 const route = useRoute();
 const router = useRouter();
@@ -26,11 +26,15 @@ onMounted(async () => {
 
   if (token) {
     try {
-      // Set token temporarily to make the request
-      authStore.setAuth({} as any, token);
+      // Store token in localStorage first
+      localStorage.setItem("token", token);
 
-      // Fetch user profile
-      const response = await apiService.auth.getProfile();
+      // Fetch user profile with token directly in header
+      const response = await apiClient.get("/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       // Update store with full user data
       authStore.setAuth(response.data, token);
@@ -39,6 +43,7 @@ onMounted(async () => {
       router.push("/");
     } catch (error) {
       console.error("Login callback error:", error);
+      localStorage.removeItem("token");
       router.push("/login?error=google_auth_failed");
     }
   } else {
