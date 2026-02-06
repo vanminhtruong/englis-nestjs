@@ -49,18 +49,59 @@
           </div>
 
           <div class="flex items-center justify-between">
-            <div class="flex items-center">
+            <div class="relative flex items-center group">
               <input
                 id="remember"
                 v-model="form.rememberMe"
                 type="checkbox"
-                class="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                class="peer sr-only"
               />
               <label
                 for="remember"
-                class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300 cursor-pointer select-none"
+                class="flex items-center cursor-pointer select-none"
               >
-                {{ t("login.rememberMe") }}
+                <!-- Custom Checkbox Box -->
+                <div
+                  class="relative flex items-center justify-center w-5 h-5 rounded-md border-2 border-gray-300 dark:border-white/20 bg-white dark:bg-white/5 transition-all duration-300 ease-out peer-checked:border-transparent peer-checked:shadow-lg peer-checked:shadow-primary-500/40 group-hover:scale-110 group-hover:border-primary-400 dark:group-hover:border-primary-500/50"
+                >
+                  <!-- Background Gradient when checked -->
+                  <div
+                    class="absolute inset-0 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-[inherit] opacity-0 transition-opacity duration-300 peer-checked:opacity-100"
+                  ></div>
+
+                  <!-- Checkmark SVG -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="relative w-3.5 h-3.5 text-white transform transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+                    :class="
+                      form.rememberMe
+                        ? 'scale-100 opacity-100 rotate-0'
+                        : 'scale-0 opacity-0 -rotate-90'
+                    "
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="3"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+
+                <!-- Label Text -->
+                <span
+                  class="ml-2 text-sm font-medium transition-all duration-300"
+                  :class="
+                    form.rememberMe
+                      ? 'bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent font-bold'
+                      : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-gray-200'
+                  "
+                >
+                  {{ t("login.rememberMe") }}
+                </span>
               </label>
             </div>
 

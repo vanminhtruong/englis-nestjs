@@ -113,6 +113,7 @@ export default {
   // Tag endpoints
   tag: {
     getAll: () => apiClient.get('/tag'),
+    getById: (id: string) => apiClient.get(`/tag/${id}`),
     create: (data: any) => apiClient.post('/tag', data),
     update: (id: string, data: any) => apiClient.put(`/tag/${id}`, data),
     delete: (id: string) => apiClient.delete(`/tag/${id}`),

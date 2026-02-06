@@ -31,11 +31,11 @@
     <!-- Background Picker Button -->
     <button
       @click.stop="togglePicker"
-      class="absolute top-3 right-3 z-20 p-2 rounded-xl transition-all duration-300"
+      class="absolute top-3 right-3 z-20 p-2 rounded-xl transition-all duration-300 opacity-0 group-hover:opacity-100"
       :class="
         hasBackground || hasAnimatedBg
           ? 'bg-white/20 hover:bg-white/30 backdrop-blur-sm'
-          : 'bg-black/5 dark:bg-white/10 hover:bg-primary-500/20 opacity-0 group-hover:opacity-100'
+          : 'bg-black/5 dark:bg-white/10 hover:bg-primary-500/20'
       "
       :title="hasBackground || hasAnimatedBg ? 'Đổi nền' : 'Chọn nền'"
     >

@@ -21,11 +21,16 @@ export class TagController {
   constructor(
     private readonly tagService: TagService,
     private readonly websocketGateway: VocabularyWebSocketGateway,
-  ) {}
+  ) { }
 
   @Get()
   async findAll(@Request() req) {
     return this.tagService.findAll(req.user.id)
+  }
+
+  @Get(':id')
+  async findById(@Param('id') id: string, @Request() req) {
+    return this.tagService.findById(id, req.user.id);
   }
 
   @Post()
