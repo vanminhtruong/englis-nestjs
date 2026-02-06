@@ -27,6 +27,23 @@ export class AuthService {
     private readonly practiceHistoryRepository: Repository<PracticeHistory>,
   ) { }
 
+  async validateGoogleUser(googleUser: { email: string; fullName: string; avatar: string; accessToken: string }) {
+    let user = await this.userRepository.findByEmail(googleUser.email);
+
+    if (!user) {
+      // Create new user if not exists
+      user = await this.userRepository.create({
+        email: googleUser.email,
+        fullName: googleUser.fullName,
+        avatar: googleUser.avatar,
+        password: '', // No password for Google users
+      });
+    }
+
+    return user;
+  }
+
+
   async register(registerDto: RegisterDto) {
     const existingUser = await this.userRepository.findByEmail(
       registerDto.email,

@@ -20,12 +20,32 @@ import { VocabularyWebSocketGateway } from '../websocket/websocket.gateway';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpdateLayoutPreferenceDto } from './dto/update-layout-preference.dto';
 
+import { AuthGuard } from '@nestjs/passport';
+import { AuthTokenService } from './services/auth-token.service';
+
 @Controller('auth')
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
+        private readonly authTokenService: AuthTokenService,
         private readonly websocketGateway: VocabularyWebSocketGateway,
     ) { }
+
+    @Get('google')
+    @UseGuards(AuthGuard('google'))
+    async googleAuth(@Request() req) { }
+
+    @Get('google/redirect')
+    @UseGuards(AuthGuard('google'))
+    async googleAuthRedirect(@Request() req, @Res() res: Response) {
+        const user = req.user;
+        const token = this.authTokenService.generateToken(user.id, user.email);
+
+        // Redirect to frontend with token
+        // Assuming frontend is running on localhost:5173
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        res.redirect(`${frontendUrl}/login/callback?token=${token}`);
+    }
 
     @Post('register')
     async register(@Body() registerDto: RegisterDto) {

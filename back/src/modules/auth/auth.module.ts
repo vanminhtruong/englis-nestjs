@@ -11,6 +11,7 @@ import { AuthHashService } from './services/auth-hash.service';
 import { AuthTokenService } from './services/auth-token.service';
 import { UserRepository } from './repositories/user.repository';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { GoogleStrategy } from './strategies/google.strategy';
 import { WebsocketModule } from '../websocket/websocket.module';
 
 @Module({
@@ -30,6 +31,7 @@ import { WebsocketModule } from '../websocket/websocket.module';
     AuthTokenService,
     UserRepository,
     JwtStrategy,
+    GoogleStrategy,
   ],
   exports: [AuthService, JwtStrategy, UserRepository],
 })
