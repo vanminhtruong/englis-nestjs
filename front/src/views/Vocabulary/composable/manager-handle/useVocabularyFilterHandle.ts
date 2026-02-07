@@ -16,9 +16,9 @@ export function useVocabularyFilterHandle(
     vocabularyService.loadVocabularies({
       page,
       limit: store.limit,
-      search: filter.search || undefined,
+      search: filter.search,
       difficulty,
-      tabId: filter.tabId || undefined,
+      tabId: filter.tabId,
     })
   }
 

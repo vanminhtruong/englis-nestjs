@@ -5,16 +5,37 @@ import type { Vocabulary } from '../../../stores/vocabulary.store'
 
 export class VocabularyService {
   private store = useVocabularyStore()
+  private lastParams: {
+    search?: string;
+    difficulty?: 'easy' | 'medium' | 'hard' | 'all';
+    tabId?: string | null;
+  } = {}
 
-  async loadVocabularies(params?: { page?: number; limit?: number; search?: string; difficulty?: 'easy' | 'medium' | 'hard'; tabId?: string }) {
+  async loadVocabularies(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    difficulty?: 'easy' | 'medium' | 'hard' | 'all';
+    tabId?: string | null;
+  }) {
     this.store.setLoading(true)
+
+    // Update last used filters if explicit values (even null/empty) are provided
+    if (params) {
+      if (params.search !== undefined) this.lastParams.search = params.search;
+      if (params.difficulty !== undefined) this.lastParams.difficulty = params.difficulty;
+      if (params.tabId !== undefined) this.lastParams.tabId = params.tabId;
+    }
+
     try {
+      const difficulty = (this.lastParams.difficulty === 'all' ? undefined : this.lastParams.difficulty) as 'easy' | 'medium' | 'hard' | undefined;
+
       const response = await apiService.vocabulary.getAll({
         page: params?.page ?? this.store.page,
         limit: params?.limit ?? this.store.limit,
-        search: params?.search,
-        difficulty: params?.difficulty,
-        tabId: params?.tabId,
+        search: this.lastParams.search || undefined,
+        difficulty: difficulty,
+        tabId: this.lastParams.tabId || undefined,
       })
       const { data, meta } = response.data
       this.store.setVocabularies(data)

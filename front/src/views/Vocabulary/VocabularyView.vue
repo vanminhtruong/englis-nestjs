@@ -388,10 +388,6 @@ watch(
       const dbAllTab = (newVal[0] as any).isAllTabHidden;
       if (dbAllTab !== undefined) {
         isAllTabHidden.value = dbAllTab;
-        // If All tab is hidden and we are currently on it, switch to first custom tab
-        if (dbAllTab && activeTabId.value === null && tabs.value.length > 0) {
-          handleTabSelect((tabs.value[0] as any).id);
-        }
       }
 
       isInitialized.value = true;
@@ -411,7 +407,7 @@ async function handleFilterToggle(value: boolean) {
 
 // Tabs Management
 const tabs = ref([]);
-const activeTabId = ref<string | null>(null);
+const activeTabId = ref<string | null>(localStorage.getItem("activeTabId"));
 const showTabManagerModal = ref(false);
 const selectedVocabForTabs = ref(null);
 const showTabNameModal = ref(false);
@@ -419,6 +415,36 @@ const isEditingTab = ref(false);
 const editingTabName = ref("");
 const editingTabId = ref<string | null>(null);
 const isAllTabHidden = ref(localStorage.getItem("isAllTabHidden") === "true");
+
+// Apply initial tab to filter
+if (activeTabId.value) {
+  (vocabularyState.filter as any).tabId = activeTabId.value;
+}
+
+// Watch for tabs loading to handle initial selection if All is hidden or if current tab is invalid
+watch(
+  [tabs, isAllTabHidden, activeTabId],
+  ([newTabs, allHidden, currentTab]) => {
+    // Case 1: All Vocabularies is hidden and no custom tab selected
+    if (allHidden && currentTab === null && newTabs && newTabs.length > 0) {
+      handleTabSelect((newTabs[0] as any).id);
+      return;
+    }
+
+    // Case 2: Current tab ID is not in the list of tabs (e.g. was deleted)
+    if (currentTab !== null && newTabs && newTabs.length > 0) {
+      const exists = newTabs.some((t: any) => t.id === currentTab);
+      if (!exists) {
+        if (allHidden) {
+          handleTabSelect((newTabs[0] as any).id);
+        } else {
+          handleTabSelect(null);
+        }
+      }
+    }
+  },
+  { immediate: true }
+);
 
 const handleAllTabToggle = async (value: boolean) => {
   isAllTabHidden.value = value;
@@ -449,6 +475,11 @@ const loadTabs = async () => {
 
 const handleTabSelect = (tabId: string | null) => {
   activeTabId.value = tabId;
+  if (tabId) {
+    localStorage.setItem("activeTabId", tabId);
+  } else {
+    localStorage.removeItem("activeTabId");
+  }
   (vocabularyState.filter as any).tabId = tabId;
 };
 
@@ -497,6 +528,7 @@ const handleDeleteTab = (tab: any) => {
         await apiService.tab.delete(tab.id);
         if (activeTabId.value === tab.id) {
           activeTabId.value = null;
+          localStorage.removeItem("activeTabId");
           (vocabularyState.filter as any).tabId = null;
         }
         await loadTabs();
