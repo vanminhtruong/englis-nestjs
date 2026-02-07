@@ -21,9 +21,10 @@ export function useVocabularyState() {
     tags: [],
   })
 
-  const filter = reactive<VocabularyFilter>({
+  const filter = reactive<VocabularyFilter & { tabId?: string | null }>({
     search: '',
     difficulty: 'all',
+    tabId: null,
   })
 
   const filteredVocabularies = computed(() => store.vocabularies)

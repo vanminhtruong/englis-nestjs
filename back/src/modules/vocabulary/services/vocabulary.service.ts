@@ -24,6 +24,7 @@ export class VocabularyService {
     limit: number,
     search?: string,
     difficulty?: 'easy' | 'medium' | 'hard',
+    tabId?: string,
   ) {
     return this.vocabularyRepository.findAllPaginated(
       userId,
@@ -31,6 +32,7 @@ export class VocabularyService {
       limit,
       search,
       difficulty,
+      tabId,
     );
   }
 
@@ -94,5 +96,9 @@ export class VocabularyService {
 
   async updateFilterState(userId: string, isExpanded: boolean) {
     return this.vocabularyRepository.updateFilterState(userId, isExpanded);
+  }
+
+  async updateAllTabHiddenState(userId: string, isHidden: boolean) {
+    return this.vocabularyRepository.updateAllTabHiddenState(userId, isHidden);
   }
 }

@@ -60,8 +60,16 @@ export default {
   },
 
   // Vocabulary endpoints
+  tab: {
+    getAll: () => apiClient.get('/vocabulary-tabs'),
+    create: (data: { name: string }) => apiClient.post('/vocabulary-tabs', data),
+    update: (id: string, data: { name: string }) => apiClient.patch(`/vocabulary-tabs/${id}`, data),
+    delete: (id: string) => apiClient.delete(`/vocabulary-tabs/${id}`),
+    addVocabulary: (tabId: string, vocabularyId: string) => apiClient.post(`/vocabulary-tabs/${tabId}/vocabularies/${vocabularyId}`),
+    removeVocabulary: (tabId: string, vocabularyId: string) => apiClient.delete(`/vocabulary-tabs/${tabId}/vocabularies/${vocabularyId}`),
+  },
   vocabulary: {
-    getAll: (params?: { page?: number; limit?: number; search?: string; difficulty?: 'easy' | 'medium' | 'hard' }) =>
+    getAll: (params?: { page?: number; limit?: number; search?: string; difficulty?: 'easy' | 'medium' | 'hard'; tabId?: string }) =>
       apiClient.get('/vocabulary', { params }),
     getById: (id: string) => apiClient.get(`/vocabulary/${id}`),
     create: (data: any) => apiClient.post('/vocabulary', data),
@@ -82,6 +90,8 @@ export default {
       apiClient.put('/vocabulary/category-topic/update', data),
     updateFilterState: (isExpanded: boolean) =>
       apiClient.patch('/vocabulary/settings/filter-state', { isExpanded }),
+    updateAllTabHiddenState: (isHidden: boolean) =>
+      apiClient.patch('/vocabulary/settings/all-tab-hidden', { isHidden }),
   },
 
   practice: {

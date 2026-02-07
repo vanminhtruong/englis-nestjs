@@ -6,7 +6,7 @@ import type { Vocabulary } from '../../../stores/vocabulary.store'
 export class VocabularyService {
   private store = useVocabularyStore()
 
-  async loadVocabularies(params?: { page?: number; limit?: number; search?: string; difficulty?: 'easy' | 'medium' | 'hard' }) {
+  async loadVocabularies(params?: { page?: number; limit?: number; search?: string; difficulty?: 'easy' | 'medium' | 'hard'; tabId?: string }) {
     this.store.setLoading(true)
     try {
       const response = await apiService.vocabulary.getAll({
@@ -14,6 +14,7 @@ export class VocabularyService {
         limit: params?.limit ?? this.store.limit,
         search: params?.search,
         difficulty: params?.difficulty,
+        tabId: params?.tabId,
       })
       const { data, meta } = response.data
       this.store.setVocabularies(data)

@@ -7,13 +7,41 @@
       class="group"
     >
       <template #default="{ hasBackground }">
+        <!-- Selection Checkbox -->
+        <button
+          @click.stop="toggleSelection(vocab.id)"
+          class="absolute -top-[2.375rem] -left-[2.375rem] z-20 w-7 h-7 rounded-lg flex items-center justify-center transition-all shadow-sm"
+          :class="[
+            isSelected(vocab.id)
+              ? 'bg-gradient-to-r from-primary-500 to-secondary-500 border-transparent'
+              : 'bg-white dark:bg-black border border-gray-300 dark:border-white/20 opacity-0 group-hover:opacity-100 hover:border-primary-500 dark:hover:border-primary-500',
+          ]"
+          :title="isSelected(vocab.id) ? 'Deselect' : 'Select'"
+        >
+          <svg
+            v-if="isSelected(vocab.id)"
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="text-white"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </button>
+
         <!-- Media Display -->
-        <div v-if="vocab.image || vocab.video" class="mb-4">
+        <div v-if="vocab.image || vocab.video" class="mb-4 relative group">
           <!-- Image Display (only if no video) -->
           <button
             v-if="vocab.image && !vocab.video"
             type="button"
-            class="w-full h-40 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 group focus:outline-none focus:ring-2 focus:ring-primary-400"
+            class="w-full h-40 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 focus:outline-none focus:ring-2 focus:ring-primary-400"
             @click="
               emit('open-image', {
                 src: resolveImageSrc(vocab.image),
@@ -32,7 +60,7 @@
           <button
             v-else-if="vocab.video"
             type="button"
-            class="w-full h-40 rounded-xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary-400 relative bg-gradient-to-br from-gray-900 to-black flex items-center justify-center"
+            class="w-full h-40 rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary-400 relative bg-gradient-to-br from-gray-900 to-black flex items-center justify-center"
             @click="emit('open-video', { src: vocab.video, title: vocab.word })"
           >
             <img
@@ -305,10 +333,11 @@ const VocabularyCardWrapper = defineAsyncComponent(
   () => import("../../../components/common/VocabularyCardWrapper.vue") as any
 );
 
-defineProps<{
+const props = defineProps<{
   vocabularies: Vocabulary[];
   t: (key: string) => string;
   formatDate: (dateString: string) => string;
+  selectedIds: string[];
 }>();
 
 const emit = defineEmits<{
@@ -320,7 +349,16 @@ const emit = defineEmits<{
   (e: "delete", id: string): void;
   (e: "open-image", payload: { src: string; alt: string }): void;
   (e: "open-video", payload: { src: string; title: string }): void;
+  (e: "toggle-selection", id: string): void;
 }>();
+
+function isSelected(id: string): boolean {
+  return props.selectedIds.includes(id);
+}
+
+function toggleSelection(id: string) {
+  emit("toggle-selection", id);
+}
 
 const resolveImageSrc = (image: string) => {
   if (!image) return "";

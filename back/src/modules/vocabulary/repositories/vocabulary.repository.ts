@@ -30,6 +30,7 @@ export class VocabularyRepository {
     limit: number,
     search?: string,
     difficulty?: 'easy' | 'medium' | 'hard',
+    tabId?: string,
   ): Promise<{ items: Vocabulary[]; total: number }> {
     const qb = this.repository
       .createQueryBuilder('vocabulary')
@@ -38,6 +39,10 @@ export class VocabularyRepository {
       .orderBy('vocabulary.isPinned', 'DESC')
       .addOrderBy('vocabulary.pinnedAt', 'DESC')
       .addOrderBy('vocabulary.createdAt', 'DESC');
+
+    if (tabId) {
+      qb.innerJoin('vocabulary.tabs', 'tab', 'tab.id = :tabId', { tabId });
+    }
 
     if (search && search.trim()) {
       const s = `%${search.toLowerCase()}%`;
@@ -313,5 +318,9 @@ export class VocabularyRepository {
 
   async updateFilterState(userId: string, isExpanded: boolean): Promise<void> {
     await this.repository.update({ userId }, { isFilterExpanded: isExpanded });
+  }
+
+  async updateAllTabHiddenState(userId: string, isHidden: boolean): Promise<void> {
+    await this.repository.update({ userId }, { isAllTabHidden: isHidden });
   }
 }

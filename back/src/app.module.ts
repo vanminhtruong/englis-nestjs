@@ -14,27 +14,29 @@ import { HistoryModule } from './modules/history/history.module';
 import { TagModule } from './modules/tag/tag.module';
 import { VoiceModule } from './modules/voice/voice.module';
 import { LearningProgressModule } from './modules/learning-progress/learning-progress.module';
+import { VocabularyTabModule } from './modules/vocabulary-tab/vocabulary-tab.module';
 import { BackgroundModule } from './modules/background/background.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    TypeOrmModule.forRoot(databaseConfig),
-    HelloModule,
-    AuthModule,
-    VocabularyModule,
-    PracticeModule,
-    WebsocketModule,
-    CategoryModule,
-    HistoryModule,
-    TagModule,
-    VoiceModule,
-    LearningProgressModule,
-    BackgroundModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+    imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+        }),
+        TypeOrmModule.forRoot(databaseConfig),
+        HelloModule,
+        AuthModule,
+        VocabularyModule,
+        PracticeModule,
+        WebsocketModule,
+        CategoryModule,
+        HistoryModule,
+        TagModule,
+        VoiceModule,
+        LearningProgressModule,
+        BackgroundModule,
+        VocabularyTabModule,
+    ],
+    controllers: [AppController],
+    providers: [AppService],
 })
 export class AppModule { }

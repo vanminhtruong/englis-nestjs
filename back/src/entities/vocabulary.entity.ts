@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { User } from './user.entity';
 import { Category } from './category.entity';
+import { VocabularyTab } from './vocabulary-tab.entity';
 
 export enum DifficultyLevel {
   EASY = 'easy',
@@ -102,6 +103,9 @@ export class Vocabulary {
   })
   categories: Category[];
 
+  @ManyToMany(() => VocabularyTab, (tab) => tab.vocabularies)
+  tabs: VocabularyTab[];
+
   @CreateDateColumn()
   createdAt: Date;
 
@@ -116,4 +120,7 @@ export class Vocabulary {
 
   @Column({ default: true })
   isFilterExpanded: boolean;
+
+  @Column({ default: false })
+  isAllTabHidden: boolean;
 }

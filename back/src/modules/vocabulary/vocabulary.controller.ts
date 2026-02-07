@@ -39,6 +39,7 @@ export class VocabularyController {
     @Query('limit') limit?: number,
     @Query('search') search?: string,
     @Query('difficulty') difficulty?: 'easy' | 'medium' | 'hard',
+    @Query('tabId') tabId?: string,
   ) {
     const p = page ? parseInt(page.toString(), 10) : 1;
     const l = limit ? parseInt(limit.toString(), 10) : 6;
@@ -48,6 +49,7 @@ export class VocabularyController {
       l,
       search,
       difficulty,
+      tabId,
     );
     return {
       data: result.items,
@@ -106,6 +108,12 @@ export class VocabularyController {
   @Patch('settings/filter-state')
   async updateFilterState(@Body('isExpanded') isExpanded: boolean, @Request() req) {
     await this.vocabularyService.updateFilterState(req.user.id, isExpanded);
+    return { success: true };
+  }
+
+  @Patch('settings/all-tab-hidden')
+  async updateAllTabHiddenState(@Body('isHidden') isHidden: boolean, @Request() req) {
+    await this.vocabularyService.updateAllTabHiddenState(req.user.id, isHidden);
     return { success: true };
   }
 
