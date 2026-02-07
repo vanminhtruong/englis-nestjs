@@ -176,6 +176,7 @@
       :show-dropdown="moveModalState.showTargetDateDropdown.value"
       :cancel-text="tr('cancel')"
       :confirm-text="tr('confirmMove')"
+      :no-dates-text="tr('noDatesAvailable')"
       @toggle-dropdown="moveModalState.toggleDropdown"
       @select-date="moveModalState.selectTargetDate"
       @cancel="moveModalState.closeMoveModal"

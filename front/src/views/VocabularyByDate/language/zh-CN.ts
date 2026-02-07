@@ -27,4 +27,5 @@ export default {
     selectDatePlaceholder: '选择目标日期',
     cancel: '取消',
     confirmMove: '移动词汇',
+    noDatesAvailable: '没有其他日期可供选择',
 }

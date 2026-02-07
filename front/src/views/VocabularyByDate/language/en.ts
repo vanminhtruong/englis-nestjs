@@ -27,4 +27,5 @@ export default {
   selectDatePlaceholder: 'Select target date',
   cancel: 'Cancel',
   confirmMove: 'Move vocabularies',
+  noDatesAvailable: 'No other dates available to select',
 }

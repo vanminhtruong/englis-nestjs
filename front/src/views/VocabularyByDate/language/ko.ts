@@ -27,4 +27,5 @@ export default {
   selectDatePlaceholder: '이동할 날짜를 선택하세요',
   cancel: '취소',
   confirmMove: '어휘 이동',
+  noDatesAvailable: '선택할 수 있는 다른 날짜가 없습니다',
 }

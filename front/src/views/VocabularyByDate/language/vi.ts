@@ -27,4 +27,5 @@ export default {
   selectDatePlaceholder: 'Chọn ngày đích',
   cancel: 'Hủy',
   confirmMove: 'Di chuyển từ vựng',
+  noDatesAvailable: 'Không có ngày nào khác để chọn',
 }

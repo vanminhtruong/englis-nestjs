@@ -18,7 +18,9 @@
     <!-- Content Container -->
     <div class="relative z-10">
       <!-- Header with Background Picker -->
-      <div class="flex items-center">
+      <div
+        class="flex items-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+      >
         <div class="flex-1">
           <slot name="header" :has-background="hasBackground"></slot>
         </div>

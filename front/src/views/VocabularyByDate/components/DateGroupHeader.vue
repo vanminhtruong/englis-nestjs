@@ -204,7 +204,7 @@
 
     <button
       @click="$emit('toggle')"
-      class="w-full px-6 py-4 flex items-center justify-between hover:bg-black/5 dark:hover:bg-white/5 transition-colors rounded-t-2xl"
+      class="w-full px-6 py-4 flex items-center justify-between transition-colors rounded-t-2xl"
     >
       <div class="flex items-center gap-4">
         <!-- Calendar Date Card -->
