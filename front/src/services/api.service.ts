@@ -69,8 +69,16 @@ export default {
     removeVocabulary: (tabId: string, vocabularyId: string) => apiClient.delete(`/vocabulary-tabs/${tabId}/vocabularies/${vocabularyId}`),
   },
   vocabulary: {
-    getAll: (params?: { page?: number; limit?: number; search?: string; difficulty?: 'easy' | 'medium' | 'hard'; tabId?: string }) =>
-      apiClient.get('/vocabulary', { params }),
+    getAll: (params?: { page?: number; limit?: number; search?: string; difficulty?: 'easy' | 'medium' | 'hard'; tabId?: string; categoryIds?: string[]; tags?: string[] }) => {
+      const queryParams: any = { ...params };
+      if (params?.categoryIds?.length) {
+        queryParams.categoryIds = params.categoryIds.join(',');
+      }
+      if (params?.tags?.length) {
+        queryParams.tags = params.tags.join(',');
+      }
+      return apiClient.get('/vocabulary', { params: queryParams });
+    },
     getById: (id: string) => apiClient.get(`/vocabulary/${id}`),
     create: (data: any) => apiClient.post('/vocabulary', data),
     update: (id: string, data: any) => apiClient.put(`/vocabulary/${id}`, data),

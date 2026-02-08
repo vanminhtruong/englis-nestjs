@@ -1,11 +1,16 @@
 <template>
   <div
-    class="flex items-center gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide no-scrollbar"
+    ref="tabsContainer"
+    class="flex items-center gap-2 overflow-x-auto pb-2 mb-6 no-scrollbar select-none cursor-grab active:cursor-grabbing"
+    @mousedown="handleMouseDown"
+    @mouseleave="handleMouseLeave"
+    @mouseup="handleMouseUp"
+    @mousemove="handleMouseMove"
   >
     <!-- All Vocabularies Tab with Toggle -->
     <div class="relative flex items-center group" v-if="!isAllTabHidden">
       <button
-        @click="$emit('select', null)"
+        @click="handleTabClick(null)"
         :class="[
           'pl-4 pr-10 py-2 rounded-xl font-medium transition-all whitespace-nowrap text-sm',
           !activeTabId
@@ -75,7 +80,7 @@
       class="group relative flex items-center"
     >
       <button
-        @click="$emit('select', tab.id)"
+        @click="handleTabClick(tab.id)"
         :class="[
           'pl-4 pr-16 py-2 rounded-xl font-medium transition-all whitespace-nowrap text-sm',
           activeTabId === tab.id
@@ -146,7 +151,7 @@
 
     <button
       @click="$emit('create')"
-      class="p-2 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-white/40 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ml-1"
+      class="p-2 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-white/40 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ml-1 shrink-0"
       title="Create New Tab"
     >
       <svg
@@ -168,7 +173,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from "vue";
+import { ref } from "vue";
 
 defineProps<{
   tabs: any[];
@@ -176,13 +181,53 @@ defineProps<{
   isAllTabHidden?: boolean;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   select: [id: string | null];
   create: [];
   edit: [tab: any];
   delete: [tab: any];
   "update:isAllTabHidden": [value: boolean];
 }>();
+
+const tabsContainer = ref<HTMLElement | null>(null);
+const isDown = ref(false);
+const startX = ref(0);
+const scrollLeft = ref(0);
+const isDragging = ref(false);
+
+const handleMouseDown = (e: MouseEvent) => {
+  if (!tabsContainer.value) return;
+  isDown.value = true;
+  isDragging.value = false;
+  startX.value = e.pageX - tabsContainer.value.offsetLeft;
+  scrollLeft.value = tabsContainer.value.scrollLeft;
+};
+
+const handleMouseLeave = () => {
+  isDown.value = false;
+};
+
+const handleMouseUp = () => {
+  isDown.value = false;
+};
+
+const handleMouseMove = (e: MouseEvent) => {
+  if (!isDown.value || !tabsContainer.value) return;
+  e.preventDefault();
+  const x = e.pageX - tabsContainer.value.offsetLeft;
+  const walk = (x - startX.value) * 2; // scroll-fast factor
+  if (Math.abs(walk) > 5) {
+    isDragging.value = true;
+  }
+  tabsContainer.value.scrollLeft = scrollLeft.value - walk;
+};
+
+// Prevent click event if we were dragging
+const handleTabClick = (id: string | null) => {
+  if (!isDragging.value) {
+    emit("select", id);
+  }
+};
 </script>
 
 <style scoped>
@@ -190,7 +235,7 @@ defineEmits<{
   display: none;
 }
 .no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 </style>

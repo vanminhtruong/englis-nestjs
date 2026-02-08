@@ -25,6 +25,8 @@ export class VocabularyService {
     search?: string,
     difficulty?: 'easy' | 'medium' | 'hard',
     tabId?: string,
+    categoryIds?: string[],
+    tags?: string[],
   ) {
     return this.vocabularyRepository.findAllPaginated(
       userId,
@@ -33,6 +35,8 @@ export class VocabularyService {
       search,
       difficulty,
       tabId,
+      categoryIds,
+      tags,
     );
   }
 

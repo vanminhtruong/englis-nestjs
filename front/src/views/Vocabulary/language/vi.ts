@@ -100,5 +100,12 @@ export default {
     add: 'Thêm ghi chú',
     placeholder: 'Viết suy nghĩ của bạn ở đây...',
     save: 'Lưu ghi chú',
-  }
+  },
+
+  // Advanced Filters
+  advancedFilters: 'Bộ lọc nâng cao',
+  clearAll: 'Xóa tất cả',
+  activeFilters: 'Đang lọc',
+  noCategories: 'Chưa có chủ đề nào',
+  noTags: 'Chưa có thẻ nào',
 }

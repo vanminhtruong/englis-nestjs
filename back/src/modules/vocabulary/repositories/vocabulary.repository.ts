@@ -31,6 +31,8 @@ export class VocabularyRepository {
     search?: string,
     difficulty?: 'easy' | 'medium' | 'hard',
     tabId?: string,
+    categoryIds?: string[],
+    tags?: string[],
   ): Promise<{ items: Vocabulary[]; total: number }> {
     const qb = this.repository
       .createQueryBuilder('vocabulary')
@@ -54,6 +56,21 @@ export class VocabularyRepository {
 
     if (difficulty && ['easy', 'medium', 'hard'].includes(difficulty)) {
       qb.andWhere('vocabulary.difficulty = :difficulty', { difficulty });
+    }
+
+    // Filter by category IDs (vocabulary must be in at least one of the selected categories)
+    if (categoryIds && categoryIds.length > 0) {
+      qb.innerJoin('vocabulary.categories', 'filterCategory', 'filterCategory.id IN (:...categoryIds)', { categoryIds });
+    }
+
+    // Filter by tags (vocabulary must have at least one of the selected tags)
+    if (tags && tags.length > 0) {
+      const tagConditions = tags.map((tag, index) => `vocabulary.tags LIKE :filterTag${index}`);
+      const tagParams = tags.reduce((acc, tag, index) => {
+        acc[`filterTag${index}`] = `%${tag}%`;
+        return acc;
+      }, {} as Record<string, string>);
+      qb.andWhere(`(${tagConditions.join(' OR ')})`, tagParams);
     }
 
     const [items, total] = await qb

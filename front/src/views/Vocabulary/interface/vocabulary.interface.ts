@@ -15,4 +15,7 @@ export interface VocabularyForm {
 export interface VocabularyFilter {
   search: string
   difficulty: 'all' | 'easy' | 'medium' | 'hard'
+  categoryIds?: string[]
+  tags?: string[]
 }
+

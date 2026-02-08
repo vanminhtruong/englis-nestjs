@@ -2,12 +2,14 @@
   <div class="min-h-screen bg-white dark:bg-black p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
       <!-- Loading -->
-      <TagDetailLoading v-if="loading" />
+      <TagDetailLoading v-if="detailState.loading.value" />
 
       <!-- Error -->
-      <div v-else-if="error" class="text-center py-20">
+      <div v-else-if="detailState.error.value" class="text-center py-20">
         <h3 class="text-xl font-bold text-red-500 mb-2">Error Loading Tag</h3>
-        <p class="text-gray-500 dark:text-gray-400 mb-8">{{ error }}</p>
+        <p class="text-gray-500 dark:text-gray-400 mb-8">
+          {{ detailState.error.value }}
+        </p>
         <button
           @click="$router.push('/tags')"
           class="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-xl transition-colors font-medium"
@@ -17,17 +19,17 @@
       </div>
 
       <!-- Content -->
-      <div v-else-if="tag">
-        <TagDetailHeader :tag="tag" />
+      <div v-else-if="detailState.tag.value">
+        <TagDetailHeader :tag="detailState.tag.value" />
 
         <TagDetailGrid
-          v-if="vocabularies.length > 0"
-          :vocabularies="vocabularies"
-          :get-video-thumbnail="getVideoThumbnail"
-          @open-image-preview="openImagePreview"
-          @open-video-preview="openVideoPreview"
-          @speak="handleSpeak"
-          @open-detail-modal="openDetailModal"
+          v-if="detailState.vocabularies.value.length > 0"
+          :vocabularies="detailState.vocabularies.value"
+          :get-video-thumbnail="detailHandle.getVideoThumbnail"
+          @open-image-preview="modalState.openImagePreview"
+          @open-video-preview="modalState.openVideoPreview"
+          @speak="detailHandle.handleSpeak"
+          @open-detail-modal="modalState.openDetailModal"
         />
 
         <TagDetailEmpty v-else />
@@ -36,35 +38,37 @@
 
     <!-- Detail Modal -->
     <VocabularyDetailModal
-      :show="detailModal.show"
-      :vocabulary="detailModal.vocabulary"
-      @close="closeDetailModal"
-      @open-image="openImagePreview"
+      :show="modalState.detailModal.value.show"
+      :vocabulary="modalState.detailModal.value.vocabulary"
+      @close="modalState.closeDetailModal"
+      @open-image="modalState.openImagePreview"
     />
 
     <!-- Image Preview Modal -->
     <VocabularyImageViewer
-      :visible="imagePreview.visible"
-      :src="imagePreview.src"
-      :alt="imagePreview.alt"
-      :title="imagePreview.alt"
-      @close="closeImagePreview"
+      :visible="modalState.imagePreview.value.visible"
+      :src="modalState.imagePreview.value.src"
+      :alt="modalState.imagePreview.value.alt"
+      :title="modalState.imagePreview.value.alt"
+      @close="modalState.closeImagePreview"
     />
 
     <!-- Video Preview Modal -->
     <VideoZoomModal
-      :visible="videoPreview.visible"
-      :src="videoPreview.src"
-      :title="videoPreview.title"
-      @close="closeVideoPreview"
+      :visible="modalState.videoPreview.value.visible"
+      :src="modalState.videoPreview.value.src"
+      :title="modalState.videoPreview.value.title"
+      @close="modalState.closeVideoPreview"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, defineAsyncComponent } from "vue";
-import { useRoute, useRouter } from "vue-router";
-import apiService from "../../services/api.service";
+import { defineAsyncComponent } from "vue";
+import { useTagDetailState } from "./composable/manager-state/useTagDetailState";
+import { useTagDetailModalState } from "./composable/manager-state/useTagDetailModalState";
+import { useTagDetailHandle } from "./composable/manager-handle/useTagDetailHandle";
+import { useTagDetailMount } from "./composable/manager-mount/useTagDetailMount";
 
 // Components
 const TagDetailLoading = defineAsyncComponent(
@@ -89,120 +93,20 @@ const VideoZoomModal = defineAsyncComponent(
   () => import("../../components/common/VideoZoomModal.vue") as any
 );
 
-// State
-const route = useRoute();
-const router = useRouter();
-const tag = ref<any>(null);
-const vocabularies = ref<any[]>([]);
-const loading = ref(true);
-const error = ref<string | null>(null);
+// State Management (không destructuring)
+const detailState = useTagDetailState();
 
-// Modals State
-const detailModal = ref({
-  show: false,
-  vocabulary: null,
-});
+// Modal State (không destructuring)
+const modalState = useTagDetailModalState();
 
-const imagePreview = ref({
-  visible: false,
-  src: "",
-  alt: "",
-});
+// Handle (không destructuring)
+const detailHandle = useTagDetailHandle();
 
-const videoPreview = ref({
-  visible: false,
-  src: "",
-  title: "",
-});
-
-// Methods
-const fetchTagAndVocabularies = async () => {
-  loading.value = true;
-  error.value = null;
-  const tagId = route.params.id as string;
-
-  try {
-    // 1. Fetch Tag Details
-    const tagResponse = await apiService.tag.getById(tagId);
-    tag.value = tagResponse.data;
-
-    if (!tag.value) {
-      error.value = "Tag not found";
-      return;
-    }
-
-    // 2. Fetch Vocabularies by Tag Name
-    // Note: The API likely expects the exact tag string as stored in `vocabulary.tags`
-    const vocabResponse = await apiService.vocabulary.getByTags([
-      tag.value.name,
-    ]);
-    vocabularies.value = vocabResponse.data || [];
-  } catch (err: any) {
-    console.error("Error fetching tag details:", err);
-    error.value =
-      err.response?.data?.message || "An error occurred while loading the tag.";
-  } finally {
-    loading.value = false;
-  }
-};
-
-const getVideoThumbnail = (url: string) => {
-  if (!url) return "";
-  // YouTube
-  const youtubeRegex =
-    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-  const youtubeMatch = url.match(youtubeRegex);
-  if (youtubeMatch) {
-    return `https://img.youtube.com/vi/${youtubeMatch[1]}/maxresdefault.jpg`;
-  }
-  return ""; // Or a default placeholder
-};
-
-const handleSpeak = (word: string) => {
-  if ("speechSynthesis" in window) {
-    const utterance = new SpeechSynthesisUtterance(word);
-    utterance.lang = "en-US"; // Default to English, can be adjusted
-    window.speechSynthesis.speak(utterance);
-  }
-};
-
-// Modal Handlers
-const openDetailModal = (vocab: any) => {
-  detailModal.value.vocabulary = vocab;
-  detailModal.value.show = true;
-};
-
-const closeDetailModal = () => {
-  detailModal.value.show = false;
-  detailModal.value.vocabulary = null;
-};
-
-const openImagePreview = (payload: { src: string; alt: string }) => {
-  imagePreview.value.src = payload.src;
-  imagePreview.value.alt = payload.alt;
-  imagePreview.value.visible = true;
-};
-
-const closeImagePreview = () => {
-  imagePreview.value.visible = false;
-  imagePreview.value.src = "";
-  imagePreview.value.alt = "";
-};
-
-const openVideoPreview = (payload: { src: string; title: string }) => {
-  videoPreview.value.src = payload.src;
-  videoPreview.value.title = payload.title;
-  videoPreview.value.visible = true;
-};
-
-const closeVideoPreview = () => {
-  videoPreview.value.visible = false;
-  videoPreview.value.src = "";
-  videoPreview.value.title = "";
-};
-
-// Lifecycle
-onMounted(() => {
-  fetchTagAndVocabularies();
+// Mount
+useTagDetailMount({
+  setTag: detailState.setTag,
+  setVocabularies: detailState.setVocabularies,
+  setLoading: detailState.setLoading,
+  setError: detailState.setError,
 });
 </script>

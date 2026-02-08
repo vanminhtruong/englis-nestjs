@@ -94,5 +94,12 @@ export default {
     add: 'Add Note',
     placeholder: 'Write your thoughts here...',
     save: 'Save Note',
-  }
+  },
+
+  // Advanced Filters
+  advancedFilters: 'Advanced Filters',
+  clearAll: 'Clear All',
+  activeFilters: 'Active Filters',
+  noCategories: 'No categories available',
+  noTags: 'No tags available',
 }

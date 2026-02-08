@@ -4,49 +4,50 @@
       <!-- Header -->
       <div ref="controlsRef">
         <TagsHeader
-          :tags-count="tagsCount"
-          @open-create-modal="openCreateModal"
+          :tags-count="tagsState.tagsCount.value"
+          @open-create-modal="tagsState.openCreateModal"
         />
       </div>
 
       <!-- Loading -->
-      <TagsLoading v-if="loading" />
+      <TagsLoading v-if="tagsState.loading.value" />
 
       <!-- Empty State -->
-      <TagsEmpty v-else-if="!hasTags" />
+      <TagsEmpty v-else-if="!tagsState.hasTags.value" />
 
       <!-- Tags Grid -->
       <TagsGrid
         v-else
-        :tags="tags"
-        @open-edit-modal="openEditModal"
-        @delete="handleDelete"
+        :tags="tagsState.tags.value"
+        @open-edit-modal="tagsState.openEditModal"
+        @delete="tagsHandle.handleDelete"
       />
 
       <!-- Sticky Add Button -->
       <TagsStickyButton
-        :show-sticky-add-button="showStickyAddButton"
-        @open-create-modal="openCreateModal"
+        :show-sticky-add-button="stickyObserver.showStickyButton.value"
+        @open-create-modal="tagsState.openCreateModal"
       />
 
       <!-- Modal -->
       <TagModal
-        :show="showModal"
-        :isEditing="isEditing"
-        :form="form"
-        @submit="handleSubmit"
-        @close="closeModal"
+        :show="tagsState.showModal.value"
+        :isEditing="tagsState.isEditing.value"
+        :form="tagsState.form"
+        @submit="tagsHandle.handleSubmit"
+        @close="tagsState.closeModal"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, onMounted, onUnmounted } from "vue";
+import { defineAsyncComponent, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useTagsState } from "./composable/manager-state/useTagsState";
 import { useTagsHandle } from "./composable/manager-handle/useTagsHandle";
 import { useTagsMount } from "./composable/manager-mount/useTagsMount";
+import { useStickyButtonObserver } from "./composable/manager-handle/useStickyButtonObserver";
 import enLang from "./language/en";
 import viLang from "./language/vi";
 import koLang from "./language/ko";
@@ -71,68 +72,37 @@ const TagModal = defineAsyncComponent(
   () => import("./component/TagModal.vue") as any
 );
 
-const { t, mergeLocaleMessage } = useI18n();
+const i18n = useI18n();
 
-mergeLocaleMessage("en", { tags: enLang });
-mergeLocaleMessage("vi", { tags: viLang });
-mergeLocaleMessage("ko", { tags: koLang });
-mergeLocaleMessage("zh-CN", { tags: zhCNLang });
+i18n.mergeLocaleMessage("en", { tags: enLang });
+i18n.mergeLocaleMessage("vi", { tags: viLang });
+i18n.mergeLocaleMessage("ko", { tags: koLang });
+i18n.mergeLocaleMessage("zh-CN", { tags: zhCNLang });
 
-const {
-  tags,
-  loading,
-  showModal,
-  isEditing,
-  editingId,
-  form,
-  tagsCount,
-  hasTags,
-  setTags,
-  addTag,
-  updateTag,
-  removeTag,
-  setLoading,
-  openCreateModal,
-  openEditModal,
-  closeModal,
-} = useTagsState();
+// State Management (không destructuring)
+const tagsState = useTagsState();
 
-const { handleSubmit, handleDelete } = useTagsHandle(
-  form,
-  isEditing,
-  editingId,
-  closeModal,
-  addTag,
-  updateTag,
-  removeTag
+// Handle (không destructuring)
+const tagsHandle = useTagsHandle(
+  tagsState.form,
+  tagsState.isEditing,
+  tagsState.editingId,
+  tagsState.closeModal,
+  tagsState.addTag,
+  tagsState.updateTag,
+  tagsState.removeTag
 );
 
-useTagsMount(setTags, setLoading, addTag, updateTag, removeTag);
+// Mount
+useTagsMount(
+  tagsState.setTags,
+  tagsState.setLoading,
+  tagsState.addTag,
+  tagsState.updateTag,
+  tagsState.removeTag
+);
 
+// Sticky Button Observer
 const controlsRef = ref<HTMLElement | null>(null);
-const showStickyAddButton = ref(false);
-let observer: IntersectionObserver | null = null;
-
-onMounted(() => {
-  observer = new IntersectionObserver(
-    ([entry]) => {
-      showStickyAddButton.value =
-        !entry.isIntersecting && entry.boundingClientRect.top < 0;
-    },
-    {
-      threshold: 0,
-      rootMargin: "-20px 0px 0px 0px",
-    }
-  );
-
-  if (controlsRef.value) {
-    observer.observe(controlsRef.value);
-  }
-});
-
-onUnmounted(() => {
-  if (observer) {
-    observer.disconnect();
-  }
-});
+const stickyObserver = useStickyButtonObserver(controlsRef);
 </script>

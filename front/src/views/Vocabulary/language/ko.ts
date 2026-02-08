@@ -94,5 +94,12 @@ export default {
     add: '메모 추가',
     placeholder: '여기에 생각을 적으세요...',
     save: '메모 저장',
-  }
+  },
+
+  // Advanced Filters
+  advancedFilters: '고급 필터',
+  clearAll: '모두 지우기',
+  activeFilters: '활성 필터',
+  noCategories: '카테고리가 없습니다',
+  noTags: '태그가 없습니다',
 }

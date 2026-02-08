@@ -2,7 +2,13 @@ import { watch } from 'vue'
 import { vocabularyService } from '../../service/vocabulary.service'
 
 export function useVocabularyFilterHandle(
-  filter: { search: string; difficulty: 'all' | 'easy' | 'medium' | 'hard', tabId?: string | null },
+  filter: {
+    search: string;
+    difficulty: 'all' | 'easy' | 'medium' | 'hard',
+    tabId?: string | null,
+    categoryIds?: string[],
+    tags?: string[]
+  },
   store: {
     setPage: (page: number) => void
     limit: number
@@ -19,6 +25,8 @@ export function useVocabularyFilterHandle(
       search: filter.search,
       difficulty,
       tabId: filter.tabId,
+      categoryIds: filter.categoryIds,
+      tags: filter.tags,
     })
   }
 
@@ -46,8 +54,25 @@ export function useVocabularyFilterHandle(
     }
   )
 
+  watch(
+    () => filter.categoryIds,
+    () => {
+      store.setPage(1)
+      handlePageChange(1)
+    },
+    { deep: true }
+  )
+
+  watch(
+    () => filter.tags,
+    () => {
+      store.setPage(1)
+      handlePageChange(1)
+    },
+    { deep: true }
+  )
+
   return {
     handlePageChange,
   }
 }
-

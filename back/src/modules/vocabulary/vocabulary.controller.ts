@@ -40,9 +40,13 @@ export class VocabularyController {
     @Query('search') search?: string,
     @Query('difficulty') difficulty?: 'easy' | 'medium' | 'hard',
     @Query('tabId') tabId?: string,
+    @Query('categoryIds') categoryIds?: string,
+    @Query('tags') tags?: string,
   ) {
     const p = page ? parseInt(page.toString(), 10) : 1;
     const l = limit ? parseInt(limit.toString(), 10) : 6;
+    const categoryIdArray = categoryIds ? categoryIds.split(',').filter(Boolean) : undefined;
+    const tagArray = tags ? tags.split(',').filter(Boolean) : undefined;
     const result = await this.vocabularyService.findAllPaginated(
       req.user.id,
       p,
@@ -50,6 +54,8 @@ export class VocabularyController {
       search,
       difficulty,
       tabId,
+      categoryIdArray,
+      tagArray,
     );
     return {
       data: result.items,

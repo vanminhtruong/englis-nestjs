@@ -18,28 +18,38 @@
         class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
       >
         <VocabularySearchBar
-          v-model="searchQuery"
+          v-model="state.searchQuery.value"
           :placeholder="'Search vocabularies...'"
         />
 
         <ExpandCollapseButton
-          :expand-all="expandAll"
+          :expand-all="state.expandAll.value"
           :expand-text="tr('expandAll')"
           :collapse-text="tr('collapseAll')"
-          @click="toggleExpandAll"
+          @click="handle.toggleExpandAll"
         />
       </div>
 
       <!-- Loading State -->
-      <div v-if="loading" class="flex items-center justify-center py-20">
-        <div
-          class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 dark:border-primary-400"
-        ></div>
+      <div
+        v-if="state.loading.value"
+        class="flex items-center justify-center py-24"
+      >
+        <div class="relative">
+          <div
+            class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"
+          ></div>
+          <div
+            class="absolute inset-0 flex items-center justify-center font-bold text-xs text-primary-600"
+          >
+            ...
+          </div>
+        </div>
       </div>
 
       <!-- No Data State -->
       <div
-        v-else-if="filteredVocabularies.length === 0"
+        v-else-if="handle.filteredVocabularies.value.length === 0"
         class="text-center py-20"
       >
         <div class="text-6xl mb-4">📅</div>
@@ -52,7 +62,7 @@
       <!-- Date Groups -->
       <div v-else class="space-y-6">
         <DateGroupCard
-          v-for="group in filteredVocabularies"
+          v-for="group in handle.filteredVocabularies.value"
           :key="group.date"
           :item-id="group.date"
           :class="{ 'z-50 relative': currentEditingDate === group.date }"
@@ -61,18 +71,18 @@
           <template #header="{ hasBackground }">
             <DateGroupHeader
               :day-number="new Date(group.date).getDate()"
-              :formatted-date="formatDate(group.date)"
+              :formatted-date="handle.formatDate(group.date)"
               :count="group.count"
               :words-count-text="tr('wordsCount')"
-              :is-expanded="isDateExpanded(group.date)"
+              :is-expanded="handle.isDateExpanded(group.date)"
               :topic="group.topic"
               :icon="group.icon"
               :color="group.color"
               :has-background="hasBackground"
-              @toggle="toggleDate(group.date)"
+              @toggle="handle.toggleDate(group.date)"
               @update-topic="
                 (topic, icon, color) =>
-                  updateTopic(group.date, topic, icon, color)
+                  handle.updateTopic(group.date, topic, icon, color)
               "
               @editing-change="(val) => setEditingDate(group.date, val)"
             />
@@ -88,7 +98,7 @@
             leave-to-class="opacity-0 max-h-0"
           >
             <div
-              v-if="isDateExpanded(group.date)"
+              v-if="handle.isDateExpanded(group.date)"
               class="border-t border-black/10 dark:border-white/10 p-4 space-y-4"
             >
               <div
@@ -100,10 +110,12 @@
                   :vocabulary-count="catGroup.vocabularies.length"
                   :icon-component="getIconComponent(catGroup.category.icon)"
                   :is-expanded="
-                    isCategoryExpanded(group.date, catGroup.category.id)
+                    handle.isCategoryExpanded(group.date, catGroup.category.id)
                   "
                   :move-to-date-text="tr('moveToDate')"
-                  @toggle="toggleCategory(group.date, catGroup.category.id)"
+                  @toggle="
+                    handle.toggleCategory(group.date, catGroup.category.id)
+                  "
                   @move="
                     moveModalState.openMoveModal(
                       group.date,
@@ -113,7 +125,9 @@
                   "
                 />
                 <div
-                  v-if="isCategoryExpanded(group.date, catGroup.category.id)"
+                  v-if="
+                    handle.isCategoryExpanded(group.date, catGroup.category.id)
+                  "
                   class="pl-8 pt-2 space-y-2"
                 >
                   <VocabularyCard
@@ -124,7 +138,7 @@
                     :speak-text="tr('speak')"
                     @open-image="modalState.openImagePreview"
                     @open-video="modalState.openVideoPreview"
-                    @speak="handleSpeak"
+                    @speak="handle.handleSpeak"
                     @view-detail="modalState.openDetailModal(vocab)"
                   />
                 </div>
@@ -167,7 +181,7 @@
       :description="tr('moveModalDescription')"
       :from-date-label="tr('fromDate')"
       :to-date-label="tr('toDate')"
-      :from-date-display="formatDate(moveModalState.moveFromDate.value)"
+      :from-date-display="handle.formatDate(moveModalState.moveFromDate.value)"
       :category-name="moveModalState.moveCategoryName.value"
       :selected-date-label="selectedTargetDateLabel"
       :placeholder="tr('selectDatePlaceholder')"
@@ -229,59 +243,40 @@ const VideoZoomModal = defineAsyncComponent(
   () => import("../../components/common/VideoZoomModal.vue") as any
 );
 
-const { t } = useI18n({ useScope: "global" });
+const i18n = useI18n({ useScope: "global" });
 
 function tr(key: string) {
-  return t(`vocabularyByDate.${key}`);
+  return i18n.t(`vocabularyByDate.${key}`);
 }
 
-const {
-  vocabulariesByDate,
-  loading,
-  expandedDates,
-  expandedCategories,
-  expandAll,
-  searchQuery,
-} = useVocabularyByDateState();
+const state = useVocabularyByDateState();
 
-const {
-  loadData,
-  handleSpeak,
-  formatDate,
-  filteredVocabularies,
-  toggleDate,
-  toggleExpandAll,
-  isDateExpanded,
-  toggleCategory,
-  isCategoryExpanded,
-  moveCategoryToDate,
-  updateTopic,
-} = useVocabularyByDateHandle(
-  vocabulariesByDate,
-  loading,
-  searchQuery,
-  expandedDates,
-  expandedCategories,
-  expandAll
+const handle = useVocabularyByDateHandle(
+  state.vocabulariesByDate,
+  state.loading,
+  state.searchQuery,
+  state.expandedDates,
+  state.expandedCategories,
+  state.expandAll
 );
 
-useVocabularyByDateMount(loadData);
+useVocabularyByDateMount(handle.loadData);
 
 // Modal States
 const modalState = useModalState();
 const moveModalState = useMoveModal(
-  vocabulariesByDate,
-  formatDate,
-  moveCategoryToDate
+  state.vocabulariesByDate,
+  handle.formatDate,
+  handle.moveCategoryToDate
 );
 
 const selectedTargetDateLabel = computed(() => {
   if (!moveModalState.selectedTargetDate.value)
     return tr("selectDatePlaceholder");
-  const group = vocabulariesByDate.value.find(
+  const group = state.vocabulariesByDate.value.find(
     (g: any) => g.date === moveModalState.selectedTargetDate.value
   );
-  return group ? formatDate(group.date) : tr("selectDatePlaceholder");
+  return group ? handle.formatDate(group.date) : tr("selectDatePlaceholder");
 });
 
 const currentEditingDate = ref<string | null>(null);

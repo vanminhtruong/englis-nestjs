@@ -25,6 +25,8 @@ export function useVocabularyState() {
     search: '',
     difficulty: 'all',
     tabId: null,
+    categoryIds: [],
+    tags: [],
   })
 
   const filteredVocabularies = computed(() => store.vocabularies)

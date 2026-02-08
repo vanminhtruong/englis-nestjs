@@ -9,6 +9,8 @@ export class VocabularyService {
     search?: string;
     difficulty?: 'easy' | 'medium' | 'hard' | 'all';
     tabId?: string | null;
+    categoryIds?: string[];
+    tags?: string[];
   } = {}
 
   async loadVocabularies(params?: {
@@ -17,6 +19,8 @@ export class VocabularyService {
     search?: string;
     difficulty?: 'easy' | 'medium' | 'hard' | 'all';
     tabId?: string | null;
+    categoryIds?: string[];
+    tags?: string[];
   }) {
     this.store.setLoading(true)
 
@@ -25,6 +29,8 @@ export class VocabularyService {
       if (params.search !== undefined) this.lastParams.search = params.search;
       if (params.difficulty !== undefined) this.lastParams.difficulty = params.difficulty;
       if (params.tabId !== undefined) this.lastParams.tabId = params.tabId;
+      if (params.categoryIds !== undefined) this.lastParams.categoryIds = params.categoryIds;
+      if (params.tags !== undefined) this.lastParams.tags = params.tags;
     }
 
     try {
@@ -36,6 +42,8 @@ export class VocabularyService {
         search: this.lastParams.search || undefined,
         difficulty: difficulty,
         tabId: this.lastParams.tabId || undefined,
+        categoryIds: this.lastParams.categoryIds?.length ? this.lastParams.categoryIds : undefined,
+        tags: this.lastParams.tags?.length ? this.lastParams.tags : undefined,
       })
       const { data, meta } = response.data
       this.store.setVocabularies(data)

@@ -15,10 +15,15 @@
 
       <!-- Loading State -->
       <div v-if="loading" class="flex items-center justify-center py-24">
-        <div class="loading-spinner">
-          <div class="spinner-ring"></div>
-          <div class="spinner-ring"></div>
-          <div class="spinner-ring"></div>
+        <div class="relative">
+          <div
+            class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"
+          ></div>
+          <div
+            class="absolute inset-0 flex items-center justify-center font-bold text-xs text-primary-600"
+          >
+            ...
+          </div>
         </div>
       </div>
 
@@ -180,32 +185,6 @@ export default {
 </script>
 
 <style scoped>
-.loading-spinner {
-  @apply relative w-16 h-16;
-}
-
-.spinner-ring {
-  @apply absolute inset-0 rounded-full border-4 border-transparent;
-  border-top-color: #6366f1;
-  animation: spin 1.2s linear infinite;
-}
-
-.spinner-ring:nth-child(2) {
-  animation-delay: -0.4s;
-  border-top-color: #8b5cf6;
-}
-
-.spinner-ring:nth-child(3) {
-  animation-delay: -0.8s;
-  border-top-color: #a855f7;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .empty-state {
   @apply text-center py-16;
 }

@@ -94,5 +94,12 @@ export default {
         add: '添加笔记',
         placeholder: '在这里写下您的想法...',
         save: '保存笔记',
-    }
+    },
+
+    // Advanced Filters
+    advancedFilters: '高级筛选',
+    clearAll: '清除全部',
+    activeFilters: '当前筛选',
+    noCategories: '暂无分类',
+    noTags: '暂无标签',
 }

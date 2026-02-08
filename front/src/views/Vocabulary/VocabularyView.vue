@@ -13,48 +13,70 @@
 
         <div class="mb-6">
           <VocabularyAppTabs
-            :tabs="tabs"
-            :active-tab-id="activeTabId"
-            :is-all-tab-hidden="isAllTabHidden"
-            @select="handleTabSelect"
-            @create="handleCreateTab"
-            @edit="handleEditTab"
-            @delete="handleDeleteTab"
-            @update:is-all-tab-hidden="handleAllTabToggle"
+            :tabs="tabHandle.tabs.value"
+            :active-tab-id="tabHandle.activeTabId.value"
+            :is-all-tab-hidden="tabHandle.isAllTabHidden.value"
+            @select="tabHandle.handleTabSelect"
+            @create="tabHandle.handleCreateTab"
+            @edit="tabHandle.handleEditTab"
+            @delete="tabHandle.handleDeleteTab"
+            @update:is-all-tab-hidden="tabHandle.handleAllTabToggle"
           />
         </div>
 
         <div ref="controlsRef">
           <VocabularyControls
             :search="vocabularyState.filter.search"
-            :difficulty-label="t(vocabularyState.difficultyLabel)"
-            :show-difficulty-dropdown="vocabularyState.showDifficultyDropdown"
-            :current-difficulty="vocabularyState.filter.difficulty"
-            :is-filters-expanded="isFiltersExpanded"
             :labels="{
               searchPlaceholder: t('vocabulary.search'),
               addNew: t('vocabulary.addNew'),
+            }"
+            @update:search="(value) => (vocabularyState.filter.search = value)"
+            @create="vocabularyState.openCreateModal"
+          />
+
+          <VocabularyAdvancedFilters
+            :selected-categories="vocabularyState.filter.categoryIds || []"
+            :selected-tags="vocabularyState.filter.tags || []"
+            :current-difficulty="vocabularyState.filter.difficulty"
+            :labels="{
+              advancedFilters: t('vocabulary.advancedFilters'),
+              categories: t('vocabulary.categories'),
+              tags: t('vocabulary.tags'),
+              difficulty: t('vocabulary.difficulty'),
+              clear: t('vocabulary.clear'),
+              clearAll: t('vocabulary.clearAll'),
+              activeFilters: t('vocabulary.activeFilters'),
+              noCategories: t('vocabulary.noCategories'),
+              noTags: t('vocabulary.noTags'),
               all: t('vocabulary.all'),
               easy: t('vocabulary.easy'),
               medium: t('vocabulary.medium'),
               hard: t('vocabulary.hard'),
             }"
-            @update:search="(value) => (vocabularyState.filter.search = value)"
-            @toggle-difficulty="
-              vocabularyState.showDifficultyDropdown =
-                !vocabularyState.showDifficultyDropdown
+            @update:selected-categories="
+              advancedFilterHandle.handleCategoryFilterChange
             "
-            @update:is-filters-expanded="handleFilterToggle"
+            @update:selected-tags="advancedFilterHandle.handleTagFilterChange"
             @set-difficulty="vocabularyState.setDifficultyFilter"
-            @create="vocabularyState.openCreateModal"
           />
         </div>
       </div>
 
-      <div v-if="vocabularyState.store.loading" class="text-center py-12">
-        <div
-          class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"
-        ></div>
+      <div
+        v-if="vocabularyState.store.loading"
+        class="flex items-center justify-center py-24"
+      >
+        <div class="relative">
+          <div
+            class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"
+          ></div>
+          <div
+            class="absolute inset-0 flex items-center justify-center font-bold text-xs text-primary-600"
+          >
+            ...
+          </div>
+        </div>
       </div>
 
       <div
@@ -81,34 +103,34 @@
           v-if="vocabularyState.isGridLayout"
           :vocabularies="vocabularyState.filteredVocabularies"
           :t="t"
-          :format-date="formatDate"
-          :selected-ids="selectedVocabularyIds"
+          :format-date="dateFormat.formatDate"
+          :selected-ids="selectionHandle.selectedVocabularyIds.value"
           @speak="vocabularyHandle.handleSpeak"
           @toggle-pin="vocabularyHandle.handleTogglePin"
           @toggle-favorite="vocabularyHandle.handleToggleFavorite"
           @open-detail="vocabularyState.openDetailModal"
           @open-edit="vocabularyState.openEditModal"
           @delete="vocabularyHandle.handleDelete"
-          @open-image="openImagePreview"
-          @open-video="openVideoPreview"
-          @toggle-selection="toggleVocabularySelection"
+          @open-image="mediaPreview.openImagePreview"
+          @open-video="mediaPreview.openVideoPreview"
+          @toggle-selection="selectionHandle.toggleVocabularySelection"
         />
 
         <VocabularyList
           v-else
           :vocabularies="vocabularyState.filteredVocabularies"
           :t="t"
-          :format-date="formatDate"
-          :selected-ids="selectedVocabularyIds"
+          :format-date="dateFormat.formatDate"
+          :selected-ids="selectionHandle.selectedVocabularyIds.value"
           @speak="vocabularyHandle.handleSpeak"
           @toggle-pin="vocabularyHandle.handleTogglePin"
           @toggle-favorite="vocabularyHandle.handleToggleFavorite"
           @open-detail="vocabularyState.openDetailModal"
           @open-edit="vocabularyState.openEditModal"
           @delete="vocabularyHandle.handleDelete"
-          @open-image="openImagePreview"
-          @open-video="openVideoPreview"
-          @toggle-selection="toggleVocabularySelection"
+          @open-image="mediaPreview.openImagePreview"
+          @open-video="mediaPreview.openVideoPreview"
+          @toggle-selection="selectionHandle.toggleVocabularySelection"
         />
       </div>
 
@@ -134,7 +156,7 @@
       leave-to-class="translate-y-20 opacity-0"
     >
       <button
-        v-if="showStickyAddButton"
+        v-if="stickyButton.showStickyAddButton.value"
         @click="vocabularyState.openCreateModal"
         class="fixed bottom-6 left-6 md:bottom-8 md:left-8 z-40 px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-bold rounded-full shadow-2xl hover:shadow-primary-500/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 backdrop-blur-sm"
       >
@@ -170,75 +192,72 @@
       :vocabulary="vocabularyState.selectedVocabulary"
       @close="vocabularyState.closeDetailModal"
       @edit="vocabularyState.handleEditFromDetail"
-      @open-image="openImagePreview"
+      @open-image="mediaPreview.openImagePreview"
     />
 
     <VocabularyImageViewer
-      :visible="imagePreview.visible"
-      :src="imagePreview.src"
-      :alt="imagePreview.alt"
-      :title="imagePreview.title"
-      @close="closeImagePreview"
+      :visible="mediaPreview.imagePreview.visible"
+      :src="mediaPreview.imagePreview.src"
+      :alt="mediaPreview.imagePreview.alt"
+      :title="mediaPreview.imagePreview.title"
+      @close="mediaPreview.closeImagePreview"
     />
 
     <VideoZoomModal
-      :visible="videoPreview.visible"
-      :src="videoPreview.src"
-      :title="videoPreview.title"
-      @close="closeVideoPreview"
+      :visible="mediaPreview.videoPreview.visible"
+      :src="mediaPreview.videoPreview.src"
+      :title="mediaPreview.videoPreview.title"
+      @close="mediaPreview.closeVideoPreview"
     />
 
     <VocabularyTabManagerModal
-      :show="showTabManagerModal"
-      :vocabulary="selectedVocabForTabs"
+      :show="tabHandle.showTabManagerModal.value"
+      :vocabulary="tabHandle.selectedVocabForTabs.value"
       title="Manage Vocabulary Tabs"
-      @close="showTabManagerModal = false"
-      @saved="handleTabSaved"
+      @close="tabHandle.showTabManagerModal.value = false"
+      @saved="tabHandle.handleTabSaved"
     />
 
     <TabNameModal
-      :show="showTabNameModal"
-      :is-editing="isEditingTab"
-      :initial-name="editingTabName"
-      @close="closeTabNameModal"
-      @submit="handleTabNameSubmit"
+      :show="tabHandle.showTabNameModal.value"
+      :is-editing="tabHandle.isEditingTab.value"
+      :initial-name="tabHandle.editingTabName.value"
+      @close="tabHandle.closeTabNameModal"
+      @submit="tabHandle.handleTabNameSubmit"
     />
 
     <VocabularyBulkActionBar
-      :selected-count="selectedVocabularyIds.length"
-      :is-all-selected="isAllVocabulariesSelected"
-      @add-to-tab="openBulkAddToTab"
-      @toggle-select-all="toggleSelectAll"
-      @clear-selection="clearSelection"
+      :selected-count="selectionHandle.selectedVocabularyIds.value.length"
+      :is-all-selected="selectionHandle.isAllVocabulariesSelected.value"
+      @add-to-tab="selectionHandle.openBulkAddToTab"
+      @toggle-select-all="selectionHandle.toggleSelectAll"
+      @clear-selection="selectionHandle.clearSelection"
     />
 
     <BulkAddToTabModal
-      :show="showBulkAddToTabModal"
-      :vocabulary-ids="selectedVocabularyIds"
-      @close="showBulkAddToTabModal = false"
-      @saved="handleBulkAddSaved"
+      :show="selectionHandle.showBulkAddToTabModal.value"
+      :vocabulary-ids="selectionHandle.selectedVocabularyIds.value"
+      @close="selectionHandle.showBulkAddToTabModal.value = false"
+      @saved="advancedFilterHandle.handleBulkAddSaved"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  defineAsyncComponent,
-  proxyRefs,
-  reactive,
-  ref,
-  onMounted,
-  onUnmounted,
-  watch,
-} from "vue";
+import { proxyRefs, ref } from "vue";
+import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
-import apiService from "../../services/api.service";
 import { useVocabularyState } from "./composable/manager-state/useVocabularyState";
 import { useVocabularyHandle } from "./composable/manager-handle/useVocabularyHandle";
 import { useVocabularyMount } from "./composable/manager-mount/useVocabularyMount";
 import { useVocabularyFilterHandle } from "./composable/manager-handle/useVocabularyFilterHandle";
 import { useVocabularyLayoutHandle } from "./composable/manager-handle/useVocabularyLayoutHandle";
+import { useMediaPreview } from "./composable/manager-handle/useMediaPreview";
+import { useVocabularySelection } from "./composable/manager-handle/useVocabularySelection";
+import { useVocabularyTabHandle } from "./composable/manager-handle/useVocabularyTabHandle";
+import { useStickyButtonObserver } from "./composable/manager-handle/useStickyButtonObserver";
+import { useDateFormat } from "./composable/utils/useDateFormat";
+import { useVocabularyAdvancedFilterHandle } from "./composable/manager-handle/useVocabularyAdvancedFilterHandle";
 import enLang from "./language/en";
 import viLang from "./language/vi";
 import koLang from "./language/ko";
@@ -286,8 +305,9 @@ const VocabularyBulkActionBar = defineAsyncComponent(
 const BulkAddToTabModal = defineAsyncComponent(
   () => import("./component/BulkAddToTabModal.vue") as any
 );
-
-import { useToast } from "../../composables/useToast";
+const VocabularyAdvancedFilters = defineAsyncComponent(
+  () => import("./component/VocabularyAdvancedFilters.vue") as any
+);
 
 const { t, locale, mergeLocaleMessage } = useI18n();
 
@@ -318,320 +338,40 @@ const vocabularyLayoutHandle = useVocabularyLayoutHandle(
   vocabularyStateStore.isPersistingLayout
 );
 
-const imagePreview = reactive({
-  visible: false,
-  src: "",
-  alt: "",
-  title: "",
-});
+// Media Preview
+const mediaPreview = useMediaPreview();
 
-const videoPreview = reactive({
-  visible: false,
-  src: "",
-  title: "",
-});
+// Date Formatting
+const dateFormat = useDateFormat(locale);
 
-function openImagePreview(payload: { src: string; alt: string }) {
-  imagePreview.src = payload.src;
-  imagePreview.alt = payload.alt;
-  imagePreview.title = payload.alt;
-  imagePreview.visible = true;
-}
-
-function closeImagePreview() {
-  imagePreview.visible = false;
-}
-
-function openVideoPreview(payload: { src: string; title: string }) {
-  videoPreview.src = payload.src;
-  videoPreview.title = payload.title;
-  videoPreview.visible = true;
-}
-
-function closeVideoPreview() {
-  videoPreview.visible = false;
-}
-
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  const localeMap: Record<string, string> = {
-    en: "en-US",
-    vi: "vi-VN",
-    ko: "ko-KR",
-    "zh-CN": "zh-CN",
-  };
-  return date.toLocaleDateString(localeMap[locale.value] || "en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
-
-useVocabularyMount();
-
+// Sticky Button Observer
 const controlsRef = ref<HTMLElement | null>(null);
-const showStickyAddButton = ref(false);
-let observer: IntersectionObserver | null = null;
-const isFiltersExpanded = ref(true);
-const isInitialized = ref(false);
+const stickyButton = useStickyButtonObserver(controlsRef);
 
-watch(
-  () => vocabularyState.store.vocabularies,
-  (newVal) => {
-    if (newVal && newVal.length > 0 && !isInitialized.value) {
-      // Check if settings are in DB
-      const dbFilter = (newVal[0] as any).isFilterExpanded;
-      if (dbFilter !== undefined) {
-        isFiltersExpanded.value = dbFilter;
-      }
-
-      const dbAllTab = (newVal[0] as any).isAllTabHidden;
-      if (dbAllTab !== undefined) {
-        isAllTabHidden.value = dbAllTab;
-      }
-
-      isInitialized.value = true;
-    }
-  },
-  { deep: true, immediate: true }
+// Tab Management
+const tabHandle = useVocabularyTabHandle(
+  vocabularyStateStore.filter as any,
+  vocabularyFilterHandle.handlePageChange,
+  () => vocabularyStateStore.store.page
 );
-
-async function handleFilterToggle(value: boolean) {
-  isFiltersExpanded.value = value;
-  try {
-    await apiService.vocabulary.updateFilterState(value);
-  } catch (error) {
-    console.error("Failed to update filter state", error);
-  }
-}
-
-// Tabs Management
-const tabs = ref([]);
-const activeTabId = ref<string | null>(localStorage.getItem("activeTabId"));
-const showTabManagerModal = ref(false);
-const selectedVocabForTabs = ref(null);
-const showTabNameModal = ref(false);
-const isEditingTab = ref(false);
-const editingTabName = ref("");
-const editingTabId = ref<string | null>(null);
-const isAllTabHidden = ref(localStorage.getItem("isAllTabHidden") === "true");
-
-// Apply initial tab to filter
-if (activeTabId.value) {
-  (vocabularyState.filter as any).tabId = activeTabId.value;
-}
-
-// Watch for tabs loading to handle initial selection if All is hidden or if current tab is invalid
-watch(
-  [tabs, isAllTabHidden, activeTabId],
-  ([newTabs, allHidden, currentTab]) => {
-    // Case 1: All Vocabularies is hidden and no custom tab selected
-    if (allHidden && currentTab === null && newTabs && newTabs.length > 0) {
-      handleTabSelect((newTabs[0] as any).id);
-      return;
-    }
-
-    // Case 2: Current tab ID is not in the list of tabs (e.g. was deleted)
-    if (currentTab !== null && newTabs && newTabs.length > 0) {
-      const exists = newTabs.some((t: any) => t.id === currentTab);
-      if (!exists) {
-        if (allHidden) {
-          handleTabSelect((newTabs[0] as any).id);
-        } else {
-          handleTabSelect(null);
-        }
-      }
-    }
-  },
-  { immediate: true }
-);
-
-const handleAllTabToggle = async (value: boolean) => {
-  isAllTabHidden.value = value;
-  localStorage.setItem("isAllTabHidden", String(value));
-
-  try {
-    await apiService.vocabulary.updateAllTabHiddenState(value);
-  } catch (error) {
-    console.error("Failed to update all tab hidden state", error);
-  }
-
-  // If hiding All tab, immediately switch to the first custom tab if available
-  if (value && tabs.value.length > 0) {
-    handleTabSelect((tabs.value[0] as any).id);
-  }
-};
-
-const toast = useToast();
-
-const loadTabs = async () => {
-  try {
-    const response = await apiService.tab.getAll();
-    tabs.value = response.data;
-  } catch (error) {
-    console.error("Failed to load tabs:", error);
-  }
-};
-
-const handleTabSelect = (tabId: string | null) => {
-  activeTabId.value = tabId;
-  if (tabId) {
-    localStorage.setItem("activeTabId", tabId);
-  } else {
-    localStorage.removeItem("activeTabId");
-  }
-  (vocabularyState.filter as any).tabId = tabId;
-};
-
-const handleCreateTab = () => {
-  isEditingTab.value = false;
-  editingTabName.value = "";
-  editingTabId.value = null;
-  showTabNameModal.value = true;
-};
-
-const handleEditTab = (tab: any) => {
-  isEditingTab.value = true;
-  editingTabName.value = tab.name;
-  editingTabId.value = tab.id;
-  showTabNameModal.value = true;
-};
-
-const closeTabNameModal = () => {
-  showTabNameModal.value = false;
-  editingTabName.value = "";
-  editingTabId.value = null;
-};
-
-const handleTabNameSubmit = async (name: string) => {
-  try {
-    if (isEditingTab.value && editingTabId.value) {
-      await apiService.tab.update(editingTabId.value, { name });
-      toast.showSuccess("Tab updated successfully!");
-    } else {
-      await apiService.tab.create({ name });
-      toast.showSuccess("Tab created successfully!");
-    }
-    await loadTabs();
-    closeTabNameModal();
-  } catch (error) {
-    console.error("Failed to save tab:", error);
-    toast.showError("Failed to save tab. Please try again.");
-  }
-};
-
-const handleDeleteTab = (tab: any) => {
-  toast.confirm(
-    `Are you sure you want to delete tab "${tab.name}"?`,
-    async () => {
-      try {
-        await apiService.tab.delete(tab.id);
-        if (activeTabId.value === tab.id) {
-          activeTabId.value = null;
-          localStorage.removeItem("activeTabId");
-          (vocabularyState.filter as any).tabId = null;
-        }
-        await loadTabs();
-        vocabularyFilterHandle.handlePageChange(vocabularyState.store.page);
-        toast.showSuccess("Tab deleted successfully!");
-      } catch (error) {
-        console.error("Failed to delete tab:", error);
-        toast.showError("Failed to delete tab. Please try again.");
-      }
-    },
-    { label: "Delete", type: "error" }
-  );
-};
-
-const openTabManager = (vocab: any) => {
-  selectedVocabForTabs.value = vocab;
-  showTabManagerModal.value = true;
-};
-
-const handleTabSaved = async () => {
-  await loadTabs();
-  // Reload vocabularies to reflect changes (e.g., if item removed from current active tab)
-  vocabularyFilterHandle.handlePageChange(vocabularyState.store.page);
-};
 
 // Selection Management
-const selectedVocabularyIds = ref<string[]>([]);
-const showBulkAddToTabModal = ref(false);
+const selectionHandle = useVocabularySelection(
+  vocabularyStateStore.filteredVocabularies
+);
 
-const isAllVocabulariesSelected = computed(() => {
-  const vocabs = vocabularyState.filteredVocabularies;
-  return (
-    vocabs.length > 0 &&
-    vocabs.every((v: any) => selectedVocabularyIds.value.includes(v.id))
-  );
-});
+// Advanced Filter Handle (includes category, tag filters, bulk add, etc.)
+const advancedFilterHandle = useVocabularyAdvancedFilterHandle(
+  vocabularyStateStore.filter,
+  vocabularyStateStore.store,
+  tabHandle,
+  selectionHandle,
+  vocabularyFilterHandle
+);
 
-function toggleVocabularySelection(id: string) {
-  const index = selectedVocabularyIds.value.indexOf(id);
-  if (index === -1) {
-    selectedVocabularyIds.value.push(id);
-  } else {
-    selectedVocabularyIds.value.splice(index, 1);
-  }
-}
-
-function toggleSelectAll() {
-  const vocabs = vocabularyState.filteredVocabularies;
-  if (isAllVocabulariesSelected.value) {
-    // Deselect all current page items
-    vocabs.forEach((v: any) => {
-      const index = selectedVocabularyIds.value.indexOf(v.id);
-      if (index !== -1) {
-        selectedVocabularyIds.value.splice(index, 1);
-      }
-    });
-  } else {
-    // Select all current page items
-    vocabs.forEach((v: any) => {
-      if (!selectedVocabularyIds.value.includes(v.id)) {
-        selectedVocabularyIds.value.push(v.id);
-      }
-    });
-  }
-}
-
-function clearSelection() {
-  selectedVocabularyIds.value = [];
-}
-
-function openBulkAddToTab() {
-  showBulkAddToTabModal.value = true;
-}
-
-async function handleBulkAddSaved() {
-  clearSelection();
-  toast.showSuccess("Vocabularies added to tab successfully!");
-  await loadTabs();
-  vocabularyFilterHandle.handlePageChange(vocabularyState.store.page);
-}
-
-onMounted(() => {
-  observer = new IntersectionObserver(
-    ([entry]) => {
-      showStickyAddButton.value =
-        !entry.isIntersecting && entry.boundingClientRect.top < 0;
-    },
-    {
-      threshold: 0,
-      rootMargin: "-20px 0px 0px 0px",
-    }
-  );
-
-  if (controlsRef.value) {
-    observer.observe(controlsRef.value);
-  }
-
-  loadTabs();
-});
-
-onUnmounted(() => {
-  if (observer) {
-    observer.disconnect();
-  }
+// Mount with tab loading
+useVocabularyMount({
+  onMounted: () => tabHandle.loadTabs(),
 });
 </script>
+
