@@ -47,12 +47,22 @@
             >
               {{ t("vocabulary.word") }} *
             </label>
-            <input
-              v-model="form.word"
-              type="text"
-              required
-              class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
+            <div class="relative">
+              <input
+                v-model="form.word"
+                type="text"
+                required
+                class="w-full px-4 py-3 pr-12 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+              <button
+                type="button"
+                @click="openWordDrawingModal"
+                class="absolute right-3 top-1/2 -translate-y-1/2 px-2 py-1 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-semibold text-lg transition-all"
+                title="Open Word Drawing"
+              >
+                +
+              </button>
+            </div>
           </div>
 
           <div>
@@ -84,6 +94,13 @@
             :pronunciation="form.pronunciation"
             @close="closeIPAModal"
             @confirm="confirmIPAPronunciation"
+          />
+
+          <WordDrawingModal
+            :visible="isWordDrawingModalVisible"
+            :word="form.word"
+            @close="closeWordDrawingModal"
+            @confirm="confirmWordDrawing"
           />
         </div>
 
@@ -628,6 +645,10 @@ const IPAPronunciationModal = defineAsyncComponent(
   () => import("../../../components/common/IPAPronunciationModal.vue") as any
 );
 
+const WordDrawingModal = defineAsyncComponent(
+  () => import("../../../components/common/WordDrawingModal.vue") as any
+);
+
 const props = defineProps<{
   show: boolean;
   isEditing: boolean;
@@ -657,6 +678,7 @@ const activeMediaTab = ref<"image" | "video">("image");
 const showCategoryDropdown = ref(false);
 const showTagDropdown = ref(false);
 const isIPAModalVisible = ref(false);
+const isWordDrawingModalVisible = ref(false);
 
 const selectedCategory = computed({
   get: () =>
@@ -935,5 +957,22 @@ function closeIPAModal() {
 function confirmIPAPronunciation(pronunciation: string) {
   props.form.pronunciation = pronunciation;
   closeIPAModal();
+}
+
+function openWordDrawingModal() {
+  isWordDrawingModalVisible.value = true;
+}
+
+function closeWordDrawingModal() {
+  isWordDrawingModalVisible.value = false;
+}
+
+function confirmWordDrawing(payload: { imageDataUrl: string; word: string }) {
+  imagePreview.value = payload.imageDataUrl;
+  props.form.image = payload.imageDataUrl;
+  if (payload.word) {
+    props.form.word = payload.word;
+  }
+  closeWordDrawingModal();
 }
 </script>

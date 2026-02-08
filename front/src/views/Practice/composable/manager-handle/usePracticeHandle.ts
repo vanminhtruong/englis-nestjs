@@ -219,10 +219,88 @@ export function usePracticeHandle(
   function normalizeAnswer(value: string): string {
     return value
       .toLowerCase()
+      // Loại bỏ dấu câu ở đầu và cuối (?, !, ., ,, ;, :, etc.)
+      .replace(/^[?!.,;:'"¿¡…]+|[?!.,;:'"¿¡…]+$/g, '')
+      // Normalize unicode để xử lý dấu thanh điệu
       .normalize('NFD')
+      // Loại bỏ dấu thanh điệu (combining diacritical marks)
       .replace(/[\u0300-\u036f]/g, '')
+      // Trim khoảng trắng đầu cuối
       .trim()
+      // Chuẩn hóa nhiều khoảng trắng thành một
       .replace(/\s+/g, ' ')
+  }
+
+  /**
+   * Tính độ tương đồng giữa hai chuỗi sử dụng Levenshtein distance
+   * Trả về giá trị từ 0 đến 1 (1 = giống hoàn toàn)
+   */
+  function calculateSimilarity(str1: string, str2: string): number {
+    if (str1 === str2) return 1
+    if (!str1.length || !str2.length) return 0
+
+    const len1 = str1.length
+    const len2 = str2.length
+
+    // Khởi tạo ma trận với giá trị mặc định
+    const matrix: number[][] = Array.from({ length: len1 + 1 }, () =>
+      Array.from({ length: len2 + 1 }, () => 0)
+    )
+
+    for (let i = 0; i <= len1; i++) {
+      matrix[i]![0] = i
+    }
+    for (let j = 0; j <= len2; j++) {
+      matrix[0]![j] = j
+    }
+
+    for (let i = 1; i <= len1; i++) {
+      for (let j = 1; j <= len2; j++) {
+        const cost = str1[i - 1] === str2[j - 1] ? 0 : 1
+        matrix[i]![j] = Math.min(
+          (matrix[i - 1]?.[j] ?? 0) + 1,      // deletion
+          (matrix[i]?.[j - 1] ?? 0) + 1,      // insertion
+          (matrix[i - 1]?.[j - 1] ?? 0) + cost // substitution
+        )
+      }
+    }
+
+    const distance = matrix[len1]?.[len2] ?? 0
+    const maxLen = Math.max(len1, len2)
+    return 1 - distance / maxLen
+  }
+
+  /**
+   * Kiểm tra xem câu trả lời của người dùng có chứa từ chính trong đáp án không
+   * Ví dụ: "hộp" là từ chính trong "Cái hộp"
+   */
+  function containsCoreWord(correct: string, user: string): boolean {
+    const correctWords = correct.split(' ')
+    const userWords = user.split(' ')
+
+    // Nếu người dùng điền một từ và đáp án có nhiều từ
+    if (userWords.length === 1 && correctWords.length > 1) {
+      // Kiểm tra xem từ của người dùng có khớp với từ nào trong đáp án không
+      // Bỏ qua các từ loại/đếm từ phổ biến trong tiếng Việt
+      const classifiers = ['cai', 'con', 'chiec', 'quyen', 'to', 'bo', 'cap', 'doi', 'mot', 'hai', 'ba', 'nhung', 'cac', 'moi', 'tung']
+
+      for (const correctWord of correctWords) {
+        // Bỏ qua từ loại/đếm từ
+        if (classifiers.includes(correctWord)) continue
+
+        // Nếu từ của người dùng khớp với từ chính
+        if (correctWord === user || calculateSimilarity(correctWord, user) >= 0.85) {
+          return true
+        }
+      }
+    }
+
+    // Kiểm tra xem câu trả lời người dùng có là một phần của đáp án không
+    if (correct.includes(user) && user.length >= 2) {
+      return true
+    }
+
+    return false
   }
 
   function checkAnswer(): boolean {
@@ -238,7 +316,18 @@ export function usePracticeHandle(
     const user = normalizeAnswer(userRaw)
 
     if (!user) return false
-    return correct === user
+
+    // 1. Kiểm tra khớp chính xác
+    if (correct === user) return true
+
+    // 2. Kiểm tra xem người dùng có điền từ chính không (ví dụ: "hộp" trong "Cái hộp")
+    if (containsCoreWord(correct, user)) return true
+
+    // 3. Kiểm tra độ tương đồng cao (≥85%) - cho phép lỗi đánh máy nhỏ
+    const similarity = calculateSimilarity(correct, user)
+    if (similarity >= 0.85) return true
+
+    return false
   }
 
   // Practice modes are now hardcoded in usePracticeState.ts
