@@ -242,7 +242,7 @@
                     <button
                       v-for="tone in toneOptions"
                       :key="tone.value"
-                      @click="selectedTone = tone.value"
+                      @click="applyToneToBuffer(tone.value)"
                       :class="[
                         'w-8 h-8 rounded-md text-sm font-medium transition-all duration-200 border-2',
                         selectedTone === tone.value
@@ -1582,6 +1582,7 @@ const handlePinyinKeyPress = (key: KeyboardKey) => {
       keyboardInputText.value += pinyinBuffer.value;
       pinyinBuffer.value = "";
       hanziCandidates.value = [];
+      selectedTone.value = 0; // Reset tone
     } else {
       keyboardInputText.value += " ";
     }
@@ -1602,13 +1603,54 @@ const handlePinyinKeyPress = (key: KeyboardKey) => {
   }
 };
 
+// Map to convert toned vowels to base vowels for dictionary lookup
+const tonedToBaseMap: Record<string, string> = {
+  ā: "a",
+  á: "a",
+  ǎ: "a",
+  à: "a",
+  ē: "e",
+  é: "e",
+  ě: "e",
+  è: "e",
+  ī: "i",
+  í: "i",
+  ǐ: "i",
+  ì: "i",
+  ō: "o",
+  ó: "o",
+  ǒ: "o",
+  ò: "o",
+  ū: "u",
+  ú: "u",
+  ǔ: "u",
+  ù: "u",
+  ǖ: "v",
+  ǘ: "v",
+  ǚ: "v",
+  ǜ: "v",
+  ü: "v",
+};
+
+// Normalize toned pinyin to base pinyin for dictionary lookup
+const normalizePinyin = (pinyin: string): string => {
+  let result = "";
+  for (const char of pinyin) {
+    result += tonedToBaseMap[char] || char;
+  }
+  return result;
+};
+
 // Update hanzi candidates based on pinyin buffer
 const updateHanziCandidates = () => {
-  const pinyin = pinyinBuffer.value.toLowerCase();
-  if (!pinyin) {
+  const rawPinyin = pinyinBuffer.value.toLowerCase();
+  if (!rawPinyin) {
     hanziCandidates.value = [];
     return;
   }
+
+  // Normalize toned pinyin to base pinyin for dictionary lookup
+  const pinyin = normalizePinyin(rawPinyin);
 
   // Direct match
   if (pinyinToHanzi[pinyin]) {
@@ -1632,16 +1674,19 @@ const selectHanzi = (char: string) => {
   keyboardInputText.value += char;
   pinyinBuffer.value = "";
   hanziCandidates.value = [];
+  selectedTone.value = 0; // Reset tone for next input
 };
 
 // Clear pinyin buffer
 const clearPinyinBuffer = () => {
   pinyinBuffer.value = "";
   hanziCandidates.value = [];
+  selectedTone.value = 0; // Reset tone
 };
 
 const insertCharacter = (char: string) => {
   keyboardInputText.value += char;
+  selectedTone.value = 0; // Reset tone
 };
 
 const getTonedVowels = (): string[] => {
@@ -1659,12 +1704,97 @@ const getTonedVowels = (): string[] => {
   ];
 };
 
+// Map toned vowels back to base vowels
+const tonedVowelToBase: Record<string, string> = {
+  // a tones
+  ā: "a",
+  á: "a",
+  ǎ: "a",
+  à: "a",
+  // e tones
+  ē: "e",
+  é: "e",
+  ě: "e",
+  è: "e",
+  // i tones
+  ī: "i",
+  í: "i",
+  ǐ: "i",
+  ì: "i",
+  // o tones
+  ō: "o",
+  ó: "o",
+  ǒ: "o",
+  ò: "o",
+  // u tones
+  ū: "u",
+  ú: "u",
+  ǔ: "u",
+  ù: "u",
+  // ü tones
+  ǖ: "v",
+  ǘ: "v",
+  ǚ: "v",
+  ǜ: "v",
+  ü: "v",
+};
+
+// Apply tone to the last vowel in pinyinBuffer
+const applyToneToBuffer = (tone: 0 | 1 | 2 | 3 | 4) => {
+  selectedTone.value = tone;
+
+  // If tone is 0 (neutral) or buffer is empty, just update selectedTone
+  if (tone === 0 || !pinyinBuffer.value) {
+    return;
+  }
+
+  const buffer = pinyinBuffer.value;
+  const vowels = ["a", "e", "i", "o", "u", "v", "ü"];
+  const tonedVowels = Object.keys(tonedVowelToBase);
+
+  // Find the last vowel position in the buffer
+  let lastVowelIndex = -1;
+  let lastVowelChar = "";
+
+  for (let i = buffer.length - 1; i >= 0; i--) {
+    const char = buffer[i].toLowerCase();
+    // Check if it's a base vowel
+    if (vowels.includes(char)) {
+      lastVowelIndex = i;
+      lastVowelChar = char === "ü" ? "v" : char;
+      break;
+    }
+    // Check if it's already a toned vowel
+    if (tonedVowels.includes(buffer[i])) {
+      lastVowelIndex = i;
+      lastVowelChar = tonedVowelToBase[buffer[i]];
+      break;
+    }
+  }
+
+  // If no vowel found, just keep the selectedTone for future input
+  if (lastVowelIndex === -1) {
+    return;
+  }
+
+  // Apply the tone to the vowel
+  const tonedChar = pinyinTones[lastVowelChar][tone];
+  pinyinBuffer.value =
+    buffer.substring(0, lastVowelIndex) +
+    tonedChar +
+    buffer.substring(lastVowelIndex + 1);
+
+  // Update candidates
+  updateHanziCandidates();
+};
+
 const useKeyboardText = () => {
   // Include any pending pinyin buffer
   if (pinyinBuffer.value) {
     keyboardInputText.value += pinyinBuffer.value;
     pinyinBuffer.value = "";
     hanziCandidates.value = [];
+    selectedTone.value = 0; // Reset tone
   }
   if (keyboardInputText.value.trim()) {
     wordText.value = keyboardInputText.value.trim();
