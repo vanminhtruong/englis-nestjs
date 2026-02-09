@@ -107,14 +107,17 @@ function onSearch(event: Event) {
   position: relative;
   border-radius: 20px;
   padding: 3px;
-  background: linear-gradient(
-    135deg,
-    rgba(99, 102, 241, 0.3),
-    rgba(168, 85, 247, 0.3),
-    rgba(236, 72, 153, 0.3)
-  );
+  background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
   overflow: hidden;
   margin-top: 8px;
+}
+
+.dark .filter-panel {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.03)
+  );
 }
 
 .filter-panel__bg {
@@ -127,7 +130,7 @@ function onSearch(event: Event) {
 }
 
 .dark .filter-panel__bg {
-  background: rgba(15, 15, 20, 0.9);
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .filter-panel__content {
@@ -201,11 +204,8 @@ function onSearch(event: Event) {
 
 .dark .search-input {
   color: #f9fafb;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.05),
-    rgba(255, 255, 255, 0.02)
-  );
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .search-input::placeholder {

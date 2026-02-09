@@ -486,11 +486,8 @@ watch(hasActiveFilters, (hasFilters) => {
 }
 
 .dark .filters-toggle {
-  background: linear-gradient(
-    135deg,
-    rgba(99, 102, 241, 0.1),
-    rgba(168, 85, 247, 0.1)
-  );
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
   color: #d1d5db;
 }
 
@@ -505,20 +502,17 @@ watch(hasActiveFilters, (hasFilters) => {
 }
 
 .dark .filters-toggle:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(99, 102, 241, 0.15),
-    rgba(168, 85, 247, 0.15)
-  );
+  background: rgba(255, 255, 255, 0.08); /* slightly lighter than base */
 }
 
 .filters-toggle--active {
-  background: linear-gradient(
-    135deg,
-    rgba(99, 102, 241, 0.15),
-    rgba(168, 85, 247, 0.15)
-  );
-  border-color: rgba(99, 102, 241, 0.3);
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.dark .filters-toggle--active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .filters-toggle__icon {
@@ -568,8 +562,8 @@ watch(hasActiveFilters, (hasFilters) => {
 }
 
 .dark .filters-content {
-  background: rgba(30, 30, 40, 0.8);
-  border-color: rgba(99, 102, 241, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Animation Classes */
