@@ -24,6 +24,8 @@ export interface Vocabulary {
   updatedAt: string
   lastReviewedAt?: string
   nextReviewAt?: string
+  isAllTabHidden?: boolean
+  activeTabId?: string | null
 }
 
 export const useVocabularyStore = defineStore('vocabulary', () => {

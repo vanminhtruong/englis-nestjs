@@ -123,4 +123,7 @@ export class Vocabulary {
 
   @Column({ default: false })
   isAllTabHidden: boolean;
+
+  @Column({ type: 'text', nullable: true })
+  activeTabId: string | null;
 }

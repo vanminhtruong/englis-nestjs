@@ -21,8 +21,8 @@ export function useVocabularyTabHandle(
     const toast = useToast()
 
     const tabs = ref<Tab[]>([])
-    const activeTabId = ref<string | null>(localStorage.getItem('activeTabId'))
-    const isAllTabHidden = ref(localStorage.getItem('isAllTabHidden') === 'true')
+    const activeTabId = ref<string | null>(null)
+    const isAllTabHidden = ref(false)
 
     // Tab name modal state
     const showTabNameModal = ref(false)
@@ -72,26 +72,41 @@ export function useVocabularyTabHandle(
 
     async function loadTabs() {
         try {
-            const response = await apiService.tab.getAll()
-            tabs.value = response.data
+            // Load tabs and settings in parallel
+            const [tabsResponse, settingsResponse] = await Promise.all([
+                apiService.tab.getAll(),
+                apiService.vocabulary.getSettings()
+            ])
+
+            tabs.value = tabsResponse.data
+
+            // Apply settings from backend
+            if (settingsResponse.data) {
+                const { activeTabId: backendTabId, isAllTabHidden: backendAllHidden } = settingsResponse.data
+                activeTabId.value = backendTabId
+                isAllTabHidden.value = backendAllHidden
+
+                // Sync to filter
+                vocabularyFilter.tabId = backendTabId
+            }
         } catch (error) {
-            console.error('Failed to load tabs:', error)
+            console.error('Failed to load tabs or settings:', error)
         }
     }
 
-    function handleTabSelect(tabId: string | null) {
+    async function handleTabSelect(tabId: string | null) {
         activeTabId.value = tabId
-        if (tabId) {
-            localStorage.setItem('activeTabId', tabId)
-        } else {
-            localStorage.removeItem('activeTabId')
-        }
         vocabularyFilter.tabId = tabId
+
+        try {
+            await apiService.vocabulary.updateActiveTabState(tabId)
+        } catch (error) {
+            console.error('Failed to update active tab state on backend', error)
+        }
     }
 
     async function handleAllTabToggle(value: boolean) {
         isAllTabHidden.value = value
-        localStorage.setItem('isAllTabHidden', String(value))
 
         try {
             await apiService.vocabulary.updateAllTabHiddenState(value)
@@ -153,7 +168,6 @@ export function useVocabularyTabHandle(
                     await apiService.tab.delete(tab.id)
                     if (activeTabId.value === tab.id) {
                         activeTabId.value = null
-                        localStorage.removeItem('activeTabId')
                         vocabularyFilter.tabId = null
                     }
                     await loadTabs()

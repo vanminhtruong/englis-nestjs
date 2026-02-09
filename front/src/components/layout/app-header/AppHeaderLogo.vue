@@ -2,7 +2,7 @@
   <div class="flex-shrink-0">
     <RouterLink
       to="/"
-      class="flex items-center gap-3 hover:scale-105 transition-transform"
+      class="flex items-center gap-3 hover:scale-105 transition-transform group"
     >
       <div
         class="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center text-white"
@@ -21,14 +21,47 @@
           />
         </svg>
       </div>
-      <span
-        class="text-2xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent"
-        >{{ $t("common.appName") }}</span
-      >
+      <div class="flex">
+        <span
+          v-for="(char, index) in appNameArray"
+          :key="index"
+          v-html="char === ' ' ? '&nbsp;' : char"
+          class="char-animate inline-block text-2xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent"
+          :style="{ animationDelay: `${index * 0.1}s` }"
+        >
+        </span>
+      </div>
     </RouterLink>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { RouterLink } from "vue-router";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
+const appNameArray = computed(() => t("common.appName").split(""));
 </script>
+
+<style scoped>
+.char-animate {
+  animation: scale-char 3s infinite ease-in-out;
+  transform-origin: center;
+  display: inline-block;
+  white-space: pre;
+}
+
+@keyframes scale-char {
+  0%,
+  20%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  10% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+}
+</style>

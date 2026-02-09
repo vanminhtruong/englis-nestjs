@@ -100,6 +100,9 @@ export default {
       apiClient.patch('/vocabulary/settings/filter-state', { isExpanded }),
     updateAllTabHiddenState: (isHidden: boolean) =>
       apiClient.patch('/vocabulary/settings/all-tab-hidden', { isHidden }),
+    updateActiveTabState: (tabId: string | null) =>
+      apiClient.patch('/vocabulary/settings/active-tab', { tabId }),
+    getSettings: () => apiClient.get('/vocabulary/settings'),
   },
 
   practice: {

@@ -105,4 +105,12 @@ export class VocabularyService {
   async updateAllTabHiddenState(userId: string, isHidden: boolean) {
     return this.vocabularyRepository.updateAllTabHiddenState(userId, isHidden);
   }
+
+  async updateActiveTabState(userId: string, tabId: string | null) {
+    return this.vocabularyRepository.updateActiveTabState(userId, tabId);
+  }
+
+  async getSettings(userId: string) {
+    return this.vocabularyRepository.getSettings(userId);
+  }
 }

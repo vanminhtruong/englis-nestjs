@@ -90,7 +90,14 @@ export class VocabularyRepository {
 
   async create(vocabularyData: Partial<Vocabulary> & { categoryIds?: string[] }): Promise<Vocabulary> {
     const { categoryIds, ...data } = vocabularyData;
-    const vocabulary = this.repository.create(data);
+
+    // Get existing settings to apply to the new record
+    const settings = await this.getSettings(vocabularyData.userId!);
+    const vocabulary = this.repository.create({
+      ...data,
+      isAllTabHidden: settings.isAllTabHidden,
+      activeTabId: settings.activeTabId,
+    });
 
     if (categoryIds && categoryIds.length > 0) {
       const categories = await this.categoryRepository.find({
@@ -339,5 +346,21 @@ export class VocabularyRepository {
 
   async updateAllTabHiddenState(userId: string, isHidden: boolean): Promise<void> {
     await this.repository.update({ userId }, { isAllTabHidden: isHidden });
+  }
+
+  async updateActiveTabState(userId: string, tabId: string | null): Promise<void> {
+    await this.repository.update({ userId }, { activeTabId: tabId });
+  }
+
+  async getSettings(userId: string): Promise<{ isAllTabHidden: boolean; activeTabId: string | null }> {
+    const vocabulary = await this.repository.findOne({
+      where: { userId },
+      select: ['isAllTabHidden', 'activeTabId'],
+    });
+
+    return {
+      isAllTabHidden: vocabulary?.isAllTabHidden ?? false,
+      activeTabId: vocabulary?.activeTabId ?? null,
+    };
   }
 }

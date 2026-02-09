@@ -123,6 +123,17 @@ export class VocabularyController {
     return { success: true };
   }
 
+  @Patch('settings/active-tab')
+  async updateActiveTabState(@Body('tabId') tabId: string | null, @Request() req) {
+    await this.vocabularyService.updateActiveTabState(req.user.id, tabId);
+    return { success: true };
+  }
+
+  @Get('settings')
+  async getSettings(@Request() req) {
+    return this.vocabularyService.getSettings(req.user.id);
+  }
+
   @Get(':id')
   async findById(@Param('id') id: string, @Request() req) {
     return this.vocabularyService.findById(id, req.user.id);
