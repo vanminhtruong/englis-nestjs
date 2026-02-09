@@ -129,6 +129,20 @@ export default {
     recognizeDrawing: '识别绘图',
     recognizing: '识别中...',
 
+    // Virtual Keyboard
+    drawMode: '绘制',
+    keyboardMode: '键盘',
+    toneSelect: '声调',
+    typeHere: '使用下方键盘输入...',
+    chinesePinyinHint: '输入拼音选择汉字',
+    englishKeyboardHint: '点击按键输入，按 Shift 切换大写',
+    tonedVowels: '带调元音',
+    space: '空格',
+    useTypedText: '使用输入文本',
+    useKeyboard: '使用键盘输入',
+    pinyinInput: '拼音',
+    noHanziFound: '未找到匹配的汉字',
+
     // Bulk Actions
     addedToTabSuccess: '已添加 {count} 个词汇到标签页',
     addToTabDuplicateWarning: '{count} 个词汇已存在于此标签页',

@@ -135,6 +135,20 @@ export default {
   recognizeDrawing: 'Nhận dạng hình vẽ',
   recognizing: 'Đang nhận dạng...',
 
+  // Virtual Keyboard
+  drawMode: 'Vẽ',
+  keyboardMode: 'Bàn phím',
+  toneSelect: 'Thanh điệu',
+  typeHere: 'Nhập tại đây bằng bàn phím bên dưới...',
+  chinesePinyinHint: 'Gõ bính âm và chọn chữ Hán',
+  englishKeyboardHint: 'Nhấn phím để gõ, dùng Shift cho chữ hoa',
+  tonedVowels: 'Nguyên âm có thanh điệu',
+  space: 'Khoảng trắng',
+  useTypedText: 'Sử dụng văn bản đã nhập',
+  useKeyboard: 'Sử dụng bàn phím',
+  pinyinInput: 'Bính âm',
+  noHanziFound: 'Không tìm thấy chữ Hán phù hợp',
+
   // Bulk Actions
   addedToTabSuccess: 'Đã thêm {count} từ vựng vào tab',
   addToTabDuplicateWarning: '{count} từ vựng đã tồn tại trong tab này',

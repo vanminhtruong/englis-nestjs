@@ -129,6 +129,20 @@ export default {
   recognizeDrawing: 'Recognize Drawing',
   recognizing: 'Recognizing...',
 
+  // Virtual Keyboard
+  drawMode: 'Draw',
+  keyboardMode: 'Keyboard',
+  toneSelect: 'Tone',
+  typeHere: 'Type here using the keyboard below...',
+  chinesePinyinHint: 'Type pinyin and select Chinese characters',
+  englishKeyboardHint: 'Click keys to type, use Shift for uppercase',
+  tonedVowels: 'Quick Toned Vowels',
+  space: 'Space',
+  useTypedText: 'Use Typed Text',
+  useKeyboard: 'Use Keyboard Input',
+  pinyinInput: 'Pinyin',
+  noHanziFound: 'No matching characters found',
+
   // Bulk Actions
   addedToTabSuccess: 'Added {count} vocabulary(ies) to tab',
   addToTabDuplicateWarning: '{count} vocabulary(ies) already exist in this tab',

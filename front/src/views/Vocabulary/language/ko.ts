@@ -129,6 +129,20 @@ export default {
   recognizeDrawing: '그림 인식',
   recognizing: '인식 중...',
 
+  // Virtual Keyboard
+  drawMode: '그리기',
+  keyboardMode: '키보드',
+  toneSelect: '성조',
+  typeHere: '아래 키보드를 사용하여 입력하세요...',
+  chinesePinyinHint: '병음을 입력하고 한자를 선택하세요',
+  englishKeyboardHint: '키를 클릭하여 입력, 대문자는 Shift 사용',
+  tonedVowels: '빠른 성조 모음',
+  space: '스페이스',
+  useTypedText: '입력한 텍스트 사용',
+  useKeyboard: '키보드 입력 사용',
+  pinyinInput: '병음',
+  noHanziFound: '일치하는 문자가 없습니다',
+
   // Bulk Actions
   addedToTabSuccess: '{count}개의 어휘가 탭에 추가되었습니다',
   addToTabDuplicateWarning: '{count}개의 어휘가 이미 이 탭에 존재합니다',
