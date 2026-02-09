@@ -134,4 +134,12 @@ export default {
   ocrLanguage: 'Ngôn ngữ nhận dạng',
   recognizeDrawing: 'Nhận dạng hình vẽ',
   recognizing: 'Đang nhận dạng...',
+
+  // Bulk Actions
+  addedToTabSuccess: 'Đã thêm {count} từ vựng vào tab',
+  addToTabDuplicateWarning: '{count} từ vựng đã tồn tại trong tab này',
+  addToTabPartialError: 'Không thể thêm một số từ vựng',
+  unknownError: 'Đã xảy ra lỗi không mong muốn',
+  removeFromTabSuccess: 'Đã xóa từ vựng khỏi tab',
+  removeFromTabError: 'Không thể xóa từ vựng khỏi tab',
 }

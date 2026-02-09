@@ -10,6 +10,8 @@
             toast.type === 'success',
           'border-red-500/60 text-red-700 dark:text-red-300':
             toast.type === 'error',
+          'border-yellow-500/60 text-yellow-700 dark:text-yellow-300':
+            toast.type === 'warning',
           'border-primary-500/60 text-primary-700 dark:text-primary-300':
             toast.type === 'info',
         }"
@@ -30,6 +32,20 @@
           </svg>
           <svg
             v-else-if="toast.type === 'error'"
+            xmlns="http://www.w3.org/2000/svg"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12" y2="16"></line>
+          </svg>
+          <svg
+            v-else-if="toast.type === 'warning'"
             xmlns="http://www.w3.org/2000/svg"
             width="18"
             height="18"

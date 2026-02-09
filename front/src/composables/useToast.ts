@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-export type ToastType = 'success' | 'error' | 'info'
+export type ToastType = 'success' | 'error' | 'info' | 'warning'
 
 interface ToastItem {
   id: number
@@ -54,6 +54,9 @@ export function useToast() {
     },
     showInfo(message: string, duration?: number) {
       pushToast('info', message, duration)
+    },
+    showWarning(message: string, duration?: number) {
+      pushToast('warning', message, duration)
     },
     confirm(message: string, onConfirm: () => void | Promise<void>, options?: { label?: string; type?: ToastType }) {
       const label = options?.label ?? 'Delete'

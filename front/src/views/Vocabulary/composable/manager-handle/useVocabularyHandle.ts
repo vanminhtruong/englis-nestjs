@@ -2,15 +2,19 @@ import { vocabularyService } from '../../service/vocabulary.service'
 import type { VocabularyForm } from '../../interface/vocabulary.interface'
 import { useToast } from '../../../../composables/useToast'
 import { getPreferredVoice } from '../../../../composables/usePreferredVoice'
+import { useI18n } from 'vue-i18n'
 
 export function useVocabularyHandle(
   form: VocabularyForm,
   isEditing: { value: boolean },
   editingId: { value: string | null },
-  closeModal: () => void
+  closeModal: () => void,
+  filter?: { tabId?: string | null }
 ) {
   const { showSuccess, showError, confirm } = useToast()
+  const { t } = useI18n()
   async function handleSubmit() {
+    // ... (same as before)
     if (!form.word || !form.pronunciation || !form.meaning) {
       showError('Please fill in required fields')
       return
@@ -46,17 +50,29 @@ export function useVocabularyHandle(
   }
 
   function handleDelete(id: string) {
+    const isCustomTab = filter?.tabId && filter.tabId !== 'all';
+
+    const message = isCustomTab
+      ? 'Are you sure you want to remove this vocabulary from this tab?'
+      : 'Are you sure you want to delete this vocabulary?';
+
     confirm(
-      'Are you sure you want to delete this vocabulary?',
+      message,
       async () => {
-        const result = await vocabularyService.deleteVocabulary(id)
-        if (result.success) {
-          showSuccess('Vocabulary deleted successfully')
+        let result
+        if (isCustomTab && filter?.tabId) {
+          result = await vocabularyService.removeVocabularyFromTab(filter.tabId, id)
         } else {
-          showError(result.error || 'Failed to delete vocabulary')
+          result = await vocabularyService.deleteVocabulary(id)
+        }
+
+        if (result.success) {
+          showSuccess(isCustomTab ? t('vocabulary.removeFromTabSuccess') : 'Vocabulary deleted successfully')
+        } else {
+          showError(result.error || (isCustomTab ? t('vocabulary.removeFromTabError') : 'Failed to delete vocabulary'))
         }
       },
-      { label: 'Delete', type: 'error' },
+      { label: isCustomTab ? 'Remove' : 'Delete', type: 'error' },
     )
   }
 

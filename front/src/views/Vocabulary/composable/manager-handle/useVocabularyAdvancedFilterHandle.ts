@@ -1,6 +1,5 @@
 import { ref, watch } from 'vue'
 import apiService from '../../../../services/api.service'
-import { useToast } from '../../../../composables/useToast'
 
 interface VocabularyFilter {
     categoryIds?: string[]
@@ -24,6 +23,7 @@ interface TabHandle {
 
 interface SelectionHandle {
     clearSelection: () => void
+    selectedVocabularyIds: { value: string[] }
 }
 
 interface FilterHandle {
@@ -37,7 +37,6 @@ export function useVocabularyAdvancedFilterHandle(
     selectionHandle: SelectionHandle,
     filterHandle: FilterHandle
 ) {
-    const toast = useToast()
 
     // Settings state
     const isFiltersExpanded = ref(true)
@@ -87,8 +86,20 @@ export function useVocabularyAdvancedFilterHandle(
 
     // Handle bulk add saved
     async function handleBulkAddSaved() {
+        // If in a custom tab (not "All"), adding to another tab acts as a "Move", so remove from current tab
+        if (filter.tabId && filter.tabId !== 'all') {
+            const currentTabId = filter.tabId;
+            const idsToRemove = [...selectionHandle.selectedVocabularyIds.value];
+            if (idsToRemove.length > 0) {
+                try {
+                    await Promise.all(idsToRemove.map(id => apiService.tab.removeVocabulary(currentTabId, id)));
+                } catch (error) {
+                    console.error("Failed to remove vocabularies from source tab after move", error);
+                }
+            }
+        }
+
         selectionHandle.clearSelection()
-        toast.showSuccess('Vocabularies added to tab successfully!')
         await tabHandle.loadTabs()
         filterHandle.handlePageChange(store.page)
     }

@@ -323,7 +323,8 @@ const vocabularyHandle = useVocabularyHandle(
   vocabularyStateStore.form,
   vocabularyStateStore.isEditing,
   vocabularyStateStore.editingId,
-  vocabularyStateStore.closeModal
+  vocabularyStateStore.closeModal,
+  vocabularyStateStore.filter
 );
 
 const vocabularyFilterHandle = useVocabularyFilterHandle(

@@ -128,4 +128,12 @@ export default {
   ocrLanguage: 'Recognition Language',
   recognizeDrawing: 'Recognize Drawing',
   recognizing: 'Recognizing...',
+
+  // Bulk Actions
+  addedToTabSuccess: 'Added {count} vocabulary(ies) to tab',
+  addToTabDuplicateWarning: '{count} vocabulary(ies) already exist in this tab',
+  addToTabPartialError: 'Failed to add some vocabularies',
+  unknownError: 'An unexpected error occurred',
+  removeFromTabSuccess: 'Vocabulary removed from tab',
+  removeFromTabError: 'Failed to remove vocabulary from tab',
 }

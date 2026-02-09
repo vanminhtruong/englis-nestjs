@@ -128,4 +128,12 @@ export default {
     ocrLanguage: '识别语言',
     recognizeDrawing: '识别绘图',
     recognizing: '识别中...',
+
+    // Bulk Actions
+    addedToTabSuccess: '已添加 {count} 个词汇到标签页',
+    addToTabDuplicateWarning: '{count} 个词汇已存在于此标签页',
+    addToTabPartialError: '添加部分词汇失败',
+    unknownError: '发生意外错误',
+    removeFromTabSuccess: '已从标签页移除词汇',
+    removeFromTabError: '无法从标签页移除词汇',
 }

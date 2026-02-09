@@ -33,9 +33,7 @@
                 Add to Tab
               </h2>
               <p class="text-sm text-gray-500 dark:text-white/50 mt-1">
-                {{ vocabularyCount }} item{{
-                  vocabularyCount > 1 ? "s" : ""
-                }}
+                {{ vocabularyCount }} item{{ vocabularyCount > 1 ? "s" : "" }}
                 selected
               </p>
             </div>
@@ -193,7 +191,9 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import apiService from "../../../services/api.service";
+import { useToast } from "../../../composables/useToast";
 
 const props = defineProps<{
   show: boolean;
@@ -204,6 +204,9 @@ const emit = defineEmits<{
   close: [];
   saved: [];
 }>();
+
+const { t } = useI18n();
+const { showSuccess, showWarning, showError } = useToast();
 
 const tabs = ref<any[]>([]);
 const loading = ref(false);
@@ -251,16 +254,38 @@ async function handleConfirm() {
 
   saving.value = true;
   try {
-    // Add all selected vocabularies to the tab
-    await Promise.all(
-      props.vocabularyIds.map((vocabId) =>
-        apiService.tab.addVocabulary(selectedTabId.value!, vocabId)
-      )
+    const promises = props.vocabularyIds.map((vocabId) =>
+      apiService.tab
+        .addVocabulary(selectedTabId.value!, vocabId)
+        .then((value) => ({ status: "fulfilled", value }))
+        .catch((reason) => ({ status: "rejected", reason }))
     );
+
+    const results = await Promise.all(promises);
+
+    const successful = results.filter((r) => r.status === "fulfilled").length;
+    const failed = results.filter((r) => r.status === "rejected");
+    const duplicates = failed.filter(
+      (r: any) => r.reason?.response?.status === 409
+    ).length;
+
+    if (successful > 0) {
+      showSuccess(t("vocabulary.addedToTabSuccess", { count: successful }));
+    }
+
+    if (duplicates > 0) {
+      showWarning(
+        t("vocabulary.addToTabDuplicateWarning", { count: duplicates })
+      );
+    } else if (failed.length > 0) {
+      showError(t("vocabulary.addToTabPartialError"));
+    }
+
     emit("saved");
     emit("close");
   } catch (error) {
     console.error("Failed to add vocabularies to tab:", error);
+    showError(t("vocabulary.unknownError"));
   } finally {
     saving.value = false;
   }

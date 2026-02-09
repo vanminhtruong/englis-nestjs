@@ -128,4 +128,12 @@ export default {
   ocrLanguage: '인식 언어',
   recognizeDrawing: '그림 인식',
   recognizing: '인식 중...',
+
+  // Bulk Actions
+  addedToTabSuccess: '{count}개의 어휘가 탭에 추가되었습니다',
+  addToTabDuplicateWarning: '{count}개의 어휘가 이미 이 탭에 존재합니다',
+  addToTabPartialError: '일부 어휘를 추가하지 못했습니다',
+  unknownError: '예기치 않은 오류가 발생했습니다',
+  removeFromTabSuccess: '탭에서 어휘가 제거되었습니다',
+  removeFromTabError: '탭에서 어휘를 제거하지 못했습니다',
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { VocabularyTab } from '../../entities/vocabulary-tab.entity';
@@ -54,11 +54,11 @@ export class VocabularyTabService {
             throw new NotFoundException('Vocabulary not found');
         }
 
-        if (!tab.vocabularies.some(v => v.id === vocabulary.id)) {
-            tab.vocabularies.push(vocabulary);
-            return this.vocabularyTabRepository.save(tab);
+        if (tab.vocabularies.some(v => v.id === vocabulary.id)) {
+            throw new ConflictException('Vocabulary already exists in this tab');
         }
-        return tab;
+        tab.vocabularies.push(vocabulary);
+        return this.vocabularyTabRepository.save(tab);
     }
 
     async removeVocabulary(tabId: string, vocabularyId: string): Promise<VocabularyTab> {

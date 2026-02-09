@@ -116,6 +116,20 @@ export class VocabularyService {
     }
   }
 
+  async removeVocabularyFromTab(tabId: string, vocabularyId: string) {
+    try {
+      await apiService.tab.removeVocabulary(tabId, vocabularyId)
+      this.store.removeVocabulary(vocabularyId)
+      await this.loadVocabularies({ page: this.store.page, limit: this.store.limit })
+      return { success: true }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.response?.data?.message || 'Failed to remove vocabulary from tab',
+      }
+    }
+  }
+
   async toggleFavorite(id: string) {
     try {
       const response = await apiService.vocabulary.toggleFavorite(id)
