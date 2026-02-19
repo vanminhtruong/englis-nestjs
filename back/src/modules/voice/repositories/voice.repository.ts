@@ -8,7 +8,7 @@ export class VoiceRepository {
   constructor(
     @InjectRepository(Voice)
     private readonly repo: Repository<Voice>,
-  ) {}
+  ) { }
 
   findAllActive() {
     return this.repo.find({
@@ -19,6 +19,17 @@ export class VoiceRepository {
 
   findByKey(key: string) {
     return this.repo.findOne({ where: { key } });
+  }
+
+  async setPreferred(key: string) {
+    // Reset all to false
+    await this.repo.createQueryBuilder()
+      .update(Voice)
+      .set({ isPreferred: false })
+      .execute();
+
+    // Set selected to true
+    await this.repo.update({ key }, { isPreferred: true });
   }
 
   async upsertMany(voices: Partial<Voice>[]) {

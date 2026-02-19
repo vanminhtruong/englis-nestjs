@@ -31,6 +31,9 @@ export class Voice {
   @Column({ default: false })
   isDefault: boolean;
 
+  @Column({ default: false })
+  isPreferred: boolean;
+
   @Column({ default: true })
   isActive: boolean;
 

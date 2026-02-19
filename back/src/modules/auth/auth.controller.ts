@@ -69,6 +69,7 @@ export class AuthController {
             totalWords: req.user.totalWords,
             theme: req.user.theme || 'light',
             vocabularyLayout: req.user.vocabularyLayout || 'grid',
+            preferredVoiceKey: req.user.preferredVoiceKey || null,
         };
     }
 

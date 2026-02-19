@@ -331,18 +331,41 @@ watch(
     const languages = Array.from(languagesMap.values());
     setLanguages(languages);
 
-    if (!state.selectedLanguage && languages.length) {
-      setSelectedLanguage(languages[0].code);
-    }
-
-    if (!state.selectedVoiceKey && viewModels.length) {
-      const firstForLang =
-        viewModels.find((v) => v.languageCode === state.selectedLanguage) ??
-        viewModels[0];
-      setSelectedVoiceKey(firstForLang.key);
+    if (state.selectedVoiceKey) {
+      // Đã có voice từ backend → đồng bộ selectedLanguage theo voice đó
+      const matchedVoice = viewModels.find((v) => v.key === state.selectedVoiceKey);
+      if (matchedVoice) {
+        setSelectedLanguage(matchedVoice.languageCode);
+      } else if (!state.selectedLanguage && languages.length) {
+        setSelectedLanguage(languages[0].code);
+      }
+    } else {
+      // Chưa có voice đã lưu → set mặc định
+      if (!state.selectedLanguage && languages.length) {
+        setSelectedLanguage(languages[0].code);
+      }
+      if (viewModels.length) {
+        const firstForLang =
+          viewModels.find((v) => v.languageCode === state.selectedLanguage) ??
+          viewModels[0];
+        setSelectedVoiceKey(firstForLang.key);
+      }
     }
   },
   { immediate: true }
+);
+
+// Khi loadVoices() API trả về và set selectedVoiceKey,
+// đồng bộ selectedLanguage theo voice đó (browser voices lúc này đã load rồi)
+watch(
+  () => state.selectedVoiceKey,
+  (newKey) => {
+    if (!newKey || !browserVoices.value.length) return;
+    const matchedVoice = state.voices.find((v) => v.key === newKey);
+    if (matchedVoice && matchedVoice.languageCode !== state.selectedLanguage) {
+      setSelectedLanguage(matchedVoice.languageCode);
+    }
+  }
 );
 
 onMounted(() => {

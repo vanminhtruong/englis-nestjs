@@ -3,6 +3,7 @@ import { useToast } from '../../../../composables/useToast'
 import type { VoiceViewModel } from '../../interface/voice-settings.interface'
 import { voiceSettingsService } from '../../service/voice-settings.service'
 import { getPreferredVoice } from '../../../../composables/usePreferredVoice'
+import { useAuthStore } from '../../../../stores/auth.store'
 
 export function useVoiceSettingsHandle() {
   const { t } = useI18n()
@@ -54,6 +55,9 @@ export function useVoiceSettingsHandle() {
 
   async function handleSavePreferredVoice(voiceKey: string) {
     await voiceSettingsService.savePreferredVoice(voiceKey)
+    // Cập nhật authStore để state frontend đồng bộ với backend
+    const authStore = useAuthStore()
+    authStore.updateUser({ preferredVoiceKey: voiceKey })
     showSuccess(t('voiceSettings.saveSuccess'))
   }
 

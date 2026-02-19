@@ -7,6 +7,7 @@ export interface VoiceOption {
   provider: string
   isDefault: boolean
   isActive: boolean
+  isPreferred?: boolean
 }
 
 export interface VoiceViewModel {

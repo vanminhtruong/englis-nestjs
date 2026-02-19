@@ -1,5 +1,6 @@
-import { voiceSettingsService } from '../../service/voice-settings.service'
-import type { VoiceOption, VoiceViewModel, LanguageOption } from '../../interface/voice-settings.interface'
+import apiService from '../../../../services/api.service'
+import { useAuthStore } from '../../../../stores/auth.store'
+import type { VoiceViewModel, LanguageOption } from '../../interface/voice-settings.interface'
 
 export function useVoiceSettingsMount(
   setVoices: (voices: VoiceViewModel[]) => void,
@@ -7,13 +8,29 @@ export function useVoiceSettingsMount(
   setSelectedLanguage: (code: string) => void,
   setLanguages: (languages: LanguageOption[]) => void,
 ) {
+  /**
+   * Đọc preferredVoiceKey của user từ store (đã được load bởi AppHeader)
+   * hoặc gọi API nếu chưa có, sau đó cập nhật selectedVoiceKey trong state.
+   * Đây là cách đảm bảo voice đã lưu không bị mất khi F5.
+   */
   async function loadVoices() {
-    // Hiện tại danh sách voice dùng trực tiếp từ Browser voices (Web Speech API)
-    // Hàm này chỉ gọi API để đảm bảo backend sẵn sàng, tránh override state ở frontend.
     try {
-      await voiceSettingsService.getVoices()
+      const authStore = useAuthStore()
+
+      let preferredVoiceKey: string | null = authStore.user?.preferredVoiceKey ?? null
+
+      // Nếu store chưa có (vd: không qua AppHeader), gọi API để lấy
+      if (authStore.isAuthenticated && preferredVoiceKey === null) {
+        const profileResponse = await apiService.auth.getProfile()
+        preferredVoiceKey = profileResponse.data?.preferredVoiceKey ?? null
+        authStore.updateUser({ preferredVoiceKey })
+      }
+
+      if (preferredVoiceKey) {
+        setSelectedVoiceKey(preferredVoiceKey)
+      }
     } catch {
-      // bỏ qua lỗi, UI vẫn dùng voice từ browser
+      // Bỏ qua lỗi, UI vẫn dùng voice mặc định từ browser
     }
   }
 
@@ -21,5 +38,3 @@ export function useVoiceSettingsMount(
     loadVoices,
   }
 }
-
-

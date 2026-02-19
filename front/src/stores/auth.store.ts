@@ -11,6 +11,7 @@ export interface User {
   theme?: string
   vocabularyLayout?: 'grid' | 'list'
   categoriesLayout?: 'grid' | 'list'
+  preferredVoiceKey?: string | null
 }
 
 export const useAuthStore = defineStore('auth', () => {

@@ -13,6 +13,6 @@ import { AuthModule } from '../auth/auth.module';
   providers: [VoiceRepository, VoiceCrudService, VoiceService],
   exports: [VoiceService],
 })
-export class VoiceModule {}
+export class VoiceModule { }
 
 
