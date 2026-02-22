@@ -56,4 +56,12 @@ export class UpdateVocabularyDto {
 
   @IsOptional()
   categoryIds?: string[];
+
+  @IsString()
+  @IsOptional()
+  backgroundUrl?: string;
+
+  @IsString()
+  @IsOptional()
+  animatedBackground?: string;
 }

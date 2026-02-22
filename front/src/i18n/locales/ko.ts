@@ -81,6 +81,15 @@ export default {
     copyright: '© {year} VocabMaster. 모든 권리를 보유합니다.',
     madeWith: '제작:',
   },
+  vocabularyTabs: {
+    allVocabularies: '전체 어휘',
+    hideAllTab: '전체 어휘 탭 숨기기',
+    showAllTab: '전체 어휘 탭 표시',
+    all: '전체',
+    editName: '이름 변경',
+    deleteTab: '탭 삭제',
+    createNewTab: '새 탭 만들기',
+  },
   wordDrawing: {
     wordDrawer: '단어 그리기 & 키보드',
     drawYourWord: '아래에 글자를 그리거나 입력하세요',

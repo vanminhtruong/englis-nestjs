@@ -50,6 +50,9 @@
           v-for="vocab in favorites"
           :key="vocab.id"
           :item-id="`fav-${vocab.id}`"
+          :vocab-id="vocab.id"
+          :initial-background-url="vocab.backgroundUrl"
+          :initial-animated-background="vocab.animatedBackground"
           class="group"
         >
           <template #default="{ hasBackground }">

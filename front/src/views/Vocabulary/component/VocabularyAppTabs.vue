@@ -19,7 +19,7 @@
             : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/10',
         ]"
       >
-        All Vocabularies
+        {{ t("vocabularyTabs.allVocabularies") }}
       </button>
       <!-- Toggle Hide Button -->
       <button
@@ -30,7 +30,7 @@
             ? 'text-white/60 hover:text-white hover:bg-white/20'
             : 'text-gray-400 dark:text-white/40 hover:text-gray-600 dark:hover:text-white/70 hover:bg-gray-200 dark:hover:bg-white/10 opacity-0 group-hover:opacity-100',
         ]"
-        title="Hide All Vocabularies tab"
+        :title="t('vocabularyTabs.hideAllTab')"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -56,7 +56,7 @@
       v-else
       @click.stop="$emit('update:isAllTabHidden', false)"
       class="p-2 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-white/40 hover:bg-gray-200 dark:hover:bg-white/10 transition-all flex items-center gap-1.5"
-      title="Show All Vocabularies tab"
+      :title="t('vocabularyTabs.showAllTab')"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +72,7 @@
         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
         <circle cx="12" cy="12" r="3"></circle>
       </svg>
-      <span class="text-xs font-medium">All</span>
+      <span class="text-xs font-medium">{{ t("vocabularyTabs.all") }}</span>
     </button>
 
     <div
@@ -101,7 +101,7 @@
           v-if="activeTabId === tab.id"
           @click.stop="$emit('edit', tab)"
           class="p-0.5 rounded-full hover:bg-white/20 text-white/70 hover:text-white transition-colors"
-          title="Edit Name"
+          :title="t('vocabularyTabs.editName')"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -130,7 +130,7 @@
               ? 'text-white/70 hover:text-white hover:bg-red-500'
               : 'text-gray-500 dark:text-white/40'
           "
-          title="Delete Tab"
+          :title="t('vocabularyTabs.deleteTab')"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -153,7 +153,7 @@
     <button
       @click="$emit('create')"
       class="p-2 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-white/40 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ml-1 shrink-0"
-      title="Create New Tab"
+      :title="t('vocabularyTabs.createNewTab')"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -175,6 +175,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const props = defineProps<{
   tabs: any[];

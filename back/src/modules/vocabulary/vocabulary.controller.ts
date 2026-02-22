@@ -219,4 +219,16 @@ export class VocabularyController {
   ) {
     return this.vocabularyService.updateTopic(req.user.id, dto.date, dto.topic, dto.icon, dto.color);
   }
+
+  @Patch(':id/background')
+  async updateBackground(
+    @Param('id') id: string,
+    @Body() body: { backgroundUrl?: string | null; animatedBackground?: string | null },
+    @Request() req,
+  ) {
+    return this.vocabularyService.update(id, req.user.id, {
+      backgroundUrl: body.backgroundUrl ?? null,
+      animatedBackground: body.animatedBackground ?? null,
+    } as any);
+  }
 }

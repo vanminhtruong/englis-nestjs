@@ -126,4 +126,10 @@ export class Vocabulary {
 
   @Column({ type: 'text', nullable: true })
   activeTabId: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  backgroundUrl: string | null;
+
+  @Column({ type: 'text', nullable: true })
+  animatedBackground: string | null;
 }

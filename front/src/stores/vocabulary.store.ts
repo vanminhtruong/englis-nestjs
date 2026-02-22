@@ -26,6 +26,8 @@ export interface Vocabulary {
   nextReviewAt?: string
   isAllTabHidden?: boolean
   activeTabId?: string | null
+  backgroundUrl?: string | null
+  animatedBackground?: string | null
 }
 
 export const useVocabularyStore = defineStore('vocabulary', () => {

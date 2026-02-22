@@ -81,6 +81,15 @@ export default {
     copyright: '© {year} VocabMaster. All rights reserved.',
     madeWith: 'Made with',
   },
+  vocabularyTabs: {
+    allVocabularies: 'All Vocabularies',
+    hideAllTab: 'Hide All Vocabularies tab',
+    showAllTab: 'Show All Vocabularies tab',
+    all: 'All',
+    editName: 'Edit Name',
+    deleteTab: 'Delete Tab',
+    createNewTab: 'Create New Tab',
+  },
   wordDrawing: {
     wordDrawer: 'Word Drawer',
     drawYourWord: 'Draw the character or word below',

@@ -4,6 +4,9 @@
       v-for="vocab in vocabularies"
       :key="vocab.id"
       :item-id="`vocab-${vocab.id}`"
+      :vocab-id="vocab.id"
+      :initial-background-url="vocab.backgroundUrl"
+      :initial-animated-background="vocab.animatedBackground"
       class="group"
     >
       <template #default="{ hasBackground }">

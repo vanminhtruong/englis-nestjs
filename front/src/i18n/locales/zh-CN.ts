@@ -81,6 +81,15 @@ export default {
     copyright: '© {year} VocabMaster。保留所有权利。',
     madeWith: '用心制作',
   },
+  vocabularyTabs: {
+    allVocabularies: '所有词汇',
+    hideAllTab: '隐藏所有词汇选项卡',
+    showAllTab: '显示所有词汇选项卡',
+    all: '全部',
+    editName: '编辑名称',
+    deleteTab: '删除选项卡',
+    createNewTab: '创建新选项卡',
+  },
   wordDrawing: {
     wordDrawer: '单词绘制 & 键盘',
     drawYourWord: '在下方绘制或输入字符',

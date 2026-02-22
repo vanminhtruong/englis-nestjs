@@ -103,6 +103,8 @@ export default {
     updateActiveTabState: (tabId: string | null) =>
       apiClient.patch('/vocabulary/settings/active-tab', { tabId }),
     getSettings: () => apiClient.get('/vocabulary/settings'),
+    updateBackground: (id: string, data: { backgroundUrl?: string | null; animatedBackground?: string | null }) =>
+      apiClient.patch(`/vocabulary/${id}/background`, data),
   },
 
   practice: {

@@ -244,7 +244,7 @@
                 @click="selectAnimatedBg(anim.id)"
                 class="relative aspect-video rounded-xl overflow-hidden border-2 transition-all group"
                 :class="
-                  selectedAnimatedBg === anim.id
+                  currentAnimatedBg === anim.id
                     ? 'border-primary-500 scale-[1.02] shadow-lg shadow-primary-500/25'
                     : 'border-gray-200 dark:border-white/10 hover:border-primary-300'
                 "
@@ -266,7 +266,7 @@
 
                 <!-- Selected indicator -->
                 <div
-                  v-if="selectedAnimatedBg === anim.id"
+                  v-if="currentAnimatedBg === anim.id"
                   class="absolute top-1.5 right-1.5 w-5 h-5 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full flex items-center justify-center"
                 >
                   <svg
@@ -300,9 +300,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, defineAsyncComponent } from "vue";
+import { ref, computed, onMounted, defineAsyncComponent, watch } from "vue";
 import api from "../../services/api.service";
-import { useItemBackground } from "../../composables/useBackgroundState";
 
 const FlowerGrowAnimation = defineAsyncComponent(
   () => import("../animations/FlowerGrowAnimation.vue") as any
@@ -326,11 +325,58 @@ interface AnimatedBackground {
 
 const props = defineProps<{
   itemId: string;
+  vocabId?: string;
+  initialBackgroundUrl?: string | null;
+  initialAnimatedBackground?: string | null;
 }>();
 
-// Use background state for this specific item
-const { backgroundUrl, backgroundStyle, hasBackground, setBackground } =
-  useItemBackground(props.itemId);
+const emit = defineEmits<{
+  (
+    e: "background-changed",
+    data: { backgroundUrl: string | null; animatedBackground: string | null }
+  ): void;
+}>();
+
+// Local reactive state for background
+const currentBackgroundUrl = ref<string | null>(
+  props.initialBackgroundUrl ?? null
+);
+const currentAnimatedBg = ref<string | null>(
+  props.initialAnimatedBackground ?? null
+);
+
+// Watch for prop changes (e.g. when data is reloaded from backend)
+watch(
+  () => props.initialBackgroundUrl,
+  (newVal) => {
+    if (newVal !== undefined) {
+      currentBackgroundUrl.value = newVal ?? null;
+    }
+  }
+);
+
+watch(
+  () => props.initialAnimatedBackground,
+  (newVal) => {
+    if (newVal !== undefined) {
+      currentAnimatedBg.value = newVal ?? null;
+    }
+  }
+);
+
+// Computed values
+const hasBackground = computed(() => !!currentBackgroundUrl.value);
+const hasAnimatedBg = computed(() => !!currentAnimatedBg.value);
+
+const backgroundStyle = computed(() => {
+  if (!currentBackgroundUrl.value) return {};
+  return {
+    backgroundImage: `url(${currentBackgroundUrl.value})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+  };
+});
 
 const showPicker = ref(false);
 const loading = ref(false);
@@ -338,11 +384,7 @@ const backgrounds = ref<Background[]>([]);
 const categories = ref<{ value: string; label: string; icon: string }[]>([]);
 const activeCategory = ref("all");
 const bgType = ref<"static" | "animated">("static");
-const selectedAnimatedBg = ref<string | null>(null);
-const selectedUrl = computed(() => backgroundUrl.value);
-
-// Check if has animated background
-const hasAnimatedBg = computed(() => selectedAnimatedBg.value !== null);
+const selectedUrl = computed(() => currentBackgroundUrl.value);
 
 // Animated backgrounds list (frontend only)
 const animatedBackgrounds: AnimatedBackground[] = [
@@ -354,19 +396,6 @@ const animatedBackgrounds: AnimatedBackground[] = [
       "bg-gradient-to-br from-purple-900 via-indigo-900 to-slate-900",
   },
 ];
-
-// Load saved animated bg from localStorage
-onMounted(() => {
-  const savedAnimBg = localStorage.getItem(
-    `vocabulary_anim_bg_${props.itemId}`
-  );
-  if (savedAnimBg) {
-    selectedAnimatedBg.value = savedAnimBg;
-  }
-  if (backgroundUrl.value) {
-    loadData();
-  }
-});
 
 // Drag to scroll
 const categoryTabsRef = ref<HTMLElement | null>(null);
@@ -437,28 +466,51 @@ const loadData = async () => {
   }
 };
 
+// Persist background to backend
+async function persistBackground(bgUrl: string | null, animBg: string | null) {
+  if (!props.vocabId) return;
+  try {
+    await api.vocabulary.updateBackground(props.vocabId, {
+      backgroundUrl: bgUrl,
+      animatedBackground: animBg,
+    });
+  } catch (error) {
+    console.error("Failed to save background to backend:", error);
+  }
+}
+
 const selectBackground = (bg: Background) => {
   // Clear animated bg when selecting static
-  selectedAnimatedBg.value = null;
-  localStorage.removeItem(`vocabulary_anim_bg_${props.itemId}`);
+  currentAnimatedBg.value = null;
+  currentBackgroundUrl.value = bg.url;
 
-  setBackground(bg.url);
+  emit("background-changed", {
+    backgroundUrl: bg.url,
+    animatedBackground: null,
+  });
+  persistBackground(bg.url, null);
   closePicker();
 };
 
 const selectAnimatedBg = (animId: string) => {
   // Clear static bg when selecting animated
-  setBackground(null);
+  currentBackgroundUrl.value = null;
+  currentAnimatedBg.value = animId;
 
-  selectedAnimatedBg.value = animId;
-  localStorage.setItem(`vocabulary_anim_bg_${props.itemId}`, animId);
+  emit("background-changed", {
+    backgroundUrl: null,
+    animatedBackground: animId,
+  });
+  persistBackground(null, animId);
   closePicker();
 };
 
 const clearBackground = () => {
-  setBackground(null);
-  selectedAnimatedBg.value = null;
-  localStorage.removeItem(`vocabulary_anim_bg_${props.itemId}`);
+  currentBackgroundUrl.value = null;
+  currentAnimatedBg.value = null;
+
+  emit("background-changed", { backgroundUrl: null, animatedBackground: null });
+  persistBackground(null, null);
   closePicker();
 };
 </script>

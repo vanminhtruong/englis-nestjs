@@ -81,6 +81,15 @@ export default {
     copyright: '© {year} VocabMaster. Tất cả quyền được bảo lưu.',
     madeWith: 'Được xây dựng với',
   },
+  vocabularyTabs: {
+    allVocabularies: 'Tất cả từ vựng',
+    hideAllTab: 'Ẩn tab Tất cả từ vựng',
+    showAllTab: 'Hiển thị tab Tất cả từ vựng',
+    all: 'Tất cả',
+    editName: 'Đổi tên',
+    deleteTab: 'Xóa tab',
+    createNewTab: 'Tạo tab mới',
+  },
   wordDrawing: {
     wordDrawer: 'Bảng Vẽ & Bàn Phím',
     drawYourWord: 'Vẽ hoặc nhập từ vựng của bạn',
