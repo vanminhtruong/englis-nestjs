@@ -11,11 +11,19 @@
 </template>
 
 <script setup lang="ts">
- import { defineAsyncComponent } from 'vue'
- import { RouterView } from 'vue-router'
+import { defineAsyncComponent } from "vue";
+import { RouterView } from "vue-router";
 
- const AppHeader = defineAsyncComponent(() => import('../components/layout/AppHeader.vue') as any)
- const AppFooter = defineAsyncComponent(() => import('../components/layout/AppFooter.vue') as any)
- const BackToTop = defineAsyncComponent(() => import('../components/common/BackToTop.vue') as any)
- const AppToastContainer = defineAsyncComponent(() => import('../components/common/AppToastContainer.vue') as any)
+const AppHeader = defineAsyncComponent(
+  () => import("../components/layout/AppHeader.vue") as any
+);
+const AppFooter = defineAsyncComponent(
+  () => import("../components/layout/AppFooter.vue") as any
+);
+const BackToTop = defineAsyncComponent(
+  () => import("../components/common/BackToTop.vue") as any
+);
+const AppToastContainer = defineAsyncComponent(
+  () => import("../components/common/AppToastContainer.vue") as any
+);
 </script>
