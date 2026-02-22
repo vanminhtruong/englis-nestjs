@@ -1,7 +1,8 @@
 <template>
   <div
     ref="tabsContainer"
-    class="flex items-center gap-2 overflow-x-auto pb-2 mb-6 no-scrollbar select-none cursor-grab active:cursor-grabbing"
+    class="flex items-center gap-2 overflow-x-auto pb-2 mb-6 no-scrollbar select-none"
+    :class="{ 'cursor-grab active:cursor-grabbing': isOverflowing }"
     @mousedown="handleMouseDown"
     @mouseleave="handleMouseLeave"
     @mouseup="handleMouseUp"
@@ -173,9 +174,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted, watch, nextTick } from "vue";
 
-defineProps<{
+const props = defineProps<{
   tabs: any[];
   activeTabId: string | null;
   isAllTabHidden?: boolean;
@@ -194,6 +195,51 @@ const isDown = ref(false);
 const startX = ref(0);
 const scrollLeft = ref(0);
 const isDragging = ref(false);
+const isOverflowing = ref(false);
+
+const checkOverflow = () => {
+  if (tabsContainer.value) {
+    isOverflowing.value =
+      tabsContainer.value.scrollWidth > tabsContainer.value.clientWidth;
+  }
+};
+
+let resizeObserver: ResizeObserver | null = null;
+
+onMounted(() => {
+  checkOverflow();
+  if (tabsContainer.value) {
+    resizeObserver = new ResizeObserver(() => checkOverflow());
+    resizeObserver.observe(tabsContainer.value);
+  }
+  window.addEventListener("resize", checkOverflow);
+});
+
+onUnmounted(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+  }
+  window.removeEventListener("resize", checkOverflow);
+});
+
+watch(
+  () => props.tabs,
+  () => {
+    nextTick(() => {
+      checkOverflow();
+    });
+  },
+  { deep: true }
+);
+
+watch(
+  () => props.isAllTabHidden,
+  () => {
+    nextTick(() => {
+      checkOverflow();
+    });
+  }
+);
 
 const handleMouseDown = (e: MouseEvent) => {
   if (!tabsContainer.value) return;
