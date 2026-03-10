@@ -1,6 +1,7 @@
 import { ref, watch, type Ref } from 'vue'
 import apiService from '../../../../services/api.service'
 import { useToast } from '../../../../composables/useToast'
+import { useI18n } from 'vue-i18n'
 
 interface Tab {
     id: string
@@ -18,6 +19,7 @@ export function useVocabularyTabHandle(
     onPageChange: (page: number) => void,
     getCurrentPage: () => number
 ) {
+    const { t } = useI18n()
     const toast = useToast()
 
     const tabs = ref<Tab[]>([])
@@ -106,21 +108,37 @@ export function useVocabularyTabHandle(
     }
 
     async function handleAllTabToggle(value: boolean) {
-        isAllTabHidden.value = value
+        const actionLabel = t('vocabulary.confirm')
+        const message = value
+            ? t('vocabulary.allTabHideConfirm')
+            : t('vocabulary.allTabShowConfirm')
 
-        try {
-            await apiService.vocabulary.updateAllTabHiddenState(value)
-        } catch (error) {
-            console.error('Failed to update all tab hidden state', error)
-        }
+        toast.confirm(
+            message,
+            async () => {
+                isAllTabHidden.value = value
 
-        // If hiding All tab, immediately switch to the first custom tab if available
-        if (value && tabs.value.length > 0) {
-            const firstTab = tabs.value[0]
-            if (firstTab) {
-                handleTabSelect(firstTab.id)
+                try {
+                    await apiService.vocabulary.updateAllTabHiddenState(value)
+                } catch (error) {
+                    console.error('Failed to update all tab hidden state', error)
+                    toast.showError(t('vocabulary.allTabUpdateError'))
+                    return
+                }
+
+                // If hiding All tab, immediately switch to the first custom tab if available
+                if (value && tabs.value.length > 0) {
+                    const firstTab = tabs.value[0]
+                    if (firstTab) {
+                        handleTabSelect(firstTab.id)
+                    }
+                }
+            },
+            {
+                label: actionLabel,
+                type: value ? 'warning' : 'info'
             }
-        }
+        )
     }
 
     function handleCreateTab() {

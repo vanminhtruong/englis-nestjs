@@ -156,4 +156,7 @@ export default {
   unknownError: 'Đã xảy ra lỗi không mong muốn',
   removeFromTabSuccess: 'Đã xóa từ vựng khỏi tab',
   removeFromTabError: 'Không thể xóa từ vựng khỏi tab',
+  allTabHideConfirm: 'Bạn có chắc muốn ẩn tab "Tất cả từ vựng" không?',
+  allTabShowConfirm: 'Bạn có chắc muốn hiện lại tab "Tất cả từ vựng" không?',
+  allTabUpdateError: 'Không thể cập nhật trạng thái hiển thị tab. Vui lòng thử lại.',
 }

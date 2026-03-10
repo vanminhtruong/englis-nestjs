@@ -1,6 +1,11 @@
 import { ref, computed } from 'vue'
 
-export function useMoveModal(vocabulariesByDate: any, formatDate: (date: string) => string, moveCategoryToDate: (fromDate: string, toDate: string, categoryId: string) => Promise<void>) {
+export function useMoveModal(
+  vocabulariesByDate: any,
+  formatDate: (date: string) => string,
+  moveCategoryToDate: (fromDate: string, toDate: string, categoryId: string) => Promise<void>,
+  fallbackLabel: () => string
+) {
   const showMoveModal = ref(false)
   const moveFromDate = ref('')
   const moveCategoryId = ref('')
@@ -20,6 +25,12 @@ export function useMoveModal(vocabulariesByDate: any, formatDate: (date: string)
       value: date,
       label: formatDate(date),
     }))
+  })
+
+  const selectedTargetDateLabel = computed(() => {
+    if (!selectedTargetDate.value) return fallbackLabel()
+    const group = vocabulariesByDate.value.find((g: any) => g.date === selectedTargetDate.value)
+    return group ? formatDate(group.date) : fallbackLabel()
   })
 
   function openMoveModal(date: string, categoryId: string, categoryName: string) {
@@ -61,6 +72,7 @@ export function useMoveModal(vocabulariesByDate: any, formatDate: (date: string)
     showTargetDateDropdown,
     availableTargetDates,
     availableDatesFormatted,
+    selectedTargetDateLabel,
     openMoveModal,
     closeMoveModal,
     confirmMove,

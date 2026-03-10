@@ -150,4 +150,7 @@ export default {
     unknownError: '发生意外错误',
     removeFromTabSuccess: '已从标签页移除词汇',
     removeFromTabError: '无法从标签页移除词汇',
+    allTabHideConfirm: '确定要隐藏“全部词汇”标签页吗？',
+    allTabShowConfirm: '确定要重新显示“全部词汇”标签页吗？',
+    allTabUpdateError: '无法更新标签页显示状态，请稍后重试。',
 }

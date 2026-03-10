@@ -200,13 +200,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, ref } from "vue";
+import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVocabularyByDateState } from "./composable/manager-state/useVocabularyByDateState";
 import { useVocabularyByDateHandle } from "./composable/manager-handle/useVocabularyByDateHandle";
 import { useVocabularyByDateMount } from "./composable/manager-mount/useVocabularyByDateMount";
-import { useModalState } from "./composable/manager-state/useModalState";
-import { useMoveModal } from "./composable/manager-state/useMoveModal";
+import { useModalState, useMoveModal, useEditingDate } from "./composable";
 import { getIconComponent } from "../../utils/iconRenderer";
 
 // Local Components
@@ -267,24 +266,11 @@ const modalState = useModalState();
 const moveModalState = useMoveModal(
   state.vocabulariesByDate,
   handle.formatDate,
-  handle.moveCategoryToDate
+  handle.moveCategoryToDate,
+  () => tr("selectDatePlaceholder")
 );
 
-const selectedTargetDateLabel = computed(() => {
-  if (!moveModalState.selectedTargetDate.value)
-    return tr("selectDatePlaceholder");
-  const group = state.vocabulariesByDate.value.find(
-    (g: any) => g.date === moveModalState.selectedTargetDate.value
-  );
-  return group ? handle.formatDate(group.date) : tr("selectDatePlaceholder");
-});
+const { currentEditingDate, setEditingDate } = useEditingDate();
 
-const currentEditingDate = ref<string | null>(null);
-function setEditingDate(date: string, isEditing: boolean) {
-  if (isEditing) {
-    currentEditingDate.value = date;
-  } else if (currentEditingDate.value === date) {
-    currentEditingDate.value = null;
-  }
-}
+const selectedTargetDateLabel = moveModalState.selectedTargetDateLabel;
 </script>

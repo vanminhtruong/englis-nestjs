@@ -150,4 +150,7 @@ export default {
   unknownError: '예기치 않은 오류가 발생했습니다',
   removeFromTabSuccess: '탭에서 어휘가 제거되었습니다',
   removeFromTabError: '탭에서 어휘를 제거하지 못했습니다',
+  allTabHideConfirm: '"전체 어휘" 탭을 숨기시겠습니까?',
+  allTabShowConfirm: '"전체 어휘" 탭을 다시 표시하시겠습니까?',
+  allTabUpdateError: '탭 표시 상태를 업데이트하지 못했습니다. 다시 시도해 주세요.',
 }

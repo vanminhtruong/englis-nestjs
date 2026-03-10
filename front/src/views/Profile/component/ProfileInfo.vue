@@ -77,9 +77,9 @@
         </div>
       </div>
 
-      <!-- Email -->
+      <!-- Email (read-only styling) -->
       <div
-        class="group p-4 rounded-2xl bg-gray-50/50 dark:bg-white/5 border border-transparent hover:border-gray-200 dark:hover:border-white/10 transition-colors"
+        class="group p-4 rounded-2xl bg-gray-50/40 dark:bg-white/5 border border-transparent hover:border-gray-200/70 dark:hover:border-white/10 transition-colors opacity-75"
       >
         <label
           class="block text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2 ml-1"
@@ -88,14 +88,31 @@
         </label>
         <div class="flex items-center gap-4">
           <div
-            class="w-10 h-10 rounded-full bg-white dark:bg-white/10 flex items-center justify-center text-gray-400 dark:text-gray-400 group-hover:text-purple-500 dark:group-hover:text-purple-400 transition-colors shadow-sm"
+            class="w-10 h-10 rounded-full bg-white dark:bg-white/10 flex items-center justify-center text-gray-400 dark:text-gray-400 group-hover:text-purple-500/80 dark:group-hover:text-purple-400/80 transition-colors shadow-sm"
           >
             <component :is="EmailIcon" class="w-5 h-5" />
           </div>
-          <div
-            class="text-lg font-bold text-gray-900 dark:text-white break-all"
-          >
-            {{ profile?.email }}
+          <div class="flex items-center gap-2">
+            <div
+              class="text-lg font-semibold text-gray-500 dark:text-gray-400 break-all"
+            >
+              {{ profile?.email }}
+            </div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="text-gray-400 dark:text-gray-500"
+            >
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
           </div>
         </div>
       </div>

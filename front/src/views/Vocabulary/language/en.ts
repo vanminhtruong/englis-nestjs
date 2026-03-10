@@ -150,4 +150,7 @@ export default {
   unknownError: 'An unexpected error occurred',
   removeFromTabSuccess: 'Vocabulary removed from tab',
   removeFromTabError: 'Failed to remove vocabulary from tab',
+  allTabHideConfirm: 'Are you sure you want to hide the "All vocabularies" tab?',
+  allTabShowConfirm: 'Are you sure you want to show the "All vocabularies" tab again?',
+  allTabUpdateError: 'Failed to update tab visibility. Please try again.',
 }
