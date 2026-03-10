@@ -121,7 +121,7 @@
         <!-- Pinned badge -->
         <div v-if="category.isPinned" class="mb-2">
           <span
-            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-yellow-50 dark:bg-yellow-500/15 text-yellow-600 dark:text-yellow-400"
+            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border bg-yellow-50 border-yellow-200 text-yellow-700 dark:bg-white/5 dark:border-white/8 dark:text-white/35"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

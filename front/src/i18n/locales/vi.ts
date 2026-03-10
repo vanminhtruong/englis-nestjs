@@ -10,6 +10,7 @@ export default {
     error: 'Lỗi',
     success: 'Thành công',
     avatarPreview: 'Xem trước Avatar',
+    sharpen: 'Làm nét',
     appName: 'VocabMaster',
   },
 

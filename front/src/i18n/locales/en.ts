@@ -10,6 +10,7 @@ export default {
     error: 'Error',
     success: 'Success',
     avatarPreview: 'Avatar Preview',
+    sharpen: 'Sharpen',
     appName: 'VocabMaster',
   },
 

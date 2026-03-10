@@ -44,27 +44,64 @@
           </svg>
           {{ t("voiceSettings.language") }}
         </label>
-        <div class="select-wrapper">
-          <select v-model="selectedLanguage" class="custom-select">
-            <option
-              v-for="lang in languages"
-              :key="lang.code"
-              :value="lang.code"
-            >
-              {{ lang.label }}
-            </option>
-          </select>
-          <div class="select-arrow">
+        <div
+          class="custom-dropdown"
+          :class="{ 'is-open': langDropdownOpen }"
+          v-click-outside="() => (langDropdownOpen = false)"
+        >
+          <button
+            type="button"
+            class="dropdown-trigger"
+            @click="langDropdownOpen = !langDropdownOpen"
+          >
+            <span class="dropdown-selected-text">{{
+              languages.find((l) => l.code === selectedLanguage)?.label ||
+              selectedLanguage
+            }}</span>
             <svg
+              class="dropdown-chevron"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="2"
+              stroke-width="2.5"
             >
               <polyline points="6 9 12 15 18 9" />
             </svg>
-          </div>
+          </button>
+          <Transition name="dropdown-fade">
+            <div v-if="langDropdownOpen" class="dropdown-menu">
+              <div class="dropdown-menu-inner">
+                <div
+                  v-for="lang in languages"
+                  :key="lang.code"
+                  class="dropdown-option"
+                  :class="{ 'is-active': selectedLanguage === lang.code }"
+                  @click="
+                    selectedLanguage = lang.code;
+                    langDropdownOpen = false;
+                  "
+                >
+                  <span
+                    class="option-check"
+                    v-if="selectedLanguage === lang.code"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="3"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </span>
+                  <span class="option-check placeholder" v-else></span>
+                  {{ lang.label }}
+                </div>
+              </div>
+            </div>
+          </Transition>
         </div>
       </div>
 
@@ -84,27 +121,64 @@
           </svg>
           {{ t("voiceSettings.voice") }}
         </label>
-        <div class="select-wrapper">
-          <select v-model="selectedVoiceKey" class="custom-select">
-            <option
-              v-for="voice in filteredVoices"
-              :key="voice.key"
-              :value="voice.key"
-            >
-              {{ voice.displayName }}
-            </option>
-          </select>
-          <div class="select-arrow">
+        <div
+          class="custom-dropdown"
+          :class="{ 'is-open': voiceDropdownOpen }"
+          v-click-outside="() => (voiceDropdownOpen = false)"
+        >
+          <button
+            type="button"
+            class="dropdown-trigger"
+            @click="voiceDropdownOpen = !voiceDropdownOpen"
+          >
+            <span class="dropdown-selected-text">{{
+              filteredVoices.find((v) => v.key === selectedVoiceKey)
+                ?.displayName || selectedVoiceKey
+            }}</span>
             <svg
+              class="dropdown-chevron"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="2"
+              stroke-width="2.5"
             >
               <polyline points="6 9 12 15 18 9" />
             </svg>
-          </div>
+          </button>
+          <Transition name="dropdown-fade">
+            <div v-if="voiceDropdownOpen" class="dropdown-menu">
+              <div class="dropdown-menu-inner">
+                <div
+                  v-for="voice in filteredVoices"
+                  :key="voice.key"
+                  class="dropdown-option"
+                  :class="{ 'is-active': selectedVoiceKey === voice.key }"
+                  @click="
+                    selectedVoiceKey = voice.key;
+                    voiceDropdownOpen = false;
+                  "
+                >
+                  <span
+                    class="option-check"
+                    v-if="selectedVoiceKey === voice.key"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="3"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  </span>
+                  <span class="option-check placeholder" v-else></span>
+                  {{ voice.displayName }}
+                </div>
+              </div>
+            </div>
+          </Transition>
         </div>
       </div>
 
@@ -240,7 +314,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVoiceSettingsMount } from "../composable/manager-mount/useVoiceSettingsMount";
 import { useVoiceSettingsState } from "../composable/manager-state/useVoiceSettingsState";
@@ -265,6 +339,26 @@ const { handlePreviewVoice, handleSavePreferredVoice } =
   useVoiceSettingsHandle();
 
 const isPlaying = ref(false);
+const langDropdownOpen = ref(false);
+const voiceDropdownOpen = ref(false);
+
+// v-click-outside directive
+const vClickOutside = {
+  mounted(el: HTMLElement, binding: { value: () => void }) {
+    (el as any).__clickOutsideHandler__ = (event: MouseEvent) => {
+      if (!el.contains(event.target as Node)) {
+        binding.value();
+      }
+    };
+    document.addEventListener("mousedown", (el as any).__clickOutsideHandler__);
+  },
+  unmounted(el: HTMLElement) {
+    document.removeEventListener(
+      "mousedown",
+      (el as any).__clickOutsideHandler__
+    );
+  },
+};
 
 const selectedLanguage = computed({
   get: () => state.selectedLanguage,
@@ -306,10 +400,71 @@ watch(
       if (!languagesMap.has(code)) {
         const baseCode = code.split(".")[0];
         const labelMap: Record<string, string> = {
-          "en-US": "English (US)",
+          "af-ZA": "Afrikaans",
+          "ar-XA": "Arabic",
+          "ar-SA": "Arabic (Saudi Arabia)",
+          "bg-BG": "Bulgarian",
+          "bn-IN": "Bengali (India)",
+          "ca-ES": "Catalan",
+          "cs-CZ": "Czech",
+          "da-DK": "Danish",
+          "de-DE": "German",
+          "el-GR": "Greek",
+          "en-AU": "English (Australia)",
           "en-GB": "English (UK)",
-          "vi-VN": "Tiếng Việt",
-          "ko-KR": "한국어",
+          "en-IN": "English (India)",
+          "en-US": "English (US)",
+          "es-ES": "Spanish (Spain)",
+          "es-US": "Spanish (US)",
+          "es-MX": "Spanish (Mexico)",
+          "et-EE": "Estonian",
+          "eu-ES": "Basque",
+          "fa-IR": "Persian",
+          "fi-FI": "Finnish",
+          "fil-PH": "Filipino",
+          "fr-CA": "French (Canada)",
+          "fr-FR": "French",
+          "gl-ES": "Galician",
+          "gu-IN": "Gujarati",
+          "he-IL": "Hebrew",
+          "hi-IN": "Hindi",
+          "hr-HR": "Croatian",
+          "hu-HU": "Hungarian",
+          "id-ID": "Indonesian",
+          "is-IS": "Icelandic",
+          "it-IT": "Italian",
+          "ja-JP": "Japanese",
+          "kn-IN": "Kannada",
+          "ko-KR": "Korean",
+          "lt-LT": "Lithuanian",
+          "lv-LV": "Latvian",
+          "ml-IN": "Malayalam",
+          "mr-IN": "Marathi",
+          "ms-MY": "Malay",
+          "nb-NO": "Norwegian",
+          "nl-NL": "Dutch",
+          "pa-IN": "Punjabi",
+          "pl-PL": "Polish",
+          "pt-BR": "Portuguese (Brazil)",
+          "pt-PT": "Portuguese (Portugal)",
+          "ro-RO": "Romanian",
+          "ru-RU": "Russian",
+          "sk-SK": "Slovak",
+          "sl-SI": "Slovenian",
+          "sr-RS": "Serbian",
+          "sv-SE": "Swedish",
+          "sw-KE": "Swahili",
+          "ta-IN": "Tamil",
+          "te-IN": "Telugu",
+          "th-TH": "Thai",
+          "tr-TR": "Turkish",
+          "uk-UA": "Ukrainian",
+          "ur-PK": "Urdu",
+          "vi-VN": "Vietnamese",
+          "zh-CN": "Chinese (Simplified)",
+          "zh-HK": "Chinese (Hong Kong)",
+          "zh-TW": "Chinese (Traditional)",
+          "zu-ZA": "Zulu",
         };
         languagesMap.set(code, {
           code,
@@ -333,7 +488,9 @@ watch(
 
     if (state.selectedVoiceKey) {
       // Đã có voice từ backend → đồng bộ selectedLanguage theo voice đó
-      const matchedVoice = viewModels.find((v) => v.key === state.selectedVoiceKey);
+      const matchedVoice = viewModels.find(
+        (v) => v.key === state.selectedVoiceKey
+      );
       if (matchedVoice) {
         setSelectedLanguage(matchedVoice.languageCode);
       } else if (!state.selectedLanguage && languages.length) {
@@ -488,6 +645,8 @@ async function previewBrowserVoice(voice: SpeechSynthesisVoice) {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  position: relative;
+  z-index: 10;
 }
 
 /* Form Group */
@@ -512,14 +671,19 @@ async function previewBrowserVoice(voice: SpeechSynthesisVoice) {
   color: #8b5cf6;
 }
 
-/* Custom Select */
-.select-wrapper {
+/* Custom Dropdown */
+.custom-dropdown {
   position: relative;
+  width: 100%;
 }
 
-.custom-select {
+.dropdown-trigger {
   width: 100%;
-  padding: 14px 44px 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 13px 16px;
   font-size: 0.9375rem;
   font-weight: 500;
   color: #f3f4f6;
@@ -527,38 +691,136 @@ async function previewBrowserVoice(voice: SpeechSynthesisVoice) {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   outline: none;
-  appearance: none;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
+  text-align: left;
 }
 
-.custom-select:hover {
+.dropdown-trigger:hover {
   border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(0, 0, 0, 0.4);
 }
 
-.custom-select:focus {
+.custom-dropdown.is-open .dropdown-trigger {
   border-color: #8b5cf6;
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
-.custom-select option {
-  background: #1a1a1a;
-  color: #f3f4f6;
-  padding: 12px;
+.dropdown-selected-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.select-arrow {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-  color: #9ca3af;
-}
-
-.select-arrow svg {
+.dropdown-chevron {
   width: 18px;
   height: 18px;
+  color: #9ca3af;
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+.custom-dropdown.is-open .dropdown-chevron {
+  transform: rotate(180deg);
+  color: #a78bfa;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #1c1c2e;
+  border: 1px solid #8b5cf6;
+  border-top: none;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(139, 92, 246, 0.1);
+  overflow: hidden;
+}
+
+.dropdown-menu-inner {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 6px;
+}
+
+.dropdown-menu-inner::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dropdown-menu-inner::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dropdown-menu-inner::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.4);
+  border-radius: 2px;
+}
+
+.dropdown-menu-inner::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.7);
+}
+
+.dropdown-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #d1d5db;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dropdown-option:hover {
+  background: rgba(139, 92, 246, 0.15);
+  color: #f3f4f6;
+}
+
+.dropdown-option.is-active {
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+  font-weight: 600;
+}
+
+.option-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #a78bfa;
+}
+
+.option-check svg {
+  width: 13px;
+  height: 13px;
+}
+
+.option-check.placeholder {
+  width: 18px;
+  height: 18px;
+}
+
+/* Dropdown fade transition */
+.dropdown-fade-enter-active,
+.dropdown-fade-leave-active {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  transform-origin: top;
+}
+
+.dropdown-fade-enter-from,
+.dropdown-fade-leave-to {
+  opacity: 0;
+  transform: scaleY(0.92);
 }
 
 /* Action Buttons */
@@ -624,6 +886,8 @@ async function previewBrowserVoice(voice: SpeechSynthesisVoice) {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
   padding: 24px;
+  position: relative;
+  z-index: 1;
 }
 
 .section-header {
@@ -824,11 +1088,33 @@ html:not(.dark) .browser-voices-section {
   border-color: rgba(0, 0, 0, 0.1);
 }
 
-:root:not(.dark) .custom-select,
-html:not(.dark) .custom-select {
+:root:not(.dark) .dropdown-trigger,
+html:not(.dark) .dropdown-trigger {
   background: rgba(255, 255, 255, 0.9);
   color: #1f2937;
   border-color: rgba(0, 0, 0, 0.15);
+}
+
+:root:not(.dark) .dropdown-menu,
+html:not(.dark) .dropdown-menu {
+  background: #ffffff;
+  border-color: #8b5cf6;
+}
+
+:root:not(.dark) .dropdown-option,
+html:not(.dark) .dropdown-option {
+  color: #374151;
+}
+
+:root:not(.dark) .dropdown-option:hover,
+html:not(.dark) .dropdown-option:hover {
+  background: rgba(139, 92, 246, 0.1);
+  color: #1f2937;
+}
+
+:root:not(.dark) .dropdown-selected-text,
+html:not(.dark) .dropdown-selected-text {
+  color: #1f2937;
 }
 
 :root:not(.dark) .voice-card,

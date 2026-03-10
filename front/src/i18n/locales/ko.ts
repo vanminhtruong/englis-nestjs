@@ -10,6 +10,7 @@ export default {
     error: '오류',
     success: '성공',
     avatarPreview: '아바타 미리보기',
+    sharpen: '선명하게',
     appName: 'VocabMaster',
   },
 

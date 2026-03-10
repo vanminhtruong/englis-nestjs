@@ -10,6 +10,7 @@ export default {
     error: '错误',
     success: '成功',
     avatarPreview: '头像预览',
+    sharpen: '锐化',
     appName: 'VocabMaster',
   },
 
