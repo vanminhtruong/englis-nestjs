@@ -33,7 +33,6 @@
       <div
         v-if="isOpen"
         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-        @click.self="close"
       >
         <div
           class="relative w-full max-w-md transform transition-all duration-300 scale-100 rotate-1 bg-[#fef3c7] dark:bg-black border dark:border-white/10 shadow-2xl rounded-sm p-6"

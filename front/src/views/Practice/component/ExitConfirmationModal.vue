@@ -10,7 +10,6 @@
     <div
       v-if="show"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-      @click.self="emit('cancel')"
     >
       <div
         class="bg-gradient-to-br from-white to-white/50 dark:from-white/5 dark:to-black border border-black/10 dark:border-white/10 rounded-3xl p-8 text-center max-w-md w-full shadow-2xl"

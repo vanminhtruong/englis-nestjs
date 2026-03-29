@@ -11,7 +11,6 @@
       <div
         v-if="visible"
         class="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-        @click.self="close"
       >
         <div class="w-full h-[90vh] max-w-6xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
           <div class="flex items-center justify-between px-4 py-3 border-b border-black/5 dark:border-white/10">

@@ -11,7 +11,6 @@
       <div
         v-if="show"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
-        @click.self="$emit('close')"
       >
         <div class="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col">
           <!-- Header - Fixed -->

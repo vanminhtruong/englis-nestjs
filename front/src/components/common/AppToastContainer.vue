@@ -110,18 +110,85 @@
             </p>
 
             <!-- Confirm buttons -->
-            <div v-if="toast.actionLabel" class="flex items-center gap-2 mt-3">
+            <div
+              v-if="toast.actionLabel"
+              class="flex items-center justify-end gap-2.5 mt-4"
+            >
               <button
                 type="button"
-                class="flex-1 py-1.5 px-3 rounded-xl text-xs font-semibold transition-all duration-150 active:scale-95"
+                class="inline-flex items-center gap-1.5 py-2 px-5 rounded-xl text-[12px] font-bold transition-all duration-200 active:scale-95 shadow-lg border border-transparent"
                 :class="confirmBtnClass(toast.type)"
                 @click="triggerAction(toast.id)"
               >
-                {{ toast.actionLabel }}
+                <!-- Confirm Icons based on type -->
+                <svg
+                  v-if="toast.type === 'success'"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <svg
+                  v-else-if="toast.type === 'error'"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="3 6 5 6 21 6" />
+                  <path
+                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                  />
+                </svg>
+                <svg
+                  v-else-if="toast.type === 'warning'"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                <svg
+                  v-else
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>{{ toast.actionLabel }}</span>
               </button>
               <button
                 type="button"
-                class="py-1.5 px-3 rounded-xl text-xs font-semibold bg-black/5 dark:bg-white/10 text-gray-500 dark:text-white/50 hover:bg-black/10 dark:hover:bg-white/15 transition-all duration-150 active:scale-95 whitespace-nowrap"
+                class="py-2 px-5 rounded-xl text-[12px] font-bold border border-gray-200 dark:border-white/10 bg-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-all duration-200 active:scale-95 whitespace-nowrap"
                 @click="removeToast(toast.id)"
               >
                 {{ t("common.cancel") }}
@@ -209,11 +276,12 @@ function iconColorClass(type: ToastType) {
 function confirmBtnClass(type: ToastType) {
   const map: Record<ToastType, string> = {
     success:
-      "bg-green-500 hover:bg-green-600 text-white shadow-sm shadow-green-500/30",
-    error: "bg-red-500 hover:bg-red-600 text-white shadow-sm shadow-red-500/30",
+      "bg-green-500 hover:bg-green-600 text-white shadow-green-500/30 border-green-600/20",
+    error:
+      "bg-red-500 hover:bg-red-600 text-white shadow-red-500/30 border-red-600/20",
     warning:
-      "bg-yellow-400 hover:bg-yellow-500 text-black shadow-sm shadow-yellow-400/30",
-    info: "bg-gradient-to-r from-primary-500 to-secondary-500 hover:from-primary-600 hover:to-secondary-600 text-white shadow-sm shadow-primary-500/30",
+      "bg-yellow-400 hover:bg-yellow-500 text-black shadow-yellow-400/30 border-yellow-500/20",
+    info: "bg-gradient-to-r from-primary-500 to-secondary-500 hover:opacity-90 text-white shadow-primary-500/30 border-primary-600/20",
   };
   return map[type];
 }

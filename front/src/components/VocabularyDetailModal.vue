@@ -2,7 +2,6 @@
   <div
     v-if="show"
     class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-    @click.self="$emit('close')"
   >
     <div
       class="bg-white dark:bg-white/5 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col backdrop-blur-lg"
