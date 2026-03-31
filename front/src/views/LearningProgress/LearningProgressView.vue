@@ -13,110 +13,109 @@
         </p>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="loading" class="flex items-center justify-center py-24">
-        <div class="relative">
-          <div
-            class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"
-          ></div>
-          <div
-            class="absolute inset-0 flex items-center justify-center font-bold text-xs text-primary-600"
-          >
-            ...
+      <Transition
+        enter-active-class="transition duration-500 ease-out"
+        enter-from-class="opacity-0 translate-y-4"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition duration-300 ease-in"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 translate-y-4"
+        mode="out-in"
+      >
+        <!-- Loading State -->
+        <AppLoading v-if="loading" />
+
+        <!-- Error State -->
+        <div v-else-if="error" class="text-center py-12">
+          <div class="text-red-500 mb-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              class="mx-auto"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
           </div>
-        </div>
-      </div>
-
-      <!-- Error State -->
-      <div v-else-if="error" class="text-center py-12">
-        <div class="text-red-500 mb-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            class="mx-auto"
+          <p class="text-gray-600 dark:text-gray-400">{{ error }}</p>
+          <button
+            @click="loadProgress"
+            class="mt-4 px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
           >
-            <circle cx="12" cy="12" r="10" />
-            <line x1="15" y1="9" x2="9" y2="15" />
-            <line x1="9" y1="9" x2="15" y2="15" />
-          </svg>
-        </div>
-        <p class="text-gray-600 dark:text-gray-400">{{ error }}</p>
-        <button
-          @click="loadProgress"
-          class="mt-4 px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
-        >
-          {{ t("common.retry") || "Thử lại" }}
-        </button>
-      </div>
-
-      <!-- Content -->
-      <template v-else-if="progress">
-        <!-- Overview Stats -->
-        <OverviewStats
-          :total-words="progress.totalWords"
-          :mastered-words="progress.masteredWords"
-          :learning-words="progress.learningWords"
-          :new-words="progress.newWords"
-          :mastery-percentage="progress.masteryPercentage"
-        />
-
-        <!-- Rank Display -->
-        <RankDisplay
-          :rank="progress.rank"
-          :rank-progress="progress.rankProgress"
-          :total-score="progress.totalScore"
-          :average-score="progress.averageScore"
-        />
-
-        <!-- Two Column Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <!-- Streak Card -->
-          <StreakCard :streak="progress.streak" />
-
-          <!-- Weekly Progress -->
-          <WeeklyProgressChart :weekly-progress="progress.weeklyProgress" />
+            {{ t("common.retry") || "Thử lại" }}
+          </button>
         </div>
 
-        <!-- Practice Stats -->
-        <PracticeStatsCard :practice-stats="progress.practiceStats" />
+        <!-- Content -->
+        <template v-else-if="progress">
+          <!-- Overview Stats -->
+          <OverviewStats
+            :total-words="progress.totalWords"
+            :mastered-words="progress.masteredWords"
+            :learning-words="progress.learningWords"
+            :new-words="progress.newWords"
+            :mastery-percentage="progress.masteryPercentage"
+          />
 
-        <!-- Achievements -->
-        <AchievementsGrid :achievements="progress.achievements" />
-      </template>
+          <!-- Rank Display -->
+          <RankDisplay
+            :rank="progress.rank"
+            :rank-progress="progress.rankProgress"
+            :total-score="progress.totalScore"
+            :average-score="progress.averageScore"
+          />
 
-      <!-- Empty State -->
-      <div v-else class="empty-state">
-        <div class="empty-illustration">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="120"
-            height="120"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1"
-            class="text-gray-300 dark:text-gray-600"
-          >
-            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-            <path
-              d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
-            />
-            <path d="M12 6v6l4 2" />
-          </svg>
+          <!-- Two Column Layout -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Streak Card -->
+            <StreakCard :streak="progress.streak" />
+
+            <!-- Weekly Progress -->
+            <WeeklyProgressChart :weekly-progress="progress.weeklyProgress" />
+          </div>
+
+          <!-- Practice Stats -->
+          <PracticeStatsCard :practice-stats="progress.practiceStats" />
+
+          <!-- Achievements -->
+          <AchievementsGrid :achievements="progress.achievements" />
+        </template>
+
+        <!-- Empty State -->
+        <div v-else class="empty-state">
+          <div class="empty-illustration">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="120"
+              height="120"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1"
+              class="text-gray-300 dark:text-gray-600"
+            >
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path
+                d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"
+              />
+              <path d="M12 6v6l4 2" />
+            </svg>
+          </div>
+          <h3 class="empty-title">{{ t("learningProgress.empty.title") }}</h3>
+          <p class="empty-description">
+            {{ t("learningProgress.empty.description") }}
+          </p>
+          <RouterLink to="/vocabulary" class="empty-cta">
+            {{ t("learningProgress.empty.startLearning") }}
+          </RouterLink>
         </div>
-        <h3 class="empty-title">{{ t("learningProgress.empty.title") }}</h3>
-        <p class="empty-description">
-          {{ t("learningProgress.empty.description") }}
-        </p>
-        <RouterLink to="/vocabulary" class="empty-cta">
-          {{ t("learningProgress.empty.startLearning") }}
-        </RouterLink>
-      </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -151,6 +150,9 @@ const PracticeStatsCard = defineAsyncComponent(
 );
 const AchievementsGrid = defineAsyncComponent(
   () => import("./component/AchievementsGrid.vue") as any
+);
+const AppLoading = defineAsyncComponent(
+  () => import("../../components/common/AppLoading.vue") as any
 );
 
 // State

@@ -94,33 +94,32 @@
       <!-- Filters -->
       <HistoryFilters v-model="filter" />
 
-      <!-- Loading -->
-      <div v-if="loading" class="flex items-center justify-center py-24">
-        <div class="relative">
-          <div
-            class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"
-          ></div>
-          <div
-            class="absolute inset-0 flex items-center justify-center font-bold text-xs text-primary-600"
-          >
-            ...
-          </div>
-        </div>
-      </div>
+      <Transition
+        enter-active-class="transition duration-500 ease-out"
+        enter-from-class="opacity-0 translate-y-4"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition duration-300 ease-in"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 translate-y-4"
+        mode="out-in"
+      >
+        <!-- Loading -->
+        <AppLoading v-if="loading" />
 
-      <!-- Empty State -->
-      <EmptyState v-else-if="filteredHistories.length === 0" />
+        <!-- Empty State -->
+        <EmptyState v-else-if="filteredHistories.length === 0" />
 
-      <!-- History List -->
-      <HistoryList
-        v-else
-        :histories="filteredHistories"
-        :format-time="formatTime"
-        :format-date="formatDate"
-        :selected-ids="selectedIds"
-        @delete-history="deleteHistory"
-        @toggle-selection="toggleSelection"
-      />
+        <!-- History List -->
+        <HistoryList
+          v-else
+          :histories="filteredHistories"
+          :format-time="formatTime"
+          :format-date="formatDate"
+          :selected-ids="selectedIds"
+          @delete-history="deleteHistory"
+          @toggle-selection="toggleSelection"
+        />
+      </Transition>
       <Pagination
         v-if="filteredHistories.length > 0 && pageCount > 1"
         :page="page"
@@ -154,6 +153,9 @@ const HistoryList = defineAsyncComponent(
 );
 const Pagination = defineAsyncComponent(
   () => import("../../components/Pagination.vue") as any
+);
+const AppLoading = defineAsyncComponent(
+  () => import("../../components/common/AppLoading.vue") as any
 );
 import CustomCheckbox from "../../components/CustomCheckbox.vue";
 

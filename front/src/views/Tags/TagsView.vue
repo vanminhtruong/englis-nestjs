@@ -9,8 +9,7 @@
         />
       </div>
 
-      <!-- Loading -->
-      <TagsLoading v-if="tagsState.loading.value" />
+      <AppLoading v-if="tagsState.loading.value" />
 
       <!-- Empty State -->
       <TagsEmpty v-else-if="!tagsState.hasTags.value" />
@@ -56,8 +55,8 @@ import zhCNLang from "./language/zh-CN";
 const TagsHeader = defineAsyncComponent(
   () => import("./component/TagsHeader.vue") as any
 );
-const TagsLoading = defineAsyncComponent(
-  () => import("./component/TagsLoading.vue") as any
+const AppLoading = defineAsyncComponent(
+  () => import("../../components/common/AppLoading.vue") as any
 );
 const TagsEmpty = defineAsyncComponent(
   () => import("./component/TagsEmpty.vue") as any

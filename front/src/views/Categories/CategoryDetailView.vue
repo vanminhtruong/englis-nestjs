@@ -1,32 +1,42 @@
 <template>
   <div class="min-h-screen bg-white dark:bg-black p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
-      <!-- Loading -->
-      <CategoryDetailLoading v-if="detailState.loading.value" />
+      <Transition
+        enter-active-class="transition duration-500 ease-out"
+        enter-from-class="opacity-0 translate-y-4"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition duration-300 ease-in"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 translate-y-4"
+        mode="out-in"
+      >
+        <!-- Loading -->
+        <AppLoading v-if="detailState.loading.value" />
 
-      <!-- Content -->
-      <div v-else-if="detailState.category.value">
-        <!-- Header -->
-        <CategoryDetailHeader :category="detailState.category.value" />
+        <!-- Content -->
+        <div v-else-if="detailState.category.value">
+          <!-- Header -->
+          <CategoryDetailHeader :category="detailState.category.value" />
 
-        <!-- Vocabularies (flat list, no date grouping) -->
-        <div
-          v-if="detailState.vocabulariesByDate.value.length > 0"
-          class="space-y-8"
-        >
-          <CategoryDetailGrid
-            :vocabularies="detailState.vocabulariesByDate.value"
-            :get-video-thumbnail="detailHandle.getVideoThumbnail"
-            @open-image-preview="detailHandle.openImagePreview"
-            @open-video-preview="detailHandle.openVideoPreview"
-            @speak="detailHandle.handleSpeak"
-            @open-detail-modal="detailHandle.openDetailModal"
-          />
+          <!-- Vocabularies (flat list, no date grouping) -->
+          <div
+            v-if="detailState.vocabulariesByDate.value.length > 0"
+            class="space-y-8"
+          >
+            <CategoryDetailGrid
+              :vocabularies="detailState.vocabulariesByDate.value"
+              :get-video-thumbnail="detailHandle.getVideoThumbnail"
+              @open-image-preview="detailHandle.openImagePreview"
+              @open-video-preview="detailHandle.openVideoPreview"
+              @speak="detailHandle.handleSpeak"
+              @open-detail-modal="detailHandle.openDetailModal"
+            />
+          </div>
+
+          <!-- Empty State -->
+          <CategoryDetailEmpty v-else />
         </div>
-
-        <!-- Empty State -->
-        <CategoryDetailEmpty v-else />
-      </div>
+      </Transition>
     </div>
 
     <!-- Detail Modal -->
@@ -67,8 +77,8 @@ import viLang from "./language/vi";
 import koLang from "./language/ko";
 import zhCNLang from "./language/zh-CN";
 
-const CategoryDetailLoading = defineAsyncComponent(
-  () => import("./component/CategoryDetailLoading.vue") as any
+const AppLoading = defineAsyncComponent(
+  () => import("../../components/common/AppLoading.vue") as any
 );
 const CategoryDetailHeader = defineAsyncComponent(
   () => import("./component/CategoryDetailHeader.vue") as any

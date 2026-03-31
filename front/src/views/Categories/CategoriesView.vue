@@ -9,20 +9,30 @@
         />
       </div>
 
-      <!-- Loading -->
-      <CategoriesLoading v-if="loading" />
+      <Transition
+        enter-active-class="transition duration-500 ease-out"
+        enter-from-class="opacity-0 translate-y-4"
+        enter-to-class="opacity-100 translate-y-0"
+        leave-active-class="transition duration-300 ease-in"
+        leave-from-class="opacity-100 translate-y-0"
+        leave-to-class="opacity-0 translate-y-4"
+        mode="out-in"
+      >
+        <!-- Loading -->
+        <AppLoading v-if="loading" />
 
-      <!-- Empty State -->
-      <CategoriesEmpty v-else-if="!hasCategories" />
+        <!-- Empty State -->
+        <CategoriesEmpty v-else-if="!hasCategories" />
 
-      <!-- Categories Grid -->
-      <CategoriesGrid
-        v-else
-        :categories="categories"
-        @toggle-pin="handleTogglePin"
-        @open-edit-modal="openEditModal"
-        @delete="handleDelete"
-      />
+        <!-- Categories Grid -->
+        <CategoriesGrid
+          v-else
+          :categories="categories"
+          @toggle-pin="handleTogglePin"
+          @open-edit-modal="openEditModal"
+          @delete="handleDelete"
+        />
+      </Transition>
 
       <!-- Sticky Add Button -->
       <CategoriesStickyButton
@@ -56,8 +66,8 @@ import zhCNLang from "./language/zh-CN";
 const CategoriesHeader = defineAsyncComponent(
   () => import("./component/CategoriesHeader.vue") as any
 );
-const CategoriesLoading = defineAsyncComponent(
-  () => import("./component/CategoriesLoading.vue") as any
+const AppLoading = defineAsyncComponent(
+  () => import("../../components/common/AppLoading.vue") as any
 );
 const CategoriesEmpty = defineAsyncComponent(
   () => import("./component/CategoriesEmpty.vue") as any
