@@ -90,6 +90,8 @@ export default {
     editName: '编辑名称',
     deleteTab: '删除选项卡',
     createNewTab: '创建新选项卡',
+    moreTabs: '更多主题',
+    clickToSwitch: '点击切换主题',
   },
   wordDrawing: {
     wordDrawer: '单词绘制 & 键盘',

@@ -117,23 +117,18 @@
 
             <div
               v-if="src"
-              class="w-full h-full overflow-hidden"
+              class="w-full h-full flex items-center justify-center overflow-hidden"
               ref="viewportRef"
+              @wheel.prevent="handleWheel"
+              @mousedown.prevent="startDrag"
             >
-              <div
-                class="w-full h-full flex items-center justify-center"
-                :style="viewportStyle"
-              >
-                <img
-                  :src="src"
-                  :alt="userName"
-                  :style="imageStyle"
-                  class="max-w-full max-h-[80vh] select-none rounded-xl"
-                  @wheel.prevent="handleWheel"
-                  @mousedown.prevent="startDrag"
-                  draggable="false"
-                />
-              </div>
+              <img
+                :src="src"
+                :alt="userName"
+                :style="imageStyle"
+                class="select-none rounded-xl"
+                draggable="false"
+              />
             </div>
             <div
               v-else
@@ -200,17 +195,17 @@ const translation = ref({ x: 0, y: 0 });
 const isSharpened = ref(false);
 
 const imageStyle = computed(() => ({
-  transform: `scale(${zoom.value})`,
+  transform: `translate(${translation.value.x}px, ${translation.value.y}px) scale(${zoom.value})`,
+  transformOrigin: "center center",
   transition: isDragging.value ? "none" : "transform 0.2s ease-out",
   filter: isSharpened.value ? "url(#sharpen-filter)" : "none",
   imageRendering: isSharpened.value ? "pixelated" : "auto",
+  cursor: zoom.value > 1 ? (isDragging.value ? "grabbing" : "grab") : "default",
+  maxWidth: "100%",
+  maxHeight: "80vh",
 }));
 
-const viewportStyle = computed(() => ({
-  transform: `translate(${translation.value.x}px, ${translation.value.y}px)`,
-  cursor: zoom.value > 1 ? (isDragging.value ? "grabbing" : "grab") : "default",
-  transition: isDragging.value ? "none" : "transform 0.2s ease-out",
-}));
+const viewportStyle = computed(() => ({}));
 
 const close = () => {
   emit("close");

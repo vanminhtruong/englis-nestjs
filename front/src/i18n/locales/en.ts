@@ -90,6 +90,8 @@ export default {
     editName: 'Edit Name',
     deleteTab: 'Delete Tab',
     createNewTab: 'Create New Tab',
+    moreTabs: 'More Topics',
+    clickToSwitch: 'Click to switch topic',
   },
   wordDrawing: {
     wordDrawer: 'Word Drawer',

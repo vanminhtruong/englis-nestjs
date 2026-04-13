@@ -90,6 +90,8 @@ export default {
     editName: '이름 변경',
     deleteTab: '탭 삭제',
     createNewTab: '새 탭 만들기',
+    moreTabs: '더 많은 주제',
+    clickToSwitch: '클릭하여 주제 전환',
   },
   wordDrawing: {
     wordDrawer: '단어 그리기 & 키보드',

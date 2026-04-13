@@ -51,42 +51,31 @@
 
       <!-- Pages -->
       <div class="flex items-center gap-1.5">
-        <template v-for="(p, index) in visiblePages">
-          <!-- Ellipsis -->
-          <span
-            v-if="p === '...'"
-            :key="'ellipsis-' + index"
-            class="flex items-center justify-center w-10 h-10 text-gray-400 font-medium"
-          >
-            •••
-          </span>
-          <!-- Page Number -->
-          <button
+        <button
+          v-for="p in visiblePages"
+          :key="'page-' + p"
+          @click="goToPage(p)"
+          class="relative flex items-center justify-center w-10 h-10 rounded-xl text-sm font-bold transition-all duration-300 overflow-hidden group active:scale-95"
+          :class="
+            p === page
+              ? 'text-white shadow-[0_0_15px_rgba(102,126,234,0.5)]'
+              : 'text-gray-700 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/10 hover:text-primary-500'
+          "
+        >
+          <!-- Background for active state -->
+          <div
+            v-if="p === page"
+            class="absolute inset-0 bg-gradient-to-tr from-primary-500 to-secondary-500 opacity-100"
+          ></div>
+
+          <!-- Hover effect background for non-active -->
+          <div
             v-else
-            :key="'page-' + p"
-            @click="goToPage(Number(p))"
-            class="relative flex items-center justify-center w-10 h-10 rounded-xl text-sm font-bold transition-all duration-300 overflow-hidden group active:scale-95"
-            :class="
-              p === page
-                ? 'text-white shadow-[0_0_15px_rgba(102,126,234,0.5)]'
-                : 'text-gray-700 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/10 hover:text-primary-500'
-            "
-          >
-            <!-- Background for active state -->
-            <div
-              v-if="p === page"
-              class="absolute inset-0 bg-gradient-to-tr from-primary-500 to-secondary-500 opacity-100"
-            ></div>
+            class="absolute inset-0 bg-primary-500/0 group-hover:bg-primary-500/10 transition-colors"
+          ></div>
 
-            <!-- Hover effect background for non-active -->
-            <div
-              v-else
-              class="absolute inset-0 bg-primary-500/0 group-hover:bg-primary-500/10 transition-colors"
-            ></div>
-
-            <span class="relative z-10">{{ p }}</span>
-          </button>
-        </template>
+          <span class="relative z-10">{{ p }}</span>
+        </button>
       </div>
 
       <!-- Next Page -->
@@ -159,27 +148,33 @@ function goToPage(p: number) {
 const visiblePages = computed(() => {
   const total = props.pageCount;
   const current = props.page;
-  const delta = 1; // Number of pages to show before and after current page
 
+  // Sliding window with max 3 pages
   const range: number[] = [];
-  for (
-    let i = Math.max(2, current - delta);
-    i <= Math.min(total - 1, current + delta);
-    i++
-  ) {
-    range.push(i);
-  }
+  const maxVisible = 3;
 
-  if (current - delta > 2) {
-    range.unshift("..." as any);
-  }
-  if (current + delta < total - 1) {
-    range.push("..." as any);
-  }
+  if (total <= maxVisible) {
+    // Show all pages if total is 3 or less
+    for (let i = 1; i <= total; i++) {
+      range.push(i);
+    }
+  } else {
+    // Calculate sliding window
+    let start = current - 1;
+    let end = current + 1;
 
-  range.unshift(1);
-  if (total !== 1) {
-    range.push(total);
+    // Adjust start to ensure we show 3 pages
+    if (start < 1) {
+      start = 1;
+      end = Math.min(3, total);
+    } else if (end > total) {
+      end = total;
+      start = Math.max(1, total - 2);
+    }
+
+    for (let i = start; i <= end; i++) {
+      range.push(i);
+    }
   }
 
   return range;

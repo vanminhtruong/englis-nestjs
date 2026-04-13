@@ -1,5 +1,5 @@
 ---
-trigger: always_on
+trigger: manual
 ---
 
 1. Đối với dự án front bạn phải luôn tổ chức và code tuân thủ các cấu trúc dự án trong folder views như sau nhưng phải nhớ là cái rule 1.1 là rất quan trọng phải tuân thủ nhé với mọi views:

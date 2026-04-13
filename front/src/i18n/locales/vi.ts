@@ -90,6 +90,8 @@ export default {
     editName: 'Đổi tên',
     deleteTab: 'Xóa tab',
     createNewTab: 'Tạo tab mới',
+    moreTabs: 'Chủ đề khác',
+    clickToSwitch: 'Nhấn để chuyển chủ đề',
   },
   wordDrawing: {
     wordDrawer: 'Bảng Vẽ & Bàn Phím',
