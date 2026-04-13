@@ -4,8 +4,8 @@
       <!-- Header -->
       <div ref="controlsRef">
         <CategoriesHeader
-          :categories-count="categoriesCount"
-          @open-create-modal="openCreateModal"
+          :categories-count="categoriesState.categoriesCount.value"
+          @open-create-modal="categoriesState.openCreateModal"
         />
       </div>
 
@@ -19,137 +19,79 @@
         mode="out-in"
       >
         <!-- Loading -->
-        <AppLoading v-if="loading" />
+        <AppLoading v-if="categoriesState.loading.value" />
 
         <!-- Empty State -->
-        <CategoriesEmpty v-else-if="!hasCategories" />
+        <CategoriesEmpty v-else-if="!categoriesState.hasCategories.value" />
 
         <!-- Categories Grid -->
         <CategoriesGrid
           v-else
-          :categories="categories"
-          @toggle-pin="handleTogglePin"
-          @open-edit-modal="openEditModal"
-          @delete="handleDelete"
+          :categories="categoriesState.categories.value"
+          @toggle-pin="categoriesHandle.handleTogglePin"
+          @open-edit-modal="categoriesState.openEditModal"
+          @delete="categoriesHandle.handleDelete"
         />
       </Transition>
 
       <!-- Sticky Add Button -->
       <CategoriesStickyButton
         :show-sticky-add-button="showStickyAddButton"
-        @open-create-modal="openCreateModal"
+        @open-create-modal="categoriesState.openCreateModal"
       />
 
       <!-- Modal -->
       <CategoryModal
-        :show="showModal"
-        :isEditing="isEditing"
-        :form="form"
-        @submit="handleSubmit"
-        @close="closeModal"
+        :show="categoriesState.showModal.value"
+        :isEditing="categoriesState.isEditing.value"
+        :form="categoriesState.form"
+        @submit="categoriesHandle.handleSubmit"
+        @close="categoriesState.closeModal"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, ref, onMounted, onUnmounted } from "vue";
-import { useI18n } from "vue-i18n";
+import { ref } from "vue";
 import { useCategoriesState } from "./composable/manager-state/useCategoriesState";
 import { useCategoriesHandle } from "./composable/manager-handle/useCategoriesHandle";
 import { useCategoriesMount } from "./composable/manager-mount/useCategoriesMount";
-import enLang from "./language/en";
-import viLang from "./language/vi";
-import koLang from "./language/ko";
-import zhCNLang from "./language/zh-CN";
+import { useCategoriesI18n } from "./composable/manager-handle/useCategoriesI18n";
+import { useCategoriesComponents } from "./composable/manager-handle/useCategoriesComponents";
+import { useIntersectionObserver } from "./composable/manager-handle/useIntersectionObserver";
 
-const CategoriesHeader = defineAsyncComponent(
-  () => import("./component/CategoriesHeader.vue") as any
-);
-const AppLoading = defineAsyncComponent(
-  () => import("../../components/common/AppLoading.vue") as any
-);
-const CategoriesEmpty = defineAsyncComponent(
-  () => import("./component/CategoriesEmpty.vue") as any
-);
-const CategoriesGrid = defineAsyncComponent(
-  () => import("./component/CategoriesGrid.vue") as any
-);
-const CategoriesStickyButton = defineAsyncComponent(
-  () => import("./component/CategoriesStickyButton.vue") as any
-);
-const CategoryModal = defineAsyncComponent(
-  () => import("./component/CategoryModal.vue") as any
-);
-
-const { mergeLocaleMessage } = useI18n();
-
-mergeLocaleMessage("en", { categories: enLang });
-mergeLocaleMessage("vi", { categories: viLang });
-mergeLocaleMessage("ko", { categories: koLang });
-mergeLocaleMessage("zh-CN", { categories: zhCNLang });
+const { i18n } = useCategoriesI18n();
 
 const {
-  categories,
-  loading,
-  showModal,
-  isEditing,
-  editingId,
-  form,
-  categoriesCount,
-  hasCategories,
-  setCategories,
-  addCategory,
-  updateCategory,
-  removeCategory,
-  setLoading,
-  openCreateModal,
-  openEditModal,
-  closeModal,
-} = useCategoriesState();
+  CategoriesHeader,
+  AppLoading,
+  CategoriesEmpty,
+  CategoriesGrid,
+  CategoriesStickyButton,
+  CategoryModal,
+} = useCategoriesComponents();
 
-const { handleSubmit, handleDelete, handleTogglePin } = useCategoriesHandle(
-  form,
-  isEditing,
-  editingId,
-  closeModal,
-  addCategory,
-  updateCategory,
-  removeCategory
+const categoriesState = useCategoriesState();
+
+const categoriesHandle = useCategoriesHandle(
+  categoriesState.form,
+  categoriesState.isEditing,
+  categoriesState.editingId,
+  categoriesState.closeModal,
+  categoriesState.addCategory,
+  categoriesState.updateCategory,
+  categoriesState.removeCategory
 );
 
 useCategoriesMount(
-  setCategories,
-  setLoading,
-  addCategory,
-  updateCategory,
-  removeCategory
+  categoriesState.setCategories,
+  categoriesState.setLoading,
+  categoriesState.addCategory,
+  categoriesState.updateCategory,
+  categoriesState.removeCategory
 );
 
 const controlsRef = ref<HTMLElement | null>(null);
-const showStickyAddButton = ref(false);
-let observer: IntersectionObserver | null = null;
-
-onMounted(() => {
-  observer = new IntersectionObserver(
-    ([entry]) => {
-      showStickyAddButton.value =
-        !entry.isIntersecting && entry.boundingClientRect.top < 0;
-    },
-    {
-      threshold: 0,
-      rootMargin: "-20px 0px 0px 0px",
-    }
-  );
-
-  if (controlsRef.value) {
-    observer.observe(controlsRef.value);
-  }
-});
-
-onUnmounted(() => {
-  if (observer) {
-    observer.disconnect();
-  }
-});
+const { showStickyAddButton } = useIntersectionObserver(controlsRef);
 </script>
