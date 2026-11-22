@@ -243,6 +243,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { API_URL } from "@/services/api.service";
 import type { LoginForm } from "../interface/login.interface";
 
 const showPassword = ref(false);
@@ -270,6 +271,6 @@ const updateField = (field: keyof LoginForm, event: Event) => {
 };
 
 const handleGoogleLogin = () => {
-  window.location.href = "http://localhost:3000/auth/google";
+  window.location.href = `${API_URL}/auth/google`;
 };
 </script>

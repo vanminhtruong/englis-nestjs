@@ -44,8 +44,8 @@ jobs:
         working-directory: front
         env:
           GITHUB_PAGES_BASE: /${{ github.event.repository.name }}/
-          VITE_API_URL: ${{ vars.VITE_API_URL }}
-          VITE_WS_URL: ${{ vars.VITE_WS_URL }}
+          VITE_API_URL: ${{ vars.VITE_API_URL || 'https://laptop-l7qb89bs.taile16c9b.ts.net:10000' }}
+          VITE_WS_URL: ${{ vars.VITE_WS_URL || vars.VITE_API_URL || 'https://laptop-l7qb89bs.taile16c9b.ts.net:10000' }}
         shell: bash
         run: |
           if [[ -z "$VITE_API_URL" ]]; then

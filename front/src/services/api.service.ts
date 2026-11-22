@@ -1,14 +1,14 @@
 import axios from "axios";
 import { useAuthStore } from "../stores/auth.store";
 import type { UserBackground } from "../types/user-background";
-import { readConfiguredBackendUrl } from "../utils/backendUrl";
+import { DEFAULT_BACKEND_URL, readConfiguredBackendUrl } from "../utils/backendUrl";
 
 // On GitHub Pages the user may set a private Tailscale endpoint once in the browser.
 // Never send authentication tokens to a fabricated localhost URL in production.
 export const API_URL =
   readConfiguredBackendUrl() ||
   import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? "http://localhost:3000" : "");
+  (import.meta.env.DEV ? "http://localhost:3000" : DEFAULT_BACKEND_URL);
 
 export const apiClient = axios.create({
   baseURL: API_URL,
