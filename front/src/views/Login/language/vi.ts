@@ -4,6 +4,8 @@ export default {
   email: 'Email',
   emailPlaceholder: 'Nhập email của bạn',
   password: 'Mật khẩu',
+  showPassword: 'Hiện mật khẩu',
+  hidePassword: 'Ẩn mật khẩu',
   passwordPlaceholder: 'Nhập mật khẩu',
   loginButton: 'Đăng nhập',
   noAccount: 'Chưa có tài khoản?',

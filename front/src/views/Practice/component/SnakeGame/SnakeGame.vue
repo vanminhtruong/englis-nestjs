@@ -34,9 +34,9 @@
     >
       <canvas
         ref="canvasRef"
-        :width="800"
-        :height="500"
-        class="block w-full h-full max-w-full max-h-[80vh] object-contain cursor-none"
+        :width="config.canvasWidth"
+        :height="config.canvasHeight"
+        class="block w-full h-auto max-w-full max-h-[70vh] object-contain cursor-none touch-none" @touchstart.passive="onTouchStart" @touchend="onTouchEnd"
       ></canvas>
 
       <!-- Start Overlay -->
@@ -44,22 +44,22 @@
         v-if="!gameState.isStarted"
         class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm z-10"
       >
-        <div class="relative mb-8 group">
+        <div class="relative mb-4 sm:mb-8 group">
           <div
             class="absolute -inset-1 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
           ></div>
-          <h3 class="relative text-6xl font-black text-white tracking-tighter drop-shadow-2xl">
+          <h3 class="relative text-3xl sm:text-6xl font-black text-white tracking-tighter drop-shadow-2xl">
             SNAKE GAME
           </h3>
         </div>
 
-        <p class="text-gray-300 mb-8 text-lg font-light tracking-wide">
+        <p class="text-gray-300 mb-5 sm:mb-8 px-4 text-center text-base sm:text-lg font-light tracking-wide">
           Use <span class="font-bold text-emerald-400">Arrow Keys</span> to control the snake
         </p>
 
         <button
           @click="startGame"
-          class="relative px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg hover:shadow-emerald-500/50 transform hover:scale-105 transition-all duration-200 overflow-hidden group"
+          class="relative px-4 sm:px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg hover:shadow-emerald-500/50 transform hover:scale-105 transition-all duration-200 overflow-hidden group"
         >
           <span class="relative z-10 flex items-center gap-2">
             <span>START GAME</span>
@@ -93,17 +93,17 @@
       <!-- Current Word Overlay (Floating) -->
       <div
         v-if="currentWord && gameState.isStarted"
-        class="absolute top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10 pointer-events-none"
+        class="absolute top-2 sm:top-4 left-1/2 -translate-x-1/2 max-w-[92%] text-center px-3 sm:px-6 py-1 sm:py-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10 pointer-events-none"
       >
-        <span class="text-2xl font-bold text-white">{{ currentWord.word }}</span>
-        <span v-if="currentWord.pronunciation" class="ml-2 text-sm text-gray-400 font-mono">
+        <span class="text-lg sm:text-2xl font-bold text-white break-words">{{ currentWord.word }}</span>
+        <span v-if="currentWord.pronunciation" class="ml-1 sm:ml-2 text-xs sm:text-sm text-gray-400 font-mono">
           /{{ currentWord.pronunciation }}/
         </span>
       </div>
     </div>
 
     <!-- Controls Hint -->
-    <div class="mt-6 flex gap-4 text-sm text-gray-500">
+    <div class="mt-3 sm:mt-6 hidden md:flex gap-4 text-sm text-gray-500">
       <div class="flex items-center gap-2">
         <kbd class="px-2 py-1 bg-white/10 rounded-md font-mono text-white">↑</kbd>
         <kbd class="px-2 py-1 bg-white/10 rounded-md font-mono text-white">↓</kbd>
@@ -112,13 +112,28 @@
         <span>to Move</span>
       </div>
     </div>
-  </div>
+
+    <!-- Touch D-pad (phones/tablets) -->
+    <div v-if="gameState.isStarted" class="dpad md:hidden" aria-label="Direction controls">
+      <button type="button" class="dpad-btn dpad-up" aria-label="Up" @touchstart.prevent="press('ArrowUp')" @click="press('ArrowUp')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 15 12 9 18 15"></polyline></svg>
+      </button>
+      <button type="button" class="dpad-btn dpad-left" aria-label="Left" @touchstart.prevent="press('ArrowLeft')" @click="press('ArrowLeft')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 6 9 12 15 18"></polyline></svg>
+      </button>
+      <button type="button" class="dpad-btn dpad-right" aria-label="Right" @touchstart.prevent="press('ArrowRight')" @click="press('ArrowRight')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+      </button>
+      <button type="button" class="dpad-btn dpad-down" aria-label="Down" @touchstart.prevent="press('ArrowDown')" @click="press('ArrowDown')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+    </div>  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, reactive, watch } from "vue";
 import { GameEngine } from "./engine/GameEngine";
-import { GameConfig, Vocabulary } from "./types";
+import type { GameConfig, Vocabulary } from "./types";
 
 const props = defineProps<{
   questions: any[];
@@ -141,7 +156,7 @@ const isDarkMode = ref(document.documentElement.classList.contains("dark"));
 const config: GameConfig = reactive({
   gridSize: 20,
   speed: 10,
-  canvasWidth: 800,
+  canvasWidth: window.innerWidth < 640 ? 400 : 800,
   canvasHeight: 500,
   colors: {
     snakeHead: "#10B981", // emerald-500
@@ -245,6 +260,34 @@ function handleKeydown(e: KeyboardEvent) {
     if (engine.value) {
       engine.value.handleInput(e.key);
     }
+  }
+}
+
+function press(key: string) {
+  if (!gameState.isStarted || !engine.value) return;
+  engine.value.handleInput(key);
+}
+
+let touchStartX = 0;
+let touchStartY = 0;
+
+function onTouchStart(e: TouchEvent) {
+  const touch = e.touches[0];
+  if (!touch) return;
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+}
+
+function onTouchEnd(e: TouchEvent) {
+  const touch = e.changedTouches[0];
+  if (!touch || !gameState.isStarted) return;
+  const dx = touch.clientX - touchStartX;
+  const dy = touch.clientY - touchStartY;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return;
+  if (Math.abs(dx) > Math.abs(dy)) {
+    press(dx > 0 ? "ArrowRight" : "ArrowLeft");
+  } else {
+    press(dy > 0 ? "ArrowDown" : "ArrowUp");
   }
 }
 
@@ -375,5 +418,58 @@ function startGame() {
 .stat-value {
   font-size: 1.1rem;
   font-weight: 700;
+}
+
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 56px);
+  grid-template-rows: repeat(3, 56px);
+  gap: 6px;
+  justify-content: center;
+  margin: 0.75rem auto 0;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+.dpad-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.9rem;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #059669;
+}
+.dpad-btn:active { background: rgba(16, 185, 129, 0.45); }
+.dark .dpad-btn { color: #34d399; }
+.dpad-btn svg { width: 26px; height: 26px; }
+.dpad-up { grid-column: 2; grid-row: 1; }
+.dpad-left { grid-column: 1; grid-row: 2; }
+.dpad-right { grid-column: 3; grid-row: 2; }
+.dpad-down { grid-column: 2; grid-row: 3; }
+
+@media (max-width: 767px) {
+  .snake-container {
+    height: auto;
+    min-height: 0;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+    overflow: visible;
+  }
+  .game-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.6rem;
+    margin-bottom: 0.75rem;
+  }
+  .back-button { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
+  .game-stats { gap: 0.4rem; flex: 1 1 auto; min-width: 0; justify-content: flex-end; flex-wrap: wrap; }
+  .stat-item { padding: 0.3rem 0.65rem; min-width: 0; max-width: 100%; }
+  .stat-icon { font-size: 1rem; }
+  .stat-value { font-size: 0.95rem; overflow-wrap: anywhere; }
+}
+
+@media (max-width: 359px) {
+  .dpad { grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(3, 50px); }
 }
 </style>

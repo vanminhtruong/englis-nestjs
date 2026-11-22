@@ -4,6 +4,8 @@ export default {
   email: 'Email',
   emailPlaceholder: 'Enter your email',
   password: 'Password',
+  showPassword: 'Show password',
+  hidePassword: 'Hide password',
   passwordPlaceholder: 'Enter your password',
   loginButton: 'Login',
   noAccount: "Don't have an account?",

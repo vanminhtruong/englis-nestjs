@@ -781,4 +781,25 @@ function getModeDescription(descKey: string): string {
     font-size: 1.4rem;
   }
 }
+/* Small-screen layout: keep the mode description readable beside the icon. */
+@media (max-width: 639px) {
+  .practice-modes-container { padding: 0.25rem; min-width: 0; }
+  .modes-header { margin-bottom: 1.5rem; }
+  .modes-title { font-size: clamp(1.35rem, 6vw, 1.9rem); gap: 0.5rem; line-height: 1.25; }
+  .title-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .modes-subtitle { font-size: 0.875rem; }
+  .modes-grid { gap: 0.875rem; min-width: 0; }
+  .mode-card { min-width: 0; min-height: 104px; }
+  .card-content { min-width: 0; gap: 0.75rem; padding: 1rem; }
+  .icon-container { width: 48px; height: 48px; }
+  .mode-icon { font-size: 1.6rem; }
+  .mode-name { font-size: 1.05rem; line-height: 1.35; overflow-wrap: anywhere; }
+  .mode-description { font-size: 0.8rem; line-height: 1.4; overflow-wrap: anywhere; }
+  .action-indicator { width: 34px; height: 34px; }
+}
+@media (max-width: 359px) {
+  .card-content { padding: 0.875rem; gap: 0.625rem; }
+  .icon-container { width: 44px; height: 44px; }
+  .action-indicator { width: 30px; height: 30px; }
+}
 </style>

@@ -4,6 +4,8 @@ export default {
     email: '邮箱',
     emailPlaceholder: '请输入您的邮箱',
     password: '密码',
+    showPassword: '显示密码',
+    hidePassword: '隐藏密码',
     passwordPlaceholder: '请输入您的密码',
     loginButton: '登录',
     noAccount: '还没有账号？',

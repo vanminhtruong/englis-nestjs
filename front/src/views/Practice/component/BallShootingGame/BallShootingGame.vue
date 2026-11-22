@@ -167,7 +167,7 @@ import { ref, onMounted, onUnmounted, computed, watch, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { GameEngine } from "./GameEngine";
 import { GameRenderer } from "./GameRenderer";
-import type { IGameEvent, IPracticeQuestion } from "./interfaces";
+import type { IGameEvent, IGameState, IPracticeQuestion } from "./interfaces";
 
 const { t } = useI18n();
 
@@ -201,7 +201,7 @@ const lastCombo = ref(0);
 const lastScore = ref(0);
 const scorePopupStyle = ref({ left: "50%", top: "50%" });
 
-const gameState = ref({
+const gameState = ref<IGameState>({
   balls: [],
   score: 0,
   lives: 3,
@@ -412,7 +412,7 @@ function handleBallMiss(data: { remainingLives: number }) {
 
 function handleCombo(data: { count: number }) {
   const comboTexts = ["Nice!", "Great!", "Awesome!", "Amazing!", "Incredible!", "LEGENDARY!"];
-  comboText.value = comboTexts[Math.min(data.count - 2, comboTexts.length - 1)];
+  comboText.value = comboTexts[Math.max(0, Math.min(data.count - 2, comboTexts.length - 1))] ?? "Nice!";
   lastCombo.value = data.count;
   showCombo.value = true;
 
@@ -463,6 +463,7 @@ function handleTouchStart(event: TouchEvent) {
 
   const rect = canvas.getBoundingClientRect();
   const touch = event.touches[0];
+  if (!touch) return;
   const x = touch.clientX - rect.left;
   const y = touch.clientY - rect.top;
 
@@ -1097,5 +1098,80 @@ function calculateAccuracy(): number {
   .modal-actions {
     flex-direction: column;
   }
+}
+
+/* Responsive: phones & very small screens */
+@media (max-width: 768px) {
+  .ball-shooting-container {
+    height: calc(100dvh - 140px);
+    min-height: 480px;
+    border-radius: 0.75rem;
+  }
+  .game-header {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 0.6rem;
+  }
+  .back-button { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
+  .game-stats { gap: 0.35rem; flex: 1 1 auto; min-width: 0; justify-content: flex-end; }
+  .stat-item { padding: 0.3rem 0.6rem; font-size: 0.8rem; gap: 0.25rem; }
+  .stat-icon { font-size: 1rem; }
+  .stat-value { font-size: 0.95rem; }
+  .heart { font-size: 1rem; }
+  .question-display { padding: 0.6rem 0.75rem; }
+  .question-label { font-size: 0.75rem; margin-bottom: 0.2rem; }
+  .question-meaning { font-size: 1.25rem; margin-bottom: 0.2rem; overflow-wrap: anywhere; }
+  .hint-text { font-size: 0.75rem; }
+  .combo-text { font-size: 2rem; }
+  .combo-multiplier { font-size: 1.25rem; }
+  .score-popup { font-size: 1.1rem; }
+  .level-text { font-size: 1.75rem; }
+  .level-number { font-size: 2.5rem; }
+  .game-over-overlay,
+  .start-overlay {
+    align-items: flex-start;
+    overflow-y: auto;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+  }
+  .game-over-modal,
+  .start-modal {
+    margin: auto;
+    width: 100%;
+    max-width: 400px;
+    padding: 1.25rem;
+  }
+  .trophy-icon,
+  .game-logo { font-size: 2.5rem; }
+  .modal-title,
+  .game-title { font-size: 1.35rem; }
+  .results-grid { gap: 0.5rem; }
+  .result-item { padding: 0.6rem; }
+  .result-value { font-size: 1.2rem; }
+  .instruction-item { padding: 0.5rem; font-size: 0.8rem; gap: 0.5rem; }
+  .instruction-icon { font-size: 1.2rem; }
+  .action-button,
+  .start-button { padding: 0.75rem 1rem; font-size: 0.95rem; }
+}
+
+@media (max-width: 359px) {
+  .stat-item { padding: 0.25rem 0.45rem; font-size: 0.72rem; }
+  .stat-value { font-size: 0.85rem; }
+  .question-meaning { font-size: 1.1rem; }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .ball-shooting-container { height: calc(100dvh - 24px); min-height: 300px; }
+  .question-display { padding: 0.35rem 0.75rem; }
+  .question-meaning { font-size: 1.1rem; }
+  .hint-text { display: none; }
+}
+
+@media (max-width: 520px) {
+  .game-stats { flex: 1 1 100%; justify-content: space-between; }
+  .stat-item { flex: 1 1 auto; justify-content: center; }
 }
 </style>

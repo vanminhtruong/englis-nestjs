@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-white dark:bg-black">
     <!-- Hero Section -->
     <section
-      class="relative min-h-[90vh] flex items-center justify-center overflow-hidden"
+      class="relative min-h-[90dvh] flex items-center justify-center overflow-hidden"
     >
       <!-- Background Gradient -->
       <div
@@ -12,23 +12,23 @@
       <!-- Animated Background Elements -->
       <div class="absolute inset-0 overflow-hidden">
         <div
-          class="absolute top-20 left-20 w-72 h-72 bg-primary-200/20 rounded-full blur-3xl animate-pulse"
+          class="absolute top-10 left-0 sm:top-20 sm:left-20 w-48 h-48 sm:w-72 sm:h-72 bg-primary-200/20 rounded-full blur-3xl animate-pulse"
         ></div>
         <div
-          class="absolute bottom-20 right-20 w-96 h-96 bg-secondary-200/20 rounded-full blur-3xl animate-pulse delay-1000"
+          class="absolute bottom-10 right-4 sm:bottom-20 sm:right-20 w-56 h-56 sm:w-96 sm:h-96 bg-secondary-200/20 rounded-full blur-3xl animate-pulse delay-1000"
         ></div>
         <div
-          class="absolute top-1/2 left-1/3 w-64 h-64 bg-primary-300/10 rounded-full blur-2xl animate-pulse delay-500"
+          class="absolute top-1/2 left-1/3 w-40 h-40 sm:w-64 sm:h-64 bg-primary-300/10 rounded-full blur-2xl animate-pulse delay-500"
         ></div>
       </div>
 
       <!-- Content -->
-      <div class="relative z-10 max-w-[1400px] mx-auto px-8 py-16">
-        <div class="grid lg:grid-cols-2 gap-12 items-center">
+      <div class="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-8 py-10 sm:py-16">
+        <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <!-- Text Content -->
           <div class="text-center lg:text-left">
             <h1
-              class="text-5xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"
+              class="text-3xl xs:text-4xl sm:text-5xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"
             >
               <span class="block min-h-[1.2em]">
                 {{ displayedPrefix
@@ -48,7 +48,7 @@
               </span>
             </h1>
             <p
-              class="text-xl text-gray-600 dark:text-gray-400 mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0"
+              class="text-base sm:text-xl text-gray-600 dark:text-gray-400 mb-6 sm:mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0"
             >
               {{ t("home.heroSubtitle") }}
             </p>
@@ -57,7 +57,7 @@
             >
               <RouterLink
                 to="/practice"
-                class="px-8 py-4 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary-500/25 transition-all flex items-center justify-center gap-2"
+                class="px-4 sm:px-8 py-4 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary-500/25 transition-all flex items-center justify-center gap-2"
               >
                 <span>{{ t("home.heroPrimaryCta") }}</span>
                 <svg
@@ -74,7 +74,7 @@
               </RouterLink>
               <RouterLink
                 to="/about"
-                class="px-8 py-4 bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-white/20 transition-all flex items-center justify-center gap-2"
+                class="px-4 sm:px-8 py-4 bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white font-semibold rounded-xl hover:bg-gray-200 dark:hover:bg-white/20 transition-all flex items-center justify-center gap-2"
               >
                 <span>{{ t("home.heroSecondaryCta") }}</span>
                 <svg
@@ -101,14 +101,14 @@
               <div
                 class="relative bg-gradient-to-br from-primary-500 to-secondary-500 rounded-3xl p-1 shadow-2xl transform hover:scale-105 transition-transform duration-300"
               >
-                <div class="bg-white dark:bg-black rounded-3xl p-8">
+                <div class="bg-white dark:bg-black rounded-3xl p-5 sm:p-8">
                   <div
                     class="aspect-square bg-gradient-to-br from-primary-100 to-secondary-100 dark:from-primary-900/20 dark:to-secondary-900/20 rounded-2xl flex items-center justify-center"
                   >
                     <Rotating3DCube :size="120" />
                   </div>
                   <h3
-                    class="text-2xl font-bold text-gray-900 dark:text-white mt-6 mb-2"
+                    class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mt-4 sm:mt-6 mb-2"
                   >
                     {{ t("home.featureRichCollectionsTitle") }}
                   </h3>
@@ -120,10 +120,10 @@
 
               <!-- Floating Cards -->
               <div
-                class="absolute -top-8 -right-8 w-24 h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl shadow-xl transform rotate-12 hover:rotate-6 transition-transform duration-300"
+                class="absolute -top-4 -right-2 sm:-top-8 sm:-right-8 w-14 h-14 sm:w-24 sm:h-24 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl shadow-xl transform rotate-12 hover:rotate-6 transition-transform duration-300"
               ></div>
               <div
-                class="absolute -bottom-6 -left-6 w-20 h-20 bg-gradient-to-br from-green-400 to-blue-500 rounded-xl shadow-xl transform -rotate-12 hover:-rotate-6 transition-transform duration-300"
+                class="absolute -bottom-3 -left-2 sm:-bottom-6 sm:-left-6 w-12 h-12 sm:w-20 sm:h-20 bg-gradient-to-br from-green-400 to-blue-500 rounded-xl shadow-xl transform -rotate-12 hover:-rotate-6 transition-transform duration-300"
               ></div>
             </div>
           </div>
@@ -132,11 +132,11 @@
     </section>
 
     <!-- Features Section -->
-    <section class="py-24 bg-white dark:bg-black">
-      <div class="max-w-[1400px] mx-auto px-8">
+    <section class="py-12 sm:py-24 bg-white dark:bg-black">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-8">
         <div class="text-center mb-16">
           <h2
-            class="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4"
+            class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4"
           >
             {{ t("home.featuresTitle") }}
           </h2>
@@ -145,10 +145,10 @@
           </p>
         </div>
 
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
           <!-- Feature 1 -->
           <div
-            class="group p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
+            class="group p-5 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
           >
             <div
               class="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform"
@@ -177,7 +177,7 @@
 
           <!-- Feature 2 -->
           <div
-            class="group p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
+            class="group p-5 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
           >
             <div
               class="w-16 h-16 bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform"
@@ -207,7 +207,7 @@
 
           <!-- Feature 3 -->
           <div
-            class="group p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
+            class="group p-5 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
           >
             <div
               class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform"
@@ -236,7 +236,7 @@
 
           <!-- Feature 4 -->
           <div
-            class="group p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
+            class="group p-5 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
           >
             <div
               class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform"
@@ -265,7 +265,7 @@
 
           <!-- Feature 5 -->
           <div
-            class="group p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
+            class="group p-5 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
           >
             <div
               class="w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform"
@@ -293,7 +293,7 @@
 
           <!-- Feature 6 -->
           <div
-            class="group p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
+            class="group p-5 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
           >
             <div
               class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform"
@@ -326,13 +326,13 @@
 
     <!-- Stats Section -->
     <section
-      class="py-20 bg-gradient-to-br from-gray-900 to-black dark:from-black dark:to-black text-white"
+      class="py-12 sm:py-20 bg-gradient-to-br from-gray-900 to-black dark:from-black dark:to-black text-white"
     >
-      <div class="max-w-[1400px] mx-auto px-8">
-        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+      <div class="max-w-[1400px] mx-auto px-4 sm:px-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-8 text-center">
           <div class="group">
             <div
-              class="text-5xl font-bold bg-gradient-to-r from-primary-400 to-primary-300 bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform"
+              class="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-primary-400 to-primary-300 bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform"
             >
               10k+
             </div>
@@ -342,7 +342,7 @@
           </div>
           <div class="group">
             <div
-              class="text-5xl font-bold bg-gradient-to-r from-secondary-400 to-secondary-300 bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform"
+              class="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-secondary-400 to-secondary-300 bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform"
             >
               500+
             </div>
@@ -352,7 +352,7 @@
           </div>
           <div class="group">
             <div
-              class="text-5xl font-bold bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform"
+              class="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform"
             >
               3+
             </div>
@@ -362,7 +362,7 @@
           </div>
           <div class="group">
             <div
-              class="text-5xl font-bold bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform"
+              class="text-3xl sm:text-5xl font-bold bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent mb-2 group-hover:scale-110 transition-transform"
             >
               30 min
             </div>

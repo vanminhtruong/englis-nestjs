@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center justify-center py-24 text-center">
+  <div class="flex flex-col items-center justify-center py-12 sm:py-24 text-center">
     <!-- Animated icon -->
     <div class="relative mb-6">
       <div

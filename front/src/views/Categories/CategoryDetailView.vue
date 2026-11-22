@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-white dark:bg-black p-4 md:p-8">
+  <div class="min-h-screen bg-white dark:bg-black px-3 py-4 sm:p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
       <Transition
         enter-active-class="transition duration-500 ease-out"

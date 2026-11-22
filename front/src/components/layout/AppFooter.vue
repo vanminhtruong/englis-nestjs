@@ -4,7 +4,7 @@
   >
     <!-- Main Footer Content -->
     <div
-      class="max-w-[1400px] mx-auto px-8 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12"
+      class="mx-auto grid w-full max-w-[1400px] min-w-0 grid-cols-1 gap-5 sm:gap-8 px-4 py-10 sm:gap-10 sm:px-6 md:grid-cols-2 lg:grid-cols-5 lg:gap-12 lg:px-8 lg:py-16"
     >
       <!-- Brand Section -->
       <div class="lg:col-span-2">
@@ -26,7 +26,7 @@
               ></path>
             </svg>
           </div>
-          <span class="text-2xl font-bold text-gray-900 dark:text-white">{{
+          <span class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{
             t("footer.brandTitle")
           }}</span>
         </div>
@@ -263,12 +263,12 @@
     </div>
 
     <!-- Newsletter Section -->
-    <div class="max-w-[1400px] mx-auto px-8 pb-12">
+    <div class="max-w-[1400px] mx-auto px-4 pb-8 sm:px-6 sm:pb-10 lg:px-8 lg:pb-12">
       <div
-        class="bg-gray-50 dark:bg-white/5 rounded-2xl p-8 backdrop-blur-sm border border-gray-100 dark:border-none"
+        class="bg-gray-50 dark:bg-white/5 rounded-2xl p-4 sm:p-6 lg:p-8 backdrop-blur-sm border border-gray-100 dark:border-none"
       >
-        <div class="text-center mb-6">
-          <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+        <div class="text-center mb-4 sm:mb-6">
+          <h3 class="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">
             {{ t("footer.stayUpdatedTitle") }}
           </h3>
           <p class="text-gray-500 dark:text-gray-500">
@@ -277,7 +277,7 @@
         </div>
         <form
           @submit.prevent="handleSubscribe"
-          class="max-w-md mx-auto flex gap-3"
+          class="max-w-md mx-auto flex flex-col gap-3 xs:flex-row"
         >
           <div class="relative flex-1">
             <svg
@@ -303,7 +303,7 @@
           </div>
           <button
             type="submit"
-            class="px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary-500/25 transition-all flex items-center gap-2"
+            class="px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary-500/25 transition-all flex items-center justify-center gap-2"
           >
             <span>{{ t("footer.subscribeCta") }}</span>
             <svg
@@ -326,12 +326,12 @@
     <!-- Bottom Bar -->
     <div class="border-t border-gray-100 dark:border-white/5">
       <div
-        class="max-w-[1400px] mx-auto px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4"
+        class="max-w-[1400px] mx-auto px-4 py-5 sm:px-6 sm:py-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 text-center md:text-left"
       >
-        <p class="text-gray-500 dark:text-gray-500 text-sm">
+        <p class="text-gray-500 dark:text-gray-500 text-xs sm:text-sm">
           {{ t("footer.copyright", { year: currentYear }) }}
         </p>
-        <div class="flex items-center gap-4 text-sm">
+        <div class="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 sm:gap-4 text-xs sm:text-sm">
           <a
             href="#"
             class="text-gray-500 dark:text-gray-500 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"

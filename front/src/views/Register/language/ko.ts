@@ -8,6 +8,8 @@ export default {
   emailPlaceholder: '이메일을 입력하세요',
   emailRequired: '이메일을 입력하세요',
   password: '비밀번호',
+  showPassword: '비밀번호 표시',
+  hidePassword: '비밀번호 숨기기',
   passwordPlaceholder: '비밀번호를 입력하세요',
   passwordRequired: '비밀번호를 입력하세요',
   confirmPassword: '비밀번호 확인',

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5"
   >
     <div
       v-for="category in categories"
@@ -18,7 +18,7 @@
       <!-- Card body -->
       <div class="flex flex-col flex-1 p-5">
         <!-- Icon + Actions row -->
-        <div class="flex items-start justify-between mb-4">
+        <div class="flex items-start justify-between gap-2 mb-4">
           <!-- Icon badge -->
           <div
             class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"

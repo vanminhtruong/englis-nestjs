@@ -1,5 +1,5 @@
 <template>
-  <nav class="hidden lg:flex items-center gap-2 flex-1">
+  <nav class="hidden xl:flex items-center gap-2 flex-1">
     <RouterLink
       to="/"
       class="flex items-center gap-2 px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-primary-50 dark:hover:bg-white/5 hover:text-primary-500 dark:hover:text-primary-400 transition-all font-medium"
@@ -7,7 +7,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
       </svg>
-      <span>{{ t('header.home') }}</span>
+      <span class="whitespace-nowrap">{{ t('header.home') }}</span>
     </RouterLink>
 
     <div v-if="authStore.isAuthenticated" class="relative" @mouseenter="isVocabMenuOpen = true" @mouseleave="isVocabMenuOpen = false">
@@ -22,7 +22,7 @@
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
         </svg>
-        <span>{{ t('header.vocabulary') }}</span>
+        <span class="whitespace-nowrap">{{ t('header.vocabulary') }}</span>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="6 9 12 15 18 9" />
         </svg>
@@ -109,7 +109,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
       </svg>
-      <span>{{ t('header.practice') }}</span>
+      <span class="whitespace-nowrap">{{ t('header.practice') }}</span>
     </RouterLink>
 
 
@@ -122,7 +122,7 @@
         <path d="M12 16v-4" />
         <path d="M12 8h.01" />
       </svg>
-      <span>{{ t('header.about') }}</span>
+      <span class="whitespace-nowrap">{{ t('header.about') }}</span>
     </RouterLink>
   </nav>
 </template>

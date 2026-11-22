@@ -1,8 +1,8 @@
 <template>
-  <div class="flex items-center justify-between mb-8">
+  <div class="mb-8 flex min-w-0 flex-col items-stretch gap-4 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between">
     <div>
       <h1
-        class="text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent mb-2"
+        class="mb-2 break-words bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-3xl font-bold leading-tight text-transparent sm:text-4xl"
       >
         {{ t("tags.title") }}
       </h1>
@@ -10,7 +10,7 @@
     </div>
     <button
       @click="$emit('open-create-modal')"
-      class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary-500/25 transition-all"
+      class="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 px-4 py-3 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-primary-500/25 min-[390px]:w-auto sm:px-6 sm:text-base"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

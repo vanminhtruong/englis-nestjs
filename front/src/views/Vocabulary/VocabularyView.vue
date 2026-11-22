@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-white dark:bg-black p-4 md:p-8">
+  <div class="min-h-screen bg-white dark:bg-black px-3 py-4 sm:p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
       <div class="mb-8">
         <VocabularyHeader
@@ -61,7 +61,7 @@
         </div>
       </div>
 
-      <div v-if="vocabularyState.store.loading" class="flex items-center justify-center py-24">
+      <div v-if="vocabularyState.store.loading" class="flex items-center justify-center py-12 sm:py-24">
         <div class="relative">
           <div
             class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"
@@ -75,7 +75,7 @@
       </div>
 
       <div v-else-if="vocabularyState.filteredVocabularies.length === 0" class="text-center py-12">
-        <div class="text-6xl mb-4">📚</div>
+        <div class="text-5xl sm:text-6xl mb-4">📚</div>
         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           {{ t("vocabulary.noVocabulary") }}
         </h3>

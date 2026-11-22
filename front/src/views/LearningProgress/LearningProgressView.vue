@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-white dark:bg-black p-4 md:p-8">
+  <div class="min-h-screen bg-white dark:bg-black px-3 py-4 sm:p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
       <!-- Header -->
       <div class="mb-8">
         <h1
-          class="text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent mb-2"
+          class="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent mb-2"
         >
           {{ t("learningProgress.title") }}
         </h1>
@@ -72,7 +72,7 @@
           />
 
           <!-- Two Column Layout -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 mb-5 sm:mb-8">
             <!-- Streak Card -->
             <StreakCard :streak="progress.streak" />
 

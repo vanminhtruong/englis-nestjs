@@ -10,9 +10,9 @@
     >
       <div
         v-if="visible"
-        class="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+        class="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-1.5 sm:p-4"
       >
-        <div class="w-full h-[90vh] max-w-5xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        <div class="w-full h-[96dvh] sm:h-[90dvh] max-w-5xl bg-white dark:bg-neutral-900 rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col">
           <!-- Header -->
           <div class="flex items-center justify-between px-6 py-4 border-b border-black/5 dark:border-white/10 flex-shrink-0">
             <div class="flex items-center gap-3">

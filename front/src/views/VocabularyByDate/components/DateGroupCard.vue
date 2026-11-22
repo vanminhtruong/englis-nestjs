@@ -18,15 +18,15 @@
     <!-- Content Container -->
     <div class="relative z-10">
       <!-- Header with Background Picker -->
-      <div class="flex items-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-        <div class="flex-1">
+      <div class="relative flex items-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+        <div class="min-w-0 flex-1">
           <slot name="header" :has-background="hasBackground"></slot>
         </div>
         <!-- Background Picker Button -->
-        <div class="px-4 py-2">
+        <div class="absolute right-2 top-2 z-30 md:static md:shrink-0 md:px-4 md:py-2">
           <button
             @click="togglePicker"
-            class="group relative p-2.5 rounded-xl transition-all duration-300"
+            class="group relative p-2 sm:p-2.5 rounded-xl transition-all duration-300"
             :class="
               hasBackground
                 ? 'bg-white/20 hover:bg-white/30 backdrop-blur-sm'
@@ -169,7 +169,7 @@
           <!-- Loading -->
           <div
             v-if="pickerMode === 'preset' && loading"
-            class="p-8 flex flex-col items-center justify-center"
+            class="p-5 sm:p-8 flex flex-col items-center justify-center"
           >
             <div
               class="w-10 h-10 border-3 border-primary-500/30 border-t-primary-500 rounded-full animate-spin"

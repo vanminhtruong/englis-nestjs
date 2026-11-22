@@ -84,11 +84,11 @@ const isToday = (date: string) => {
 
 <style scoped>
 .weekly-card {
-  @apply p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10 mb-8;
+  @apply p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10 mb-5 sm:mb-8;
 }
 
 .weekly-chart {
-  @apply flex items-end justify-between gap-2 h-48 px-4;
+  @apply flex items-end justify-between gap-1 sm:gap-2 h-40 sm:h-48 px-0 sm:px-4;
 }
 
 .day-column {
@@ -144,7 +144,7 @@ const isToday = (date: string) => {
 }
 
 .weekly-legend {
-  @apply flex items-center justify-center gap-6 mt-6;
+  @apply flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:gap-6 mt-4 sm:mt-6;
 }
 
 .legend-item {

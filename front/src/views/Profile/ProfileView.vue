@@ -1,6 +1,6 @@
 <template>
   <div
-    class="min-h-screen bg-gray-50/50 dark:bg-black/80 p-4 md:p-8 relative overflow-hidden transition-colors duration-300"
+    class="min-h-screen bg-gray-50/50 dark:bg-black/80 px-3 py-4 sm:p-4 md:p-8 relative overflow-hidden transition-colors duration-300"
   >
     <!-- Background Splashes -->
     <div
@@ -26,7 +26,7 @@
         leave-to-class="opacity-0 translate-y-4"
         mode="out-in"
       >
-        <div v-if="loading" class="flex items-center justify-center py-24">
+        <div v-if="loading" class="flex items-center justify-center py-12 sm:py-24">
           <div class="relative">
             <div
               class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"
@@ -39,7 +39,7 @@
           </div>
         </div>
 
-        <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8">
           <!-- Left Column: Avatar & Stats -->
           <div class="lg:col-span-5 xl:col-span-4 space-y-6">
             <ProfileAvatarSection :profile="profile" :avatar="form.avatar" />

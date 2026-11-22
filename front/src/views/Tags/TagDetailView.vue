@@ -1,17 +1,17 @@
 <template>
-  <div class="min-h-screen bg-white dark:bg-black p-4 md:p-8">
+  <div class="min-h-screen bg-white dark:bg-black px-3 py-4 sm:p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
       <!-- Loading -->
       <TagDetailLoading v-if="detailState.loading.value" />
 
       <!-- Error -->
-      <div v-else-if="detailState.error.value" class="text-center py-20">
+      <div v-else-if="detailState.error.value" class="text-center py-12 sm:py-20">
         <h3 class="text-xl font-bold text-red-500 mb-2">Error Loading Tag</h3>
         <p class="text-gray-500 dark:text-gray-400 mb-8">
           {{ detailState.error.value }}
         </p>
         <button
-          @click="$router.push('/tags')"
+          @click="router.push('/tags')"
           class="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-xl transition-colors font-medium"
         >
           Go Back
@@ -65,6 +65,8 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
+import { useRouter } from "vue-router";
+const router = useRouter();
 import { useTagDetailState } from "./composable/manager-state/useTagDetailState";
 import { useTagDetailModalState } from "./composable/manager-state/useTagDetailModalState";
 import { useTagDetailHandle } from "./composable/manager-handle/useTagDetailHandle";

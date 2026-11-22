@@ -15,7 +15,7 @@
       :aria-label="t('vocabulary.assignTabs')"
     >
       <div
-        class="flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-white/10 dark:bg-black"
+        class="flex max-h-[calc(100dvh-1.5rem)] w-full min-w-0 max-w-md flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-white/10 dark:bg-black"
       >
         <div
           class="flex shrink-0 items-start justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-white/10 sm:px-6"
@@ -120,11 +120,11 @@
             <span>{{ t("vocabulary.selectedTabCount", { count: selectedTabIds.length }) }}</span>
             <span>{{ t("vocabulary.maxTabsPerWord", { count: MAX_TABS_PER_WORD }) }}</span>
           </div>
-          <div class="flex gap-2.5">
+          <div class="grid grid-cols-2 items-stretch gap-2">
             <button
               type="button"
               :disabled="saving || !selectedTabIds.length"
-              class="min-h-11 flex-1 rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10"
+              class="min-h-11 min-w-0 rounded-xl border border-gray-200 bg-white px-2 py-2 text-sm leading-tight break-words font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10"
               @click="selectedTabIds = []"
             >
               {{ t("vocabulary.clear") }}
@@ -132,7 +132,7 @@
             <button
               type="button"
               :disabled="loading || saving || !selectedTabIds.length || !vocabularyIds.length"
-              class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              class="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 px-2 py-2 text-sm leading-tight break-words font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               @click="handleConfirm"
             >
               <span

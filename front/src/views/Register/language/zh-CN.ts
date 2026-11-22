@@ -8,6 +8,8 @@ export default {
     emailPlaceholder: '请输入您的邮箱',
     emailRequired: '邮箱是必填项',
     password: '密码',
+    showPassword: '显示密码',
+    hidePassword: '隐藏密码',
     passwordPlaceholder: '请输入您的密码',
     passwordRequired: '密码是必填项',
     confirmPassword: '确认密码',

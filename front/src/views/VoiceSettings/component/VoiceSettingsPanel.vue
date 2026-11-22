@@ -494,18 +494,18 @@ watch(
       if (matchedVoice) {
         setSelectedLanguage(matchedVoice.languageCode);
       } else if (!state.selectedLanguage && languages.length) {
-        setSelectedLanguage(languages[0].code);
+        setSelectedLanguage(languages[0]?.code ?? "");
       }
     } else {
       // Chưa có voice đã lưu → set mặc định
       if (!state.selectedLanguage && languages.length) {
-        setSelectedLanguage(languages[0].code);
+        setSelectedLanguage(languages[0]?.code ?? "");
       }
       if (viewModels.length) {
         const firstForLang =
           viewModels.find((v) => v.languageCode === state.selectedLanguage) ??
           viewModels[0];
-        setSelectedVoiceKey(firstForLang.key);
+        if (firstForLang) setSelectedVoiceKey(firstForLang.key);
       }
     }
   },

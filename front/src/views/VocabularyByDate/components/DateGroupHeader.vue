@@ -2,17 +2,17 @@
   <div class="relative group/header" :class="{ 'z-50': isEditing }">
     <!-- Topic Badge/Input -->
     <div
-      class="absolute left-1/2 -translate-x-1/2 z-20 -top-4 translate-y-0 md:top-1/2 md:-translate-y-1/2"
+      :class="isEditing ? 'pl-3 pr-[3.75rem]' : 'px-[3.75rem]'" class="relative z-20 flex justify-center pt-3 md:absolute md:left-1/2 md:top-1/2 md:block md:-translate-x-1/2 md:-translate-y-1/2 md:p-0"
       @click.stop
     >
       <div
-        class="flex items-center gap-2 px-4 py-1.5 rounded-full shadow-sm border transition-all duration-300"
+        class="flex max-w-full min-w-0 items-center gap-2 px-3 sm:px-4 py-1.5 shadow-sm border transition-all duration-300"
         :class="[
           isEditing
-            ? 'bg-white dark:bg-zinc-800 border-primary-500 ring-2 ring-primary-500/20'
+            ? 'bg-white dark:bg-zinc-800 border-primary-500 ring-2 ring-primary-500/20 rounded-2xl w-full md:w-auto md:rounded-full'
             : hasBackground
-            ? 'bg-black/40 backdrop-blur-md border-white/20 shadow-lg'
-            : 'bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 hover:border-primary-500 dark:hover:border-primary-500 hover:shadow-md',
+            ? 'bg-black/40 backdrop-blur-md border-white/20 shadow-lg rounded-full'
+            : 'bg-gray-50 dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 hover:border-primary-500 dark:hover:border-primary-500 hover:shadow-md rounded-full',
         ]"
         :style="
           !isEditing && !hasBackground && color && color !== '#000000'
@@ -204,9 +204,9 @@
 
     <button
       @click="$emit('toggle')"
-      class="w-full px-6 py-4 flex items-center justify-between transition-colors rounded-t-2xl"
+      class="w-full px-3 py-3 sm:px-6 sm:py-4 flex items-center justify-between gap-2 transition-colors rounded-t-2xl"
     >
-      <div class="flex items-center gap-4">
+      <div class="flex min-w-0 items-center gap-3 sm:gap-4">
         <!-- Calendar Date Card -->
         <div class="calendar-card">
           <div class="calendar-header">
@@ -217,8 +217,8 @@
           </div>
           <div class="calendar-fold"></div>
         </div>
-        <div class="text-left">
-          <h3 class="text-lg font-semibold text-black dark:text-white">
+        <div class="min-w-0 text-left">
+          <h3 class="text-base sm:text-lg font-semibold leading-snug break-words text-black dark:text-white">
             {{ formattedDate }}
           </h3>
           <p class="text-sm text-black/50 dark:text-white/60">
@@ -228,8 +228,8 @@
       </div>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        class="h-6 w-6 text-black/40 dark:text-white/50 transition-transform"
-        :class="{ 'rotate-180': isExpanded }"
+        class="h-8 w-8 p-1.5 shrink-0 rounded-full bg-black/5 text-black/60 transition-transform dark:bg-white/10 dark:text-white/70"
+        :class="{ 'rotate-180': isExpanded }" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -291,8 +291,8 @@ const monthAbbr = computed(() => {
   ];
 
   for (let i = 0; i < fullMonths.length; i++) {
-    if (props.formattedDate.includes(fullMonths[i])) {
-      return months[i];
+    if (props.formattedDate.includes(fullMonths[i] ?? "")) {
+      return months[i] ?? "N/A";
     }
   }
 
@@ -427,7 +427,7 @@ function isDarkColor(color: string) {
 }
 
 .calendar-month {
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -535,7 +535,7 @@ html.dark .calendar-fold {
 .topic-text {
   font-size: 13px;
   font-weight: 600;
-  max-width: 180px;
+  max-width: min(180px, 48vw);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -795,5 +795,24 @@ html:not(.dark) .topic-input:focus {
 :root:not(.dark) .action-buttons,
 html:not(.dark) .action-buttons {
   border-left-color: rgba(0, 0, 0, 0.1);
+}
+/* Màn bé: khung sửa chủ đề xuống dòng thay vì tràn */
+@media (max-width: 639px) {
+  .view-mode-content { min-width: 0; }
+  .edit-mode-container { flex-wrap: nowrap; justify-content: space-between; gap: 6px; width: 100%; min-width: 0; }
+  .edit-controls { flex: 1 1 auto; min-width: 0; flex-wrap: nowrap; gap: 8px; }
+  .input-wrapper { flex: 1 1 0; min-width: 0; }
+  .topic-input { padding: 6px 8px; }
+  .action-buttons { margin-left: 0; padding-left: 0; border-left: none; gap: 4px; flex-shrink: 0; }
+  .edit-btn { width: 32px; height: 32px; }
+  .action-btn { width: 32px; height: 32px; }
+}
+/* Màn cực bé (<360px): ô nhập chiếm cả hàng trên, icon/màu/nút lưu-hủy xuống hàng dưới */
+@media (max-width: 359px) {
+  .edit-mode-container { flex-wrap: wrap; row-gap: 8px; align-items: center; }
+  .edit-controls { display: contents; }
+  .input-wrapper { order: -1; flex: 1 1 100%; }
+  .topic-input { padding: 8px 10px; }
+  .action-buttons { margin-left: auto; }
 }
 </style>

@@ -1,17 +1,17 @@
 <template>
   <div
-    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
   >
     <div
       v-for="tag in tags"
       :key="tag.id"
       class="bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10 rounded-2xl p-6 hover:shadow-xl transition-all group cursor-pointer relative overflow-hidden"
-      @click="$router.push(`/tags/${tag.id}`)"
+      @click="router.push(`/tags/${tag.id}`)"
     >
       <div
         class="absolute inset-0 bg-primary-500/5 opacity-0 group-hover:opacity-100 transition-opacity"
       ></div>
-      <div class="flex items-start justify-between mb-4 relative z-10">
+      <div class="flex items-start justify-between gap-2 mb-4 relative z-10">
         <div class="flex items-center gap-3">
           <div
             class="w-10 h-10 rounded-full border-2"
@@ -80,6 +80,8 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from "vue-router";
+const router = useRouter();
 defineProps<{
   tags: any[];
 }>();

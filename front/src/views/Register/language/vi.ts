@@ -8,6 +8,8 @@ export default {
   emailPlaceholder: 'Nhập email',
   emailRequired: 'Vui lòng nhập email',
   password: 'Mật khẩu',
+  showPassword: 'Hiện mật khẩu',
+  hidePassword: 'Ẩn mật khẩu',
   passwordPlaceholder: 'Nhập mật khẩu',
   passwordRequired: 'Vui lòng nhập mật khẩu',
   confirmPassword: 'Xác nhận mật khẩu',

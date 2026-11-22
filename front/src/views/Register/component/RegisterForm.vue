@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="emit('submit')" class="space-y-6" novalidate>
+  <form @submit.prevent="emit('submit')" class="space-y-5 sm:space-y-6" novalidate>
     <div class="relative group/field">
       <label
         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"

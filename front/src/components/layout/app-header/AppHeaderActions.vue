@@ -36,7 +36,7 @@
     </button>
 
     <template v-if="isAuthenticated">
-      <div class="hidden lg:block relative z-[70]">
+      <div class="hidden xl:block relative z-[70]">
         <button
           @click="$emit('toggle-user-menu')"
           class="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
@@ -264,7 +264,7 @@
       :aria-expanded="isMobileAccountMenuOpen"
       aria-haspopup="true"
       @click="$emit('toggle-mobile-account-menu')"
-      class="lg:hidden w-10 h-10 shrink-0 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+      class="xl:hidden w-10 h-10 shrink-0 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
     >
       <img
         :src="userAvatarSrc"
@@ -274,7 +274,7 @@
     </button>
     <button
       @click="$emit('toggle-mobile-menu')"
-      class="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+      class="xl:hidden w-10 h-10 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
     >
       <svg
         v-if="!isMobileMenuOpen"

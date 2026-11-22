@@ -91,7 +91,7 @@ const unlockedCount = computed(() => {
 
 <style scoped>
 .achievements-card {
-  @apply p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10;
+  @apply p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10;
 }
 
 .achievements-header {

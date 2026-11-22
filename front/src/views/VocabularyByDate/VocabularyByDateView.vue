@@ -1,20 +1,20 @@
 <template>
-  <div class="min-h-screen py-8 bg-white dark:bg-black">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen py-4 sm:py-8 bg-white dark:bg-black">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
       <!-- Header -->
-      <div class="mb-8">
+      <div class="mb-5 sm:mb-8">
         <h1
-          class="text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent mb-2"
+          class="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent mb-2"
         >
           {{ tr("title") }}
         </h1>
-        <p class="text-lg text-black/60 dark:text-white/70">
+        <p class="text-base sm:text-lg text-black/60 dark:text-white/70">
           {{ tr("subtitle") }}
         </p>
       </div>
 
       <!-- Actions Bar -->
-      <div class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+      <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-between">
         <VocabularySearchBar
           v-model="state.searchQuery.value"
           :placeholder="'Search vocabularies...'"
@@ -29,7 +29,7 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="state.loading.value" class="flex items-center justify-center py-24">
+      <div v-if="state.loading.value" class="flex items-center justify-center py-12 sm:py-24">
         <div class="relative">
           <div
             class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"
@@ -43,8 +43,8 @@
       </div>
 
       <!-- No Data State -->
-      <div v-else-if="handle.filteredVocabularies.value.length === 0" class="text-center py-20">
-        <div class="text-6xl mb-4">📅</div>
+      <div v-else-if="handle.filteredVocabularies.value.length === 0" class="text-center py-12 sm:py-20">
+        <div class="text-5xl sm:text-6xl mb-4">📅</div>
         <h3 class="text-2xl font-bold text-black dark:text-white mb-2">
           {{ tr("noData") }}
         </h3>
@@ -52,7 +52,7 @@
       </div>
 
       <!-- Date Groups -->
-      <div v-else class="space-y-6">
+      <div v-else class="space-y-4 sm:space-y-6">
         <DateGroupCard
           v-for="group in handle.paginatedVocabularies.value"
           :key="group.date"
@@ -90,7 +90,7 @@
           >
             <div
               v-if="handle.isDateExpanded(group.date)"
-              class="border-t border-black/10 dark:border-white/10 p-4 space-y-4"
+              class="border-t border-black/10 dark:border-white/10 p-2 sm:p-4 space-y-4"
             >
               <div v-for="catGroup in group.categories" :key="catGroup.category.id">
                 <CategoryHeader
@@ -110,7 +110,7 @@
                 />
                 <div
                   v-if="handle.isCategoryExpanded(group.date, catGroup.category.id)"
-                  class="pl-8 pt-2 space-y-2"
+                  class="pl-1 xs:pl-3 sm:pl-8 pt-2 space-y-2"
                 >
                   <VocabularyCard
                     v-for="vocab in catGroup.vocabularies"

@@ -3,16 +3,16 @@
     <Transition name="modal-fade">
       <div
         v-if="show"
-        class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[9999] p-4"
+        class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[9999] p-2 sm:p-4"
       >
         <Transition name="modal-scale" appear>
           <div
             v-if="show"
-            class="bg-white/90 dark:bg-zinc-900/95 rounded-3xl shadow-2xl max-w-xl w-full max-h-[90vh] flex flex-col backdrop-blur-xl border border-white/20 dark:border-white/10 overflow-hidden transform"
+            class="bg-white/90 dark:bg-zinc-900/95 rounded-3xl shadow-2xl max-w-xl w-full max-h-[92dvh] flex flex-col backdrop-blur-xl border border-white/20 dark:border-white/10 overflow-hidden transform"
           >
             <!-- Header -->
             <div
-              class="p-6 border-b border-black/5 dark:border-white/10 flex items-center justify-between flex-shrink-0 bg-white/50 dark:bg-black/20"
+              class="p-4 sm:p-6 border-b border-black/5 dark:border-white/10 flex items-center justify-between flex-shrink-0 bg-white/50 dark:bg-black/20"
             >
               <h2
                 class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent dark:from-primary-400 dark:to-purple-400"

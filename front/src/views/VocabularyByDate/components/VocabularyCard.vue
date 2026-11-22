@@ -1,13 +1,13 @@
 <template>
-  <div class="p-3 rounded-lg bg-black/5 dark:bg-white/5">
-    <div class="flex gap-4">
+  <div class="p-2.5 sm:p-3 rounded-lg bg-black/5 dark:bg-white/5">
+    <div class="flex flex-col gap-3 xs:flex-row xs:gap-4">
       <!-- Media Display -->
-      <div v-if="vocabulary.image || vocabulary.video" class="flex-shrink-0">
+      <div v-if="vocabulary.image || vocabulary.video" class="w-full xs:w-auto xs:flex-shrink-0">
         <!-- Image Display -->
         <button
           v-if="vocabulary.image && !vocabulary.video"
           type="button"
-          class="w-24 h-24 rounded-lg overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary-400"
+          class="w-full h-36 xs:w-20 xs:h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary-400"
           @click="$emit('open-image', { src: vocabulary.image.startsWith('data:') ? vocabulary.image : resolveAssetUrl(vocabulary.image), alt: vocabulary.word })"
         >
           <img 
@@ -20,7 +20,7 @@
         <button
           v-if="vocabulary.video"
           type="button"
-          class="w-24 h-24 rounded-lg overflow-hidden bg-gradient-to-br from-gray-900 to-black flex items-center justify-center group focus:outline-none focus:ring-2 focus:ring-primary-400 relative"
+          class="w-full h-36 xs:w-20 xs:h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden bg-gradient-to-br from-gray-900 to-black flex items-center justify-center group focus:outline-none focus:ring-2 focus:ring-primary-400 relative"
           @click="$emit('open-video', { src: vocabulary.video, title: vocabulary.word })"
         >
           <div class="absolute inset-0 bg-gradient-to-r from-primary-500/20 to-secondary-500/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -30,8 +30,8 @@
         </button>
       </div>
       <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-3 mb-2">
-          <h4 class="text-xl font-bold text-black dark:text-white">{{ vocabulary.word }}</h4>
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 sm:gap-3 mb-2">
+          <h4 class="min-w-0 break-words text-lg sm:text-xl font-bold text-black dark:text-white">{{ vocabulary.word }}</h4>
           <button 
             @click="$emit('speak', vocabulary.word)" 
             class="p-1.5 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 text-primary-500 dark:text-primary-400 transition-colors" 
@@ -43,19 +43,19 @@
               <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
             </svg>
           </button>
-          <span class="text-sm text-black/50 dark:text-white/60 italic">{{ vocabulary.pronunciation }}</span>
+          <span class="min-w-0 break-words text-sm text-black/50 dark:text-white/60 italic">{{ vocabulary.pronunciation }}</span>
           <button v-if="vocabulary.isFavorite" class="p-1 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-all ml-auto">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" class="text-yellow-500">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
             </svg>
           </button>
         </div>
-        <p class="text-black/70 dark:text-white/80 mb-3">{{ vocabulary.meaning }}</p>
-        <div class="flex flex-wrap items-center gap-3">
+        <p class="break-words text-black/70 dark:text-white/80 mb-3">{{ vocabulary.meaning }}</p>
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
           <span class="px-3 py-1 rounded-lg text-xs font-medium" :class="difficultyClass">
             {{ difficultyText }}
           </span>
-          <div v-if="vocabulary.tags && vocabulary.tags.length > 0" class="flex items-center gap-2">
+          <div v-if="vocabulary.tags && vocabulary.tags.length > 0" class="flex flex-wrap items-center gap-2">
             <span v-for="tag in vocabulary.tags" :key="tag" class="px-3 py-1 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 text-xs font-medium">
               #{{ tag }}
             </span>

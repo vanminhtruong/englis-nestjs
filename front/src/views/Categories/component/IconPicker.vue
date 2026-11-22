@@ -59,7 +59,7 @@
         </div>
 
         <!-- Icon Grid with scroll -->
-        <div class="grid grid-cols-8 gap-1.5 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
+        <div class="grid grid-cols-6 xs:grid-cols-8 gap-1.5 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
           <button
             v-for="icon in filteredIcons"
             :key="icon"

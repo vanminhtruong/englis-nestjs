@@ -3,7 +3,7 @@
     class="sticky top-0 z-50 bg-white/80 dark:bg-black/90 backdrop-blur-xl border-b border-gray-200 dark:border-white/10 transition-all"
   >
     <div
-      class="max-w-[1400px] mx-auto px-3 py-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4 lg:gap-8"
+      class="mx-auto flex w-full max-w-[1400px] min-w-0 items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-6 lg:gap-8 lg:px-8"
     >
       <AppHeaderLogo />
       <AppHeaderDesktopNav />

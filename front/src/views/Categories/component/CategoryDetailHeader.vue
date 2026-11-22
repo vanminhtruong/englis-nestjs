@@ -30,7 +30,7 @@
         />
       </div>
       <div>
-        <h1 class="text-4xl font-bold text-black dark:text-white">
+        <h1 class="text-2xl sm:text-4xl font-bold text-black dark:text-white">
           {{ category.name }}
         </h1>
         <p

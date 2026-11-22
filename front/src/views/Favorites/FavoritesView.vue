@@ -1,10 +1,10 @@
 <template>
-  <div class="min-h-screen bg-white dark:bg-black p-4 md:p-8">
+  <div class="min-h-screen bg-white dark:bg-black px-3 py-4 sm:p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
       <!-- Header -->
       <div class="mb-8">
         <h1
-          class="text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent mb-4"
+          class="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent mb-4"
         >
           {{ t("favorites.title") }}
         </h1>
@@ -27,7 +27,7 @@
 
       <!-- Empty State -->
       <div v-else-if="!hasFavorites" class="text-center py-12">
-        <div class="text-6xl mb-4">⭐</div>
+        <div class="text-5xl sm:text-6xl mb-4">⭐</div>
         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           {{ t("favorites.noFavorites") }}
         </h3>
@@ -43,7 +43,7 @@
       </div>
 
       <!-- Favorites Grid -->
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <VocabularyCardWrapper
           v-for="vocab in favorites"
           :key="vocab.id"
@@ -116,11 +116,11 @@
                 </div>
               </button>
             </div>
-            <div class="flex items-start justify-between mb-4">
-              <div class="flex-1">
-                <div class="flex items-center gap-2 mb-1">
+            <div class="flex items-start justify-between gap-2 mb-4">
+              <div class="min-w-0 flex-1">
+                <div class="mb-1 flex min-w-0 flex-wrap items-center gap-2">
                   <h3
-                    class="text-2xl font-bold"
+                    class="min-w-0 max-w-full break-words [overflow-wrap:anywhere] text-lg font-bold leading-snug sm:text-2xl"
                     :class="
                       hasBackground
                         ? 'text-white'

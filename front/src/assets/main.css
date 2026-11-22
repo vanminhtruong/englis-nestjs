@@ -21,6 +21,52 @@
 
   #app {
     @apply min-h-screen;
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Prevent decorative transforms from expanding the mobile layout viewport.
+     Real scrollable tabs/tables keep their own horizontal scroll containers. */
+  html, body {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: clip;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  main, #app > *, img, video, canvas {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  input, textarea, select {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Text dài (từ vựng, tên, link) không được đẩy vỡ layout trên màn bé */
+  h1, h2, h3, h4, h5, h6, p, a, label, td, th, li {
+    overflow-wrap: anywhere;
+  }
+
+  /* Tai thỏ / thanh điều hướng: chừa vùng an toàn */
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* iOS tự zoom khi focus input có chữ < 16px */
+  @media (max-width: 767px) {
+    input, textarea, select {
+      font-size: max(16px, 1em);
+    }
+  }
+
+  /* Màn cực bé: thu nhỏ chữ nền một chút để tiêu đề không tràn */
+  @media (max-width: 359px) {
+    html {
+      font-size: 14px;
+    }
   }
 }
 

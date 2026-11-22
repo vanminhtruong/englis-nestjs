@@ -104,8 +104,8 @@
               class="min-w-0 rounded-3xl border border-gray-200 bg-white px-4 pb-3 pt-5 shadow-sm dark:border-white/10 dark:bg-black sm:px-7 sm:pt-6"
               :aria-label="t('srs.tabSelection')"
             >
-              <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
-                <div class="flex min-w-0 flex-1 items-start gap-3">
+              <div class="mb-4 flex min-w-0 flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:justify-between">
+                <div class="flex w-full min-w-0 flex-1 items-start gap-3 sm:w-auto">
                   <span
                     class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-white/10 dark:text-gray-200"
                     aria-hidden="true"
@@ -269,7 +269,7 @@
                   <button
                     type="button"
                     :disabled="overviewLoading || !overview?.totalWords"
-                    class="flex h-[72px] min-w-0 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary-500 to-secondary-500 px-3 text-center text-sm font-bold leading-snug text-white shadow-lg shadow-primary-500/20 transition hover:from-primary-600 hover:to-secondary-600 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none sm:px-5 sm:text-base"
+                    class="flex min-h-[72px] min-w-0 w-full items-center justify-center gap-2 rounded-2xl py-3 bg-gradient-to-r from-primary-500 to-secondary-500 px-3 text-center text-sm font-bold leading-snug text-white shadow-lg shadow-primary-500/20 transition hover:from-primary-600 hover:to-secondary-600 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none sm:px-5 sm:text-base"
                     @click="start(sessionSize, shouldPracticeScheduled || sessionIncludesScheduled)"
                   >
                     <span class="shrink-0" aria-hidden="true">✦</span
@@ -367,7 +367,7 @@
       <section
         v-else-if="phase === 'loading'"
         aria-live="polite"
-        class="mx-auto max-w-2xl rounded-[28px] border border-gray-200 bg-white p-12 text-center dark:border-white/10 dark:bg-black"
+        class="mx-auto max-w-2xl rounded-[28px] border border-gray-200 bg-white p-6 sm:p-12 text-center dark:border-white/10 dark:bg-black"
       >
         <div
           class="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary-100 border-t-primary-500 dark:border-white/10 dark:border-t-primary-400"
@@ -449,7 +449,7 @@
               {{ t("srs.question") }}
             </p>
             <h3
-              class="relative mx-auto mt-4 max-w-3xl break-words text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl"
+              class="relative mx-auto mt-4 max-w-3xl break-words text-2xl sm:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-5xl"
             >
               {{ currentCard.word }}
             </h3>
@@ -668,7 +668,7 @@
       <section
         v-else-if="phase === 'error'"
         role="alert"
-        class="mx-auto max-w-xl rounded-[28px] border border-red-200 bg-white p-8 text-center dark:border-red-500/20 dark:bg-black"
+        class="mx-auto max-w-xl rounded-[28px] border border-red-200 bg-white p-5 sm:p-8 text-center dark:border-red-500/20 dark:bg-black"
       >
         <p class="text-red-600 dark:text-red-300">{{ t("srs.error") }}</p>
         <button

@@ -13,7 +13,7 @@
         <!-- Selection Checkbox -->
         <button
           @click.stop="toggleSelection(vocab.id)"
-          class="absolute -top-[2.375rem] -left-[2.375rem] z-20 w-7 h-7 rounded-lg flex items-center justify-center transition-all shadow-sm"
+          class="absolute -left-4 -top-4 z-20 flex h-8 w-8 items-center justify-center rounded-lg shadow-sm transition-all sm:-left-[2.375rem] sm:-top-[2.375rem] sm:h-7 sm:w-7"
           :class="[
             isSelected(vocab.id)
               ? 'bg-gradient-to-r from-primary-500 to-secondary-500 border-transparent'
@@ -190,8 +190,8 @@
             </div>
           </div>
 
-          <div class="flex flex-row md:flex-col gap-3 w-full md:w-auto justify-between">
-            <div class="flex items-center gap-2">
+          <div class="flex w-full flex-wrap items-center justify-between gap-2 md:w-auto md:flex-col md:items-stretch md:gap-3">
+            <div class="flex shrink-0 items-center gap-1 sm:gap-2">
               <VocabularyNote
                 :id="vocab.id"
                 :word="vocab.word"
@@ -233,7 +233,7 @@
                 </svg>
               </button>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex shrink-0 items-center gap-1 sm:gap-2">
               <button
                 @click="emit('open-detail', vocab)"
                 class="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"

@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
     <VocabularyCardWrapper
       v-for="vocab in vocabularies"
       :key="vocab.id"
@@ -13,7 +13,7 @@
         <!-- Selection Checkbox -->
         <button
           @click.stop="toggleSelection(vocab.id)"
-          class="absolute -top-[2.375rem] -left-[2.375rem] z-20 w-7 h-7 rounded-lg flex items-center justify-center transition-all shadow-sm"
+          class="absolute -left-4 -top-4 z-20 flex h-8 w-8 items-center justify-center rounded-lg shadow-sm transition-all sm:-left-[2.375rem] sm:-top-[2.375rem] sm:h-7 sm:w-7"
           :class="[
             isSelected(vocab.id)
               ? 'bg-gradient-to-r from-primary-500 to-secondary-500 border-transparent'

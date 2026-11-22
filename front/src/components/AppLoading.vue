@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center py-24">
+  <div class="flex items-center justify-center py-12 sm:py-24">
     <div class="relative">
       <div
         class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"

@@ -9,19 +9,19 @@
   >
     <div
       v-if="isOpen"
-      class="lg:hidden px-4 py-4 bg-white/95 dark:bg-black/95 backdrop-blur-xl border-t border-gray-200 dark:border-white/10"
+      class="xl:hidden px-4 py-4 bg-white/95 dark:bg-black/95 backdrop-blur-xl border-t border-gray-200 dark:border-white/10"
     >
-      <div class="flex items-center gap-3 mb-4 px-2">
+      <div class="mb-4 flex min-w-0 items-center gap-3 px-2">
         <img
           :src="userAvatarSrc"
           alt="Avatar"
           class="w-12 h-12 rounded-full border-2 border-primary-500"
         />
-        <div class="flex flex-col">
-          <span class="font-semibold text-gray-900 dark:text-white text-sm">{{
+        <div class="flex min-w-0 flex-1 flex-col">
+          <span class="truncate font-semibold text-gray-900 dark:text-white text-sm">{{
             authStore.user?.fullName
           }}</span>
-          <span class="text-xs text-gray-500 dark:text-gray-400">{{
+          <span class="truncate text-xs text-gray-500 dark:text-gray-400">{{
             authStore.user?.email
           }}</span>
         </div>
@@ -30,7 +30,7 @@
         <div
           class="px-4 py-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 flex items-center gap-3"
         >
-          <div class="flex items-center gap-3 flex-1">
+          <div class="flex min-w-0 flex-1 items-center gap-3">
             <div
               class="w-10 h-10 rounded-lg bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center text-primary-500 dark:text-primary-300"
             >
@@ -50,7 +50,7 @@
                 />
               </svg>
             </div>
-            <div class="flex flex-col">
+            <div class="flex min-w-0 flex-1 flex-col">
               <span
                 class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400"
                 >{{ t("header.language") }}</span

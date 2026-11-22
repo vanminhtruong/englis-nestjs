@@ -35,7 +35,7 @@
     </div>
 
     <!-- Progress and Timer -->
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex justify-between items-center gap-2 mb-4">
       <div class="flex-1">
         <div class="bg-black/20 dark:bg-white/20 rounded-full h-3 overflow-hidden">
           <div
@@ -68,7 +68,7 @@
     <!-- Question Card -->
     <div
       v-if="currentQuestion"
-      class="bg-gradient-to-br from-white to-white/50 dark:from-white/5 dark:to-black border border-black/10 dark:border-white/10 rounded-3xl p-8"
+      class="bg-gradient-to-br from-white to-white/50 dark:from-white/5 dark:to-black border border-black/10 dark:border-white/10 rounded-3xl p-5 sm:p-8"
     >
       <div class="text-center mb-8">
         <!-- For image_guess mode, highlight image first -->
@@ -99,7 +99,7 @@
 
         <!-- Word + pronunciation (hide for image_guess mode) -->
         <div v-if="session.mode !== 'image_guess'">
-          <h3 class="text-5xl font-bold text-black dark:text-white mb-4">
+          <h3 class="text-3xl sm:text-5xl font-bold text-black dark:text-white mb-4">
             {{ currentQuestion.word }}
           </h3>
           <p class="text-xl text-black/50 dark:text-white/50">
@@ -111,13 +111,13 @@
       <!-- Flashcard Mode: Click to reveal -->
       <div v-if="session.mode === 'flashcard' && !showAnswer" class="space-y-4">
         <div class="text-center py-12">
-          <div class="text-6xl mb-4">🎴</div>
+          <div class="text-5xl sm:text-6xl mb-4">🎴</div>
           <p class="text-lg text-black/70 dark:text-white/70 mb-6">
             {{ t("practice.clickToReveal") || "Click to reveal the meaning" }}
           </p>
           <button
             @click="emit('reveal-answer')"
-            class="py-4 px-8 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary-500/25 transition-all"
+            class="py-4 px-4 sm:px-8 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary-500/25 transition-all"
           >
             {{ t("practice.reveal") || "Reveal Answer" }}
           </button>
@@ -218,13 +218,13 @@
             <div class="flex gap-4 justify-center">
               <button
                 @click="emit('flashcard-answer', true)"
-                class="px-8 py-3 bg-green-500 text-white font-semibold rounded-xl hover:bg-green-600 transition-all"
+                class="px-4 sm:px-8 py-3 bg-green-500 text-white font-semibold rounded-xl hover:bg-green-600 transition-all"
               >
                 ✓ {{ t("practice.iKnew") || "I Knew" }}
               </button>
               <button
                 @click="emit('flashcard-answer', false)"
-                class="px-8 py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-all"
+                class="px-4 sm:px-8 py-3 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-all"
               >
                 ✗ {{ t("practice.iDidntKnow") || "I Didn't Know" }}
               </button>
@@ -321,12 +321,12 @@
     >
       <div
         v-if="isLastQuestion && showAnswer"
-        class="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+        class="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm p-2 sm:p-4"
       >
         <div
-          class="bg-gradient-to-br from-white to-white/50 dark:from-white/5 dark:to-black border border-black/10 dark:border-white/10 rounded-3xl p-8 text-center max-w-lg w-full"
+          class="bg-gradient-to-br from-white to-white/50 dark:from-white/5 dark:to-black border border-black/10 dark:border-white/10 rounded-3xl p-5 sm:p-8 text-center max-w-lg w-full"
         >
-          <div class="text-6xl mb-4">🎉</div>
+          <div class="text-5xl sm:text-6xl mb-4">🎉</div>
           <h2 class="text-3xl font-bold text-black dark:text-white mb-2">
             {{ t("practice.congratulations") }}
           </h2>
@@ -505,7 +505,7 @@ function getLetterBoxes(): LetterBox[] {
       } else {
         // This is a position for user input
         const userChar = userInput[userInputIndex] || "";
-        const hasUserInput = userChar && userChar !== " ";
+        const hasUserInput = userChar.length > 0 && userChar !== " ";
 
         boxes.push({
           display: hasUserInput ? userChar.toUpperCase() : "",
@@ -529,7 +529,7 @@ function getHintPositions(word: string): number[] {
 
   // For each word, add hint for first letter
   for (let wordIndex = 0; wordIndex < Math.min(words.length, 2); wordIndex++) {
-    const currentWord = words[wordIndex];
+    const currentWord = words[wordIndex] ?? "";
     if (currentWord.length > 0) {
       positions.push(currentPos); // First letter of each word (max 2 words)
     }

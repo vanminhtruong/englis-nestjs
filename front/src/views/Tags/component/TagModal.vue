@@ -10,12 +10,12 @@
     >
       <div
         v-if="show"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 backdrop-blur-sm sm:p-4"
       >
-        <div class="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] flex flex-col">
+        <div class="flex max-h-[calc(100dvh-1rem)] w-full min-w-0 max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-2xl backdrop-blur-xl dark:bg-black sm:max-h-[90dvh]">
           <!-- Header - Fixed -->
-          <div class="p-6 border-b border-gray-200 dark:border-white/10 flex items-center justify-between flex-shrink-0">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+          <div class="flex shrink-0 items-center justify-between gap-3 border-b border-gray-200 p-4 dark:border-white/10 sm:p-6">
+            <h2 class="min-w-0 break-words text-lg font-bold text-gray-900 dark:text-white sm:text-2xl">
               {{ isEditing ? t('tags.addNew') : t('tags.addNew') }}
             </h2>
             <button
@@ -31,7 +31,7 @@
           </div>
 
           <!-- Form Content - Scrollable -->
-          <form @submit.prevent="$emit('submit')" class="flex-1 overflow-y-auto p-6 space-y-4">
+          <form @submit.prevent="$emit('submit')" class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ t('tags.name') }}
@@ -74,7 +74,7 @@
           </form>
 
           <!-- Footer - Fixed -->
-          <div class="p-6 border-t border-gray-200 dark:border-white/10 flex gap-3 flex-shrink-0">
+          <div class="flex shrink-0 gap-3 border-t border-gray-200 p-4 dark:border-white/10 sm:p-6">
             <button
               type="button"
               @click="$emit('close')"

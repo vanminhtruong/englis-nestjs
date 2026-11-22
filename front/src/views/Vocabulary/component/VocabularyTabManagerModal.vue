@@ -15,7 +15,7 @@
       :aria-label="title"
     >
       <div
-        class="flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-white/10 dark:bg-black"
+        class="flex max-h-[calc(100dvh-1.5rem)] w-full max-w-md min-w-0 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-white/10 dark:bg-black"
       >
         <div
           class="flex shrink-0 items-start justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-white/10 sm:px-6"
@@ -132,7 +132,7 @@
             <button
               type="button"
               :disabled="saving || loading || !hasChanges"
-              class="inline-flex h-12 min-h-12 w-full min-w-0 shrink-0 items-center justify-center whitespace-nowrap rounded-xl border border-gray-200 bg-white px-4 py-0 text-sm font-semibold leading-none text-gray-700 shadow-sm transition-colors hover:bg-gray-100 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10"
+              class="inline-flex h-12 min-h-12 w-full min-w-0 shrink-0 items-center justify-center whitespace-normal break-words rounded-xl border border-gray-200 bg-white px-2 py-2 text-sm font-semibold leading-none text-gray-700 shadow-sm transition-colors hover:bg-gray-100 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10"
               @click="resetSelection"
             >
               {{ t("vocabulary.undo") }}
@@ -140,7 +140,7 @@
             <button
               type="button"
               :disabled="saving || loading || !vocabulary || !hasChanges"
-              class="inline-flex h-12 min-h-12 w-full min-w-0 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 px-4 py-0 text-sm font-semibold leading-none text-white shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              class="inline-flex h-12 min-h-12 w-full min-w-0 shrink-0 items-center justify-center gap-2 whitespace-normal break-words rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 px-2 py-2 text-sm font-semibold leading-none text-white shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               @click="saveChanges"
             >
               <span

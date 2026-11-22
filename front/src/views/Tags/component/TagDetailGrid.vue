@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
     <VocabularyCardWrapper
       v-for="vocab in vocabularies"
       :key="vocab.id"
@@ -74,7 +74,7 @@
         </div>
 
         <!-- Header: word, pronunciation, favorite, difficulty -->
-        <div class="flex items-start justify-between mb-4">
+        <div class="flex items-start justify-between gap-2 mb-4">
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-1">
               <h3

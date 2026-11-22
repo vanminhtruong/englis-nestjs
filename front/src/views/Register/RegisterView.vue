@@ -1,11 +1,5 @@
 <template>
-  <div
-    class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-secondary-50 dark:from-black dark:via-black dark:to-black flex items-center justify-center p-4"
-  >
-    <div class="w-full max-w-md">
-      <div
-        class="bg-white dark:bg-white/5 rounded-3xl shadow-2xl p-8 backdrop-blur-lg"
-      >
+  <AuthLayout>
         <RegisterHeader :t="t" />
 
         <RegisterForm
@@ -14,18 +8,17 @@
           :error="error"
           :t="t"
           @submit="handleRegister"
-          @update:form="(val) => Object.assign(form, val)"
+          @update:form="(val: Record<string, unknown>) => Object.assign(form, val)"
         />
 
         <RegisterFooter :t="t" />
-      </div>
-    </div>
-  </div>
+  </AuthLayout>
 </template>
 
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
+import AuthLayout from "../../components/auth/AuthLayout.vue";
 import { useRegisterState } from "./composable/manager-state/useRegisterState";
 import { useRegisterHandle } from "./composable/manager-handle/useRegisterHandle";
 import { useRegisterMount } from "./composable/manager-mount/useRegisterMount";

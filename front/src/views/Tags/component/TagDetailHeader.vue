@@ -5,7 +5,7 @@
     >
       <div class="flex items-center gap-6">
         <button
-          @click="$router.push('/tags')"
+          @click="router.push('/tags')"
           class="p-2 -ml-2 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
         >
           <svg
@@ -53,6 +53,8 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from "vue-router";
+const router = useRouter();
 defineProps<{
   tag: any;
 }>();

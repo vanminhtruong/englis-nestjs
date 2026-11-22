@@ -333,7 +333,7 @@ const props = defineProps<{
   t: (key: string) => string;
 }>();
 
-const emit = defineEmits<{
+const emit = defineEmits<{ (event: "submit"): void;
   // Optional if we want to support enter key submit later, but for now parent handles button
 }>();
 

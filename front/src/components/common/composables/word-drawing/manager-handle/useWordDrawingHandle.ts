@@ -11,7 +11,10 @@ import {
 
 export function useWordDrawingHandle(
     state: any,
-    emit: (event: "close" | "confirm", ...args: any[]) => void
+    emit: {
+        (event: "close"): void;
+        (event: "confirm", payload: { imageDataUrl: string; word: string }): void;
+    }
 ) {
     const {
         canvasRef,

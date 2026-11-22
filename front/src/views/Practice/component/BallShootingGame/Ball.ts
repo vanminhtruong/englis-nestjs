@@ -27,7 +27,10 @@ export class Ball implements IBall {
         this.id = id
         this.word = word
         this.vocabularyId = vocabularyId
-        this.radius = 45 + Math.random() * 15
+        // Scale balls down on small canvases so they stay playable on phones
+        const scale = Math.min(1, Math.max(0.7, Math.min(canvasWidth, canvasHeight * 1.4) / 800))
+        speed = speed * scale
+        this.radius = (45 + Math.random() * 15) * scale
         this.isActive = true
         this.opacity = 1
         this.color = this.generateGradientColor()
@@ -54,8 +57,8 @@ export class Ball implements IBall {
         }
 
         // Calculate velocity towards center with some randomness
-        const centerX = canvasWidth / 2 + (Math.random() - 0.5) * 200
-        const centerY = canvasHeight / 2 + (Math.random() - 0.5) * 200
+        const centerX = canvasWidth / 2 + (Math.random() - 0.5) * 200 * scale
+        const centerY = canvasHeight / 2 + (Math.random() - 0.5) * 200 * scale
         const angle = Math.atan2(centerY - this.y, centerX - this.x)
         const speedVariation = speed * (0.8 + Math.random() * 0.4)
 

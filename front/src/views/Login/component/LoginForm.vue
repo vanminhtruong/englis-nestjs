@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="emit('submit')" class="space-y-6" novalidate>
+  <form @submit.prevent="emit('submit')" class="space-y-5 sm:space-y-6" novalidate>
     <div class="relative group/field">
       <label
         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
@@ -117,8 +117,8 @@
       </div>
     </div>
 
-    <div class="flex items-center justify-between">
-      <div class="relative flex items-center group">
+    <div class="flex flex-col items-start gap-2 min-[380px]:flex-row min-[380px]:items-center min-[380px]:justify-between">
+      <div class="group relative flex min-w-0 items-center">
         <input
           id="remember"
           :checked="form.rememberMe"
@@ -177,7 +177,7 @@
 
       <a
         href="#"
-        class="text-sm text-primary-600 hover:text-primary-500 font-medium hover:underline"
+        class="self-end text-sm font-medium text-primary-600 hover:text-primary-500 hover:underline min-[380px]:self-auto"
       >
         {{ t("login.forgotPassword") }}
       </a>

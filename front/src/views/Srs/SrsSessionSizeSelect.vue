@@ -12,7 +12,7 @@
       :aria-expanded="open"
       aria-haspopup="listbox"
       :aria-controls="listId"
-      class="group flex h-[72px] w-full min-w-0 items-center gap-2.5 rounded-2xl border border-gray-200 bg-gray-50 px-3 text-left outline-none transition-all hover:border-primary-300 hover:bg-primary-50/50 focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:border-white/15 dark:bg-white/5 dark:hover:border-white/30 dark:hover:bg-white/10 sm:gap-3 sm:px-4"
+      class="group flex min-h-[72px] w-full min-w-0 items-center gap-2.5 py-3 rounded-2xl border border-gray-200 bg-gray-50 px-3 text-left outline-none transition-all hover:border-primary-300 hover:bg-primary-50/50 focus-visible:border-primary-500 focus-visible:ring-2 focus-visible:ring-primary-500/20 dark:border-white/15 dark:bg-white/5 dark:hover:border-white/30 dark:hover:bg-white/10 sm:gap-3 sm:px-4"
       @click="toggle"
       @keydown.down.prevent="openAndFocus(1)"
       @keydown.up.prevent="openAndFocus(-1)"

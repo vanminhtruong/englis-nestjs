@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative overflow-hidden bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl p-8 flex flex-col items-center text-center shadow-2xl shadow-gray-200/50 dark:shadow-none"
+    class="relative overflow-hidden bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl p-5 sm:p-8 flex flex-col items-center text-center shadow-2xl shadow-gray-200/50 dark:shadow-none"
   >
     <!-- Background Decor -->
     <div

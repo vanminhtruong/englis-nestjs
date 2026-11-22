@@ -8,6 +8,8 @@ export default {
   emailPlaceholder: 'Enter your email',
   emailRequired: 'Email is required',
   password: 'Password',
+  showPassword: 'Show password',
+  hidePassword: 'Hide password',
   passwordPlaceholder: 'Enter your password',
   passwordRequired: 'Password is required',
   confirmPassword: 'Confirm Password',

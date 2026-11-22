@@ -10,10 +10,10 @@
     >
       <div
         v-if="visible"
-        class="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+        class="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-1.5 sm:p-4"
       >
         <div
-          class="w-full h-[90vh] max-w-6xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+          class="w-full h-[96dvh] sm:h-[90dvh] max-w-6xl bg-white dark:bg-neutral-900 rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col"
         >
           <div
             class="flex items-center justify-between px-4 py-3 border-b border-black/5 dark:border-white/10"
@@ -170,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onBeforeUnmount } from "vue";
+import { computed, ref, watch, onBeforeUnmount, type CSSProperties } from "vue";
 import { useI18n } from "vue-i18n";
 
 const props = defineProps<{
@@ -194,7 +194,7 @@ const dragOrigin = ref({ x: 0, y: 0 });
 const translation = ref({ x: 0, y: 0 });
 const isSharpened = ref(false);
 
-const imageStyle = computed(() => ({
+const imageStyle = computed<CSSProperties>(() => ({
   transform: `translate(${translation.value.x}px, ${translation.value.y}px) scale(${zoom.value})`,
   transformOrigin: "center center",
   transition: isDragging.value ? "none" : "transform 0.2s ease-out",

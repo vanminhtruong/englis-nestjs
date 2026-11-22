@@ -1,6 +1,6 @@
 <template>
   <div class="text-center py-12">
-    <div class="text-6xl mb-4">📊</div>
+    <div class="text-5xl sm:text-6xl mb-4">📊</div>
     <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ t('history.empty.title') }}</h3>
     <p class="text-gray-600 dark:text-gray-400 mb-6">{{ t('history.empty.message') }}</p>
     <RouterLink

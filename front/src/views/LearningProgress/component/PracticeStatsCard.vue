@@ -4,7 +4,7 @@
       {{ t("learningProgress.practice.title") }}
     </h3>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
       <!-- Flashcard -->
       <div class="practice-type-card">
         <div class="practice-icon bg-gradient-to-br from-blue-400 to-blue-600">
@@ -223,7 +223,7 @@ const formattedTime = computed(() => {
 
 <style scoped>
 .practice-stats-card {
-  @apply p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10 mb-8;
+  @apply p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10 mb-5 sm:mb-8;
 }
 
 .practice-type-card {
@@ -247,7 +247,7 @@ const formattedTime = computed(() => {
 }
 
 .accuracy-section {
-  @apply flex flex-col md:flex-row items-center gap-8;
+  @apply flex flex-col md:flex-row items-center gap-4 md:gap-8;
 }
 
 .accuracy-chart {

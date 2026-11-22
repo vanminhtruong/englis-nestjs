@@ -1,13 +1,13 @@
 <template>
   <div
-    class="relative overflow-hidden bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl p-8 flex flex-col shadow-2xl shadow-gray-200/50 dark:shadow-none h-full transition-all duration-300 hover:shadow-gray-200/80 dark:hover:shadow-none"
+    class="relative overflow-hidden bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl p-5 sm:p-8 flex flex-col shadow-2xl shadow-gray-200/50 dark:shadow-none h-full transition-all duration-300 hover:shadow-gray-200/80 dark:hover:shadow-none"
   >
     <!-- Background Decor -->
     <div
       class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-500/5 to-transparent rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"
     ></div>
 
-    <div class="flex justify-between items-center mb-8 relative z-10">
+    <div class="flex justify-between items-center gap-2 mb-5 sm:mb-8 relative z-10">
       <h3
         class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"
       >

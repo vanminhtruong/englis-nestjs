@@ -9,7 +9,7 @@
   >
     <div
       v-if="show"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-2 sm:p-4"
     >
       <Transition
         enter-active-class="transition-all duration-200 ease-out"
@@ -21,10 +21,10 @@
       >
         <div
           v-if="show"
-          class="bg-white dark:bg-black/90 border border-black/10 dark:border-white/10 rounded-3xl p-8 max-w-md w-full shadow-2xl"
+          class="bg-white dark:bg-black/90 border border-black/10 dark:border-white/10 rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl"
         >
           <div class="text-center">
-            <div class="text-6xl mb-4">⏰</div>
+            <div class="text-5xl sm:text-6xl mb-4">⏰</div>
             <h3 class="text-3xl font-bold text-red-600 dark:text-red-400 mb-2">
               {{ t("practice.timeUp") || "Time's Up!" }}
             </h3>

@@ -9,7 +9,7 @@
   >
     <div
       v-if="isOpen"
-      class="lg:hidden px-4 py-4 bg-white/95 dark:bg-black/95 backdrop-blur-xl border-t border-gray-200 dark:border-white/10"
+      class="xl:hidden px-4 py-4 bg-white/95 dark:bg-black/95 backdrop-blur-xl border-t border-gray-200 dark:border-white/10"
     >
       <nav class="flex flex-col gap-1">
         <RouterLink

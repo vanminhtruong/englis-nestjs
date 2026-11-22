@@ -111,7 +111,7 @@
         <!-- Loading -->
         <div
           v-if="pickerMode === 'preset' && loading"
-          class="p-8 flex flex-col items-center justify-center"
+          class="p-5 sm:p-8 flex flex-col items-center justify-center"
         >
           <div
             class="w-10 h-10 border-3 border-primary-500/30 border-t-primary-500 rounded-full animate-spin"

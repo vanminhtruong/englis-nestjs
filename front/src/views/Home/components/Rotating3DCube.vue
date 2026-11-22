@@ -204,6 +204,7 @@ function handleTouchStart(e: TouchEvent) {
 
   e.preventDefault();
   const touch = e.touches[0];
+  if (!touch) return;
   startDragging(touch.clientX, touch.clientY);
 
   window.addEventListener("touchmove", handleTouchMove, { passive: false });
@@ -215,6 +216,7 @@ function handleTouchMove(e: TouchEvent) {
   e.preventDefault();
 
   const touch = e.touches[0];
+  if (!touch) return;
   const deltaX = touch.clientX - lastMouseX.value;
   const deltaY = touch.clientY - lastMouseY.value;
 

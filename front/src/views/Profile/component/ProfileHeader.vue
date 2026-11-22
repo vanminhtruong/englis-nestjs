@@ -10,7 +10,7 @@
     >
       <div>
         <h1
-          class="text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-3"
+          class="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight bg-gradient-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-3"
         >
           {{ t("profile.title") }}
         </h1>
@@ -93,7 +93,9 @@ const triggerFileInput = () => {
 const onFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    emit("import", target.files[0]);
+    const file = target.files[0];
+    if (!file) return;
+    emit("import", file);
     target.value = ""; // Reset input
   }
 };

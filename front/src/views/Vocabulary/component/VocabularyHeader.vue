@@ -1,9 +1,9 @@
 <template>
   <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-    <h1 class="text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent">
+    <h1 class="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent">
       {{ title }}
     </h1>
-    <div class="hidden sm:flex justify-end">
+    <div class="flex justify-start sm:justify-end">
       <div class="flex items-center rounded-2xl border border-black/10 dark:border-white/10 overflow-hidden bg-white dark:bg-white/5 shadow-sm">
         <button
           type="button"

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-8">
       <!-- Total Words -->
       <div class="stats-card group">
         <div class="stats-icon bg-gradient-to-br from-blue-500 to-blue-600">
@@ -231,7 +231,7 @@ watch(
 }
 
 .mastery-card {
-  @apply p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10;
+  @apply p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10;
 }
 
 .mastery-progress-bar {

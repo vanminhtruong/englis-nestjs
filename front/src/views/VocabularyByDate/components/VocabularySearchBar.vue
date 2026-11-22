@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex-1 max-w-md">
+  <div class="relative w-full sm:w-auto sm:flex-1 max-w-md">
     <input
       :value="modelValue"
       @input="handleInput"
@@ -9,7 +9,7 @@
     />
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      class="absolute left-3 top-3 h-5 w-5 text-black/40 dark:text-white/40"
+      class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-black/40 dark:text-white/40"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"

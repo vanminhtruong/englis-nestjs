@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center py-20">
+  <div class="text-center py-12 sm:py-20">
     <div
       class="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6"
     >
@@ -24,10 +24,15 @@
       There are no vocabularies associated with this tag yet.
     </p>
     <button
-      @click="$router.push('/vocabulary')"
+      @click="router.push('/vocabulary')"
       class="px-6 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-xl transition-colors font-medium"
     >
       View All Vocabulary
     </button>
   </div>
 </template>
+
+<script setup lang="ts">
+import { useRouter } from "vue-router";
+const router = useRouter();
+</script>

@@ -74,11 +74,11 @@ const { t } = useI18n();
 
 <style scoped>
 .streak-card {
-  @apply p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10 mb-8;
+  @apply p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10 mb-5 sm:mb-8;
 }
 
 .streak-content {
-  @apply grid grid-cols-2 gap-6 mb-6;
+  @apply grid grid-cols-2 gap-3 sm:gap-6 mb-4 sm:mb-6;
 }
 
 .streak-display {
@@ -120,7 +120,7 @@ const { t } = useI18n();
 }
 
 .streak-number {
-  @apply text-4xl font-bold text-gray-900 dark:text-white;
+  @apply text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white;
 }
 
 .streak-label {
