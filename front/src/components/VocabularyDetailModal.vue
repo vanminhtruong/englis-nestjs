@@ -42,7 +42,7 @@
             :src="
               vocabulary.image.startsWith('data:')
                 ? vocabulary.image
-                : `${API_URL}${vocabulary.image}`
+                : resolveAssetUrl(vocabulary.image)
             "
             :alt="vocabulary.word"
             class="w-full h-64 object-cover rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
@@ -50,7 +50,7 @@
               $emit('open-image', {
                 src: vocabulary.image.startsWith('data:')
                   ? vocabulary.image
-                  : `${API_URL}${vocabulary.image}`,
+                  : resolveAssetUrl(vocabulary.image),
                 alt: vocabulary.word,
               })
             "
@@ -61,7 +61,7 @@
             class="w-full h-64 rounded-xl overflow-hidden bg-black"
           >
             <iframe
-              :src="vocabulary.video"
+              :src="resolveAssetUrl(vocabulary.video)"
               class="w-full h-full"
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -280,7 +280,7 @@
 </template>
 
 <script setup lang="ts">
-import { API_URL } from "@/services/api.service";
+import { resolveAssetUrl } from "@/utils/assetUrl";
 import { watch } from "vue";
 import { getIconComponent } from "../utils/iconRenderer";
 import { useModalScrollLock } from "../composables/useModalScrollLock";

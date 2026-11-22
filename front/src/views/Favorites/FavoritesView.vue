@@ -68,7 +68,7 @@
                   openImagePreview({
                     src: vocab.image.startsWith('data:')
                       ? vocab.image
-                      : `${API_URL}${vocab.image}`,
+                      : resolveAssetUrl(vocab.image),
                     alt: vocab.word,
                   })
                 "
@@ -77,7 +77,7 @@
                   :src="
                     vocab.image.startsWith('data:')
                       ? vocab.image
-                      : `${API_URL}${vocab.image}`
+                      : resolveAssetUrl(vocab.image)
                   "
                   :alt="vocab.word"
                   class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
@@ -299,7 +299,7 @@
 </template>
 
 <script setup lang="ts">
-import { API_URL } from "@/services/api.service";
+import { resolveAssetUrl } from "@/utils/assetUrl";
 import { ref, defineAsyncComponent } from "vue";
 import { RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";

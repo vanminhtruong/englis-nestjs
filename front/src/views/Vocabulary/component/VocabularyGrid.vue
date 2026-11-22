@@ -306,7 +306,7 @@
 </template>
 
 <script setup lang="ts">
-import { API_URL } from "@/services/api.service";
+import { resolveAssetUrl } from "@/utils/assetUrl";
 import { defineAsyncComponent } from "vue";
 import type { Vocabulary } from "../../../stores/vocabulary.store";
 import { getIconComponent } from "../../../utils/iconRenderer";
@@ -350,7 +350,7 @@ function toggleSelection(id: string) {
 
 const resolveImageSrc = (image: string) => {
   if (!image) return "";
-  return image.startsWith("data:") ? image : `${API_URL}${image}`;
+  return image.startsWith("data:") ? image : resolveAssetUrl(image);
 };
 
 const getVideoThumbnail = (videoUrl: string) => {

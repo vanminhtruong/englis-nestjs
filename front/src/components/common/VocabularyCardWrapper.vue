@@ -195,7 +195,7 @@
                 "
               >
                 <img
-                  :src="bg.url"
+                  :src="resolveAssetUrl(bg.url)"
                   :alt="bg.name"
                   class="w-full h-full object-cover"
                   loading="lazy"
@@ -290,6 +290,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolveAssetUrl } from "@/utils/assetUrl";
 import { ref, computed, defineAsyncComponent, watch } from "vue";
 import api from "../../services/api.service";
 import CustomBackgroundsTab from "./CustomBackgroundsTab.vue";
@@ -358,7 +359,7 @@ const hasAnimatedBg = computed(() => !!currentAnimatedBg.value);
 const backgroundStyle = computed(() => {
   if (!currentBackgroundUrl.value) return {};
   return {
-    backgroundImage: `url(${currentBackgroundUrl.value})`,
+    backgroundImage: `url(${resolveAssetUrl(currentBackgroundUrl.value)})`,
     backgroundSize: "cover",
     backgroundPosition: "center",
     backgroundRepeat: "no-repeat",

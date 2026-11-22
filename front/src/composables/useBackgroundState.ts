@@ -1,3 +1,4 @@
+import { resolveAssetUrl } from '../utils/assetUrl'
 import { ref, computed, watch, reactive } from 'vue'
 
 const STORAGE_KEY_PREFIX = 'vocabulary_bg_'
@@ -48,7 +49,7 @@ export function useItemBackground(itemId: string) {
     const backgroundStyle = computed(() => {
         if (!backgroundsMap[itemId]) return {}
         return {
-            backgroundImage: `url(${backgroundsMap[itemId]})`,
+            backgroundImage: `url(${resolveAssetUrl(backgroundsMap[itemId])})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',

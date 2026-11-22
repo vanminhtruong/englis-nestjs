@@ -82,7 +82,7 @@
                   currentQuestion.image.startsWith('data:') ||
                   currentQuestion.image.startsWith('http')
                     ? currentQuestion.image
-                    : `${API_URL}${currentQuestion.image}`
+                    : resolveAssetUrl(currentQuestion.image)
                 "
                 :alt="currentQuestion.word"
                 class="w-full h-full object-contain"
@@ -366,7 +366,7 @@
 <script setup lang="ts">
 import { ref, watch, computed, defineAsyncComponent, onMounted, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
-import { API_URL } from "../../../services/api.service";
+import { resolveAssetUrl } from "@/utils/assetUrl";
 
 const TimeoutModal = defineAsyncComponent(() => import("./TimeoutModal.vue"));
 const { t } = useI18n();

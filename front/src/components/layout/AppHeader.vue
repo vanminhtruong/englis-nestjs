@@ -53,6 +53,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolveAssetUrl } from "@/utils/assetUrl";
 import { ref, onMounted, defineAsyncComponent, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
@@ -88,7 +89,7 @@ const isUserMenuOpen = ref(false);
 const userAvatarSrc = computed(() => {
   const user = authStore.user;
   if (user && user.avatar) {
-    return user.avatar;
+    return resolveAssetUrl(user.avatar);
   }
   const seed = user?.fullName || "User";
   return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;

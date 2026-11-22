@@ -628,6 +628,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolveAssetUrl } from "@/utils/assetUrl";
 import {
   computed,
   ref,
@@ -923,7 +924,7 @@ watch(
       loadCategories();
       loadTags();
       if (props.form.image) {
-        imagePreview.value = props.form.image;
+        imagePreview.value = resolveAssetUrl(props.form.image);
       }
     } else {
       unlockScroll();

@@ -137,7 +137,7 @@
               "
             >
               <img
-                :src="bg.url"
+                :src="resolveAssetUrl(bg.url)"
                 :alt="bg.name"
                 class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 loading="lazy"
@@ -191,6 +191,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolveAssetUrl } from "@/utils/assetUrl";
 import { ref, computed, onMounted, watch } from "vue";
 import api from "../../services/api.service";
 import CustomBackgroundsTab from "./CustomBackgroundsTab.vue";

@@ -8,10 +8,10 @@
           v-if="vocabulary.image && !vocabulary.video"
           type="button"
           class="w-24 h-24 rounded-lg overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary-400"
-          @click="$emit('open-image', { src: vocabulary.image.startsWith('data:') ? vocabulary.image : `${API_URL}${vocabulary.image}`, alt: vocabulary.word })"
+          @click="$emit('open-image', { src: vocabulary.image.startsWith('data:') ? vocabulary.image : resolveAssetUrl(vocabulary.image), alt: vocabulary.word })"
         >
           <img 
-            :src="vocabulary.image.startsWith('data:') ? vocabulary.image : `${API_URL}${vocabulary.image}`" 
+            :src="vocabulary.image.startsWith('data:') ? vocabulary.image : resolveAssetUrl(vocabulary.image)" 
             :alt="vocabulary.word" 
             class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105" 
           />
@@ -85,7 +85,7 @@
 </template>
 
 <script setup lang="ts">
-import { API_URL } from "@/services/api.service";
+import { resolveAssetUrl } from "@/utils/assetUrl";
 import { computed } from 'vue'
 
 const props = defineProps<{

@@ -17,7 +17,7 @@
       >
         <img
           v-if="avatar"
-          :src="avatar"
+          :src="resolveAssetUrl(avatar)"
           alt="Avatar"
           class="w-full h-full object-cover"
         />
@@ -137,6 +137,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolveAssetUrl } from "@/utils/assetUrl";
 import { toRefs, ref, computed, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import type { PropType } from "vue";
@@ -165,7 +166,7 @@ const isAvatarZoomVisible = ref(false);
 
 const currentAvatarSrc = computed(() => {
   if (avatar.value) {
-    return avatar.value;
+    return resolveAssetUrl(avatar.value);
   }
   return `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.value?.fullName}`;
 });

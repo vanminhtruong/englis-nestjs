@@ -691,9 +691,10 @@
 </template>
 
 <script setup lang="ts">
+import { resolveAssetUrl } from "@/utils/assetUrl";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
-import apiService, { API_URL } from "../../services/api.service";
+import apiService from "../../services/api.service";
 import { useI18n } from "vue-i18n";
 import { useSrs } from "./composables/useSrs";
 import SrsActivity from "./SrsActivity.vue";
@@ -847,13 +848,7 @@ function formatNext(value: string) {
 }
 
 function mediaUrl(value: string) {
-  if (value.startsWith("https://") || value.startsWith("http://") || value.startsWith("data:"))
-    return value;
-  try {
-    return new URL(value.startsWith("/") ? value : "/" + value, API_URL).toString();
-  } catch {
-    return "";
-  }
+  return resolveAssetUrl(value);
 }
 
 function speak() {

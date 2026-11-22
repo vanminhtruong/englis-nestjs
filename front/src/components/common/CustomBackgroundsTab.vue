@@ -283,6 +283,7 @@
 </template>
 
 <script setup lang="ts">
+import { resolveAssetUrl } from "@/utils/assetUrl";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import api, { API_URL } from "../../services/api.service";
@@ -311,7 +312,7 @@ const error = ref("");
 const busy = computed(() => uploading.value);
 
 function absoluteUrl(path: string): string {
-  return new URL(path, new URL(API_URL, window.location.origin).origin).href;
+  return resolveAssetUrl(path);
 }
 function clearFile() {
   if (previewUrl.value) URL.revokeObjectURL(previewUrl.value);
