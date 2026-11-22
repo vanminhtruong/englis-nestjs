@@ -20,6 +20,7 @@ import { UpdateVocabularyTabDto } from './dto/update-vocabulary-tab.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AssignVocabularyTabsDto } from './dto/assign-vocabulary-tabs.dto';
 import { ReplaceVocabularyTabsDto } from './dto/replace-vocabulary-tabs.dto';
+import { PromoteOverflowTabDto } from './dto/promote-overflow-tab.dto';
 
 @Controller('vocabulary-tabs')
 @UseGuards(JwtAuthGuard)
@@ -54,6 +55,16 @@ export class VocabularyTabController {
   @Post('assign')
   assign(@Request() req, @Body() dto: AssignVocabularyTabsDto) {
     return this.vocabularyTabService.assignVocabularies(req.user.id, dto);
+  }
+
+  // The overflow menu calls this endpoint; ordinary tab selection never reorders.
+  @Patch('promote-from-overflow')
+  promoteFromOverflow(@Request() req, @Body() dto: PromoteOverflowTabDto) {
+    return this.vocabularyTabService.promoteFromOverflow(
+      req.user.id,
+      dto.tabId,
+      dto.previousTabId ?? null,
+    );
   }
 
   @Get(':id')

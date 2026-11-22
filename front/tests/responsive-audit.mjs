@@ -24,12 +24,14 @@ const base = 'http://127.0.0.1:5199'
 const api = 'http://127.0.0.1:3055'
 const output = resolve(root, 'tests', 'responsive-audit-report.json')
 const screenshotFolder = resolve(root, 'tests', 'responsive-screenshots')
-const screenshots = new Set(['/', '/login', '/register', '/vocabulary', '/practice', '/srs', '/voice-settings', '/about', '/learning-progress', '/history', '/profile', '/favorites', '/categories', '/tags'])
+const screenshots = new Set(['/', '/login', '/forgot-password', '/register', '/vocabulary', '/practice', '/srs', '/voice-settings', '/about', '/learning-progress', '/history', '/profile', '/favorites', '/categories', '/tags'])
 const scenarioResults = []
-const routes = ['/', '/about', '/login', '/register', '/vocabulary', '/vocabulary/by-date',
+const selectedRoutes = process.argv.find((arg) => arg.startsWith('--routes='))?.slice(9)?.split(',')
+const defaultRoutes = ['/', '/about', '/login', '/forgot-password', '/register', '/vocabulary', '/vocabulary/by-date',
   '/favorites', '/history', '/profile', '/voice-settings', '/categories', '/categories/audit-category',
   '/tags', '/tags/audit-tag', '/practice', '/srs', '/learning-progress']
-const guestRoutes = new Set(['/login', '/register'])
+const routes = selectedRoutes || defaultRoutes
+const guestRoutes = new Set(['/login', '/forgot-password', '/register'])
 const tempDir = mkdtempSync(resolve(tmpdir(), 'vocab-responsive-'))
 const children = []
 let socket
@@ -63,6 +65,8 @@ function mockPayload(url, method) {
   if (path === '/auth/me') return user
   if (path === '/auth/recalculate-words') return {totalWords:12}
   if (path === '/auth/theme') return {success:true}
+  if (path === '/auth/forgot-password/request') return {message:'If the email is registered, we will send a verification code.'}
+  if (path === '/auth/forgot-password/reset') return {success:true}
   if (path === '/vocabulary-tabs') return [{id:'tab1', name:'English', icon:'book', vocabularies:words}]
   if (path === '/vocabulary/settings') return {isFilterExpanded: false, isAllTabHidden:false, activeTabId:null}
   if (path === '/vocabulary' || path === '/vocabulary/favorites/list') return {data:words, items:words, vocabularies:words, total:2, page:1, limit:20, totalPages:1}
@@ -209,6 +213,39 @@ try {
         }
         if((m?.scrollWidth||0)>width+2 || (m?.overflowing?.length||0)>0)
           console.log('OVERFLOW '+theme+' '+width+' '+route+' scroll='+m.scrollWidth+' off='+m.overflowing.map(x=>x.node).slice(0,3).join('|'))
+        if (width <= 390 && route === '/login') {
+          let linkWorks = false
+          for (let attempt = 0; attempt < 12 && !linkWorks; attempt++) {
+            linkWorks = await evaluate("Boolean(document.querySelector('a[href=\"/forgot-password\"]'))")
+            if (!linkWorks) await pause(150)
+          }
+          scenarioResults.push({theme,width,route,scenario:'forgot-password-link',visiblePanel:linkWorks})
+        }
+        if (width <= 390 && route === '/forgot-password') {
+          const enter = async (selector, value) => evaluate(`(() => {
+            const field=document.querySelector(${JSON.stringify(selector)});
+            if (!field) return false;
+            const setter=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;
+            setter.call(field,${JSON.stringify(value)});
+            field.dispatchEvent(new Event('input',{bubbles:true}));
+            return true;
+          })()`)
+          const emailEntered = await enter('input[name="email"]','audit@example.invalid')
+          await evaluate("document.querySelector('form')?.requestSubmit()")
+          await pause(350)
+          const otpReady = await evaluate("Boolean(document.querySelector('input[name=\"one-time-code\"]'))")
+          let successVisible = false
+          if (otpReady) {
+            await enter('input[name="one-time-code"]','123456')
+            await enter('input[name="new-password"]','a-new-password-strong')
+            await enter('input[name="confirm-password"]','a-new-password-strong')
+            await evaluate("document.querySelector('form')?.requestSubmit()")
+            await pause(350)
+            successVisible = await evaluate("Boolean(document.querySelector('a[href=\"/login\"].bg-gradient-to-r'))")
+          }
+          const detail=await evaluate(measurement.replace('const viewport = window.innerWidth', 'const viewport = '+width))
+          scenarioResults.push({theme,width,route,scenario:'forgot-password-3-steps',activated:emailEntered&&otpReady,visiblePanel:successVisible,...detail})
+        }
         if (width <= 390 && (route === '/vocabulary' || route === '/srs')) {
           const selector = route === '/vocabulary' ? 'button.add-button' : '[id^="srs-size-trigger-"]'
           const activated = await evaluate(`(() => {const button=document.querySelector(${JSON.stringify(selector)});if(!button)return false;button.click();return true})()`)

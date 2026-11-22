@@ -175,12 +175,7 @@
         </label>
       </div>
 
-      <a
-        href="#"
-        class="self-end text-sm font-medium text-primary-600 hover:text-primary-500 hover:underline min-[380px]:self-auto"
-      >
-        {{ t("login.forgotPassword") }}
-      </a>
+      <RouterLink to="/forgot-password" class="self-end text-sm font-medium text-primary-600 hover:text-primary-500 hover:underline min-[380px]:self-auto dark:text-primary-400">{{ t("login.forgotPassword") }}</RouterLink>
     </div>
 
     <div

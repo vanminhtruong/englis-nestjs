@@ -13,6 +13,7 @@ import { AuthModule } from '../auth/auth.module';
 import { UploadService } from '../../common/services/upload.service';
 import { HistoryModule } from '../history/history.module';
 import { WebsocketModule } from '../websocket/websocket.module';
+import { VocabularyTabModule } from '../vocabulary-tab/vocabulary-tab.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { WebsocketModule } from '../websocket/websocket.module';
     AuthModule,
     forwardRef(() => HistoryModule),
     forwardRef(() => WebsocketModule),
+    VocabularyTabModule,
   ],
   controllers: [VocabularyController],
   providers: [

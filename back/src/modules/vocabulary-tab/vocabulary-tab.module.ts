@@ -10,5 +10,6 @@ import { UploadService } from '../../common/services/upload.service';
   imports: [TypeOrmModule.forFeature([VocabularyTab, Vocabulary])],
   controllers: [VocabularyTabController],
   providers: [VocabularyTabService, UploadService],
+  exports: [VocabularyTabService],
 })
 export class VocabularyTabModule {}

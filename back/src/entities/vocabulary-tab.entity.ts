@@ -28,6 +28,10 @@ export class VocabularyTab {
   @Column({ default: false })
   isDefault: boolean;
 
+  // Per-account display order. Legacy tabs start at zero and keep their current relative order.
+  @Column({ type: 'integer', default: 0 })
+  sortOrder: number;
+
   @ManyToMany(() => Vocabulary, (vocabulary) => vocabulary.tabs)
   @JoinTable()
   vocabularies: Vocabulary[];

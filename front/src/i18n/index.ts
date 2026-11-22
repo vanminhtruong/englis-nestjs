@@ -11,6 +11,10 @@ import loginEn from '../views/Login/language/en'
 import loginVi from '../views/Login/language/vi'
 import loginKo from '../views/Login/language/ko'
 import loginZhCN from '../views/Login/language/zh-CN'
+import forgotPasswordEn from '../views/ForgotPassword/language/en'
+import forgotPasswordVi from '../views/ForgotPassword/language/vi'
+import forgotPasswordKo from '../views/ForgotPassword/language/ko'
+import forgotPasswordZhCN from '../views/ForgotPassword/language/zh-CN'
 
 import registerEn from '../views/Register/language/en'
 import registerVi from '../views/Register/language/vi'
@@ -68,6 +72,7 @@ const i18n = createI18n({
     en: {
       ...layoutEn,
       login: loginEn,
+      forgotPassword: forgotPasswordEn,
       register: registerEn,
       home: homeEn,
       about: aboutEn,
@@ -80,6 +85,7 @@ const i18n = createI18n({
     vi: {
       ...layoutVi,
       login: loginVi,
+      forgotPassword: forgotPasswordVi,
       register: registerVi,
       home: homeVi,
       about: aboutVi,
@@ -92,6 +98,7 @@ const i18n = createI18n({
     ko: {
       ...layoutKo,
       login: loginKo,
+      forgotPassword: forgotPasswordKo,
       register: registerKo,
       home: homeKo,
       about: aboutKo,
@@ -104,6 +111,7 @@ const i18n = createI18n({
     'zh-CN': {
       ...layoutZhCN,
       login: loginZhCN,
+      forgotPassword: forgotPasswordZhCN,
       register: registerZhCN,
       home: homeZhCN,
       about: aboutZhCN,

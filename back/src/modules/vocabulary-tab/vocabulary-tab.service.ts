@@ -25,17 +25,65 @@ export class VocabularyTabService {
     userId: string,
     createDto: CreateVocabularyTabDto,
   ): Promise<VocabularyTab> {
+    const latest = await this.vocabularyTabRepository
+      .createQueryBuilder('tab')
+      .select('MAX(tab.sortOrder)', 'maxOrder')
+      .where('tab.userId = :userId', { userId })
+      .getRawOne<{ maxOrder: number | null }>();
     const tab = this.vocabularyTabRepository.create({
       name: createDto.name,
       icon: createDto.icon ?? null,
       userId,
       isDefault: false,
+      sortOrder: Number(latest?.maxOrder ?? 0) + 1,
     });
     return this.vocabularyTabRepository.save(tab);
   }
 
   async findAll(userId: string): Promise<VocabularyTab[]> {
-    return this.ownedTabs(userId).getMany();
+    const tabs = await this.ownedTabs(userId).getMany();
+    // Stable sort preserves the existing order of tabs created before this field existed.
+    return tabs.sort((a, b) => a.sortOrder - b.sortOrder);
+  }
+
+  async promoteFromOverflow(
+    userId: string,
+    tabId: string,
+    previousTabId: string | null,
+    updateSelection = false,
+  ): Promise<VocabularyTab[]> {
+    return this.vocabularyTabRepository.manager.transaction(async (manager) => {
+      const repository = manager.getRepository(VocabularyTab);
+      const tabs = await repository.find({ where: { userId } });
+      tabs.sort((a, b) => a.sortOrder - b.sortOrder);
+
+      const selectedTab = tabs.find((tab) => tab.id === tabId);
+      if (!selectedTab) throw new NotFoundException('Tab not found');
+
+      const previousTab = previousTabId
+        ? tabs.find((tab) => tab.id === previousTabId)
+        : undefined;
+      if (previousTabId && !previousTab) {
+        throw new NotFoundException('Tab not found');
+      }
+
+      // Selected overflow tab first; previously active tab second; others remain in order.
+      const front = [selectedTab];
+      if (previousTab && previousTab.id !== selectedTab.id) front.push(previousTab);
+      const retainedIds = new Set(front.map((tab) => tab.id));
+      const reordered = [...front, ...tabs.filter((tab) => !retainedIds.has(tab.id))];
+
+      for (const [index, tab] of reordered.entries()) {
+        if (tab.sortOrder !== index + 1) {
+          await repository.update({ id: tab.id, userId }, { sortOrder: index + 1 });
+        }
+        tab.sortOrder = index + 1;
+      }
+      if (updateSelection) {
+        await manager.getRepository(Vocabulary).update({ userId }, { activeTabId: tabId });
+      }
+      return reordered;
+    });
   }
 
   async findOne(userId: string, id: string): Promise<VocabularyTab> {

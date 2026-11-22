@@ -22,6 +22,7 @@ import { UploadService } from '../../common/services/upload.service';
 import { MoveVocabularyByDateDto } from './dto/move-vocabulary-by-date.dto';
 import { VocabularyWebSocketGateway } from '../websocket/websocket.gateway';
 import { UpdateCategoryTopicDto } from './dto/update-category-topic.dto';
+import { VocabularyTabService } from '../vocabulary-tab/vocabulary-tab.service';
 
 @Controller('vocabulary')
 @UseGuards(JwtAuthGuard)
@@ -30,6 +31,7 @@ export class VocabularyController {
     private readonly vocabularyService: VocabularyService,
     private readonly uploadService: UploadService,
     private readonly websocketGateway: VocabularyWebSocketGateway,
+    private readonly vocabularyTabService: VocabularyTabService,
   ) {}
 
   @Get()
@@ -139,9 +141,21 @@ export class VocabularyController {
   @Patch('settings/active-tab')
   async updateActiveTabState(
     @Body('tabId') tabId: string | null,
+    @Body('fromOverflow') fromOverflow: boolean | undefined,
+    @Body('previousTabId') previousTabId: string | null | undefined,
     @Request() req,
   ) {
-    await this.vocabularyService.updateActiveTabState(req.user.id, tabId);
+    if (fromOverflow && tabId) {
+      // Persist the selection and tab order in one transaction.
+      await this.vocabularyTabService.promoteFromOverflow(
+        req.user.id,
+        tabId,
+        previousTabId ?? null,
+        true,
+      );
+    } else {
+      await this.vocabularyService.updateActiveTabState(req.user.id, tabId);
+    }
     return { success: true };
   }
 

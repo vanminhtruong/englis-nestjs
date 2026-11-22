@@ -13,11 +13,14 @@ import { AuthTokenService } from './services/auth-token.service';
 import { UserRepository } from './repositories/user.repository';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { GoogleStrategy } from './strategies/google.strategy';
+import { PasswordResetChallenge } from '../../entities/password-reset-challenge.entity';
+import { PasswordResetService } from './services/password-reset.service';
+import { PasswordResetMailService } from './services/password-reset-mail.service';
 import { WebsocketModule } from '../websocket/websocket.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Vocabulary, PracticeHistory]),
+    TypeOrmModule.forFeature([User, Vocabulary, PracticeHistory, PasswordResetChallenge]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -34,6 +37,8 @@ import { WebsocketModule } from '../websocket/websocket.module';
     AuthService,
     AuthHashService,
     AuthTokenService,
+    PasswordResetService,
+    PasswordResetMailService,
     UserRepository,
     JwtStrategy,
     GoogleStrategy,

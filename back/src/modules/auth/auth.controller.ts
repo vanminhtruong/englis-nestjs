@@ -25,6 +25,9 @@ import {
   decodeFrontendState,
 } from './guards/google-auth.guard';
 import { AuthTokenService } from './services/auth-token.service';
+import { PasswordResetService } from './services/password-reset.service';
+import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
+import { ConfirmPasswordResetDto } from './dto/confirm-password-reset.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -32,6 +35,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly authTokenService: AuthTokenService,
     private readonly websocketGateway: VocabularyWebSocketGateway,
+    private readonly passwordResetService: PasswordResetService,
   ) {}
 
   @Get('google')
@@ -53,6 +57,16 @@ export class AuthController {
         ? 'https://vanminhtruong.github.io/englis-nestjs'
         : 'http://localhost:5173');
     res.redirect(`${frontendUrl}/login/callback?token=${token}`);
+  }
+
+  @Post('forgot-password/request')
+  async requestPasswordReset(@Body() dto: RequestPasswordResetDto, @Request() req) {
+    return this.passwordResetService.requestCode(dto.email, req.ip || 'unknown');
+  }
+
+  @Post('forgot-password/reset')
+  async confirmPasswordReset(@Body() dto: ConfirmPasswordResetDto) {
+    return this.passwordResetService.resetPassword(dto.email, dto.code, dto.password);
   }
 
   @Post('register')

@@ -49,6 +49,10 @@ export default {
   auth: {
     register: (data: any) => apiClient.post("/auth/register", data),
     login: (data: any) => apiClient.post("/auth/login", data),
+    requestPasswordReset: (email: string) =>
+      apiClient.post("/auth/forgot-password/request", { email }),
+    resetPassword: (data: { email: string; code: string; password: string }) =>
+      apiClient.post("/auth/forgot-password/reset", data),
     getProfile: () => apiClient.get("/auth/me"),
     updateTheme: (theme: string) => apiClient.put("/auth/theme", { theme }),
     updateVocabularyLayout: (layout: "grid" | "list") => apiClient.put("/auth/layout", { layout }),
