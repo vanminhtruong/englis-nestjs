@@ -271,6 +271,7 @@ const updateField = (field: keyof LoginForm, event: Event) => {
 };
 
 const handleGoogleLogin = () => {
-  window.location.href = `${API_URL}/auth/google`;
+  const returnTo = encodeURIComponent(window.location.origin + import.meta.env.BASE_URL);
+  window.location.href = `${API_URL}/auth/google?redirect_to=${returnTo}`;
 };
 </script>

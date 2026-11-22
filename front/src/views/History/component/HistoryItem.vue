@@ -31,7 +31,7 @@
                   $emit('open-image', {
                     src: history.vocabulary.image.startsWith('data:')
                       ? history.vocabulary.image
-                      : `http://localhost:3000${history.vocabulary.image}`,
+                      : `${API_URL}${history.vocabulary.image}`,
                     alt: history.vocabulary.word,
                   })
                 "
@@ -40,7 +40,7 @@
                   :src="
                     history.vocabulary.image.startsWith('data:')
                       ? history.vocabulary.image
-                      : `http://localhost:3000${history.vocabulary.image}`
+                      : `${API_URL}${history.vocabulary.image}`
                   "
                   :alt="history.vocabulary.word"
                   class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
@@ -171,6 +171,7 @@
 </template>
 
 <script setup lang="ts">
+import { API_URL } from "@/services/api.service";
 import { useI18n } from "vue-i18n";
 import CustomCheckbox from "../../../components/CustomCheckbox.vue";
 import type { History } from "../interface";

@@ -8,7 +8,7 @@ import { DEFAULT_BACKEND_URL, readConfiguredBackendUrl } from "../utils/backendU
 export const API_URL =
   readConfiguredBackendUrl() ||
   import.meta.env.VITE_API_URL ||
-  (import.meta.env.DEV ? "http://localhost:3000" : DEFAULT_BACKEND_URL);
+  (import.meta.env.DEV ? "http://localhost:3001" : DEFAULT_BACKEND_URL);
 
 export const apiClient = axios.create({
   baseURL: API_URL,

@@ -42,7 +42,7 @@
             :src="
               vocabulary.image.startsWith('data:')
                 ? vocabulary.image
-                : `http://localhost:3000${vocabulary.image}`
+                : `${API_URL}${vocabulary.image}`
             "
             :alt="vocabulary.word"
             class="w-full h-64 object-cover rounded-xl cursor-pointer hover:opacity-90 transition-opacity"
@@ -50,7 +50,7 @@
               $emit('open-image', {
                 src: vocabulary.image.startsWith('data:')
                   ? vocabulary.image
-                  : `http://localhost:3000${vocabulary.image}`,
+                  : `${API_URL}${vocabulary.image}`,
                 alt: vocabulary.word,
               })
             "
@@ -280,6 +280,7 @@
 </template>
 
 <script setup lang="ts">
+import { API_URL } from "@/services/api.service";
 import { watch } from "vue";
 import { getIconComponent } from "../utils/iconRenderer";
 import { useModalScrollLock } from "../composables/useModalScrollLock";

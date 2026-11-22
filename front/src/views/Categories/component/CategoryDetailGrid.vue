@@ -21,7 +21,7 @@
               $emit('open-image-preview', {
                 src: vocab.image.startsWith('data:')
                   ? vocab.image
-                  : `http://localhost:3000${vocab.image}`,
+                  : `${API_URL}${vocab.image}`,
                 alt: vocab.word,
               })
             "
@@ -30,7 +30,7 @@
               :src="
                 vocab.image.startsWith('data:')
                   ? vocab.image
-                  : `http://localhost:3000${vocab.image}`
+                  : `${API_URL}${vocab.image}`
               "
               :alt="vocab.word"
               class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
@@ -236,6 +236,7 @@
 </template>
 
 <script setup lang="ts">
+import { API_URL } from "@/services/api.service";
 import { defineAsyncComponent } from "vue";
 import { getIconComponent } from "../../../utils/iconRenderer";
 
