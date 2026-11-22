@@ -81,14 +81,15 @@
           :class="[
             selectionOnly
               ? 'max-w-[min(75vw,22rem)] px-4 py-2 rounded-xl font-medium transition-all text-sm flex items-center gap-2'
-              : 'pl-4 pr-16 py-2 rounded-xl font-medium transition-all whitespace-nowrap text-sm flex items-center gap-2',
+              : 'pl-3 pr-3 sm:pl-4 sm:pr-16 py-1.5 sm:py-2 rounded-xl font-medium transition-all whitespace-nowrap text-sm flex items-center gap-2',
+            !selectionOnly && activeTabId === tab.id ? '!pr-16' : '',
             activeTabId === tab.id
               ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg shadow-primary-500/25'
               : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/10',
           ]"
         >
           <TabIcon :icon="tab.icon" :active="activeTabId === tab.id" size="xs" />
-          <span class="min-w-0 truncate">{{ tab.name }}</span>
+          <span class="min-w-0 max-w-[7.5rem] truncate sm:max-w-none">{{ tab.name }}</span>
         </button>
 
         <!-- Tab Actions (Edit/Delete) -->
@@ -390,6 +391,13 @@ import TabIcon from "../../../components/common/TabIcon.vue";
 const { t } = useI18n();
 
 const MAX_VISIBLE_TABS = 4;
+// On phones only two tabs stay visible; the rest move into the "+N" menu.
+const MAX_VISIBLE_TABS_COMPACT = 2;
+const maxVisibleTabs = ref(MAX_VISIBLE_TABS);
+let compactQuery: MediaQueryList | null = null;
+const syncMaxVisibleTabs = () => {
+  maxVisibleTabs.value = compactQuery?.matches ? MAX_VISIBLE_TABS_COMPACT : MAX_VISIBLE_TABS;
+};
 
 interface VocabularyTabOption {
   id: string;
@@ -424,12 +432,12 @@ const isCompactSelection = computed(() => !!props.selectionOnly && props.tabs.le
 const visibleTabs = computed(() =>
   isCompactSelection.value
     ? props.tabs.filter((tab) => tab.id === props.activeTabId)
-    : props.tabs.slice(0, MAX_VISIBLE_TABS),
+    : props.tabs.slice(0, maxVisibleTabs.value),
 );
 const hiddenTabs = computed(() =>
   isCompactSelection.value
     ? props.tabs.filter((tab) => tab.id !== props.activeTabId)
-    : props.tabs.slice(MAX_VISIBLE_TABS),
+    : props.tabs.slice(maxVisibleTabs.value),
 );
 
 // Check if the active tab is among the hidden ones
@@ -459,10 +467,14 @@ const handleOutsideClick = (e: MouseEvent) => {
 };
 
 onMounted(() => {
+  compactQuery = window.matchMedia("(max-width: 639px)");
+  syncMaxVisibleTabs();
+  compactQuery.addEventListener("change", syncMaxVisibleTabs);
   document.addEventListener("click", handleOutsideClick);
 });
 
 onUnmounted(() => {
+  compactQuery?.removeEventListener("change", syncMaxVisibleTabs);
   document.removeEventListener("click", handleOutsideClick);
 });
 </script>
