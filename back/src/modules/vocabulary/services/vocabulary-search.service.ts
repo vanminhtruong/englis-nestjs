@@ -9,11 +9,11 @@ export class VocabularySearchService {
     return this.vocabularyRepository.findByTags(userId, tags);
   }
 
-  async findForPractice(userId: string, limit: number = 10) {
-    return this.vocabularyRepository.findForPractice(userId, limit);
+  async findForPractice(userId: string, limit: number = 10, tabId?: string) {
+    return this.vocabularyRepository.findForPractice(userId, limit, tabId);
   }
 
-  async findByLearningDate(userId: string) {
-    return this.vocabularyRepository.findByLearningDate(userId);
+  async findByLearningDate(userId: string, tabId?: string) {
+    return this.vocabularyRepository.findByLearningDate(userId, tabId);
   }
 }

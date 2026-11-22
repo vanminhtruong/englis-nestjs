@@ -7,6 +7,7 @@ import {
   ManyToOne,
   ManyToMany,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { User } from './user.entity';
 import { Vocabulary } from './vocabulary.entity';
 
@@ -34,7 +35,7 @@ export class Category {
   pinnedAt: Date | null;
 
   @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
-  user: User;
+  user: Relation<User>;
 
   @Column()
   userId: string;

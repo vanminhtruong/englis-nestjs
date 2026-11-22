@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
 } from 'typeorm'
+import type { Relation } from 'typeorm';
 import { User } from './user.entity'
 
 @Entity('tags')
@@ -23,7 +24,7 @@ export class Tag {
   color: string
 
   @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
-  user: User
+  user: Relation<User>
 
   @Column()
   userId: string

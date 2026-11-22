@@ -12,7 +12,7 @@ export class VocabularyService {
     private readonly crudService: VocabularyCrudService,
     private readonly searchService: VocabularySearchService,
     private readonly vocabularyRepository: VocabularyRepository,
-  ) { }
+  ) {}
 
   async findAll(userId: string) {
     return this.crudService.findAll(userId);
@@ -60,8 +60,8 @@ export class VocabularyService {
     return this.searchService.findByTags(userId, tags);
   }
 
-  async findForPractice(userId: string, limit: number = 10) {
-    return this.searchService.findForPractice(userId, limit);
+  async findForPractice(userId: string, limit: number = 10, tabId?: string) {
+    return this.searchService.findForPractice(userId, limit, tabId);
   }
 
   async toggleFavorite(id: string, userId: string) {
@@ -80,8 +80,8 @@ export class VocabularyService {
     return this.vocabularyRepository.getFavoritesPaginated(userId, page, limit);
   }
 
-  async findByLearningDate(userId: string) {
-    return this.searchService.findByLearningDate(userId);
+  async findByLearningDate(userId: string, tabId?: string) {
+    return this.searchService.findByLearningDate(userId, tabId);
   }
 
   async moveByLearningDate(userId: string, dto: MoveVocabularyByDateDto) {
@@ -94,8 +94,20 @@ export class VocabularyService {
     );
   }
 
-  async updateTopic(userId: string, date: string, topic: string, icon?: string, color?: string) {
-    return this.vocabularyRepository.updateTopic(userId, date, topic, icon, color);
+  async updateTopic(
+    userId: string,
+    date: string,
+    topic: string,
+    icon?: string,
+    color?: string,
+  ) {
+    return this.vocabularyRepository.updateTopic(
+      userId,
+      date,
+      topic,
+      icon,
+      color,
+    );
   }
 
   async updateFilterState(userId: string, isExpanded: boolean) {

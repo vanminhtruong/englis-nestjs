@@ -14,7 +14,7 @@ export class VocabularyRepository {
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(CategoryDateTopic)
     private readonly topicRepository: Repository<CategoryDateTopic>,
-  ) { }
+  ) {}
 
   async findAll(userId: string): Promise<Vocabulary[]> {
     return this.repository.find({
@@ -60,16 +60,26 @@ export class VocabularyRepository {
 
     // Filter by category IDs (vocabulary must be in at least one of the selected categories)
     if (categoryIds && categoryIds.length > 0) {
-      qb.innerJoin('vocabulary.categories', 'filterCategory', 'filterCategory.id IN (:...categoryIds)', { categoryIds });
+      qb.innerJoin(
+        'vocabulary.categories',
+        'filterCategory',
+        'filterCategory.id IN (:...categoryIds)',
+        { categoryIds },
+      );
     }
 
     // Filter by tags (vocabulary must have at least one of the selected tags)
     if (tags && tags.length > 0) {
-      const tagConditions = tags.map((tag, index) => `vocabulary.tags LIKE :filterTag${index}`);
-      const tagParams = tags.reduce((acc, tag, index) => {
-        acc[`filterTag${index}`] = `%${tag}%`;
-        return acc;
-      }, {} as Record<string, string>);
+      const tagConditions = tags.map(
+        (tag, index) => `vocabulary.tags LIKE :filterTag${index}`,
+      );
+      const tagParams = tags.reduce(
+        (acc, tag, index) => {
+          acc[`filterTag${index}`] = `%${tag}%`;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
       qb.andWhere(`(${tagConditions.join(' OR ')})`, tagParams);
     }
 
@@ -88,7 +98,9 @@ export class VocabularyRepository {
     });
   }
 
-  async create(vocabularyData: Partial<Vocabulary> & { categoryIds?: string[] }): Promise<Vocabulary> {
+  async create(
+    vocabularyData: Partial<Vocabulary> & { categoryIds?: string[] },
+  ): Promise<Vocabulary> {
     const { categoryIds, ...data } = vocabularyData;
 
     // Get existing settings to apply to the new record
@@ -162,12 +174,32 @@ export class VocabularyRepository {
   async findForPractice(
     userId: string,
     limit: number = 10,
+    tabId?: string,
   ): Promise<Vocabulary[]> {
-    return this.repository.find({
-      where: { userId },
-      order: { nextReviewAt: 'ASC' },
-      take: limit,
-    });
+    const query = this.repository
+      .createQueryBuilder('vocabulary')
+      .where('vocabulary.userId = :userId', { userId });
+
+    if (tabId) {
+      query.innerJoin(
+        'vocabulary.tabs',
+        'practiceTab',
+        'practiceTab.id = :tabId AND practiceTab.userId = :userId',
+        { tabId, userId },
+      );
+    }
+
+    return query
+      .orderBy('vocabulary.nextReviewAt', 'ASC')
+      .addOrderBy('vocabulary.createdAt', 'ASC')
+      .addOrderBy('vocabulary.id', 'ASC')
+      .take(
+        Math.max(
+          1,
+          Math.min(50, Number.isFinite(limit) ? Math.trunc(limit) : 10),
+        ),
+      )
+      .getMany();
   }
 
   async updateMastery(
@@ -194,10 +226,7 @@ export class VocabularyRepository {
     await this.repository.save(vocabulary);
   }
 
-  async toggleFavorite(
-    id: string,
-    userId: string,
-  ): Promise<Vocabulary | null> {
+  async toggleFavorite(id: string, userId: string): Promise<Vocabulary | null> {
     const vocabulary = await this.findById(id, userId);
     if (!vocabulary) return null;
 
@@ -205,10 +234,7 @@ export class VocabularyRepository {
     return this.repository.save(vocabulary);
   }
 
-  async togglePin(
-    id: string,
-    userId: string,
-  ): Promise<Vocabulary | null> {
+  async togglePin(id: string, userId: string): Promise<Vocabulary | null> {
     const vocabulary = await this.findById(id, userId);
     if (!vocabulary) return null;
 
@@ -256,22 +282,35 @@ export class VocabularyRepository {
     return { items, total };
   }
 
-  async findByLearningDate(userId: string): Promise<any> {
-    const vocabularies = await this.repository.find({
-      where: { userId },
-      relations: ['categories'],
-      order: { createdAt: 'DESC' },
-    });
+  async findByLearningDate(userId: string, tabId?: string): Promise<any> {
+    const query = this.repository
+      .createQueryBuilder('vocabulary')
+      .leftJoinAndSelect('vocabulary.categories', 'categories')
+      .where('vocabulary.userId = :userId', { userId });
+    if (tabId) {
+      query.innerJoin(
+        'vocabulary.tabs',
+        'practiceTab',
+        'practiceTab.id = :tabId AND practiceTab.userId = :userId',
+        { tabId, userId },
+      );
+    }
+    const vocabularies = await query
+      .orderBy('vocabulary.createdAt', 'DESC')
+      .getMany();
 
     // Group by date (YYYY-MM-DD format)
-    const groupedByDate = vocabularies.reduce((acc, vocab) => {
-      const dateKey = vocab.createdAt.toISOString().split('T')[0];
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
-      }
-      acc[dateKey].push(vocab);
-      return acc;
-    }, {} as Record<string, Vocabulary[]>);
+    const groupedByDate = vocabularies.reduce(
+      (acc, vocab) => {
+        const dateKey = vocab.createdAt.toISOString().split('T')[0];
+        if (!acc[dateKey]) {
+          acc[dateKey] = [];
+        }
+        acc[dateKey].push(vocab);
+        return acc;
+      },
+      {} as Record<string, Vocabulary[]>,
+    );
 
     // Convert to array format with date and vocabularies
     const result = Object.entries(groupedByDate)
@@ -283,27 +322,41 @@ export class VocabularyRepository {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     const topics = await this.topicRepository.find({ where: { userId } });
-    const topicMap = new Map(topics.map(t => [t.date, t]));
+    const topicMap = new Map(topics.map((t) => [t.date, t]));
 
-    return result.map(group => {
+    return result.map((group) => {
       const topicData = topicMap.get(group.date);
       return {
         ...group,
         topic: topicData?.topic || '',
         icon: topicData?.icon || '',
-        color: topicData?.color || ''
+        color: topicData?.color || '',
       };
     });
   }
 
-  async updateTopic(userId: string, date: string, topic: string, icon?: string, color?: string): Promise<CategoryDateTopic> {
-    let dateTopic = await this.topicRepository.findOne({ where: { userId, date } });
+  async updateTopic(
+    userId: string,
+    date: string,
+    topic: string,
+    icon?: string,
+    color?: string,
+  ): Promise<CategoryDateTopic> {
+    let dateTopic = await this.topicRepository.findOne({
+      where: { userId, date },
+    });
     if (dateTopic) {
       dateTopic.topic = topic;
       if (icon !== undefined) dateTopic.icon = icon;
       if (color !== undefined) dateTopic.color = color;
     } else {
-      dateTopic = this.topicRepository.create({ userId, date, topic, icon, color });
+      dateTopic = this.topicRepository.create({
+        userId,
+        date,
+        topic,
+        icon,
+        color,
+      });
     }
     return this.topicRepository.save(dateTopic);
   }
@@ -325,7 +378,9 @@ export class VocabularyRepository {
 
     const toMove = vocabularies.filter((vocab) => {
       const vocabDateKey = vocab.createdAt.toISOString().split('T')[0];
-      const hasCategory = vocab.categories?.some((cat) => cat.id === categoryId);
+      const hasCategory = vocab.categories?.some(
+        (cat) => cat.id === categoryId,
+      );
       return vocabDateKey === fromKey && hasCategory;
     });
 
@@ -344,15 +399,23 @@ export class VocabularyRepository {
     await this.repository.update({ userId }, { isFilterExpanded: isExpanded });
   }
 
-  async updateAllTabHiddenState(userId: string, isHidden: boolean): Promise<void> {
+  async updateAllTabHiddenState(
+    userId: string,
+    isHidden: boolean,
+  ): Promise<void> {
     await this.repository.update({ userId }, { isAllTabHidden: isHidden });
   }
 
-  async updateActiveTabState(userId: string, tabId: string | null): Promise<void> {
+  async updateActiveTabState(
+    userId: string,
+    tabId: string | null,
+  ): Promise<void> {
     await this.repository.update({ userId }, { activeTabId: tabId });
   }
 
-  async getSettings(userId: string): Promise<{ isAllTabHidden: boolean; activeTabId: string | null }> {
+  async getSettings(
+    userId: string,
+  ): Promise<{ isAllTabHidden: boolean; activeTabId: string | null }> {
     const vocabulary = await this.repository.findOne({
       where: { userId },
       select: ['isAllTabHidden', 'activeTabId'],

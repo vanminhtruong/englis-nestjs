@@ -6,6 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { User } from './user.entity';
 import { Vocabulary } from './vocabulary.entity';
 
@@ -51,11 +52,11 @@ export class PracticeHistory {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'userId' })
-  user: User;
+  user: Relation<User>;
 
   @ManyToOne(() => Vocabulary, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'vocabularyId' })
-  vocabulary: Vocabulary;
+  vocabulary: Relation<Vocabulary>;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,7 +1,15 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, Matches, MaxLength } from 'class-validator';
 
 export class UpdateVocabularyTabDto {
-    @IsString()
-    @IsOptional()
-    name?: string;
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  @Matches(
+    /^(?:[a-z][a-z0-9-]{0,39}|\/uploads\/tab-icons\/[a-f0-9-]{36}\.(?:png|jpg|webp))$/,
+  )
+  icon?: string | null;
 }

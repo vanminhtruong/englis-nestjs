@@ -1,14 +1,14 @@
 import {
-    Controller,
-    Post,
-    Body,
-    Get,
-    Put,
-    UseGuards,
-    Request,
-    Res,
-    UseInterceptors,
-    UploadedFile,
+  Controller,
+  Post,
+  Body,
+  Get,
+  Put,
+  UseGuards,
+  Request,
+  Res,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -20,139 +20,147 @@ import { VocabularyWebSocketGateway } from '../websocket/websocket.gateway';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpdateLayoutPreferenceDto } from './dto/update-layout-preference.dto';
 
-import { AuthGuard } from '@nestjs/passport';
+import {
+  GoogleAuthGuard,
+  decodeFrontendState,
+} from './guards/google-auth.guard';
 import { AuthTokenService } from './services/auth-token.service';
 
 @Controller('auth')
 export class AuthController {
-    constructor(
-        private readonly authService: AuthService,
-        private readonly authTokenService: AuthTokenService,
-        private readonly websocketGateway: VocabularyWebSocketGateway,
-    ) { }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly authTokenService: AuthTokenService,
+    private readonly websocketGateway: VocabularyWebSocketGateway,
+  ) {}
 
-    @Get('google')
-    @UseGuards(AuthGuard('google'))
-    async googleAuth(@Request() req) { }
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuth(@Request() req) {}
 
-    @Get('google/redirect')
-    @UseGuards(AuthGuard('google'))
-    async googleAuthRedirect(@Request() req, @Res() res: Response) {
-        const user = req.user;
-        const token = this.authTokenService.generateToken(user.id, user.email);
+  @Get('google/redirect')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuthRedirect(@Request() req, @Res() res: Response) {
+    const user = req.user;
+    const token = this.authTokenService.generateToken(user.id, user.email);
 
-        // Redirect to frontend with token
-        // Assuming frontend is running on localhost:5173
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-        res.redirect(`${frontendUrl}/login/callback?token=${token}`);
+    // Redirect to frontend with token
+    // Assuming frontend is running on localhost:5173
+    const frontendUrl =
+      decodeFrontendState(req.query?.state) ||
+      process.env.FRONTEND_URL ||
+      (process.env.NODE_ENV === 'production'
+        ? 'https://vanminhtruong.github.io/englis-nestjs'
+        : 'http://localhost:5173');
+    res.redirect(`${frontendUrl}/login/callback?token=${token}`);
+  }
+
+  @Post('register')
+  async register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
+  }
+
+  @Post('login')
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getProfile(@Request() req) {
+    return {
+      id: req.user.id,
+      email: req.user.email,
+      fullName: req.user.fullName,
+      avatar: req.user.avatar,
+      totalScore: req.user.totalScore,
+      totalWords: req.user.totalWords,
+      theme: req.user.theme || 'light',
+      vocabularyLayout: req.user.vocabularyLayout || 'grid',
+      preferredVoiceKey: req.user.preferredVoiceKey || null,
+    };
+  }
+
+  @Put('theme')
+  @UseGuards(JwtAuthGuard)
+  async updateTheme(@Request() req, @Body() body: { theme: string }) {
+    const updatedUser = await this.authService.updateTheme(
+      req.user.id,
+      body.theme,
+    );
+
+    if (!updatedUser) {
+      throw new Error('Failed to update theme');
     }
 
-    @Post('register')
-    async register(@Body() registerDto: RegisterDto) {
-        return this.authService.register(registerDto);
+    // Emit WebSocket event for real-time theme sync
+    this.websocketGateway.emitThemeChanged(req.user.id, body.theme);
+
+    return {
+      id: updatedUser.id,
+      theme: updatedUser.theme,
+    };
+  }
+
+  @Post('recalculate-words')
+  @UseGuards(JwtAuthGuard)
+  async recalculateTotalWords(@Request() req) {
+    const result = await this.authService.recalculateTotalWords(req.user.id);
+    return result;
+  }
+
+  @Put('profile')
+  @UseGuards(JwtAuthGuard)
+  async updateProfile(@Request() req, @Body() body: UpdateProfileDto) {
+    const profile = await this.authService.updateProfile(req.user.id, body);
+
+    this.websocketGateway.emitProfileUpdated(req.user.id, profile);
+
+    return profile;
+  }
+
+  @Put('layout')
+  @UseGuards(JwtAuthGuard)
+  async updateVocabularyLayout(
+    @Request() req,
+    @Body() body: UpdateLayoutPreferenceDto,
+  ) {
+    const updatedUser = await this.authService.updateVocabularyLayout(
+      req.user.id,
+      body.layout,
+    );
+
+    if (!updatedUser) {
+      throw new Error('Failed to update vocabulary layout preference');
     }
 
-    @Post('login')
-    async login(@Body() loginDto: LoginDto) {
-        return this.authService.login(loginDto);
-    }
+    this.websocketGateway.emitLayoutChanged(req.user.id, body.layout);
 
-    @Get('me')
-    @UseGuards(JwtAuthGuard)
-    async getProfile(@Request() req) {
-        return {
-            id: req.user.id,
-            email: req.user.email,
-            fullName: req.user.fullName,
-            avatar: req.user.avatar,
-            totalScore: req.user.totalScore,
-            totalWords: req.user.totalWords,
-            theme: req.user.theme || 'light',
-            vocabularyLayout: req.user.vocabularyLayout || 'grid',
-            preferredVoiceKey: req.user.preferredVoiceKey || null,
-        };
-    }
+    return {
+      id: updatedUser.id,
+      vocabularyLayout: updatedUser.vocabularyLayout || 'grid',
+    };
+  }
 
-    @Put('theme')
-    @UseGuards(JwtAuthGuard)
-    async updateTheme(@Request() req, @Body() body: { theme: string }) {
-        const updatedUser = await this.authService.updateTheme(
-            req.user.id,
-            body.theme,
-        );
+  @Get('export')
+  @UseGuards(JwtAuthGuard)
+  async exportData(@Request() req, @Res() res: Response) {
+    const buffer = await this.authService.exportUserData(req.user.id);
 
-        if (!updatedUser) {
-            throw new Error('Failed to update theme');
-        }
+    res.set({
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': 'attachment; filename="profile_export.xlsx"',
+      'Content-Length': buffer.length,
+    });
 
-        // Emit WebSocket event for real-time theme sync
-        this.websocketGateway.emitThemeChanged(req.user.id, body.theme);
+    res.end(buffer);
+  }
 
-        return {
-            id: updatedUser.id,
-            theme: updatedUser.theme,
-        };
-    }
-
-    @Post('recalculate-words')
-    @UseGuards(JwtAuthGuard)
-    async recalculateTotalWords(@Request() req) {
-        const result = await this.authService.recalculateTotalWords(req.user.id);
-        return result;
-    }
-
-    @Put('profile')
-    @UseGuards(JwtAuthGuard)
-    async updateProfile(@Request() req, @Body() body: UpdateProfileDto) {
-        const profile = await this.authService.updateProfile(req.user.id, body);
-
-        this.websocketGateway.emitProfileUpdated(req.user.id, profile);
-
-        return profile;
-    }
-
-    @Put('layout')
-    @UseGuards(JwtAuthGuard)
-    async updateVocabularyLayout(
-        @Request() req,
-        @Body() body: UpdateLayoutPreferenceDto,
-    ) {
-        const updatedUser = await this.authService.updateVocabularyLayout(
-            req.user.id,
-            body.layout,
-        );
-
-        if (!updatedUser) {
-            throw new Error('Failed to update vocabulary layout preference');
-        }
-
-        this.websocketGateway.emitLayoutChanged(req.user.id, body.layout);
-
-        return {
-            id: updatedUser.id,
-            vocabularyLayout: updatedUser.vocabularyLayout || 'grid',
-        };
-    }
-
-    @Get('export')
-    @UseGuards(JwtAuthGuard)
-    async exportData(@Request() req, @Res() res: Response) {
-        const buffer = await this.authService.exportUserData(req.user.id);
-
-        res.set({
-            'Content-Type':
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition': 'attachment; filename="profile_export.xlsx"',
-            'Content-Length': buffer.length,
-        });
-
-        res.end(buffer);
-    }
-
-    @Post('import')
-    @UseGuards(JwtAuthGuard)
-    @UseInterceptors(FileInterceptor('file'))
-    async importData(@Request() req, @UploadedFile() file: Express.Multer.File) {
-        return this.authService.importUserData(req.user.id, file);
-    }
+  @Post('import')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async importData(@Request() req, @UploadedFile() file: Express.Multer.File) {
+    return this.authService.importUserData(req.user.id, file);
+  }
 }

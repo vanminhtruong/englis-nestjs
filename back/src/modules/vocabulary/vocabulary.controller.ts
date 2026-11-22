@@ -30,7 +30,7 @@ export class VocabularyController {
     private readonly vocabularyService: VocabularyService,
     private readonly uploadService: UploadService,
     private readonly websocketGateway: VocabularyWebSocketGateway,
-  ) { }
+  ) {}
 
   @Get()
   async findAll(
@@ -45,7 +45,9 @@ export class VocabularyController {
   ) {
     const p = page ? parseInt(page.toString(), 10) : 1;
     const l = limit ? parseInt(limit.toString(), 10) : 6;
-    const categoryIdArray = categoryIds ? categoryIds.split(',').filter(Boolean) : undefined;
+    const categoryIdArray = categoryIds
+      ? categoryIds.split(',').filter(Boolean)
+      : undefined;
     const tagArray = tags ? tags.split(',').filter(Boolean) : undefined;
     const result = await this.vocabularyService.findAllPaginated(
       req.user.id,
@@ -69,10 +71,15 @@ export class VocabularyController {
   }
 
   @Get('practice')
-  async findForPractice(@Request() req, @Query('limit') limit?: number) {
+  async findForPractice(
+    @Request() req,
+    @Query('limit') limit?: number,
+    @Query('tabId') tabId?: string,
+  ) {
     return this.vocabularyService.findForPractice(
       req.user.id,
-      limit ? parseInt(limit.toString()) : 10,
+      limit ? parseInt(limit.toString(), 10) : 10,
+      tabId,
     );
   }
 
@@ -107,24 +114,33 @@ export class VocabularyController {
   }
 
   @Get('by-learning-date')
-  async findByLearningDate(@Request() req) {
-    return this.vocabularyService.findByLearningDate(req.user.id);
+  async findByLearningDate(@Request() req, @Query('tabId') tabId?: string) {
+    return this.vocabularyService.findByLearningDate(req.user.id, tabId);
   }
 
   @Patch('settings/filter-state')
-  async updateFilterState(@Body('isExpanded') isExpanded: boolean, @Request() req) {
+  async updateFilterState(
+    @Body('isExpanded') isExpanded: boolean,
+    @Request() req,
+  ) {
     await this.vocabularyService.updateFilterState(req.user.id, isExpanded);
     return { success: true };
   }
 
   @Patch('settings/all-tab-hidden')
-  async updateAllTabHiddenState(@Body('isHidden') isHidden: boolean, @Request() req) {
+  async updateAllTabHiddenState(
+    @Body('isHidden') isHidden: boolean,
+    @Request() req,
+  ) {
     await this.vocabularyService.updateAllTabHiddenState(req.user.id, isHidden);
     return { success: true };
   }
 
   @Patch('settings/active-tab')
-  async updateActiveTabState(@Body('tabId') tabId: string | null, @Request() req) {
+  async updateActiveTabState(
+    @Body('tabId') tabId: string | null,
+    @Request() req,
+  ) {
     await this.vocabularyService.updateActiveTabState(req.user.id, tabId);
     return { success: true };
   }
@@ -165,10 +181,7 @@ export class VocabularyController {
 
   @Patch(':id/pin')
   async togglePin(@Param('id') id: string, @Request() req) {
-    const vocabulary = await this.vocabularyService.togglePin(
-      id,
-      req.user.id,
-    );
+    const vocabulary = await this.vocabularyService.togglePin(id, req.user.id);
     if (vocabulary) {
       this.websocketGateway.server.emit('vocabulary:pinned', vocabulary);
       this.websocketGateway.emitVocabularyUpdated(vocabulary);
@@ -204,10 +217,7 @@ export class VocabularyController {
   }
 
   @Post('move-by-date')
-  async moveByDate(
-    @Body() dto: MoveVocabularyByDateDto,
-    @Request() req,
-  ) {
+  async moveByDate(@Body() dto: MoveVocabularyByDateDto, @Request() req) {
     await this.vocabularyService.moveByLearningDate(req.user.id, dto);
     this.websocketGateway.emitVocabularyByDateRefresh(req.user.id);
     return { message: 'Vocabularies moved successfully' };
@@ -217,13 +227,20 @@ export class VocabularyController {
     @Body() dto: UpdateCategoryTopicDto,
     @Request() req,
   ) {
-    return this.vocabularyService.updateTopic(req.user.id, dto.date, dto.topic, dto.icon, dto.color);
+    return this.vocabularyService.updateTopic(
+      req.user.id,
+      dto.date,
+      dto.topic,
+      dto.icon,
+      dto.color,
+    );
   }
 
   @Patch(':id/background')
   async updateBackground(
     @Param('id') id: string,
-    @Body() body: { backgroundUrl?: string | null; animatedBackground?: string | null },
+    @Body()
+    body: { backgroundUrl?: string | null; animatedBackground?: string | null },
     @Request() req,
   ) {
     return this.vocabularyService.update(id, req.user.id, {

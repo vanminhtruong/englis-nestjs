@@ -3,7 +3,6 @@ import {
   ConflictException,
   UnauthorizedException,
 } from '@nestjs/common';
-import * as ExcelJS from 'exceljs';
 import { UserRepository } from '../repositories/user.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -169,6 +168,8 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
 
+    // ExcelJS is loaded only when importing or exporting data, not on server startup.
+    const ExcelJS = require('exceljs') as typeof import('exceljs');
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'English Learning App';
     workbook.created = new Date();
@@ -245,6 +246,8 @@ export class AuthService {
   }
 
   async importUserData(userId: string, file: Express.Multer.File) {
+    // ExcelJS is loaded only when importing or exporting data, not on server startup.
+    const ExcelJS = require('exceljs') as typeof import('exceljs');
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.load(file.buffer as any);
 

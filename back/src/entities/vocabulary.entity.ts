@@ -9,6 +9,7 @@ import {
   JoinColumn,
   JoinTable,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { User } from './user.entity';
 import { Category } from './category.entity';
 import { VocabularyTab } from './vocabulary-tab.entity';
@@ -93,7 +94,7 @@ export class Vocabulary {
 
   @ManyToOne(() => User, (user) => user.vocabularies, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
-  user: User;
+  user: Relation<User>;
 
   @ManyToMany(() => Category, (category) => category.vocabularies)
   @JoinTable({
