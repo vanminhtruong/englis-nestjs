@@ -135,6 +135,10 @@ export default {
     createNewTab: "创建新选项卡",
     moreTabs: "更多主题",
     clickToSwitch: "点击切换主题",
+    orderSaveFailed: "无法保存标签排序，请重试。",
+    deleteConfirm: '删除标签“{name}”？标签中的单词不会被删除。',
+    deleteSuccess: "标签已删除。",
+    deleteFailed: "无法删除标签，请重试。",
   },
   wordDrawing: {
     wordDrawer: "单词绘制 & 键盘",

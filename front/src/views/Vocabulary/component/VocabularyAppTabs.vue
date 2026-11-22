@@ -212,6 +212,7 @@
 
         <!-- Dropdown Panel -->
         <Transition
+          :css="!skipDropdownAnimation"
           enter-active-class="transition duration-200 ease-out"
           enter-from-class="opacity-0 scale-95 -translate-y-2"
           enter-to-class="opacity-100 scale-100 translate-y-0"
@@ -266,12 +267,12 @@
               <div
                 v-for="tab in hiddenTabs"
                 :key="tab.id"
-                class="group/item relative flex items-center gap-2 rounded-xl overflow-hidden"
+                class="group/item relative flex min-w-0 items-center gap-1 rounded-xl"
               >
                 <button
                   @click.stop="selectHiddenTab(tab.id)"
                   :class="[
-                    'flex-1 text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2.5',
+                    'min-w-0 flex-1 text-left px-2.5 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2',
                     activeTabId === tab.id
                       ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-sm'
                       : 'text-gray-600 dark:text-white/70 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white',
@@ -287,7 +288,7 @@
                     "
                   ></span>
                   <TabIcon :icon="tab.icon" :active="activeTabId === tab.id" size="xs" />
-                  <span class="truncate max-w-40">{{ tab.name }}</span>
+                  <span class="min-w-0 flex-1 truncate">{{ tab.name }}</span>
                   <span
                     v-if="activeTabId === tab.id"
                     class="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-white/20 text-white/90 shrink-0"
@@ -299,17 +300,19 @@
                 <!-- Edit/Delete Actions -->
                 <div
                   v-if="!selectionOnly"
-                  class="flex items-center gap-0.5 pr-2 opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0"
+                  class="flex shrink-0 items-center gap-1 pr-1.5"
                 >
                   <button
+                    type="button"
                     @click.stop="$emit('edit', tab)"
-                    class="p-1 rounded-lg text-gray-400 dark:text-white/40 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                    class="flex h-9 w-9 min-h-[36px] min-w-[36px] items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-2 focus-visible:ring-primary-500 dark:bg-white/5 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
+                    :aria-label="t('vocabularyTabs.editName')"
                     :title="t('vocabularyTabs.editName')"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="11"
-                      height="11"
+                      width="15"
+                      height="15"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -322,14 +325,16 @@
                     </svg>
                   </button>
                   <button
+                    type="button"
                     @click.stop="$emit('delete', tab)"
-                    class="p-1 rounded-lg text-gray-400 dark:text-white/40 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+                    class="flex h-9 w-9 min-h-[36px] min-w-[36px] items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:ring-2 focus-visible:ring-primary-500 dark:bg-white/5 dark:text-white/70 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+                    :aria-label="t('vocabularyTabs.deleteTab')"
                     :title="t('vocabularyTabs.deleteTab')"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="11"
-                      height="11"
+                      width="15"
+                      height="15"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -384,7 +389,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, nextTick, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 import TabIcon from "../../../components/common/TabIcon.vue";
 
@@ -416,6 +421,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   select: [id: string | null];
+  'select-hidden': [id: string];
   create: [];
   edit: [tab: VocabularyTabOption];
   delete: [tab: VocabularyTabOption];
@@ -425,6 +431,7 @@ const emit = defineEmits<{
 const tabsContainer = ref<HTMLElement | null>(null);
 const moreMenuRef = ref<HTMLElement | null>(null);
 const isMoreMenuOpen = ref(false);
+const skipDropdownAnimation = ref(false);
 
 // In selection-only mode, five or more tabs collapse to All + the active tab.
 // Keep the active tab visible even when it belongs to the overflow list.
@@ -450,8 +457,15 @@ const toggleMoreMenu = () => {
 };
 
 const selectHiddenTab = (id: string) => {
-  emit("select", id);
+  // Close without a leave animation: the clicked item is immediately moved
+  // to the visible row, so animating the old overflow list would flicker.
+  skipDropdownAnimation.value = true;
   isMoreMenuOpen.value = false;
+  if (props.selectionOnly) emit("select", id);
+  else emit("select-hidden", id);
+  void nextTick(() => {
+    skipDropdownAnimation.value = false;
+  });
 };
 
 const handleTabClick = (id: string | null) => {

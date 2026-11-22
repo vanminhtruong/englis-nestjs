@@ -17,6 +17,7 @@
             :active-tab-id="tabHandle.activeTabId.value"
             :is-all-tab-hidden="tabHandle.isAllTabHidden.value"
             @select="tabHandle.handleTabSelect"
+            @select-hidden="tabHandle.handleHiddenTabSelect"
             @create="tabHandle.handleCreateTab"
             @edit="tabHandle.handleEditTab"
             @delete="tabHandle.handleDeleteTab"

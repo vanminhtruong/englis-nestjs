@@ -141,6 +141,10 @@ export default {
     createNewTab: "Create New Tab",
     moreTabs: "More Topics",
     clickToSwitch: "Click to switch topic",
+    orderSaveFailed: "Couldn't save the tab order. Please try again.",
+    deleteConfirm: 'Delete tab "{name}"? Words in this tab will not be deleted.',
+    deleteSuccess: "Tab deleted successfully.",
+    deleteFailed: "Couldn't delete this tab. Please try again.",
   },
   wordDrawing: {
     wordDrawer: "Word Drawer",

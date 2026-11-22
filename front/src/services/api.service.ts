@@ -80,6 +80,8 @@ export default {
       });
     },
     delete: (id: string) => apiClient.delete(`/vocabulary-tabs/${id}`),
+    promoteFromOverflow: (tabId: string, previousTabId: string | null) =>
+      apiClient.patch(`/vocabulary-tabs/promote-from-overflow`, { tabId, previousTabId }),
     addVocabulary: (tabId: string, vocabularyId: string) =>
       apiClient.post(`/vocabulary-tabs/${tabId}/vocabularies/${vocabularyId}`),
     removeVocabulary: (tabId: string, vocabularyId: string) =>
@@ -129,8 +131,14 @@ export default {
       apiClient.patch("/vocabulary/settings/filter-state", { isExpanded }),
     updateAllTabHiddenState: (isHidden: boolean) =>
       apiClient.patch("/vocabulary/settings/all-tab-hidden", { isHidden }),
-    updateActiveTabState: (tabId: string | null) =>
-      apiClient.patch("/vocabulary/settings/active-tab", { tabId }),
+    updateActiveTabState: (
+      tabId: string | null,
+      overflow?: { previousTabId: string | null },
+    ) =>
+      apiClient.patch("/vocabulary/settings/active-tab", {
+        tabId,
+        ...(overflow ? { fromOverflow: true, previousTabId: overflow.previousTabId } : {}),
+      }),
     getSettings: () => apiClient.get("/vocabulary/settings"),
     updateBackground: (
       id: string,

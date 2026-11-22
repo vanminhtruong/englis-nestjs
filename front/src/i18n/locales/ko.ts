@@ -140,6 +140,10 @@ export default {
     createNewTab: "새 탭 만들기",
     moreTabs: "더 많은 주제",
     clickToSwitch: "클릭하여 주제 전환",
+    orderSaveFailed: "탭 순서를 저장하지 못했습니다. 다시 시도해 주세요.",
+    deleteConfirm: '"{name}" 탭을 삭제하시겠습니까? 해당 탭의 단어는 삭제되지 않습니다.',
+    deleteSuccess: "탭이 삭제되었습니다.",
+    deleteFailed: "탭을 삭제하지 못했습니다. 다시 시도해 주세요.",
   },
   wordDrawing: {
     wordDrawer: "단어 그리기 & 키보드",

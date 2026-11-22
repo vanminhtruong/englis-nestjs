@@ -37,4 +37,5 @@ __screenshots__/
 
 # Generated responsive audit outputs (keep the test runner, ignore generated evidence)
 /tests/responsive-audit-report.json
+/tests/tab-overflow-audit-report.json
 /tests/responsive-screenshots/

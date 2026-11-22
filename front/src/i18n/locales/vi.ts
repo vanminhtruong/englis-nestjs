@@ -141,6 +141,10 @@ export default {
     createNewTab: "Tạo tab mới",
     moreTabs: "Chủ đề khác",
     clickToSwitch: "Nhấn để chuyển chủ đề",
+    orderSaveFailed: "Không lưu được thứ tự tab. Vui lòng thử lại.",
+    deleteConfirm: 'Xóa tab "{name}"? Các từ vựng trong tab sẽ không bị xóa.',
+    deleteSuccess: "Đã xóa tab thành công.",
+    deleteFailed: "Không thể xóa tab. Vui lòng thử lại.",
   },
   wordDrawing: {
     wordDrawer: "Bảng Vẽ & Bàn Phím",

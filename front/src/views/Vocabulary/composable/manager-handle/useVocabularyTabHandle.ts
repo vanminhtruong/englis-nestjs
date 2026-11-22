@@ -25,6 +25,7 @@ export function useVocabularyTabHandle(
   const tabs = ref<Tab[]>([]);
   const activeTabId = ref<string | null>(null);
   const isAllTabHidden = ref(false);
+  const isPromotingHiddenTab = ref(false);
 
   // Tab name modal state
   const showTabNameModal = ref(false);
@@ -107,6 +108,42 @@ export function useVocabularyTabHandle(
       await apiService.vocabulary.updateActiveTabState(tabId);
     } catch (error) {
       console.error("Failed to update active tab state on backend", error);
+    }
+  }
+
+  // Only tabs picked from the overflow menu are promoted. Visible tab clicks
+  // continue to use handleTabSelect and do not change the persisted order.
+  async function handleHiddenTabSelect(tabId: string) {
+    if (isPromotingHiddenTab.value) return;
+    const selected = tabs.value.find((tab) => tab.id === tabId);
+    if (!selected) return;
+
+    const previousTabId = activeTabId.value;
+    if (tabId === previousTabId) return;
+
+    const before = [...tabs.value];
+    const previous = before.find((tab) => tab.id === previousTabId);
+    const pinnedIds = new Set([tabId, previousTabId]);
+    tabs.value = [
+      selected,
+      ...(previous ? [previous] : []),
+      ...before.filter((tab) => !pinnedIds.has(tab.id)),
+    ];
+
+    // Update the selection and order together, without rendering the old list
+    // again while the request is in flight (which caused visible flicker).
+    activeTabId.value = tabId;
+    vocabularyFilter.tabId = tabId;
+    isPromotingHiddenTab.value = true;
+    try {
+      await apiService.vocabulary.updateActiveTabState(tabId, { previousTabId });
+    } catch (error) {
+      // Older running servers may not support the ordering payload yet.
+      // Keep the user's selection and the stable UI instead of flashing the
+      // old order and displaying a misleading toast on every tab click.
+      console.error("Unable to persist selected overflow tab:", error);
+    } finally {
+      isPromotingHiddenTab.value = false;
     }
   }
 
@@ -197,7 +234,7 @@ export function useVocabularyTabHandle(
 
   function handleDeleteTab(tab: Tab) {
     toast.confirm(
-      `Are you sure you want to delete tab "${tab.name}"?`,
+      t("vocabularyTabs.deleteConfirm", { name: tab.name }),
       async () => {
         try {
           await apiService.tab.delete(tab.id);
@@ -207,13 +244,13 @@ export function useVocabularyTabHandle(
           }
           await loadTabs();
           onPageChange(getCurrentPage());
-          toast.showSuccess("Tab deleted successfully!");
+          toast.showSuccess(t("vocabularyTabs.deleteSuccess"));
         } catch (error) {
           console.error("Failed to delete tab:", error);
-          toast.showError("Failed to delete tab. Please try again.");
+          toast.showError(t("vocabularyTabs.deleteFailed"));
         }
       },
-      { label: "Delete", type: "error" },
+      { label: t("vocabularyTabs.deleteTab"), type: "error" },
     );
   }
 
@@ -246,6 +283,7 @@ export function useVocabularyTabHandle(
     selectedVocabForTabs,
     loadTabs,
     handleTabSelect,
+    handleHiddenTabSelect,
     handleAllTabToggle,
     handleCreateTab,
     handleEditTab,
