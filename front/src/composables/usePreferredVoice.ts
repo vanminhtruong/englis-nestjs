@@ -22,7 +22,7 @@ export function getPreferredVoice(fallbackLang = 'en-US'): SpeechSynthesisVoice 
   const byLang = voices.find((v) => v.lang === fallbackLang)
   if (byLang) return byLang
 
-  const byLangPrefix = voices.find((v) => v.lang.startsWith(fallbackLang.split('-')[0]))
+  const byLangPrefix = voices.find((v) => v.lang.startsWith(fallbackLang.split('-')[0] ?? fallbackLang))
   if (byLangPrefix) return byLangPrefix
 
   return voices[0] ?? null

@@ -10,25 +10,20 @@ export function useBallShootingGame(session: ComputedRef<any>) {
 
   // Watch for ball_shooting mode selection
   watch(
-    () => session.value.mode,
-    async (newMode) => {
-      if (
-        newMode === "ball_shooting" &&
-        session.value.questions.length > 0
-      ) {
-        ballShootingQuestions.value = session.value.questions.map(
-          (q: any) => ({
-            vocabularyId: q.vocabularyId,
-            word: q.word,
-            pronunciation: q.pronunciation,
-            meaning: q.meaning,
-            example: q.example,
-            image: q.image,
-          })
-        );
+    () => [session.value.mode, session.value.questions] as const,
+    async ([newMode]) => {
+      if (newMode === "ball_shooting" && session.value.questions.length > 0) {
+        ballShootingQuestions.value = session.value.questions.map((q: any) => ({
+          vocabularyId: q.vocabularyId,
+          word: q.word,
+          pronunciation: q.pronunciation,
+          meaning: q.meaning,
+          example: q.example,
+          image: q.image,
+        }));
       }
     },
-    { immediate: true }
+    { immediate: true },
   );
 
   // Handle Ball Shooting game completion

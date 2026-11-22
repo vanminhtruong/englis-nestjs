@@ -133,6 +133,7 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
+import CustomCheckbox from "../../components/CustomCheckbox.vue";
 import { useI18n } from "vue-i18n";
 import { useHistoryState } from "./composable/manager-state/useHistoryState";
 import { useHistoryHandle } from "./composable/manager-handle/useHistoryHandle";
@@ -157,7 +158,6 @@ const Pagination = defineAsyncComponent(
 const AppLoading = defineAsyncComponent(
   () => import("../../components/common/AppLoading.vue") as any
 );
-import CustomCheckbox from "../../components/CustomCheckbox.vue";
 
 const { t } = useI18n();
 

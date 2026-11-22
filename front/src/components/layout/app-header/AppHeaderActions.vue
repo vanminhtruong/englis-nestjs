@@ -36,7 +36,7 @@
     </button>
 
     <template v-if="isAuthenticated">
-      <div class="hidden md:block relative z-[70]">
+      <div class="hidden lg:block relative z-[70]">
         <button
           @click="$emit('toggle-user-menu')"
           class="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
@@ -183,9 +183,7 @@
                 >
                   <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                 </svg>
-                <span class="font-medium">{{
-                  t("header.learningProgress")
-                }}</span>
+                <span class="font-medium">{{ t("header.learningProgress") }}</span>
               </RouterLink>
               <button
                 @click="$emit('logout')"
@@ -261,14 +259,17 @@
 
     <button
       v-if="isAuthenticated"
+      type="button"
+      :aria-label="t('header.profile')"
+      :aria-expanded="isMobileAccountMenuOpen"
+      aria-haspopup="true"
       @click="$emit('toggle-mobile-account-menu')"
-      class="lg:hidden w-10 h-10 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
+      class="lg:hidden w-10 h-10 shrink-0 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
     >
       <img
         :src="userAvatarSrc"
         alt="Avatar"
-        class="w-9 h-9 rounded-full border border-primary-500 cursor-pointer hover:border-primary-600 transition-all"
-        @click.stop="openAvatarZoom"
+        class="w-9 h-9 rounded-full border border-primary-500 pointer-events-none"
       />
     </button>
     <button
@@ -311,11 +312,9 @@ import { defineAsyncComponent, ref } from "vue";
 import { RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
 
-const LanguageSwitcher = defineAsyncComponent(
-  () => import("../../LanguageSwitcher.vue") as any
-);
+const LanguageSwitcher = defineAsyncComponent(() => import("../../LanguageSwitcher.vue") as any);
 const AvatarZoomModal = defineAsyncComponent(
-  () => import("../../common/AvatarZoomModal.vue") as any
+  () => import("../../common/AvatarZoomModal.vue") as any,
 );
 
 const props = defineProps<{
@@ -323,6 +322,7 @@ const props = defineProps<{
   isAuthenticated: boolean;
   isUserMenuOpen: boolean;
   isMobileMenuOpen: boolean;
+  isMobileAccountMenuOpen: boolean;
   userAvatarSrc: string;
   userInitials: string;
   userWordsCount: number;

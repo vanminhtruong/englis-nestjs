@@ -10,6 +10,7 @@ export interface Vocabulary {
   exampleTranslation?: string
   note?: string
   image?: string
+  video?: string
   audio?: string
   difficulty: 'easy' | 'medium' | 'hard'
   masteryLevel: 'new' | 'learning' | 'familiar' | 'mastered'

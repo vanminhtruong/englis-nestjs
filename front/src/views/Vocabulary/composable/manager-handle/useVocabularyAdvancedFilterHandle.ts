@@ -84,21 +84,8 @@ export function useVocabularyAdvancedFilterHandle(
         filter.tags = tags
     }
 
-    // Handle bulk add saved
+    // Assignment is additive: never move words out of other tabs.
     async function handleBulkAddSaved() {
-        // If in a custom tab (not "All"), adding to another tab acts as a "Move", so remove from current tab
-        if (filter.tabId && filter.tabId !== 'all') {
-            const currentTabId = filter.tabId;
-            const idsToRemove = [...selectionHandle.selectedVocabularyIds.value];
-            if (idsToRemove.length > 0) {
-                try {
-                    await Promise.all(idsToRemove.map(id => apiService.tab.removeVocabulary(currentTabId, id)));
-                } catch (error) {
-                    console.error("Failed to remove vocabularies from source tab after move", error);
-                }
-            }
-        }
-
         selectionHandle.clearSelection()
         await tabHandle.loadTabs()
         filterHandle.handlePageChange(store.page)

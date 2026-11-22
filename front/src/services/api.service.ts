@@ -1,133 +1,164 @@
-import axios from 'axios'
-import { useAuthStore } from '../stores/auth.store'
+import axios from "axios";
+import { useAuthStore } from "../stores/auth.store";
+import type { UserBackground } from "../types/user-background";
+import { readConfiguredBackendUrl } from "../utils/backendUrl";
 
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+// On GitHub Pages the user may set a private Tailscale endpoint once in the browser.
+// Never send authentication tokens to a fabricated localhost URL in production.
+export const API_URL =
+  readConfiguredBackendUrl() ||
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.DEV ? "http://localhost:3000" : "");
 
 export const apiClient = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
-})
+});
 
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
   (config) => {
-    const authStore = useAuthStore()
+    const authStore = useAuthStore();
     if (authStore.token) {
-      config.headers.Authorization = `Bearer ${authStore.token}`
+      config.headers.Authorization = `Bearer ${authStore.token}`;
     }
-    return config
+    return config;
   },
   (error) => {
-    return Promise.reject(error)
-  }
-)
+    return Promise.reject(error);
+  },
+);
 
 // Response interceptor to handle errors
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401 && !error.config.url.includes('/auth/login')) {
-      const authStore = useAuthStore()
-      authStore.clearAuth()
+    if (error.response?.status === 401 && !error.config.url.includes("/auth/login")) {
+      const authStore = useAuthStore();
+      authStore.clearAuth();
       // window.location.href = '/login'
     }
-    return Promise.reject(error)
-  }
-)
+    return Promise.reject(error);
+  },
+);
 
 export default {
   // Auth endpoints
   auth: {
-    register: (data: any) => apiClient.post('/auth/register', data),
-    login: (data: any) => apiClient.post('/auth/login', data),
-    getProfile: () => apiClient.get('/auth/me'),
-    updateTheme: (theme: string) => apiClient.put('/auth/theme', { theme }),
-    updateVocabularyLayout: (layout: 'grid' | 'list') =>
-      apiClient.put('/auth/layout', { layout }),
-    updateCategoriesLayout: (layout: 'grid' | 'list') =>
-      apiClient.put('/auth/categories-layout', { layout }),
-    recalculateWords: () => apiClient.post('/auth/recalculate-words'),
-    updateProfile: (data: any) => apiClient.put('/auth/profile', data),
-    exportData: () => apiClient.get('/auth/export', { responseType: 'blob' }),
+    register: (data: any) => apiClient.post("/auth/register", data),
+    login: (data: any) => apiClient.post("/auth/login", data),
+    getProfile: () => apiClient.get("/auth/me"),
+    updateTheme: (theme: string) => apiClient.put("/auth/theme", { theme }),
+    updateVocabularyLayout: (layout: "grid" | "list") => apiClient.put("/auth/layout", { layout }),
+    updateCategoriesLayout: (layout: "grid" | "list") =>
+      apiClient.put("/auth/categories-layout", { layout }),
+    recalculateWords: () => apiClient.post("/auth/recalculate-words"),
+    updateProfile: (data: any) => apiClient.put("/auth/profile", data),
+    exportData: () => apiClient.get("/auth/export", { responseType: "blob" }),
     importData: (formData: FormData) =>
-      apiClient.post('/auth/import', formData, {
+      apiClient.post("/auth/import", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       }),
   },
 
   // Vocabulary endpoints
   tab: {
-    getAll: () => apiClient.get('/vocabulary-tabs'),
-    create: (data: { name: string }) => apiClient.post('/vocabulary-tabs', data),
-    update: (id: string, data: { name: string }) => apiClient.patch(`/vocabulary-tabs/${id}`, data),
+    getAll: () => apiClient.get("/vocabulary-tabs"),
+    create: (data: { name: string; icon?: string | null }) =>
+      apiClient.post("/vocabulary-tabs", data),
+    update: (id: string, data: { name?: string; icon?: string | null }) =>
+      apiClient.patch(`/vocabulary-tabs/${id}`, data),
+    uploadIcon: (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return apiClient.post<{ url: string }>("/vocabulary-tabs/upload-icon", formData, {
+        headers: { "Content-Type": undefined },
+      });
+    },
     delete: (id: string) => apiClient.delete(`/vocabulary-tabs/${id}`),
-    addVocabulary: (tabId: string, vocabularyId: string) => apiClient.post(`/vocabulary-tabs/${tabId}/vocabularies/${vocabularyId}`),
-    removeVocabulary: (tabId: string, vocabularyId: string) => apiClient.delete(`/vocabulary-tabs/${tabId}/vocabularies/${vocabularyId}`),
+    addVocabulary: (tabId: string, vocabularyId: string) =>
+      apiClient.post(`/vocabulary-tabs/${tabId}/vocabularies/${vocabularyId}`),
+    removeVocabulary: (tabId: string, vocabularyId: string) =>
+      apiClient.delete(`/vocabulary-tabs/${tabId}/vocabularies/${vocabularyId}`),
+    assignMany: (tabIds: string[], vocabularyIds: string[]) =>
+      apiClient.post("/vocabulary-tabs/assign", { tabIds, vocabularyIds }),
+    replaceForVocabulary: (vocabularyId: string, tabIds: string[]) =>
+      apiClient.put(`/vocabulary-tabs/vocabularies/${vocabularyId}/tabs`, { tabIds }),
   },
   vocabulary: {
-    getAll: (params?: { page?: number; limit?: number; search?: string; difficulty?: 'easy' | 'medium' | 'hard'; tabId?: string; categoryIds?: string[]; tags?: string[] }) => {
+    getAll: (params?: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      difficulty?: "easy" | "medium" | "hard";
+      tabId?: string;
+      categoryIds?: string[];
+      tags?: string[];
+    }) => {
       const queryParams: any = { ...params };
       if (params?.categoryIds?.length) {
-        queryParams.categoryIds = params.categoryIds.join(',');
+        queryParams.categoryIds = params.categoryIds.join(",");
       }
       if (params?.tags?.length) {
-        queryParams.tags = params.tags.join(',');
+        queryParams.tags = params.tags.join(",");
       }
-      return apiClient.get('/vocabulary', { params: queryParams });
+      return apiClient.get("/vocabulary", { params: queryParams });
     },
     getById: (id: string) => apiClient.get(`/vocabulary/${id}`),
-    create: (data: any) => apiClient.post('/vocabulary', data),
+    create: (data: any) => apiClient.post("/vocabulary", data),
     update: (id: string, data: any) => apiClient.put(`/vocabulary/${id}`, data),
     delete: (id: string) => apiClient.delete(`/vocabulary/${id}`),
     toggleFavorite: (id: string) => apiClient.put(`/vocabulary/${id}/favorite`),
     togglePin: (id: string) => apiClient.patch(`/vocabulary/${id}/pin`),
     getFavorites: (params?: { page?: number; limit?: number }) =>
-      apiClient.get('/vocabulary/favorites/list', { params }),
-    getForPractice: (limit: number = 10) =>
-      apiClient.get(`/vocabulary/practice?limit=${limit}`),
-    getByTags: (tags: string[]) =>
-      apiClient.get(`/vocabulary/tags?tags=${tags.join(',')}`),
-    getByLearningDate: () => apiClient.get('/vocabulary/by-learning-date'),
+      apiClient.get("/vocabulary/favorites/list", { params }),
+    getForPractice: (limit: number = 10, tabId?: string | null) =>
+      apiClient.get("/vocabulary/practice", { params: { limit, tabId: tabId || undefined } }),
+    getByTags: (tags: string[]) => apiClient.get(`/vocabulary/tags?tags=${tags.join(",")}`),
+    getByLearningDate: (tabId?: string | null) =>
+      apiClient.get("/vocabulary/by-learning-date", { params: { tabId: tabId || undefined } }),
     moveByLearningDate: (data: { fromDate: string; toDate: string; categoryId: string }) =>
-      apiClient.post('/vocabulary/move-by-date', data),
+      apiClient.post("/vocabulary/move-by-date", data),
     updateCategoryTopic: (data: { date: string; topic: string; icon?: string; color?: string }) =>
-      apiClient.put('/vocabulary/category-topic/update', data),
+      apiClient.put("/vocabulary/category-topic/update", data),
     updateFilterState: (isExpanded: boolean) =>
-      apiClient.patch('/vocabulary/settings/filter-state', { isExpanded }),
+      apiClient.patch("/vocabulary/settings/filter-state", { isExpanded }),
     updateAllTabHiddenState: (isHidden: boolean) =>
-      apiClient.patch('/vocabulary/settings/all-tab-hidden', { isHidden }),
+      apiClient.patch("/vocabulary/settings/all-tab-hidden", { isHidden }),
     updateActiveTabState: (tabId: string | null) =>
-      apiClient.patch('/vocabulary/settings/active-tab', { tabId }),
-    getSettings: () => apiClient.get('/vocabulary/settings'),
-    updateBackground: (id: string, data: { backgroundUrl?: string | null; animatedBackground?: string | null }) =>
-      apiClient.patch(`/vocabulary/${id}/background`, data),
+      apiClient.patch("/vocabulary/settings/active-tab", { tabId }),
+    getSettings: () => apiClient.get("/vocabulary/settings"),
+    updateBackground: (
+      id: string,
+      data: { backgroundUrl?: string | null; animatedBackground?: string | null },
+    ) => apiClient.patch(`/vocabulary/${id}/background`, data),
   },
 
   practice: {
-    submit: (data: any) => apiClient.post('/practice/submit', data),
+    submit: (data: any) => apiClient.post("/practice/submit", data),
     // getModes removed - practice modes are now hardcoded in frontend
-    saveIncomplete: (data: any) => apiClient.post('/practice/save-incomplete', data),
+    saveIncomplete: (data: any) => apiClient.post("/practice/save-incomplete", data),
   },
 
   // History endpoints (unified history for all activities)
   history: {
-    getAll: (params?: { page?: number; limit?: number }) => apiClient.get('/history', { params }),
-    getStatistics: () => apiClient.get('/history/statistics'),
+    getAll: (params?: { page?: number; limit?: number }) => apiClient.get("/history", { params }),
+    getStatistics: () => apiClient.get("/history/statistics"),
     delete: (id: string) => apiClient.delete(`/history/${id}`),
-    deleteMany: (ids: string[]) => apiClient.post('/history/delete-many', { ids }),
-    deleteAll: () => apiClient.delete('/history/all'),
+    deleteMany: (ids: string[]) => apiClient.post("/history/delete-many", { ids }),
+    deleteAll: () => apiClient.delete("/history/all"),
   },
 
   // Category endpoints
   category: {
-    getAll: () => apiClient.get('/category'),
+    getAll: () => apiClient.get("/category"),
     getById: (id: string) => apiClient.get(`/category/${id}`),
     getWithVocabularies: (id: string) => apiClient.get(`/category/${id}/vocabularies`),
-    create: (data: any) => apiClient.post('/category', data),
+    create: (data: any) => apiClient.post("/category", data),
     update: (id: string, data: any) => apiClient.put(`/category/${id}`, data),
     delete: (id: string) => apiClient.delete(`/category/${id}`),
     togglePin: (id: string) => apiClient.patch(`/category/${id}/pin`),
@@ -135,23 +166,34 @@ export default {
 
   // Tag endpoints
   tag: {
-    getAll: () => apiClient.get('/tag'),
+    getAll: () => apiClient.get("/tag"),
     getById: (id: string) => apiClient.get(`/tag/${id}`),
-    create: (data: any) => apiClient.post('/tag', data),
+    create: (data: any) => apiClient.post("/tag", data),
     update: (id: string, data: any) => apiClient.put(`/tag/${id}`, data),
     delete: (id: string) => apiClient.delete(`/tag/${id}`),
   },
 
   // Voice endpoints
   voice: {
-    getAll: () => apiClient.get('/voice'),
-    setPreferred: (voiceKey: string) => apiClient.post('/voice/preferred', { voiceKey }),
+    getAll: () => apiClient.get("/voice"),
+    setPreferred: (voiceKey: string) => apiClient.post("/voice/preferred", { voiceKey }),
   },
 
   // Background endpoints
   background: {
-    getAll: (category?: string) => apiClient.get('/backgrounds', { params: category ? { category } : {} }),
-    getCategories: () => apiClient.get('/backgrounds/categories'),
+    getAll: (category?: string) =>
+      apiClient.get("/backgrounds", { params: category ? { category } : {} }),
+    getCategories: () => apiClient.get("/backgrounds/categories"),
     getById: (id: string) => apiClient.get(`/backgrounds/${id}`),
+    getMine: () => apiClient.get<UserBackground[]>("/backgrounds/mine"),
+    importMineFromUrl: (url: string) =>
+      apiClient.post<UserBackground>("/backgrounds/mine/from-url", { url }),
+    uploadMine: (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return apiClient.post<UserBackground>("/backgrounds/mine", formData, {
+        headers: { "Content-Type": undefined },
+      });
+    },
   },
-}
+};

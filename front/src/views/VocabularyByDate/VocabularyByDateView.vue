@@ -14,9 +14,7 @@
       </div>
 
       <!-- Actions Bar -->
-      <div
-        class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
-      >
+      <div class="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <VocabularySearchBar
           v-model="state.searchQuery.value"
           :placeholder="'Search vocabularies...'"
@@ -31,10 +29,7 @@
       </div>
 
       <!-- Loading State -->
-      <div
-        v-if="state.loading.value"
-        class="flex items-center justify-center py-24"
-      >
+      <div v-if="state.loading.value" class="flex items-center justify-center py-24">
         <div class="relative">
           <div
             class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"
@@ -48,10 +43,7 @@
       </div>
 
       <!-- No Data State -->
-      <div
-        v-else-if="handle.filteredVocabularies.value.length === 0"
-        class="text-center py-20"
-      >
+      <div v-else-if="handle.filteredVocabularies.value.length === 0" class="text-center py-20">
         <div class="text-6xl mb-4">📅</div>
         <h3 class="text-2xl font-bold text-black dark:text-white mb-2">
           {{ tr("noData") }}
@@ -62,7 +54,7 @@
       <!-- Date Groups -->
       <div v-else class="space-y-6">
         <DateGroupCard
-          v-for="group in handle.filteredVocabularies.value"
+          v-for="group in handle.paginatedVocabularies.value"
           :key="group.date"
           :item-id="group.date"
           :class="{ 'z-50 relative': currentEditingDate === group.date }"
@@ -81,8 +73,7 @@
               :has-background="hasBackground"
               @toggle="handle.toggleDate(group.date)"
               @update-topic="
-                (topic, icon, color) =>
-                  handle.updateTopic(group.date, topic, icon, color)
+                (topic, icon, color) => handle.updateTopic(group.date, topic, icon, color)
               "
               @editing-change="(val) => setEditingDate(group.date, val)"
             />
@@ -101,33 +92,24 @@
               v-if="handle.isDateExpanded(group.date)"
               class="border-t border-black/10 dark:border-white/10 p-4 space-y-4"
             >
-              <div
-                v-for="catGroup in group.categories"
-                :key="catGroup.category.id"
-              >
+              <div v-for="catGroup in group.categories" :key="catGroup.category.id">
                 <CategoryHeader
                   :category="catGroup.category"
                   :vocabulary-count="catGroup.vocabularies.length"
                   :icon-component="getIconComponent(catGroup.category.icon)"
-                  :is-expanded="
-                    handle.isCategoryExpanded(group.date, catGroup.category.id)
-                  "
+                  :is-expanded="handle.isCategoryExpanded(group.date, catGroup.category.id)"
                   :move-to-date-text="tr('moveToDate')"
-                  @toggle="
-                    handle.toggleCategory(group.date, catGroup.category.id)
-                  "
+                  @toggle="handle.toggleCategory(group.date, catGroup.category.id)"
                   @move="
                     moveModalState.openMoveModal(
                       group.date,
                       catGroup.category.id,
-                      catGroup.category.name
+                      catGroup.category.name,
                     )
                   "
                 />
                 <div
-                  v-if="
-                    handle.isCategoryExpanded(group.date, catGroup.category.id)
-                  "
+                  v-if="handle.isCategoryExpanded(group.date, catGroup.category.id)"
                   class="pl-8 pt-2 space-y-2"
                 >
                   <VocabularyCard
@@ -146,6 +128,31 @@
             </div>
           </Transition>
         </DateGroupCard>
+
+        <!-- Existing shared pagination: five complete date groups per page. -->
+        <div
+          v-if="handle.pageCount.value > 1"
+          class="vocabulary-date-pagination rounded-2xl border border-black/10 bg-white/60 px-3 pb-5 pt-1 dark:border-white/10 dark:bg-black/40 sm:px-5"
+        >
+          <p
+            class="mt-3 text-center text-xs font-medium text-black/60 dark:text-white/60"
+            role="status"
+            aria-live="polite"
+          >
+            {{
+              i18n.t("vocabularyByDate.pageInfo", {
+                start: handle.rangeStart.value,
+                end: handle.rangeEnd.value,
+                total: handle.filteredVocabularies.value.length,
+              })
+            }}
+          </p>
+          <Pagination
+            :page="handle.currentPage.value"
+            :page-count="handle.pageCount.value"
+            @update:page="handle.changePage"
+          />
+        </div>
       </div>
     </div>
 
@@ -207,39 +214,30 @@ import { useVocabularyByDateHandle } from "./composable/manager-handle/useVocabu
 import { useVocabularyByDateMount } from "./composable/manager-mount/useVocabularyByDateMount";
 import { useModalState, useMoveModal, useEditingDate } from "./composable";
 import { getIconComponent } from "../../utils/iconRenderer";
+import Pagination from "../../components/Pagination.vue";
 
 // Local Components
 const VocabularySearchBar = defineAsyncComponent(
-  () => import("./components/VocabularySearchBar.vue")
+  () => import("./components/VocabularySearchBar.vue"),
 );
 const ExpandCollapseButton = defineAsyncComponent(
-  () => import("./components/ExpandCollapseButton.vue")
+  () => import("./components/ExpandCollapseButton.vue"),
 );
-const DateGroupHeader = defineAsyncComponent(
-  () => import("./components/DateGroupHeader.vue")
-);
-const DateGroupCard = defineAsyncComponent(
-  () => import("./components/DateGroupCard.vue")
-);
-const CategoryHeader = defineAsyncComponent(
-  () => import("./components/CategoryHeader.vue")
-);
-const VocabularyCard = defineAsyncComponent(
-  () => import("./components/VocabularyCard.vue")
-);
-const MoveCategoryModal = defineAsyncComponent(
-  () => import("./components/MoveCategoryModal.vue")
-);
+const DateGroupHeader = defineAsyncComponent(() => import("./components/DateGroupHeader.vue"));
+const DateGroupCard = defineAsyncComponent(() => import("./components/DateGroupCard.vue"));
+const CategoryHeader = defineAsyncComponent(() => import("./components/CategoryHeader.vue"));
+const VocabularyCard = defineAsyncComponent(() => import("./components/VocabularyCard.vue"));
+const MoveCategoryModal = defineAsyncComponent(() => import("./components/MoveCategoryModal.vue"));
 
 // Global Components
 const VocabularyDetailModal = defineAsyncComponent(
-  () => import("../../components/VocabularyDetailModal.vue") as any
+  () => import("../../components/VocabularyDetailModal.vue"),
 );
 const VocabularyImageViewer = defineAsyncComponent(
-  () => import("../../components/common/VocabularyImageViewer.vue") as any
+  () => import("../../components/common/VocabularyImageViewer.vue"),
 );
 const VideoZoomModal = defineAsyncComponent(
-  () => import("../../components/common/VideoZoomModal.vue") as any
+  () => import("../../components/common/VideoZoomModal.vue"),
 );
 
 const i18n = useI18n({ useScope: "global" });
@@ -256,7 +254,7 @@ const handle = useVocabularyByDateHandle(
   state.searchQuery,
   state.expandedDates,
   state.expandedCategories,
-  state.expandAll
+  state.expandAll,
 );
 
 useVocabularyByDateMount(handle.loadData);
@@ -267,10 +265,43 @@ const moveModalState = useMoveModal(
   state.vocabulariesByDate,
   handle.formatDate,
   handle.moveCategoryToDate,
-  () => tr("selectDatePlaceholder")
+  () => tr("selectDatePlaceholder"),
 );
 
 const { currentEditingDate, setEditingDate } = useEditingDate();
 
 const selectedTargetDateLabel = moveModalState.selectedTargetDateLabel;
 </script>
+
+<style scoped>
+/* Reuse the common Pagination component while keeping it inside narrow phones. */
+@media (max-width: 480px) {
+  .vocabulary-date-pagination :deep(nav) {
+    max-width: 100%;
+    gap: 0.125rem;
+    padding: 0.25rem;
+  }
+
+  .vocabulary-date-pagination :deep(nav button) {
+    width: 1.875rem;
+    height: 1.875rem;
+    flex-shrink: 0;
+  }
+
+  .vocabulary-date-pagination :deep(nav > div) {
+    gap: 0.125rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .vocabulary-date-pagination :deep(nav button) {
+    width: 1.625rem;
+    height: 1.625rem;
+  }
+
+  .vocabulary-date-pagination :deep(nav button svg) {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+}
+</style>

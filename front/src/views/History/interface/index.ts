@@ -36,6 +36,7 @@ export interface History {
     pronunciation?: string
     example?: string
     image?: string
+    video?: string
     isFavorite: boolean
   }
 }

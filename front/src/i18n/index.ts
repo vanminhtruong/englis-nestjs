@@ -27,6 +27,11 @@ import vocabularyByDateVi from '../views/VocabularyByDate/language/vi'
 import vocabularyByDateKo from '../views/VocabularyByDate/language/ko'
 import vocabularyByDateZhCN from '../views/VocabularyByDate/language/zh-CN'
 
+import srsEn from '../views/Srs/language/en'
+import srsVi from '../views/Srs/language/vi'
+import srsKo from '../views/Srs/language/ko'
+import srsZhCN from '../views/Srs/language/zh-CN'
+
 import practiceEn from '../views/Practice/language/en'
 import practiceVi from '../views/Practice/language/vi'
 import practiceKo from '../views/Practice/language/ko'
@@ -69,6 +74,7 @@ const i18n = createI18n({
       vocabulary: vocabularyEn,
       vocabularyByDate: vocabularyByDateEn,
       practice: practiceEn,
+      srs: srsEn,
       history: historyEn,
     },
     vi: {
@@ -80,6 +86,7 @@ const i18n = createI18n({
       vocabulary: vocabularyVi,
       vocabularyByDate: vocabularyByDateVi,
       practice: practiceVi,
+      srs: srsVi,
       history: historyVi,
     },
     ko: {
@@ -91,6 +98,7 @@ const i18n = createI18n({
       vocabulary: vocabularyKo,
       vocabularyByDate: vocabularyByDateKo,
       practice: practiceKo,
+      srs: srsKo,
       history: historyKo,
     },
     'zh-CN': {
@@ -102,6 +110,7 @@ const i18n = createI18n({
       vocabulary: vocabularyZhCN,
       vocabularyByDate: vocabularyByDateZhCN,
       practice: practiceZhCN,
+      srs: srsZhCN,
       history: historyZhCN,
     },
   },

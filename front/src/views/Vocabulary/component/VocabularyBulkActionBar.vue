@@ -9,105 +9,81 @@
   >
     <div
       v-if="selectedCount > 0"
-      class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
+      class="fixed bottom-4 left-1/2 z-50 w-[calc(100vw-1.5rem)] max-w-[calc(100vw-1.5rem)] -translate-x-1/2 sm:bottom-6 sm:w-max"
     >
       <div
-        class="flex items-center gap-4 px-6 py-4 bg-white dark:bg-black rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 backdrop-blur-xl"
+        class="flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-3 shadow-2xl dark:border-white/10 dark:bg-black sm:p-4 lg:flex-row lg:items-center lg:gap-4"
       >
-        <!-- Selection Info -->
-        <div class="flex items-center gap-3">
+        <!-- Summary is kept separate from action buttons so neither gets squeezed. -->
+        <div class="flex min-w-0 items-center gap-3 lg:shrink-0">
           <div
-            class="w-10 h-10 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 flex items-center justify-center text-white font-bold"
+            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-base font-bold text-white"
           >
             {{ selectedCount }}
           </div>
-          <div>
-            <p class="text-sm font-medium text-black dark:text-white">
-              {{ selectedCount }} item{{
-                selectedCount > 1 ? "s" : ""
-              }}
-              selected
+          <div class="min-w-0">
+            <p class="text-sm font-semibold leading-5 text-gray-900 dark:text-white">
+              {{ t("vocabulary.selectedItems", { count: selectedCount }) }}
             </p>
-            <p class="text-xs text-gray-500 dark:text-white/50">
-              Choose an action below
+            <p class="text-xs leading-5 text-gray-500 dark:text-white/50">
+              {{ t("vocabulary.chooseBulkAction") }}
             </p>
           </div>
         </div>
 
-        <!-- Divider -->
-        <div class="w-px h-10 bg-gray-200 dark:bg-white/10"></div>
+        <div class="h-px w-full shrink-0 bg-gray-200 dark:bg-white/10 lg:h-10 lg:w-px"></div>
 
-        <!-- Actions -->
-        <div class="flex items-center gap-2">
-          <!-- Add to Tab -->
+        <div class="grid grid-cols-2 gap-2 lg:flex lg:flex-nowrap lg:items-center">
           <button
+            type="button"
+            :disabled="isDeleting"
             @click="$emit('add-to-tab')"
-            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-medium text-sm hover:shadow-lg hover:shadow-primary-500/25 transition-all"
+            class="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 px-3 py-2.5 text-xs font-semibold text-white shadow-sm transition-all hover:shadow-lg hover:shadow-primary-500/25 disabled:cursor-not-allowed disabled:opacity-50 sm:px-4 sm:text-sm"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
-              ></path>
-              <line x1="12" y1="11" x2="12" y2="17"></line>
-              <line x1="9" y1="14" x2="15" y2="14"></line>
+            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+              <path d="M12 11v6m-3-3h6" />
             </svg>
-            Add to Tab
+            {{ t("vocabulary.addToTab") }}
           </button>
 
-          <!-- Select All Toggle -->
           <button
+            type="button"
+            :disabled="isDeleting"
+            @click="$emit('delete-selected')"
+            class="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-xs font-semibold text-red-700 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 sm:px-4 sm:text-sm"
+          >
+            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 6h18M8 6V4h8v2m3 0-1 14H6L5 6m5 4v7m4-7v7" />
+            </svg>
+            {{ isDeleting ? t("vocabulary.processingSelection") : t("vocabulary.deleteSelected") }}
+          </button>
+
+          <button
+            type="button"
+            :disabled="isDeleting"
             @click="$emit('toggle-select-all')"
-            class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-white font-medium text-sm hover:bg-gray-200 dark:hover:bg-white/20 transition-all"
+            class="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl bg-gray-100 px-3 py-2.5 text-xs font-semibold text-gray-800 transition-colors hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white/10 dark:text-white dark:hover:bg-white/20 sm:px-4 sm:text-sm"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="9 11 12 14 22 4"></polyline>
-              <path
-                d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
-              ></path>
+            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="m9 11 3 3L22 4" />
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
             </svg>
-            {{ isAllSelected ? "Deselect All" : "Select All" }}
+            {{ isAllSelected ? t("vocabulary.deselectAll") : t("vocabulary.selectAll") }}
           </button>
 
-          <!-- Clear Selection -->
           <button
+            type="button"
+            :disabled="isDeleting"
             @click="$emit('clear-selection')"
-            class="p-2.5 rounded-xl bg-gray-100 dark:bg-white/10 text-gray-500 dark:text-white/60 hover:bg-red-100 dark:hover:bg-red-500/20 hover:text-red-500 transition-all"
-            title="Clear Selection"
+            class="inline-flex min-h-11 min-w-0 items-center justify-center gap-2 rounded-xl bg-gray-100 px-3 py-2.5 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-200 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/20 dark:hover:text-red-400 sm:w-11 sm:px-0"
+            :title="t('vocabulary.clearSelection')"
+            :aria-label="t('vocabulary.clearSelection')"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
+            <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M18 6 6 18M6 6l12 12" />
             </svg>
+            <span class="sm:sr-only">{{ t("vocabulary.clearSelection") }}</span>
           </button>
         </div>
       </div>
@@ -116,13 +92,19 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
+
 defineProps<{
   selectedCount: number;
   isAllSelected: boolean;
+  isDeleting: boolean;
 }>();
 
 defineEmits<{
   "add-to-tab": [];
+  "delete-selected": [];
   "toggle-select-all": [];
   "clear-selection": [];
 }>();

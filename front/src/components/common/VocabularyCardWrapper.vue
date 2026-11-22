@@ -9,9 +9,7 @@
     :style="hasBackground && !hasAnimatedBg ? backgroundStyle : {}"
   >
     <!-- Background Wrapper (Clip background effects but not popup) -->
-    <div
-      class="absolute inset-0 rounded-2xl overflow-hidden z-0 pointer-events-none"
-    >
+    <div class="absolute inset-0 rounded-2xl overflow-hidden z-0 pointer-events-none">
       <!-- Animated Background -->
       <FlowerGrowAnimation v-if="hasAnimatedBg" />
 
@@ -42,11 +40,7 @@
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="w-4 h-4 transition-colors"
-        :class="
-          hasBackground || hasAnimatedBg
-            ? 'text-white'
-            : 'text-black/60 dark:text-white/60'
-        "
+        :class="hasBackground || hasAnimatedBg ? 'text-white' : 'text-black/60 dark:text-white/60'"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -65,10 +59,7 @@
     </button>
 
     <!-- Content -->
-    <div
-      class="relative z-10"
-      :class="{ 'text-white': hasBackground || hasAnimatedBg }"
-    >
+    <div class="relative z-10" :class="{ 'text-white': hasBackground || hasAnimatedBg }">
       <slot :has-background="hasBackground || hasAnimatedBg"></slot>
     </div>
 
@@ -83,12 +74,10 @@
     >
       <div
         v-if="showPicker"
-        class="absolute top-12 right-3 w-80 max-h-[450px] bg-white dark:bg-black rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden z-50 flex flex-col"
+        class="absolute top-12 right-3 left-3 z-50 flex w-auto max-h-[min(78dvh,560px)] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-white/10 dark:bg-black sm:left-auto sm:w-80"
       >
         <!-- Header -->
-        <div
-          class="p-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5"
-        >
+        <div class="p-3 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5">
           <div class="flex items-center justify-between">
             <h3
               class="text-sm font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent"
@@ -107,12 +96,7 @@
                 @click="closePicker"
                 class="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-white/10 transition-colors text-gray-500 dark:text-white/60"
               >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -132,7 +116,7 @@
             class="flex-1 py-2.5 text-xs font-medium transition-all"
             :class="
               bgType === 'static'
-                ? 'text-primary-500 border-b-2 border-primary-500 bg-primary-500/5'
+                ? 'border-b-2 border-black/70 bg-black/5 text-black dark:border-white/50 dark:bg-white/10 dark:text-white'
                 : 'text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/5'
             "
           >
@@ -143,11 +127,23 @@
             class="flex-1 py-2.5 text-xs font-medium transition-all"
             :class="
               bgType === 'animated'
-                ? 'text-primary-500 border-b-2 border-primary-500 bg-primary-500/5'
+                ? 'border-b-2 border-black/70 bg-black/5 text-black dark:border-white/50 dark:bg-white/10 dark:text-white'
                 : 'text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/5'
             "
           >
             🌸 Nền động
+          </button>
+          <button
+            type="button"
+            @click="bgType = 'custom'"
+            class="flex-1 py-2.5 text-xs font-medium transition-all"
+            :class="
+              bgType === 'custom'
+                ? 'border-b-2 border-black/70 bg-black/5 text-black dark:border-white/50 dark:bg-white/10 dark:text-white'
+                : 'text-gray-500 dark:text-white/60 hover:bg-gray-100 dark:hover:bg-white/5'
+            "
+          >
+            ↑ {{ $t("background.personalTab") }}
           </button>
         </div>
 
@@ -178,20 +174,14 @@
           </div>
 
           <!-- Loading -->
-          <div
-            v-if="loading"
-            class="p-6 flex flex-col items-center justify-center"
-          >
+          <div v-if="loading" class="p-6 flex flex-col items-center justify-center">
             <div
               class="w-8 h-8 border-2 border-primary-500/30 border-t-primary-500 rounded-full animate-spin"
             ></div>
           </div>
 
           <!-- Backgrounds Grid -->
-          <div
-            v-else
-            class="p-2 max-h-[250px] overflow-y-auto scrollbar-thin optimized-list"
-          >
+          <div v-else class="p-2 max-h-[250px] overflow-y-auto scrollbar-thin optimized-list">
             <div class="grid grid-cols-3 gap-1.5">
               <button
                 v-for="bg in filteredBackgrounds"
@@ -235,7 +225,7 @@
         </template>
 
         <!-- Animated Backgrounds -->
-        <template v-else>
+        <template v-else-if="bgType === 'animated'">
           <div class="p-3 max-h-[250px] overflow-y-auto scrollbar-thin">
             <div class="grid grid-cols-2 gap-2">
               <button
@@ -258,9 +248,7 @@
                 >
                   <div class="flex items-center gap-1.5">
                     <span class="text-lg">{{ anim.icon }}</span>
-                    <span class="text-xs text-white font-medium">{{
-                      anim.name
-                    }}</span>
+                    <span class="text-xs text-white font-medium">{{ anim.name }}</span>
                   </div>
                 </div>
 
@@ -287,24 +275,27 @@
             </div>
           </div>
         </template>
+
+        <CustomBackgroundsTab
+          v-else
+          :selected-url="currentBackgroundUrl"
+          @select="applyCustomBackground"
+        />
       </div>
     </Transition>
 
     <!-- Click outside overlay -->
-    <div
-      v-if="showPicker"
-      class="fixed inset-0 z-40"
-      @click="closePicker"
-    ></div>
+    <div v-if="showPicker" class="fixed inset-0 z-40" @click="closePicker"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, defineAsyncComponent, watch } from "vue";
+import { ref, computed, defineAsyncComponent, watch } from "vue";
 import api from "../../services/api.service";
+import CustomBackgroundsTab from "./CustomBackgroundsTab.vue";
 
 const FlowerGrowAnimation = defineAsyncComponent(
-  () => import("../animations/FlowerGrowAnimation.vue") as any
+  () => import("../animations/FlowerGrowAnimation.vue"),
 );
 
 interface Background {
@@ -333,17 +324,13 @@ const props = defineProps<{
 const emit = defineEmits<{
   (
     e: "background-changed",
-    data: { backgroundUrl: string | null; animatedBackground: string | null }
+    data: { backgroundUrl: string | null; animatedBackground: string | null },
   ): void;
 }>();
 
 // Local reactive state for background
-const currentBackgroundUrl = ref<string | null>(
-  props.initialBackgroundUrl ?? null
-);
-const currentAnimatedBg = ref<string | null>(
-  props.initialAnimatedBackground ?? null
-);
+const currentBackgroundUrl = ref<string | null>(props.initialBackgroundUrl ?? null);
+const currentAnimatedBg = ref<string | null>(props.initialAnimatedBackground ?? null);
 
 // Watch for prop changes (e.g. when data is reloaded from backend)
 watch(
@@ -352,7 +339,7 @@ watch(
     if (newVal !== undefined) {
       currentBackgroundUrl.value = newVal ?? null;
     }
-  }
+  },
 );
 
 watch(
@@ -361,7 +348,7 @@ watch(
     if (newVal !== undefined) {
       currentAnimatedBg.value = newVal ?? null;
     }
-  }
+  },
 );
 
 // Computed values
@@ -383,7 +370,7 @@ const loading = ref(false);
 const backgrounds = ref<Background[]>([]);
 const categories = ref<{ value: string; label: string; icon: string }[]>([]);
 const activeCategory = ref("all");
-const bgType = ref<"static" | "animated">("static");
+const bgType = ref<"static" | "animated" | "custom">("static");
 const selectedUrl = computed(() => currentBackgroundUrl.value);
 
 // Animated backgrounds list (frontend only)
@@ -392,8 +379,7 @@ const animatedBackgrounds: AnimatedBackground[] = [
     id: "flower-grow",
     name: "Hoa nở",
     icon: "🌸",
-    previewClass:
-      "bg-gradient-to-br from-purple-900 via-indigo-900 to-slate-900",
+    previewClass: "bg-gradient-to-br from-purple-900 via-indigo-900 to-slate-900",
   },
 ];
 
@@ -490,6 +476,17 @@ const selectBackground = (bg: Background) => {
   });
   persistBackground(bg.url, null);
   closePicker();
+};
+
+const applyCustomBackground = (url: string) => {
+  selectBackground({
+    id: url,
+    name: "Personal background",
+    url,
+    category: "custom",
+    icon: "",
+    color: "",
+  });
 };
 
 const selectAnimatedBg = (animId: string) => {

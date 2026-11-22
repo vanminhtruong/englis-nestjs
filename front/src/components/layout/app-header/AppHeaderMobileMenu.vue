@@ -147,6 +147,18 @@
               </RouterLink>
               <RouterLink
                 @click="$emit('close-menus')"
+                to="/srs"
+                class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-primary-600 transition-all hover:bg-primary-50 dark:text-primary-300 dark:hover:bg-white/5"
+                active-class="bg-primary-50 dark:bg-white/10"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M20 7v5h-5M4 17v-5h5" />
+                  <path d="M5.5 9a7 7 0 0 1 12-3l2.5 1M4 17l2.5 1a7 7 0 0 0 12-3" />
+                </svg>
+                <span>{{ t('header.srs') }}</span>
+              </RouterLink>
+              <RouterLink
+                @click="$emit('close-menus')"
                 to="/tags"
                 class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-primary-50 dark:hover:bg-white/5 hover:text-primary-500 dark:hover:text-primary-400 transition-all"
               >

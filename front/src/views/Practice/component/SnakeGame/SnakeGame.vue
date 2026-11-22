@@ -10,11 +10,7 @@
           stroke="currentColor"
           stroke-width="2"
         >
-          <path
-            d="M19 12H5M12 19l-7-7 7-7"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
+          <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
         Back
       </button>
@@ -52,16 +48,13 @@
           <div
             class="absolute -inset-1 bg-gradient-to-r from-green-600 to-emerald-600 rounded-lg blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"
           ></div>
-          <h3
-            class="relative text-6xl font-black text-white tracking-tighter drop-shadow-2xl"
-          >
+          <h3 class="relative text-6xl font-black text-white tracking-tighter drop-shadow-2xl">
             SNAKE GAME
           </h3>
         </div>
 
         <p class="text-gray-300 mb-8 text-lg font-light tracking-wide">
-          Use <span class="font-bold text-emerald-400">Arrow Keys</span> to
-          control the snake
+          Use <span class="font-bold text-emerald-400">Arrow Keys</span> to control the snake
         </p>
 
         <button
@@ -102,13 +95,8 @@
         v-if="currentWord && gameState.isStarted"
         class="absolute top-4 left-1/2 -translate-x-1/2 px-6 py-2 bg-black/50 backdrop-blur-md rounded-full border border-white/10 pointer-events-none"
       >
-        <span class="text-2xl font-bold text-white">{{
-          currentWord.word
-        }}</span>
-        <span
-          v-if="currentWord.pronunciation"
-          class="ml-2 text-sm text-gray-400 font-mono"
-        >
+        <span class="text-2xl font-bold text-white">{{ currentWord.word }}</span>
+        <span v-if="currentWord.pronunciation" class="ml-2 text-sm text-gray-400 font-mono">
           /{{ currentWord.pronunciation }}/
         </span>
       </div>
@@ -117,18 +105,10 @@
     <!-- Controls Hint -->
     <div class="mt-6 flex gap-4 text-sm text-gray-500">
       <div class="flex items-center gap-2">
-        <kbd class="px-2 py-1 bg-white/10 rounded-md font-mono text-white"
-          >↑</kbd
-        >
-        <kbd class="px-2 py-1 bg-white/10 rounded-md font-mono text-white"
-          >↓</kbd
-        >
-        <kbd class="px-2 py-1 bg-white/10 rounded-md font-mono text-white"
-          >←</kbd
-        >
-        <kbd class="px-2 py-1 bg-white/10 rounded-md font-mono text-white"
-          >→</kbd
-        >
+        <kbd class="px-2 py-1 bg-white/10 rounded-md font-mono text-white">↑</kbd>
+        <kbd class="px-2 py-1 bg-white/10 rounded-md font-mono text-white">↓</kbd>
+        <kbd class="px-2 py-1 bg-white/10 rounded-md font-mono text-white">←</kbd>
+        <kbd class="px-2 py-1 bg-white/10 rounded-md font-mono text-white">→</kbd>
         <span>to Move</span>
       </div>
     </div>

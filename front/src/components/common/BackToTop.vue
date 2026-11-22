@@ -18,6 +18,26 @@
         class="absolute inset-0 rounded-full bg-primary-400 animate-ping opacity-20 group-hover:opacity-40"
       ></span>
 
+      <!-- Tooltip -->
+      <div class="absolute -top-16 right-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50 group-hover:scale-105">
+        <div class="relative bg-white/95 dark:bg-black/95 backdrop-blur-md border border-gray-200 dark:border-white/20 px-4 py-2 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-black/50">
+          <!-- Progress Bar -->
+          <div class="w-full h-1 bg-gray-200 dark:bg-white/20 rounded-full mb-1.5 overflow-hidden">
+            <div
+              class="h-full bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full transition-all duration-300"
+              :style="{ width: scrollPercentage + '%' }"
+            ></div>
+          </div>
+          <!-- Percentage Text -->
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-sm font-medium text-gray-800 dark:text-white tracking-wide">{{ scrollPercentage }}%</span>
+            <span class="text-xs text-gray-500 dark:text-gray-300">scrolled</span>
+          </div>
+          <!-- Arrow -->
+          <div class="absolute -bottom-2 right-4 w-4 h-4 bg-white/95 dark:bg-black/95 border-b border-r border-gray-200 dark:border-white/20 rotate-45"></div>
+        </div>
+      </div>
+
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -40,9 +60,14 @@
 import { ref, onMounted, onUnmounted } from "vue";
 
 const isVisible = ref(false);
+const scrollPercentage = ref(0);
 
 const handleScroll = () => {
   isVisible.value = window.scrollY > 300;
+
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  scrollPercentage.value = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
 };
 
 const scrollToTop = () => {

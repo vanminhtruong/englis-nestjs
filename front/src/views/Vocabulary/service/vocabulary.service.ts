@@ -58,10 +58,22 @@ export class VocabularyService {
   async createVocabulary(data: Partial<Vocabulary> & { categoryIds?: string[] }) {
     try {
       const response = await apiService.vocabulary.create(data)
-      this.store.addVocabulary(response.data)
+      // A new word must belong to the active custom tab before reloading its list.
+      // Otherwise the save succeeds but the active tab immediately filters it out.
+      const activeTabId = this.lastParams.tabId
+      if (activeTabId && activeTabId !== 'all') {
+        try {
+          await apiService.tab.addVocabulary(activeTabId, response.data.id)
+        } catch (error) {
+          console.error('Vocabulary created, but adding it to the selected tab failed:', error)
+          // Keep the saved word accessible in All rather than losing it from view.
+          this.lastParams.tabId = null
+        }
+      }
       websocketService.emit('vocabulary:created', response.data)
-      // Refresh current page to keep pagination consistent in realtime
-      await this.loadVocabularies({ page: this.store.page, limit: this.store.limit })
+      // Newly created words are at the top of the first page, not the old page.
+      this.store.setPage(1)
+      await this.loadVocabularies({ page: 1, limit: this.store.limit })
       return { success: true, data: response.data }
     } catch (error: any) {
       return {
@@ -100,13 +112,36 @@ export class VocabularyService {
     }
   }
 
+  async deleteSelectedVocabularies(ids: string[]) {
+    const uniqueIds = [...new Set(ids)].filter(Boolean)
+    // Delete the underlying words, not just their membership in the active tab.
+    const results = await Promise.allSettled(uniqueIds.map(id => apiService.vocabulary.delete(id)))
+    const deletedIds = uniqueIds.filter((_, index) => results[index]?.status === 'fulfilled')
+    const failedIds = uniqueIds.filter((_, index) => results[index]?.status !== 'fulfilled')
+
+    if (deletedIds.length) {
+      deletedIds.forEach(id => {
+        this.store.removeVocabulary(id)
+        websocketService.emit('vocabulary:deleted', { id })
+      })
+      const remainingTotal = Math.max(0, this.store.total - deletedIds.length)
+      const page = Math.max(1, Math.min(this.store.page, Math.ceil(remainingTotal / this.store.limit)))
+      this.store.setPage(page)
+      await this.loadVocabularies({ page, limit: this.store.limit })
+    }
+    return { deletedIds, failedIds }
+  }
+
   async deleteVocabulary(id: string) {
     try {
       await apiService.vocabulary.delete(id)
       this.store.removeVocabulary(id)
       websocketService.emit('vocabulary:deleted', { id })
-      // Reload current page (could change pageCount)
-      await this.loadVocabularies({ page: this.store.page, limit: this.store.limit })
+      // Clamp the page when the last word on a page is deleted.
+      const remainingTotal = Math.max(0, this.store.total - 1)
+      const page = Math.max(1, Math.min(this.store.page, Math.ceil(remainingTotal / this.store.limit)))
+      this.store.setPage(page)
+      await this.loadVocabularies({ page, limit: this.store.limit })
       return { success: true }
     } catch (error: any) {
       return {

@@ -3,7 +3,7 @@
     class="sticky top-0 z-50 bg-white/80 dark:bg-black/90 backdrop-blur-xl border-b border-gray-200 dark:border-white/10 transition-all"
   >
     <div
-      class="max-w-[1400px] mx-auto px-8 py-3 flex items-center justify-between gap-8"
+      class="max-w-[1400px] mx-auto px-3 py-3 sm:px-6 lg:px-8 flex items-center justify-between gap-2 sm:gap-4 lg:gap-8"
     >
       <AppHeaderLogo />
       <AppHeaderDesktopNav />
@@ -12,6 +12,7 @@
         :is-authenticated="authStore.isAuthenticated"
         :is-user-menu-open="isUserMenuOpen"
         :is-mobile-menu-open="isMobileMenuOpen"
+        :is-mobile-account-menu-open="isMobileAccountMenuOpen"
         :user-avatar-src="userAvatarSrc"
         :user-initials="userInitials"
         :user-words-count="authStore.user?.totalWords || 0"
@@ -60,20 +61,18 @@ import { websocketService } from "../../services/websocket.service";
 import apiService from "../../services/api.service";
 import { useToast } from "../../composables/useToast";
 
-const AppHeaderLogo = defineAsyncComponent(
-  () => import("./app-header/AppHeaderLogo.vue") as any
-);
+const AppHeaderLogo = defineAsyncComponent(() => import("./app-header/AppHeaderLogo.vue") as any);
 const AppHeaderDesktopNav = defineAsyncComponent(
-  () => import("./app-header/AppHeaderDesktopNav.vue") as any
+  () => import("./app-header/AppHeaderDesktopNav.vue") as any,
 );
 const AppHeaderActions = defineAsyncComponent(
-  () => import("./app-header/AppHeaderActions.vue") as any
+  () => import("./app-header/AppHeaderActions.vue") as any,
 );
 const AppHeaderMobileMenu = defineAsyncComponent(
-  () => import("./app-header/AppHeaderMobileMenu.vue") as any
+  () => import("./app-header/AppHeaderMobileMenu.vue") as any,
 );
 const AppHeaderMobileAccountMenu = defineAsyncComponent(
-  () => import("./app-header/AppHeaderMobileAccountMenu.vue") as any
+  () => import("./app-header/AppHeaderMobileAccountMenu.vue") as any,
 );
 const { t } = useI18n();
 
@@ -92,9 +91,7 @@ const userAvatarSrc = computed(() => {
     return user.avatar;
   }
   const seed = user?.fullName || "User";
-  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
-    seed
-  )}`;
+  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(seed)}`;
 });
 
 const userInitials = computed(() => {
@@ -113,13 +110,8 @@ const scrollProgress = ref(0);
 function updateScrollProgress() {
   if (typeof window === "undefined" || typeof document === "undefined") return;
   const scrollTop =
-    window.scrollY ||
-    document.documentElement.scrollTop ||
-    document.body.scrollTop ||
-    0;
-  const docHeight =
-    document.documentElement.scrollHeight -
-    document.documentElement.clientHeight;
+    window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
+  const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
   const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
   scrollProgress.value = Math.min(100, Math.max(0, progress));
 }
@@ -288,7 +280,7 @@ const handleLogout = () => {
       closeUserMenu();
       closeMobileAccountMenu();
     },
-    { label: t("header.logout") }
+    { label: t("header.logout") },
   );
 };
 </script>

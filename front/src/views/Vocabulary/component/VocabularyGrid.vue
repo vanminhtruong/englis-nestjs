@@ -17,7 +17,7 @@
           :class="[
             isSelected(vocab.id)
               ? 'bg-gradient-to-r from-primary-500 to-secondary-500 border-transparent'
-              : 'bg-white dark:bg-black border border-gray-300 dark:border-white/20 opacity-0 group-hover:opacity-100 hover:border-primary-500 dark:hover:border-primary-500',
+              : 'bg-white dark:bg-black border border-gray-300 dark:border-white/20 opacity-100 hover:border-primary-500 dark:hover:border-primary-500',
           ]"
           :title="isSelected(vocab.id) ? 'Deselect' : 'Select'"
         >
@@ -72,10 +72,7 @@
               :alt="vocab.word"
               class="w-full h-full object-cover"
             />
-            <div
-              v-else
-              class="absolute inset-0 bg-gradient-to-br from-gray-900 to-black"
-            ></div>
+            <div v-else class="absolute inset-0 bg-gradient-to-br from-gray-900 to-black"></div>
             <div
               class="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all flex items-center justify-center"
             >
@@ -91,14 +88,17 @@
           </button>
         </div>
 
+        <!-- Fixed-size image placeholder maintains equal visual spacing across cards. -->
+        <div v-else class="mb-4 h-40 w-full">
+          <VocabularyMediaPlaceholder :has-background="hasBackground" />
+        </div>
+
         <div class="flex items-start justify-between mb-3">
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-1">
               <h3
                 class="text-2xl font-bold truncate"
-                :class="
-                  hasBackground ? 'text-white' : 'text-gray-900 dark:text-white'
-                "
+                :class="hasBackground ? 'text-white' : 'text-gray-900 dark:text-white'"
               >
                 {{ vocab.word }}
               </h3>
@@ -123,11 +123,7 @@
             </div>
             <p
               class="text-sm truncate"
-              :class="
-                hasBackground
-                  ? 'text-white/60'
-                  : 'text-gray-500 dark:text-gray-400'
-              "
+              :class="hasBackground ? 'text-white/60' : 'text-gray-500 dark:text-gray-400'"
             >
               {{ vocab.pronunciation }}
             </p>
@@ -142,25 +138,16 @@
                     ? 'hover:bg-yellow-50 dark:hover:bg-yellow-900/20'
                     : 'hover:bg-primary-50 dark:hover:bg-primary-900/20',
                 ]"
-                :title="
-                  vocab.isPinned ? t('vocabulary.unpin') : t('vocabulary.pin')
-                "
+                :title="vocab.isPinned ? t('vocabulary.unpin') : t('vocabulary.pin')"
               >
-                <span
-                  aria-hidden="true"
-                  :style="!vocab.isPinned ? 'filter: grayscale(1);' : ''"
-                >
+                <span aria-hidden="true" :style="!vocab.isPinned ? 'filter: grayscale(1);' : ''">
                   📌
                 </span>
               </button>
               <button
                 @click="emit('toggle-favorite', vocab.id)"
                 class="p-2 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-all"
-                :title="
-                  vocab.isFavorite
-                    ? t('vocabulary.unfavorite')
-                    : t('vocabulary.favorite')
-                "
+                :title="vocab.isFavorite ? t('vocabulary.unfavorite') : t('vocabulary.favorite')"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -170,9 +157,7 @@
                   :fill="vocab.isFavorite ? 'currentColor' : 'none'"
                   stroke="currentColor"
                   stroke-width="2"
-                  :class="
-                    vocab.isFavorite ? 'text-yellow-500' : 'text-gray-400'
-                  "
+                  :class="vocab.isFavorite ? 'text-yellow-500' : 'text-gray-400'"
                 >
                   <polygon
                     points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
@@ -198,14 +183,12 @@
 
         <p
           class="mb-4"
-          :class="
-            hasBackground ? 'text-white/80' : 'text-gray-700 dark:text-gray-300'
-          "
+          :class="hasBackground ? 'text-white/80' : 'text-gray-700 dark:text-gray-300'"
         >
           {{ vocab.meaning }}
         </p>
 
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
           <div class="flex gap-2">
             <VocabularyNote
               :id="vocab.id"
@@ -244,12 +227,8 @@
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <path
-                  d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                ></path>
-                <path
-                  d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-                ></path>
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
               </svg>
             </button>
             <button
@@ -272,6 +251,16 @@
               </svg>
             </button>
           </div>
+        </div>
+
+        <div v-if="showTabAssignment" class="mb-3 flex justify-end">
+          <VocabularyTabAssignButton
+            :vocabulary-id="vocab.id"
+            :tabs="tabs"
+            :has-background="hasBackground"
+            align="right"
+            @manage-tabs="emit('manage-tabs', vocab)"
+          />
         </div>
 
         <div class="flex flex-wrap gap-2">
@@ -302,19 +291,11 @@
 
         <div
           class="mt-4 pt-4 border-t"
-          :class="
-            hasBackground
-              ? 'border-white/20'
-              : 'border-gray-200 dark:border-white/10'
-          "
+          :class="hasBackground ? 'border-white/20' : 'border-gray-200 dark:border-white/10'"
         >
           <p
             class="text-xs"
-            :class="
-              hasBackground
-                ? 'text-white/50'
-                : 'text-gray-500 dark:text-gray-400'
-            "
+            :class="hasBackground ? 'text-white/50' : 'text-gray-500 dark:text-gray-400'"
           >
             {{ t("vocabulary.createdAt") }}: {{ formatDate(vocab.createdAt) }}
           </p>
@@ -328,12 +309,12 @@
 import { defineAsyncComponent } from "vue";
 import type { Vocabulary } from "../../../stores/vocabulary.store";
 import { getIconComponent } from "../../../utils/iconRenderer";
+import VocabularyTabAssignButton from "./VocabularyTabAssignButton.vue";
+import VocabularyMediaPlaceholder from "./VocabularyMediaPlaceholder.vue";
 
-const VocabularyNote = defineAsyncComponent(
-  () => import("./VocabularyNote.vue")
-);
+const VocabularyNote = defineAsyncComponent(() => import("./VocabularyNote.vue"));
 const VocabularyCardWrapper = defineAsyncComponent(
-  () => import("../../../components/common/VocabularyCardWrapper.vue") as any
+  () => import("../../../components/common/VocabularyCardWrapper.vue"),
 );
 
 const props = defineProps<{
@@ -341,6 +322,8 @@ const props = defineProps<{
   t: (key: string) => string;
   formatDate: (dateString: string) => string;
   selectedIds: string[];
+  tabs: { id: string; name?: string; icon?: string | null; vocabularies?: { id: string }[] }[];
+  showTabAssignment: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -353,6 +336,7 @@ const emit = defineEmits<{
   (e: "open-image", payload: { src: string; alt: string }): void;
   (e: "open-video", payload: { src: string; title: string }): void;
   (e: "toggle-selection", id: string): void;
+  (e: "manage-tabs", vocab: Vocabulary): void;
 }>();
 
 function isSelected(id: string): boolean {
@@ -374,8 +358,7 @@ const getVideoThumbnail = (videoUrl: string) => {
   // YouTube URL
   if (videoUrl.includes("youtube.com/embed/")) {
     const videoId = videoUrl.split("youtube.com/embed/")[1]?.split("?")[0];
-    if (videoId)
-      return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    if (videoId) return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
   }
 
   // Vimeo URL
@@ -387,4 +370,3 @@ const getVideoThumbnail = (videoUrl: string) => {
   return "";
 };
 </script>
-

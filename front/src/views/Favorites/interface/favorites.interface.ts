@@ -5,6 +5,10 @@ export interface Vocabulary {
   meaning: string
   example?: string
   exampleTranslation?: string
+  image?: string
+  video?: string
+  backgroundUrl?: string | null
+  animatedBackground?: string | null
   difficulty: 'easy' | 'medium' | 'hard'
   tags?: string[]
   correctCount: number

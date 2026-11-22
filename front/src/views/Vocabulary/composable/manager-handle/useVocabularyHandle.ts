@@ -42,6 +42,19 @@ export function useVocabularyHandle(
     }
 
     if (result.success) {
+      if (!isEditing.value && filter) {
+        // Old search/advanced filters must not hide a newly created word.
+        const activeFilter = filter as typeof filter & {
+          search?: string
+          difficulty?: 'all' | 'easy' | 'medium' | 'hard'
+          categoryIds?: string[]
+          tags?: string[]
+        }
+        if (activeFilter.search !== undefined) activeFilter.search = ''
+        if (activeFilter.difficulty !== undefined) activeFilter.difficulty = 'all'
+        if (activeFilter.categoryIds !== undefined) activeFilter.categoryIds = []
+        if (activeFilter.tags !== undefined) activeFilter.tags = []
+      }
       showSuccess('Vocabulary saved successfully')
       closeModal()
     } else {
@@ -50,29 +63,21 @@ export function useVocabularyHandle(
   }
 
   function handleDelete(id: string) {
-    const isCustomTab = filter?.tabId && filter.tabId !== 'all';
-
-    const message = isCustomTab
-      ? 'Are you sure you want to remove this vocabulary from this tab?'
-      : 'Are you sure you want to delete this vocabulary?';
+    // Deleting a vocabulary always deletes the record itself, including its
+    // membership in all tabs. Moving a word between tabs is a separate action.
+    const message = t('vocabulary.deleteConfirm');
 
     confirm(
       message,
       async () => {
-        let result
-        if (isCustomTab && filter?.tabId) {
-          result = await vocabularyService.removeVocabularyFromTab(filter.tabId, id)
-        } else {
-          result = await vocabularyService.deleteVocabulary(id)
-        }
-
+        const result = await vocabularyService.deleteVocabulary(id)
         if (result.success) {
-          showSuccess(isCustomTab ? t('vocabulary.removeFromTabSuccess') : 'Vocabulary deleted successfully')
+          showSuccess(t('vocabulary.deleteSuccess'))
         } else {
-          showError(result.error || (isCustomTab ? t('vocabulary.removeFromTabError') : 'Failed to delete vocabulary'))
+          showError(result.error || t('vocabulary.deleteError'))
         }
       },
-      { label: isCustomTab ? 'Remove' : 'Delete', type: 'error' },
+      { label: t('vocabulary.delete'), type: 'error' },
     )
   }
 

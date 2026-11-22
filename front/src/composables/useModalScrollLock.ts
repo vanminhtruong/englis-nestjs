@@ -1,33 +1,32 @@
-import { onUnmounted } from 'vue'
+import { onUnmounted } from "vue";
 
-// Một biến đếm để theo dõi số lượng modal đang mở
-let activeModals = 0
+// One shared lock for every modal, each instance releases only its own lock.
+// Locking the document element as well as the body hides the desktop page scrollbar.
+let activeModals = 0;
 
 export function useModalScrollLock() {
+  let locked = false;
+
   const lockScroll = () => {
-    if (activeModals === 0) {
-      document.body.classList.add('scroll-lock')
+    if (locked) return;
+    locked = true;
+    if (activeModals++ === 0) {
+      document.documentElement.classList.add("scroll-lock");
+      document.body.classList.add("scroll-lock");
     }
-    activeModals++
-  }
+  };
 
   const unlockScroll = () => {
-    activeModals--
+    if (!locked) return;
+    locked = false;
+    activeModals = Math.max(0, activeModals - 1);
     if (activeModals === 0) {
-      document.body.classList.remove('scroll-lock')
+      document.documentElement.classList.remove("scroll-lock");
+      document.body.classList.remove("scroll-lock");
     }
-  }
+  };
 
-  onUnmounted(() => {
-    // Đảm bảo rằng scroll được unlock nếu component bị hủy mà không đóng modal đúng cách
-    if (activeModals > 0) {
-        activeModals = 0; // Reset counter
-        document.body.classList.remove('scroll-lock')
-    }
-  })
+  onUnmounted(unlockScroll);
 
-  return {
-    lockScroll,
-    unlockScroll,
-  }
+  return { lockScroll, unlockScroll };
 }

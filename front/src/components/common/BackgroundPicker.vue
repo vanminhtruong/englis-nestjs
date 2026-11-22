@@ -38,7 +38,7 @@
       <div
         v-if="isOpen"
         v-click-outside="closePicker"
-        class="absolute top-full right-0 mt-2 w-80 max-h-[50vh] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-black/10 dark:border-white/10 overflow-hidden z-50"
+        class="absolute top-full right-0 z-50 mt-2 flex w-80 max-w-[calc(100vw-2rem)] max-h-[min(78dvh,560px)] flex-col overflow-hidden rounded-2xl border border-black/10 bg-white/95 shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-black/95"
       >
         <!-- Header -->
         <div
@@ -60,8 +60,37 @@
           </div>
         </div>
 
+        <!-- Presets and personal uploads are separated, not mixed into public categories. -->
+        <div class="flex border-b border-black/10 dark:border-white/10">
+          <button
+            type="button"
+            @click="pickerMode = 'preset'"
+            class="flex-1 py-2.5 text-xs font-semibold transition-colors"
+            :class="
+              pickerMode === 'preset'
+                ? 'border-b-2 border-black/70 bg-black/5 text-black dark:border-white/50 dark:bg-white/10 dark:text-white'
+                : 'text-black/60 hover:bg-black/5 dark:text-white/60 dark:hover:bg-white/5'
+            "
+          >
+            {{ $t("background.presetTab") }}
+          </button>
+          <button
+            type="button"
+            @click="pickerMode = 'custom'"
+            class="flex-1 py-2.5 text-xs font-semibold transition-colors"
+            :class="
+              pickerMode === 'custom'
+                ? 'border-b-2 border-black/70 bg-black/5 text-black dark:border-white/50 dark:bg-white/10 dark:text-white'
+                : 'text-black/60 hover:bg-black/5 dark:text-white/60 dark:hover:bg-white/5'
+            "
+          >
+            ↑ {{ $t("background.personalTab") }}
+          </button>
+        </div>
+
         <!-- Category Tabs -->
         <div
+          v-if="pickerMode === 'preset'"
           class="flex gap-1 p-2 overflow-x-auto scrollbar-hide border-b border-black/5 dark:border-white/5"
         >
           <button
@@ -81,20 +110,18 @@
 
         <!-- Loading -->
         <div
-          v-if="loading"
+          v-if="pickerMode === 'preset' && loading"
           class="p-8 flex flex-col items-center justify-center"
         >
           <div
             class="w-10 h-10 border-3 border-primary-500/30 border-t-primary-500 rounded-full animate-spin"
           ></div>
-          <p class="mt-3 text-sm text-black/50 dark:text-white/50">
-            Đang tải...
-          </p>
+          <p class="mt-3 text-sm text-black/50 dark:text-white/50">Đang tải...</p>
         </div>
 
         <!-- Backgrounds Grid -->
         <div
-          v-else
+          v-else-if="pickerMode === 'preset'"
           class="p-3 max-h-[35vh] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-500/30 hover:scrollbar-thumb-primary-500/50"
         >
           <div class="grid grid-cols-3 gap-2">
@@ -156,6 +183,8 @@
             <p class="text-sm">Không có hình nền nào</p>
           </div>
         </div>
+
+        <CustomBackgroundsTab v-else :selected-url="modelValue" @select="applyPersonalBackground" />
       </div>
     </Transition>
   </div>
@@ -164,6 +193,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
 import api from "../../services/api.service";
+import CustomBackgroundsTab from "./CustomBackgroundsTab.vue";
 
 interface Background {
   id: string;
@@ -183,6 +213,7 @@ const emit = defineEmits<{
 }>();
 
 const isOpen = ref(false);
+const pickerMode = ref<"preset" | "custom">("preset");
 const loading = ref(false);
 const backgrounds = ref<Background[]>([]);
 const activeCategory = ref("all");
@@ -228,6 +259,12 @@ const loadBackgrounds = async () => {
   }
 };
 
+const applyPersonalBackground = (url: string) => {
+  selectedId.value = null;
+  emit("update:modelValue", url);
+  closePicker();
+};
+
 const selectBackground = (bg: Background) => {
   selectedId.value = bg.id;
   emit("update:modelValue", bg.url);
@@ -246,17 +283,21 @@ watch(
   (newVal) => {
     if (newVal) {
       const found = backgrounds.value.find((bg) => bg.url === newVal);
-      if (found) selectedId.value = found.id;
+      selectedId.value = found?.id ?? null;
     } else {
       selectedId.value = null;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 // Custom directive for click outside
+type OutsideElement = HTMLElement & {
+  mouseDownEvent?: (event: MouseEvent) => void;
+  clickOutsideEvent?: (event: MouseEvent) => void;
+};
 const vClickOutside = {
-  mounted(el: any, binding: any) {
+  mounted(el: OutsideElement, binding: { value: () => void }) {
     let isMouseDownInside = false;
     let startX = 0;
     let startY = 0;
@@ -274,29 +315,22 @@ const vClickOutside = {
         event.clientY >= document.documentElement.clientHeight;
 
       // Check if mouse moved significantly (drag)
-      const moved =
-        Math.abs(event.clientX - startX) > 5 ||
-        Math.abs(event.clientY - startY) > 5;
+      const moved = Math.abs(event.clientX - startX) > 5 || Math.abs(event.clientY - startY) > 5;
 
-      if (
-        !isScrollbar &&
-        !moved &&
-        !isMouseDownInside &&
-        !el.contains(event.target as Node)
-      ) {
+      if (!isScrollbar && !moved && !isMouseDownInside && !el.contains(event.target as Node)) {
         binding.value();
       }
       isMouseDownInside = false;
     };
 
     setTimeout(() => {
-      document.addEventListener("mousedown", el.mouseDownEvent);
-      document.addEventListener("click", el.clickOutsideEvent);
+      if (el.mouseDownEvent) document.addEventListener("mousedown", el.mouseDownEvent);
+      if (el.clickOutsideEvent) document.addEventListener("click", el.clickOutsideEvent);
     }, 0);
   },
-  unmounted(el: any) {
-    document.removeEventListener("mousedown", el.mouseDownEvent);
-    document.removeEventListener("click", el.clickOutsideEvent);
+  unmounted(el: OutsideElement) {
+    if (el.mouseDownEvent) document.removeEventListener("mousedown", el.mouseDownEvent);
+    if (el.clickOutsideEvent) document.removeEventListener("click", el.clickOutsideEvent);
   },
 };
 

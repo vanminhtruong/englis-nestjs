@@ -1,0 +1,23 @@
+// All presets are already supported by the project's shared getIconComponent().
+export const TAB_ICON_PRESETS = [
+  "book",
+  "graduation-cap",
+  "globe",
+  "target",
+  "sparkles",
+  "pencil",
+  "code",
+  "music",
+  "coffee",
+  "heart",
+  "flower",
+  "palette",
+  "camera",
+  "mic",
+  "flask",
+  "plane",
+  "dumbbell",
+  "scales",
+  "folder",
+  "smile",
+] as const;

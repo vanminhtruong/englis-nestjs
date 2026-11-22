@@ -53,7 +53,7 @@
         </div>
 
         <!-- Content -->
-        <template v-else-if="progress">
+        <div v-else-if="progress">
           <!-- Overview Stats -->
           <OverviewStats
             :total-words="progress.totalWords"
@@ -85,7 +85,7 @@
 
           <!-- Achievements -->
           <AchievementsGrid :achievements="progress.achievements" />
-        </template>
+        </div>
 
         <!-- Empty State -->
         <div v-else class="empty-state">

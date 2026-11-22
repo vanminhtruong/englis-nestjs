@@ -1,20 +1,46 @@
 <template>
   <div class="space-y-6">
-    <div class="flex items-center gap-4 mb-6">
+    <div class="mb-6 flex flex-wrap items-center gap-3 sm:gap-4">
       <button
         @click="emit('back')"
         class="p-2 rounded-xl hover:bg-black/10 dark:hover:bg-white/10 text-black dark:text-white transition-all"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
           <polyline points="15 18 9 12 15 6"></polyline>
         </svg>
       </button>
-      <h2 class="text-2xl font-bold text-black dark:text-white">{{ t('practice.selectDate') || 'Select Practice Date' }}</h2>
+      <h2 class="min-w-0 flex-1 text-xl font-bold text-black dark:text-white sm:text-2xl">
+        {{ t("practice.selectDate") || "Select Practice Date" }}
+      </h2>
+      <span
+        v-if="tabName"
+        class="inline-flex max-w-full items-center gap-2 rounded-full border border-primary-100 bg-primary-50 px-3 py-2 text-xs font-bold text-primary-700 dark:border-white/10 dark:bg-white/10 dark:text-gray-200"
+      >
+        <TabIcon v-if="tabIcon" :icon="tabIcon" size="xs" />
+        <span
+          v-else
+          class="h-1.5 w-1.5 shrink-0 rounded-full bg-primary-500"
+          aria-hidden="true"
+        ></span>
+        <span class="truncate">{{ tabName }}</span>
+      </span>
     </div>
 
     <div v-if="loadingDates" class="text-center py-12">
-      <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></div>
-      <p class="mt-4 text-black/60 dark:text-white/60">{{ t('practice.loadingDates') || 'Loading available dates...' }}</p>
+      <div
+        class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"
+      ></div>
+      <p class="mt-4 text-black/60 dark:text-white/60">
+        {{ t("practice.loadingDates") || "Loading available dates..." }}
+      </p>
     </div>
 
     <div v-else-if="availableDates.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -26,12 +52,18 @@
         :class="{ 'ring-2 ring-primary-500': selectedDate === dateOption.date }"
       >
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-primary-500 dark:bg-primary-600 flex items-center justify-center text-white font-bold">
+          <div
+            class="w-12 h-12 rounded-xl bg-primary-500 dark:bg-primary-600 flex items-center justify-center text-white font-bold"
+          >
             {{ new Date(dateOption.date).getDate() }}
           </div>
           <div>
-            <div class="text-lg font-bold text-black dark:text-white">{{ dateOption.formattedDate }}</div>
-            <div class="text-sm text-black/60 dark:text-white/60">{{ dateOption.count }} {{ t('practice.words') || 'words' }}</div>
+            <div class="text-lg font-bold text-black dark:text-white">
+              {{ dateOption.formattedDate }}
+            </div>
+            <div class="text-sm text-black/60 dark:text-white/60">
+              {{ dateOption.count }} {{ t("practice.words") || "words" }}
+            </div>
           </div>
         </div>
       </button>
@@ -39,13 +71,19 @@
 
     <div v-else class="text-center py-12">
       <div class="text-6xl mb-4">📅</div>
-      <h3 class="text-2xl font-bold text-black dark:text-white mb-2">{{ t('practice.noDatesAvailable') || 'No dates available' }}</h3>
-      <p class="text-black/60 dark:text-white/60">{{ t('practice.addVocabularyFirst') || 'Add some vocabulary first to practice by date' }}</p>
+      <h3 class="text-2xl font-bold text-black dark:text-white mb-2">
+        {{ t("practice.noDatesAvailable") || "No dates available" }}
+      </h3>
+      <p class="text-black/60 dark:text-white/60">
+        {{ t("practice.addVocabularyFirst") || "Add some vocabulary first to practice by date" }}
+      </p>
     </div>
 
     <div v-if="selectedDate" class="space-y-4 pt-6 border-t border-black/10 dark:border-white/10">
-      <h3 class="text-xl font-bold text-black dark:text-white mb-4">{{ t('practice.selectModeForDate') || 'Select practice mode' }}</h3>
-      
+      <h3 class="text-xl font-bold text-black dark:text-white mb-4">
+        {{ t("practice.selectModeForDate") || "Select practice mode" }}
+      </h3>
+
       <button
         @click="emit('start-practice-by-date', 'flashcard')"
         :disabled="loadingPracticeData"
@@ -53,9 +91,11 @@
       >
         <div class="flex items-center gap-3">
           <div class="text-2xl">🎴</div>
-          <div class="text-lg font-semibold">{{ t('practice.flashcard') }}</div>
+          <div class="text-lg font-semibold">{{ t("practice.flashcard") }}</div>
           <div v-if="loadingPracticeData" class="ml-auto">
-            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+            <div
+              class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"
+            ></div>
           </div>
         </div>
       </button>
@@ -67,9 +107,11 @@
       >
         <div class="flex items-center gap-3">
           <div class="text-2xl">⌨️</div>
-          <div class="text-lg font-semibold">{{ t('practice.typing') }}</div>
+          <div class="text-lg font-semibold">{{ t("practice.typing") }}</div>
           <div v-if="loadingPracticeData" class="ml-auto">
-            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+            <div
+              class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"
+            ></div>
           </div>
         </div>
       </button>
@@ -81,9 +123,11 @@
       >
         <div class="flex items-center gap-3">
           <div class="text-2xl">🖼️</div>
-          <div class="text-lg font-semibold">{{ t('practice.imageGuess') }}</div>
+          <div class="text-lg font-semibold">{{ t("practice.imageGuess") }}</div>
           <div v-if="loadingPracticeData" class="ml-auto">
-            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+            <div
+              class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"
+            ></div>
           </div>
         </div>
       </button>
@@ -92,22 +136,25 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import { useI18n } from "vue-i18n";
+import TabIcon from "../../../components/common/TabIcon.vue";
 
-const { t } = useI18n()
+const { t } = useI18n();
 
-type ModeKey = 'flashcard' | 'typing' | 'image_guess'
+type ModeKey = "flashcard" | "typing" | "image_guess";
 
-const props = defineProps<{
-  availableDates: Array<{ date: string; formattedDate: string; count: number }>
-  loadingDates: boolean
-  selectedDate: string | null
-  loadingPracticeData: boolean
-}>()
+defineProps<{
+  availableDates: Array<{ date: string; formattedDate: string; count: number }>;
+  loadingDates: boolean;
+  selectedDate: string | null;
+  loadingPracticeData: boolean;
+  tabName?: string;
+  tabIcon?: string | null;
+}>();
 
 const emit = defineEmits<{
-  (e: 'back'): void
-  (e: 'date-select', date: string): void
-  (e: 'start-practice-by-date', mode: ModeKey): void
-}>()
+  (e: "back"): void;
+  (e: "date-select", date: string): void;
+  (e: "start-practice-by-date", mode: ModeKey): void;
+}>();
 </script>

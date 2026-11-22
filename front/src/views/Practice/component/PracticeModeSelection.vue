@@ -62,10 +62,7 @@
 
           <!-- Arrow / Loading Indicator -->
           <div class="action-indicator">
-            <div
-              v-if="loadingPracticeData && selectedMode === mode.key"
-              class="mini-spinner"
-            ></div>
+            <div v-if="loadingPracticeData && selectedMode === mode.key" class="mini-spinner"></div>
             <svg
               v-else
               class="arrow-icon"
@@ -74,11 +71,7 @@
               stroke="currentColor"
               stroke-width="2"
             >
-              <path
-                d="M5 12h14M12 5l7 7-7 7"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
+              <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </div>
         </div>
@@ -91,10 +84,7 @@
     </div>
 
     <!-- Empty State -->
-    <div
-      v-else-if="modesLoaded && practiceModes.length === 0"
-      class="empty-state"
-    >
+    <div v-else-if="modesLoaded && practiceModes.length === 0" class="empty-state">
       <div class="empty-icon">📭</div>
       <h3 class="empty-title">{{ t("practice.noVocabulary") }}</h3>
       <p class="empty-description">
@@ -111,19 +101,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
+import type { PracticeMode as PracticeModeItem } from "../service/practice.service";
 
 const { t } = useI18n();
 
-interface PracticeModeItem {
-  id: string;
-  key: string;
-  name: string;
-  description: string;
-  icon: string;
-  color: string;
-}
-
-const props = defineProps<{
+defineProps<{
   practiceModes: PracticeModeItem[];
   loadingModes: boolean;
   modesLoaded: boolean;
@@ -340,7 +322,8 @@ function getModeDescription(descKey: string): string {
 
 .mode-card:hover {
   transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3),
+  box-shadow:
+    0 20px 40px -15px rgba(0, 0, 0, 0.3),
     0 0 30px -5px var(--glow-color, rgba(102, 126, 234, 0.4));
 }
 
@@ -374,16 +357,9 @@ function getModeDescription(descKey: string): string {
 .bg-pattern {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(
-      circle at 20% 80%,
-      rgba(255, 255, 255, 0.1) 0%,
-      transparent 50%
-    ),
-    radial-gradient(
-      circle at 80% 20%,
-      rgba(255, 255, 255, 0.08) 0%,
-      transparent 50%
-    );
+  background-image:
+    radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
   opacity: 0;
   transition: opacity 0.4s ease;
 }
@@ -398,11 +374,7 @@ function getModeDescription(descKey: string): string {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.15) 0%,
-    transparent 50%
-  );
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
   opacity: 0;
   transform: translate(-100%, -100%);
   transition: opacity 0.4s ease;

@@ -31,7 +31,7 @@
               searchPlaceholder: t('vocabulary.search'),
               addNew: t('vocabulary.addNew'),
             }"
-            @update:search="(value) => (vocabularyState.filter.search = value)"
+            @update:search="(value: string) => (vocabularyState.filter.search = value)"
             @create="vocabularyState.openCreateModal"
           />
 
@@ -54,19 +54,14 @@
               medium: t('vocabulary.medium'),
               hard: t('vocabulary.hard'),
             }"
-            @update:selected-categories="
-              advancedFilterHandle.handleCategoryFilterChange
-            "
+            @update:selected-categories="advancedFilterHandle.handleCategoryFilterChange"
             @update:selected-tags="advancedFilterHandle.handleTagFilterChange"
             @set-difficulty="vocabularyState.setDifficultyFilter"
           />
         </div>
       </div>
 
-      <div
-        v-if="vocabularyState.store.loading"
-        class="flex items-center justify-center py-24"
-      >
+      <div v-if="vocabularyState.store.loading" class="flex items-center justify-center py-24">
         <div class="relative">
           <div
             class="w-16 h-16 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"
@@ -79,10 +74,7 @@
         </div>
       </div>
 
-      <div
-        v-else-if="vocabularyState.filteredVocabularies.length === 0"
-        class="text-center py-12"
-      >
+      <div v-else-if="vocabularyState.filteredVocabularies.length === 0" class="text-center py-12">
         <div class="text-6xl mb-4">📚</div>
         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           {{ t("vocabulary.noVocabulary") }}
@@ -105,6 +97,8 @@
           :t="t"
           :format-date="dateFormat.formatDate"
           :selected-ids="selectionHandle.selectedVocabularyIds.value"
+          :tabs="tabHandle.tabs.value"
+          :show-tab-assignment="tabHandle.activeTabId.value === null"
           @speak="vocabularyHandle.handleSpeak"
           @toggle-pin="vocabularyHandle.handleTogglePin"
           @toggle-favorite="vocabularyHandle.handleToggleFavorite"
@@ -114,6 +108,7 @@
           @open-image="mediaPreview.openImagePreview"
           @open-video="mediaPreview.openVideoPreview"
           @toggle-selection="selectionHandle.toggleVocabularySelection"
+          @manage-tabs="tabHandle.openTabManager"
         />
 
         <VocabularyList
@@ -122,6 +117,8 @@
           :t="t"
           :format-date="dateFormat.formatDate"
           :selected-ids="selectionHandle.selectedVocabularyIds.value"
+          :tabs="tabHandle.tabs.value"
+          :show-tab-assignment="tabHandle.activeTabId.value === null"
           @speak="vocabularyHandle.handleSpeak"
           @toggle-pin="vocabularyHandle.handleTogglePin"
           @toggle-favorite="vocabularyHandle.handleToggleFavorite"
@@ -131,13 +128,13 @@
           @open-image="mediaPreview.openImagePreview"
           @open-video="mediaPreview.openVideoPreview"
           @toggle-selection="selectionHandle.toggleVocabularySelection"
+          @manage-tabs="tabHandle.openTabManager"
         />
       </div>
 
       <Pagination
         v-if="
-          vocabularyState.filteredVocabularies.length > 0 &&
-          vocabularyState.store.pageCount > 1
+          vocabularyState.filteredVocabularies.length > 0 && vocabularyState.store.pageCount > 1
         "
         :page="vocabularyState.store.page"
         :page-count="vocabularyState.store.pageCount"
@@ -213,8 +210,8 @@
     <VocabularyTabManagerModal
       :show="tabHandle.showTabManagerModal.value"
       :vocabulary="tabHandle.selectedVocabForTabs.value"
-      title="Manage Vocabulary Tabs"
-      @close="tabHandle.showTabManagerModal.value = false"
+      :title="t('vocabulary.manageTabs')"
+      @close="tabHandle.closeTabManager"
       @saved="tabHandle.handleTabSaved"
     />
 
@@ -222,6 +219,8 @@
       :show="tabHandle.showTabNameModal.value"
       :is-editing="tabHandle.isEditingTab.value"
       :initial-name="tabHandle.editingTabName.value"
+      :initial-icon="tabHandle.editingTabIcon.value"
+      :saving="tabHandle.isSavingTab.value"
       @close="tabHandle.closeTabNameModal"
       @submit="tabHandle.handleTabNameSubmit"
     />
@@ -229,7 +228,9 @@
     <VocabularyBulkActionBar
       :selected-count="selectionHandle.selectedVocabularyIds.value.length"
       :is-all-selected="selectionHandle.isAllVocabulariesSelected.value"
+      :is-deleting="isDeletingSelected"
       @add-to-tab="selectionHandle.openBulkAddToTab"
+      @delete-selected="handleDeleteSelected"
       @toggle-select-all="selectionHandle.toggleSelectAll"
       @clear-selection="selectionHandle.clearSelection"
     />
@@ -245,6 +246,8 @@
 
 <script setup lang="ts">
 import { proxyRefs, ref } from "vue";
+import { useToast } from "../../composables/useToast";
+import { vocabularyService } from "./service/vocabulary.service";
 import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVocabularyState } from "./composable/manager-state/useVocabularyState";
@@ -264,49 +267,41 @@ import koLang from "./language/ko";
 import zhCNLang from "./language/zh-CN";
 
 const VocabularyHeader = defineAsyncComponent(
-  () => import("./component/VocabularyHeader.vue") as any
+  () => import("./component/VocabularyHeader.vue") as any,
 );
 const VocabularyControls = defineAsyncComponent(
-  () => import("./component/VocabularyControls.vue") as any
+  () => import("./component/VocabularyControls.vue") as any,
 );
-const VocabularyGrid = defineAsyncComponent(
-  () => import("./component/VocabularyGrid.vue") as any
-);
-const VocabularyList = defineAsyncComponent(
-  () => import("./component/VocabularyList.vue") as any
-);
+const VocabularyGrid = defineAsyncComponent(() => import("./component/VocabularyGrid.vue") as any);
+const VocabularyList = defineAsyncComponent(() => import("./component/VocabularyList.vue") as any);
 const VocabularyModal = defineAsyncComponent(
-  () => import("./component/VocabularyModal.vue") as any
+  () => import("./component/VocabularyModal.vue") as any,
 );
 const VocabularyDetailModal = defineAsyncComponent(
-  () => import("../../components/VocabularyDetailModal.vue") as any
+  () => import("../../components/VocabularyDetailModal.vue") as any,
 );
 const VocabularyImageViewer = defineAsyncComponent(
-  () => import("../../components/common/VocabularyImageViewer.vue") as any
+  () => import("../../components/common/VocabularyImageViewer.vue") as any,
 );
 const VideoZoomModal = defineAsyncComponent(
-  () => import("../../components/common/VideoZoomModal.vue") as any
+  () => import("../../components/common/VideoZoomModal.vue") as any,
 );
-const Pagination = defineAsyncComponent(
-  () => import("../../components/Pagination.vue") as any
-);
+const Pagination = defineAsyncComponent(() => import("../../components/Pagination.vue") as any);
 const VocabularyAppTabs = defineAsyncComponent(
-  () => import("./component/VocabularyAppTabs.vue") as any
+  () => import("./component/VocabularyAppTabs.vue") as any,
 );
 const VocabularyTabManagerModal = defineAsyncComponent(
-  () => import("./component/VocabularyTabManagerModal.vue") as any
+  () => import("./component/VocabularyTabManagerModal.vue") as any,
 );
-const TabNameModal = defineAsyncComponent(
-  () => import("./component/TabNameModal.vue") as any
-);
+const TabNameModal = defineAsyncComponent(() => import("./component/TabNameModal.vue") as any);
 const VocabularyBulkActionBar = defineAsyncComponent(
-  () => import("./component/VocabularyBulkActionBar.vue") as any
+  () => import("./component/VocabularyBulkActionBar.vue") as any,
 );
 const BulkAddToTabModal = defineAsyncComponent(
-  () => import("./component/BulkAddToTabModal.vue") as any
+  () => import("./component/BulkAddToTabModal.vue") as any,
 );
 const VocabularyAdvancedFilters = defineAsyncComponent(
-  () => import("./component/VocabularyAdvancedFilters.vue") as any
+  () => import("./component/VocabularyAdvancedFilters.vue") as any,
 );
 
 const { t, locale, mergeLocaleMessage } = useI18n();
@@ -324,19 +319,19 @@ const vocabularyHandle = useVocabularyHandle(
   vocabularyStateStore.isEditing,
   vocabularyStateStore.editingId,
   vocabularyStateStore.closeModal,
-  vocabularyStateStore.filter
+  vocabularyStateStore.filter,
 );
 
 const vocabularyFilterHandle = useVocabularyFilterHandle(
   vocabularyStateStore.filter,
-  vocabularyStateStore.store
+  vocabularyStateStore.store,
 );
 
 const vocabularyLayoutHandle = useVocabularyLayoutHandle(
   vocabularyStateStore.layoutMode,
   vocabularyStateStore.filter,
   vocabularyStateStore.store,
-  vocabularyStateStore.isPersistingLayout
+  vocabularyStateStore.isPersistingLayout,
 );
 
 // Media Preview
@@ -353,13 +348,11 @@ const stickyButton = useStickyButtonObserver(controlsRef);
 const tabHandle = useVocabularyTabHandle(
   vocabularyStateStore.filter as any,
   vocabularyFilterHandle.handlePageChange,
-  () => vocabularyStateStore.store.page
+  () => vocabularyStateStore.store.page,
 );
 
 // Selection Management
-const selectionHandle = useVocabularySelection(
-  vocabularyStateStore.filteredVocabularies
-);
+const selectionHandle = useVocabularySelection(vocabularyStateStore.filteredVocabularies);
 
 // Advanced Filter Handle (includes category, tag filters, bulk add, etc.)
 const advancedFilterHandle = useVocabularyAdvancedFilterHandle(
@@ -367,12 +360,45 @@ const advancedFilterHandle = useVocabularyAdvancedFilterHandle(
   vocabularyStateStore.store,
   tabHandle,
   selectionHandle,
-  vocabularyFilterHandle
+  vocabularyFilterHandle,
 );
+
+const { confirm, showSuccess, showError } = useToast();
+const isDeletingSelected = ref(false);
+
+function handleDeleteSelected() {
+  if (isDeletingSelected.value) return;
+  const ids = [...new Set(selectionHandle.selectedVocabularyIds.value)];
+  if (!ids.length) return;
+  const message = t("vocabulary.bulkDeleteConfirm", { count: ids.length });
+
+  confirm(
+    message,
+    async () => {
+      if (isDeletingSelected.value) return;
+      isDeletingSelected.value = true;
+      try {
+        const { deletedIds, failedIds } = await vocabularyService.deleteSelectedVocabularies(ids);
+        const completed = new Set(deletedIds);
+        selectionHandle.selectedVocabularyIds.value =
+          selectionHandle.selectedVocabularyIds.value.filter((id) => !completed.has(id));
+        if (deletedIds.length)
+          showSuccess(t("vocabulary.bulkDeleteSuccess", { count: deletedIds.length }));
+        if (failedIds.length)
+          showError(t("vocabulary.bulkDeletePartialError", { count: failedIds.length }));
+      } catch (error) {
+        console.error("Bulk vocabulary deletion failed:", error);
+        showError(t("vocabulary.bulkDeleteRefreshError"));
+      } finally {
+        isDeletingSelected.value = false;
+      }
+    },
+    { label: t("vocabulary.delete"), type: "error" },
+  );
+}
 
 // Mount with tab loading
 useVocabularyMount({
   onMounted: () => tabHandle.loadTabs(),
 });
 </script>
-

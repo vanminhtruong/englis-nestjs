@@ -18,9 +18,7 @@
     <!-- Content Container -->
     <div class="relative z-10">
       <!-- Header with Background Picker -->
-      <div
-        class="flex items-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-      >
+      <div class="flex items-center hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
         <div class="flex-1">
           <slot name="header" :has-background="hasBackground"></slot>
         </div>
@@ -79,13 +77,11 @@
       >
         <div
           v-if="showPicker"
-          class="fixed w-80 max-h-[50vh] bg-white dark:bg-black backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden z-[9999]"
+          class="fixed z-[9999] flex w-80 max-w-[calc(100vw-2rem)] max-h-[min(78dvh,560px)] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl backdrop-blur-xl dark:border-white/10 dark:bg-black"
           :style="pickerPosition"
         >
           <!-- Header -->
-          <div
-            class="p-4 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5"
-          >
+          <div class="p-4 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5">
             <div class="flex items-center justify-between">
               <h3
                 class="text-lg font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent"
@@ -104,12 +100,7 @@
                   @click="closePicker"
                   class="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-white/10 transition-colors text-gray-500 dark:text-white/60"
                 >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
@@ -122,8 +113,37 @@
             </div>
           </div>
 
+          <!-- Library / custom upload switch -->
+          <div class="flex border-b border-black/10 dark:border-white/10">
+            <button
+              type="button"
+              @click="pickerMode = 'preset'"
+              class="flex-1 py-2.5 text-xs font-semibold transition-colors"
+              :class="
+                pickerMode === 'preset'
+                  ? 'border-b-2 border-black/70 bg-black/5 text-black dark:border-white/50 dark:bg-white/10 dark:text-white'
+                  : 'text-black/60 hover:bg-black/5 dark:text-white/60 dark:hover:bg-white/5'
+              "
+            >
+              {{ $t("background.presetTab") }}
+            </button>
+            <button
+              type="button"
+              @click="pickerMode = 'custom'"
+              class="flex-1 py-2.5 text-xs font-semibold transition-colors"
+              :class="
+                pickerMode === 'custom'
+                  ? 'border-b-2 border-black/70 bg-black/5 text-black dark:border-white/50 dark:bg-white/10 dark:text-white'
+                  : 'text-black/60 hover:bg-black/5 dark:text-white/60 dark:hover:bg-white/5'
+              "
+            >
+              ↑ {{ $t("background.personalTab") }}
+            </button>
+          </div>
+
           <!-- Category Tabs -->
           <div
+            v-if="pickerMode === 'preset'"
             ref="categoryTabsRef"
             class="flex gap-1.5 p-2.5 overflow-x-auto scrollbar-hide border-b border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-white/5 cursor-grab active:cursor-grabbing select-none"
             @mousedown="startDrag"
@@ -148,19 +168,20 @@
 
           <!-- Loading -->
           <div
-            v-if="loading"
+            v-if="pickerMode === 'preset' && loading"
             class="p-8 flex flex-col items-center justify-center"
           >
             <div
               class="w-10 h-10 border-3 border-primary-500/30 border-t-primary-500 rounded-full animate-spin"
             ></div>
-            <p class="mt-3 text-sm text-black/50 dark:text-white/50">
-              Đang tải...
-            </p>
+            <p class="mt-3 text-sm text-black/50 dark:text-white/50">Đang tải...</p>
           </div>
 
           <!-- Backgrounds Grid -->
-          <div v-else class="p-3 max-h-[35vh] overflow-y-auto scrollbar-thin">
+          <div
+            v-else-if="pickerMode === 'preset'"
+            class="p-3 max-h-[35vh] overflow-y-auto scrollbar-thin"
+          >
             <div class="grid grid-cols-3 gap-2">
               <button
                 v-for="bg in filteredBackgrounds"
@@ -220,22 +241,25 @@
               <p class="text-sm">Không có hình nền nào</p>
             </div>
           </div>
+
+          <CustomBackgroundsTab
+            v-else
+            :selected-url="backgroundUrl"
+            @select="selectPersonalBackground"
+          />
         </div>
       </Transition>
 
       <!-- Click outside overlay -->
-      <div
-        v-if="showPicker"
-        class="fixed inset-0 z-[9998]"
-        @click="closePicker"
-      ></div>
+      <div v-if="showPicker" class="fixed inset-0 z-[9998]" @click="closePicker"></div>
     </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import api from "../../../services/api.service";
+import CustomBackgroundsTab from "../../../components/common/CustomBackgroundsTab.vue";
 import { useItemBackground } from "../../../composables/useBackgroundState";
 
 interface Background {
@@ -255,10 +279,12 @@ const props = defineProps<{
 const cardRef = ref<HTMLElement | null>(null);
 
 // Use background state for this specific item
-const { backgroundUrl, backgroundStyle, hasBackground, setBackground } =
-  useItemBackground(props.itemId);
+const { backgroundUrl, backgroundStyle, hasBackground, setBackground } = useItemBackground(
+  props.itemId,
+);
 
 const showPicker = ref(false);
+const pickerMode = ref<"preset" | "custom">("preset");
 const loading = ref(false);
 const backgrounds = ref<Background[]>([]);
 const categories = ref<{ value: string; label: string; icon: string }[]>([]);
@@ -271,9 +297,16 @@ const pickerPosition = ref({ top: "100px", right: "20px" });
 const updatePickerPosition = () => {
   if (!cardRef.value) return;
   const rect = cardRef.value.getBoundingClientRect();
+  const maxHeight = Math.min(window.innerHeight * 0.78, 560);
+  const width = Math.min(320, window.innerWidth - 32);
+  const top = Math.max(12, Math.min(rect.top + 60, window.innerHeight - maxHeight - 12));
+  const right = Math.max(
+    12,
+    Math.min(window.innerWidth - rect.right + 10, window.innerWidth - width - 12),
+  );
   pickerPosition.value = {
-    top: `${rect.top + 60}px`,
-    right: `${window.innerWidth - rect.right + 10}px`,
+    top: `${top}px`,
+    right: `${right}px`,
   };
 };
 
@@ -354,6 +387,11 @@ const loadData = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+const selectPersonalBackground = (url: string) => {
+  setBackground(url);
+  closePicker();
 };
 
 const selectBackground = (bg: Background) => {

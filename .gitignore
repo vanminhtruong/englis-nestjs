@@ -1,0 +1,21 @@
+# Environment files are private to each installation.
+front/.env
+front/.env.*
+!front/.env.example
+back/.env
+back/.env.*
+!back/.env.example
+
+# The production database and uploaded user assets must never be published.
+back/database/*.sqlite
+back/database/*.sqlite-*
+back/database/backups/
+back/uploads/
+back/logs/
+
+# Generated build artifacts and dependencies
+**/node_modules/
+front/dist/
+back/dist/
+**/.vite/
+*.log

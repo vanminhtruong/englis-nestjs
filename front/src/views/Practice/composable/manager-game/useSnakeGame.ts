@@ -9,8 +9,8 @@ export function useSnakeGame(session: ComputedRef<any>) {
   });
 
   watch(
-    () => session.value.mode,
-    async (newMode) => {
+    () => [session.value.mode, session.value.questions] as const,
+    async ([newMode]) => {
       if (newMode === "snake" && session.value.questions.length > 0) {
         snakeQuestions.value = session.value.questions.map((q: any) => ({
           vocabularyId: q.vocabularyId,
@@ -22,7 +22,7 @@ export function useSnakeGame(session: ComputedRef<any>) {
         }));
       }
     },
-    { immediate: true }
+    { immediate: true },
   );
 
   async function handleSnakeComplete(results: any) {

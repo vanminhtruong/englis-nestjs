@@ -187,6 +187,8 @@ defineProps<{
 defineEmits<{
   "delete-history": [historyId: string];
   "toggle-selection": [historyId: string];
+  "open-image": [payload: { src: string; alt: string }];
+  "open-video": [payload: { src: string; title: string }];
 }>();
 
 function getDescription(history: History): string {
@@ -198,7 +200,7 @@ function getDescription(history: History): string {
     );
   }
   // Fallback to original description
-  return history.description;
+  return history.description ?? "";
 }
 </script>
 

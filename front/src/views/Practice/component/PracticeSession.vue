@@ -37,9 +37,7 @@
     <!-- Progress and Timer -->
     <div class="flex justify-between items-center mb-4">
       <div class="flex-1">
-        <div
-          class="bg-black/20 dark:bg-white/20 rounded-full h-3 overflow-hidden"
-        >
+        <div class="bg-black/20 dark:bg-white/20 rounded-full h-3 overflow-hidden">
           <div
             class="bg-gradient-to-r from-primary-500 to-secondary-500 h-full transition-all duration-300"
             :style="{ width: `${progress}%` }"
@@ -74,10 +72,7 @@
     >
       <div class="text-center mb-8">
         <!-- For image_guess mode, highlight image first -->
-        <div
-          v-if="session.mode === 'image_guess'"
-          class="mb-6 flex flex-col items-center gap-4"
-        >
+        <div v-if="session.mode === 'image_guess'" class="mb-6 flex flex-col items-center gap-4">
           <div
             class="w-full max-w-md h-56 rounded-2xl overflow-hidden bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center"
           >
@@ -130,13 +125,8 @@
       </div>
 
       <!-- Typing Mode: Input answer -->
-      <div
-        v-else-if="session.mode === 'typing' && !showAnswer"
-        class="space-y-4"
-      >
-        <label
-          class="block text-lg font-medium text-black/70 dark:text-white/70 text-center"
-        >
+      <div v-else-if="session.mode === 'typing' && !showAnswer" class="space-y-4">
+        <label class="block text-lg font-medium text-black/70 dark:text-white/70 text-center">
           {{ t("practice.typeTheWord") }}
         </label>
         <input
@@ -156,23 +146,13 @@
       </div>
 
       <!-- Image Guess Mode: Letter boxes with hints -->
-      <div
-        v-else-if="session.mode === 'image_guess' && !showAnswer"
-        class="space-y-6"
-      >
-        <label
-          class="block text-lg font-medium text-black/70 dark:text-white/70 text-center"
-        >
-          {{
-            t("practice.guessFromImage") || "Guess the word from the picture"
-          }}
+      <div v-else-if="session.mode === 'image_guess' && !showAnswer" class="space-y-6">
+        <label class="block text-lg font-medium text-black/70 dark:text-white/70 text-center">
+          {{ t("practice.guessFromImage") || "Guess the word from the picture" }}
         </label>
 
         <!-- Letter boxes - directly editable -->
-        <div
-          class="flex flex-wrap justify-center gap-2"
-          @click="focusHiddenInput"
-        >
+        <div class="flex flex-wrap justify-center gap-2" @click="focusHiddenInput">
           <div
             v-for="(letter, index) in getLetterBoxes()"
             :key="index"
@@ -185,9 +165,7 @@
               'bg-green-100 dark:bg-green-900/30 border-green-300 dark:border-green-600':
                 letter.isUserInput,
               'animate-pulse':
-                letter.originalLetter !== ' ' &&
-                !letter.isHint &&
-                !letter.isUserInput,
+                letter.originalLetter !== ' ' && !letter.isHint && !letter.isUserInput,
             }"
           >
             {{ letter.display }}
@@ -207,9 +185,7 @@
         />
 
         <div class="text-center text-sm text-black/50 dark:text-white/50">
-          {{
-            t("practice.clickToType") || "Click on the boxes and start typing"
-          }}
+          {{ t("practice.clickToType") || "Click on the boxes and start typing" }}
         </div>
 
         <button
@@ -225,15 +201,10 @@
         <!-- Flashcard Mode: Show meaning and ask if correct -->
         <div v-if="session.mode === 'flashcard'">
           <div class="text-center mb-6">
-            <div
-              class="text-3xl font-bold text-primary-500 dark:text-primary-400 mb-4"
-            >
+            <div class="text-3xl font-bold text-primary-500 dark:text-primary-400 mb-4">
               {{ currentQuestion.meaning }}
             </div>
-            <div
-              v-if="currentQuestion.example"
-              class="p-4 bg-black/5 dark:bg-white/5 rounded-xl"
-            >
+            <div v-if="currentQuestion.example" class="p-4 bg-black/5 dark:bg-white/5 rounded-xl">
               <p class="text-sm italic text-black/60 dark:text-white/60">
                 {{ currentQuestion.example }}
               </p>
@@ -267,11 +238,10 @@
             <div
               :class="{
                 'text-green-600 dark:text-green-400': session.answers.get(
-                  currentQuestion.vocabularyId
+                  currentQuestion.vocabularyId,
                 )?.isCorrect,
-                'text-red-600 dark:text-red-400': !session.answers.get(
-                  currentQuestion.vocabularyId
-                )?.isCorrect,
+                'text-red-600 dark:text-red-400': !session.answers.get(currentQuestion.vocabularyId)
+                  ?.isCorrect,
               }"
               class="text-2xl font-bold mb-2"
             >
@@ -289,18 +259,14 @@
                 <span class="font-semibold text-black/70 dark:text-white/70"
                   >{{ t("practice.yourAnswer") }}:</span
                 >
-                <span class="ml-2 text-black dark:text-white">{{
-                  userAnswer
-                }}</span>
+                <span class="ml-2 text-black dark:text-white">{{ userAnswer }}</span>
               </div>
               <div>
                 <span class="font-semibold text-black/70 dark:text-white/70"
                   >{{ t("practice.correctAnswer") }}:</span
                 >
                 <span class="ml-2 text-black dark:text-white">{{
-                  session.mode === "image_guess"
-                    ? currentQuestion.word
-                    : currentQuestion.meaning
+                  session.mode === "image_guess" ? currentQuestion.word : currentQuestion.meaning
                 }}</span>
               </div>
               <div
@@ -377,9 +343,7 @@
               </div>
             </div>
             <div class="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-4">
-              <div
-                class="text-3xl font-bold text-purple-600 dark:text-purple-400"
-              >
+              <div class="text-3xl font-bold text-purple-600 dark:text-purple-400">
                 {{ totalScore }}
               </div>
               <div class="text-sm text-black/60 dark:text-white/60">
@@ -400,14 +364,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ref,
-  watch,
-  computed,
-  defineAsyncComponent,
-  onMounted,
-  nextTick,
-} from "vue";
+import { ref, watch, computed, defineAsyncComponent, onMounted, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { API_URL } from "../../../services/api.service";
 
@@ -441,7 +398,7 @@ const emit = defineEmits<{
 const localUserAnswer = ref(props.userAnswer);
 watch(
   () => props.userAnswer,
-  (v) => (localUserAnswer.value = v)
+  (v) => (localUserAnswer.value = v),
 );
 
 const hiddenInput = ref<HTMLInputElement | null>(null);
@@ -488,7 +445,7 @@ watch(
         focusHiddenInput();
       });
     }
-  }
+  },
 );
 
 // Watch for showAnswer changes and re-focus when it becomes false
@@ -500,7 +457,7 @@ watch(
         focusHiddenInput();
       });
     }
-  }
+  },
 );
 
 // Image guess letter boxes logic

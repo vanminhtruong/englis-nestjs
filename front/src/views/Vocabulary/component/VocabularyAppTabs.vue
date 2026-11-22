@@ -4,12 +4,14 @@
       ref="tabsContainer"
       class="flex items-center gap-2 pb-2 mb-6 no-scrollbar select-none flex-wrap"
     >
-      <!-- All Vocabularies Tab with Toggle -->
-      <div class="relative flex items-center group" v-if="!isAllTabHidden">
+      <!-- All Vocabularies Tab with Toggle (selectionOnly disables management actions) -->
+      <div class="relative flex items-center group" v-if="selectionOnly || !isAllTabHidden">
         <button
           @click="handleTabClick(null)"
           :class="[
-            'pl-4 pr-10 py-2 rounded-xl font-medium transition-all whitespace-nowrap text-sm',
+            selectionOnly
+              ? 'px-4 py-2 rounded-xl font-medium transition-all whitespace-nowrap text-sm'
+              : 'pl-4 pr-10 py-2 rounded-xl font-medium transition-all whitespace-nowrap text-sm',
             !activeTabId
               ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg shadow-primary-500/25'
               : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/10',
@@ -19,6 +21,7 @@
         </button>
         <!-- Toggle Hide Button -->
         <button
+          v-if="!selectionOnly"
           @click.stop="$emit('update:isAllTabHidden', true)"
           class="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full transition-all"
           :class="[
@@ -72,25 +75,25 @@
       </button>
 
       <!-- Visible Tabs (first 4) -->
-      <div
-        v-for="tab in visibleTabs"
-        :key="tab.id"
-        class="group relative flex items-center"
-      >
+      <div v-for="tab in visibleTabs" :key="tab.id" class="group relative flex items-center">
         <button
           @click="handleTabClick(tab.id)"
           :class="[
-            'pl-4 pr-16 py-2 rounded-xl font-medium transition-all whitespace-nowrap text-sm',
+            selectionOnly
+              ? 'max-w-[min(75vw,22rem)] px-4 py-2 rounded-xl font-medium transition-all text-sm flex items-center gap-2'
+              : 'pl-4 pr-16 py-2 rounded-xl font-medium transition-all whitespace-nowrap text-sm flex items-center gap-2',
             activeTabId === tab.id
               ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg shadow-primary-500/25'
               : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/10',
           ]"
         >
-          {{ tab.name }}
+          <TabIcon :icon="tab.icon" :active="activeTabId === tab.id" size="xs" />
+          <span class="min-w-0 truncate">{{ tab.name }}</span>
         </button>
 
         <!-- Tab Actions (Edit/Delete) -->
         <div
+          v-if="!selectionOnly"
           class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1"
           :class="{
             'opacity-0 group-hover:opacity-100': activeTabId !== tab.id,
@@ -113,12 +116,8 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <path
-                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-              ></path>
-              <path
-                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-              ></path>
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
             </svg>
           </button>
           <button
@@ -150,8 +149,16 @@
       </div>
 
       <!-- "More Tabs" button — only shown if there are hidden tabs -->
-      <div v-if="hiddenTabs.length > 0" class="relative" ref="moreMenuRef">
+      <div
+        v-if="hiddenTabs.length > 0"
+        class="relative max-w-full"
+        ref="moreMenuRef"
+        @keydown.esc.stop="isMoreMenuOpen = false"
+      >
         <button
+          type="button"
+          :aria-expanded="isMoreMenuOpen"
+          aria-haspopup="true"
           @click.stop="toggleMoreMenu"
           class="more-tabs-btn flex items-center gap-1.5 px-3 py-2 rounded-xl font-medium text-sm transition-all whitespace-nowrap"
           :class="[
@@ -179,6 +186,11 @@
             <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
             <circle cx="12" cy="19" r="1" fill="currentColor" stroke="none" />
           </svg>
+          <span v-if="isCompactSelection" class="max-w-28 truncate text-xs font-semibold">{{
+            isMoreMenuOpen
+              ? collapseLabel || t("vocabularyTabs.moreTabs")
+              : expandLabel || t("vocabularyTabs.moreTabs")
+          }}</span>
           <span class="text-xs font-semibold">+{{ hiddenTabs.length }}</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -208,7 +220,12 @@
         >
           <div
             v-if="isMoreMenuOpen"
-            class="more-tabs-dropdown absolute top-full mt-2 left-0 z-50 min-w-56 rounded-2xl shadow-2xl overflow-hidden bg-white dark:bg-black border border-gray-200 dark:border-white/10"
+            class="more-tabs-dropdown absolute top-full mt-2 z-50 min-w-56 rounded-2xl shadow-2xl overflow-hidden bg-white dark:bg-black border border-gray-200 dark:border-white/10"
+            :class="
+              selectionOnly
+                ? 'right-0 left-auto w-64 max-w-[calc(100vw-3rem)] sm:right-auto sm:left-0'
+                : 'left-0'
+            "
           >
             <!-- Header -->
             <div
@@ -244,9 +261,7 @@
             </div>
 
             <!-- Tab list -->
-            <div
-              class="dropdown-body p-2 flex flex-col gap-1 max-h-72 overflow-y-auto"
-            >
+            <div class="dropdown-body p-2 flex flex-col gap-1 max-h-72 overflow-y-auto">
               <div
                 v-for="tab in hiddenTabs"
                 :key="tab.id"
@@ -270,6 +285,7 @@
                         : 'bg-gray-300 dark:bg-white/20 group-hover/item:bg-gray-400 dark:group-hover/item:bg-white/50'
                     "
                   ></span>
+                  <TabIcon :icon="tab.icon" :active="activeTabId === tab.id" size="xs" />
                   <span class="truncate max-w-40">{{ tab.name }}</span>
                   <span
                     v-if="activeTabId === tab.id"
@@ -281,6 +297,7 @@
 
                 <!-- Edit/Delete Actions -->
                 <div
+                  v-if="!selectionOnly"
                   class="flex items-center gap-0.5 pr-2 opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0"
                 >
                   <button
@@ -299,12 +316,8 @@
                       stroke-linecap="round"
                       stroke-linejoin="round"
                     >
-                      <path
-                        d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                      ></path>
-                      <path
-                        d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-                      ></path>
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                     </svg>
                   </button>
                   <button
@@ -335,9 +348,7 @@
             <div
               class="dropdown-footer px-4 py-2.5 border-t border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/[0.02]"
             >
-              <p
-                class="text-[11px] text-gray-400 dark:text-white/30 text-center"
-              >
+              <p class="text-[11px] text-gray-400 dark:text-white/30 text-center">
                 {{ t("vocabularyTabs.clickToSwitch") }}
               </p>
             </div>
@@ -347,6 +358,7 @@
 
       <!-- Create New Tab Button -->
       <button
+        v-if="!selectionOnly"
         @click="$emit('create')"
         class="p-2 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-white/40 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ml-1 shrink-0"
         :title="t('vocabularyTabs.createNewTab')"
@@ -371,24 +383,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
+import TabIcon from "../../../components/common/TabIcon.vue";
 
 const { t } = useI18n();
 
 const MAX_VISIBLE_TABS = 4;
 
+interface VocabularyTabOption {
+  id: string;
+  name: string;
+  icon?: string | null;
+}
+
 const props = defineProps<{
-  tabs: any[];
+  tabs: VocabularyTabOption[];
   activeTabId: string | null;
   isAllTabHidden?: boolean;
+  selectionOnly?: boolean;
+  expandLabel?: string;
+  collapseLabel?: string;
 }>();
 
 const emit = defineEmits<{
   select: [id: string | null];
   create: [];
-  edit: [tab: any];
-  delete: [tab: any];
+  edit: [tab: VocabularyTabOption];
+  delete: [tab: VocabularyTabOption];
   "update:isAllTabHidden": [value: boolean];
 }>();
 
@@ -396,13 +418,23 @@ const tabsContainer = ref<HTMLElement | null>(null);
 const moreMenuRef = ref<HTMLElement | null>(null);
 const isMoreMenuOpen = ref(false);
 
-// Split tabs into visible (first 4) and hidden (rest)
-const visibleTabs = computed(() => props.tabs.slice(0, MAX_VISIBLE_TABS));
-const hiddenTabs = computed(() => props.tabs.slice(MAX_VISIBLE_TABS));
+// In selection-only mode, five or more tabs collapse to All + the active tab.
+// Keep the active tab visible even when it belongs to the overflow list.
+const isCompactSelection = computed(() => !!props.selectionOnly && props.tabs.length >= 5);
+const visibleTabs = computed(() =>
+  isCompactSelection.value
+    ? props.tabs.filter((tab) => tab.id === props.activeTabId)
+    : props.tabs.slice(0, MAX_VISIBLE_TABS),
+);
+const hiddenTabs = computed(() =>
+  isCompactSelection.value
+    ? props.tabs.filter((tab) => tab.id !== props.activeTabId)
+    : props.tabs.slice(MAX_VISIBLE_TABS),
+);
 
 // Check if the active tab is among the hidden ones
 const hasActiveHiddenTab = computed(() =>
-  hiddenTabs.value.some((tab) => tab.id === props.activeTabId)
+  hiddenTabs.value.some((tab) => tab.id === props.activeTabId),
 );
 
 const toggleMoreMenu = () => {
@@ -416,6 +448,7 @@ const selectHiddenTab = (id: string) => {
 
 const handleTabClick = (id: string | null) => {
   emit("select", id);
+  if (props.selectionOnly) isMoreMenuOpen.value = false;
 };
 
 // Close dropdown on outside click
@@ -445,7 +478,8 @@ onUnmounted(() => {
 
 /* More Tabs Dropdown */
 .more-tabs-dropdown {
-  box-shadow: 0 10px 38px -10px rgba(0, 0, 0, 0.2),
+  box-shadow:
+    0 10px 38px -10px rgba(0, 0, 0, 0.2),
     0 4px 16px -4px rgba(0, 0, 0, 0.1);
   transform-origin: top left;
 }

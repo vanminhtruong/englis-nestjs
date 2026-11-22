@@ -1,186 +1,145 @@
 <template>
   <Transition
-    enter-active-class="transition-all duration-300 ease-out"
+    enter-active-class="transition-opacity duration-200"
     enter-from-class="opacity-0"
     enter-to-class="opacity-100"
-    leave-active-class="transition-all duration-200 ease-in"
+    leave-active-class="transition-opacity duration-150"
     leave-from-class="opacity-100"
     leave-to-class="opacity-0"
   >
     <div
       v-if="show"
-      class="fixed inset-0 z-50 flex items-center justify-center p-4"
+      class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-3 backdrop-blur-sm sm:p-5"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="t('vocabulary.assignTabs')"
     >
-      <!-- Backdrop -->
       <div
-        class="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        @click="$emit('close')"
-      ></div>
-
-      <!-- Modal -->
-      <div
-        class="relative bg-white dark:bg-black rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-gray-200 dark:border-white/10"
+        class="flex max-h-[85vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-white/10 dark:bg-black"
       >
-        <!-- Header -->
         <div
-          class="p-6 border-b border-gray-200 dark:border-white/10 bg-gradient-to-r from-primary-500/10 to-secondary-500/10"
+          class="flex shrink-0 items-start justify-between gap-3 border-b border-gray-200 px-5 py-4 dark:border-white/10 sm:px-6"
         >
-          <div class="flex items-center justify-between">
-            <div>
-              <h2
-                class="text-xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent"
-              >
-                Add to Tab
-              </h2>
-              <p class="text-sm text-gray-500 dark:text-white/50 mt-1">
-                {{ vocabularyCount }} item{{ vocabularyCount > 1 ? "s" : "" }}
-                selected
-              </p>
-            </div>
-            <button
-              @click="$emit('close')"
-              class="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="text-gray-500 dark:text-white/60"
-              >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Tab List -->
-        <div class="p-4 max-h-[300px] overflow-y-auto">
-          <div v-if="loading" class="flex items-center justify-center py-8">
-            <div
-              class="w-8 h-8 border-2 border-primary-500/30 border-t-primary-500 rounded-full animate-spin"
-            ></div>
-          </div>
-
-          <div v-else-if="tabs.length === 0" class="text-center py-8">
-            <div class="text-4xl mb-3">📁</div>
-            <p class="text-gray-500 dark:text-white/50">No tabs available</p>
-            <p class="text-sm text-gray-400 dark:text-white/30 mt-1">
-              Create a tab first to organize your vocabularies
+          <div class="min-w-0">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
+              {{ t("vocabulary.assignTabs") }}
+            </h2>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              {{ t("vocabulary.selectedItems", { count: vocabularyIds.length }) }}
+              · {{ t("vocabulary.selectMultipleTabs") }}
             </p>
           </div>
+          <button
+            type="button"
+            :disabled="saving"
+            class="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/10"
+            :aria-label="t('vocabulary.close')"
+            @click="closeModal"
+          >
+            <svg
+              class="h-5 w-5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
+        <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6">
+          <div v-if="loading" class="flex justify-center py-10" role="status">
+            <span
+              class="h-8 w-8 animate-spin rounded-full border-2 border-primary-200 border-t-primary-600 dark:border-primary-500/30 dark:border-t-primary-400"
+            ></span>
+          </div>
+          <div
+            v-else-if="!tabs.length"
+            class="rounded-xl border border-dashed border-gray-200 p-6 text-center text-sm text-gray-500 dark:border-white/15 dark:text-gray-400"
+          >
+            {{ t("vocabulary.noTabsToAssign") }}
+          </div>
           <div v-else class="space-y-2">
             <button
               v-for="tab in tabs"
               :key="tab.id"
-              @click="selectTab(tab)"
-              class="w-full flex items-center gap-3 p-4 rounded-xl transition-all text-left group"
+              type="button"
+              :aria-pressed="selectedTabIds.includes(tab.id)"
+              :disabled="saving || !canSelectTab(tab.id)"
+              class="flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50"
               :class="
-                selectedTabId === tab.id
-                  ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-lg shadow-primary-500/25'
-                  : 'bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10'
+                selectedTabIds.includes(tab.id)
+                  ? 'border-primary-300 bg-primary-50 dark:border-primary-500/50 dark:bg-primary-500/10'
+                  : 'border-gray-200 bg-gray-50/60 hover:border-primary-200 hover:bg-primary-50/50 dark:border-white/10 dark:bg-white/5 dark:hover:border-primary-500/30'
               "
+              @click="toggleTab(tab.id)"
             >
-              <div
-                class="w-10 h-10 rounded-xl flex items-center justify-center"
+              <TabIcon :icon="tab.icon" size="md" />
+              <span class="min-w-0 flex-1">
+                <span class="block truncate text-sm font-semibold text-gray-900 dark:text-white">{{
+                  tab.name
+                }}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">{{
+                  t("vocabulary.tabWordCount", { count: tab.vocabularies?.length ?? 0 })
+                }}</span>
+              </span>
+              <span
+                class="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2"
                 :class="
-                  selectedTabId === tab.id
-                    ? 'bg-white/20'
-                    : 'bg-gradient-to-r from-primary-500/20 to-secondary-500/20'
+                  selectedTabIds.includes(tab.id)
+                    ? 'border-primary-600 bg-primary-600 text-white'
+                    : 'border-gray-300 dark:border-gray-600'
                 "
               >
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  :class="
-                    selectedTabId === tab.id ? 'text-white' : 'text-primary-500'
-                  "
-                >
-                  <path
-                    d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
-                  ></path>
-                </svg>
-              </div>
-              <div class="flex-1 min-w-0">
-                <p
-                  class="font-medium truncate"
-                  :class="
-                    selectedTabId === tab.id
-                      ? 'text-white'
-                      : 'text-black dark:text-white'
-                  "
-                >
-                  {{ tab.name }}
-                </p>
-                <p
-                  class="text-xs truncate"
-                  :class="
-                    selectedTabId === tab.id
-                      ? 'text-white/70'
-                      : 'text-gray-500 dark:text-white/50'
-                  "
-                >
-                  {{ tab.vocabularies?.length || 0 }} items
-                </p>
-              </div>
-              <div
-                v-if="selectedTabId === tab.id"
-                class="w-6 h-6 rounded-full bg-white/30 flex items-center justify-center"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
+                  v-if="selectedTabIds.includes(tab.id)"
+                  class="h-3.5 w-3.5"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   stroke-width="3"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="text-white"
+                  aria-hidden="true"
                 >
-                  <polyline points="20 6 9 17 4 12"></polyline>
+                  <path d="m5 12 4 4L19 6" />
                 </svg>
-              </div>
+              </span>
             </button>
           </div>
         </div>
 
-        <!-- Footer -->
         <div
-          class="p-4 border-t border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5"
+          class="shrink-0 border-t border-gray-200 bg-gray-50 px-5 py-4 dark:border-white/10 dark:bg-white/5 sm:px-6"
         >
-          <div class="flex gap-3">
+          <div
+            class="mb-3 flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-gray-500 dark:text-gray-400"
+          >
+            <span>{{ t("vocabulary.selectedTabCount", { count: selectedTabIds.length }) }}</span>
+            <span>{{ t("vocabulary.maxTabsPerWord", { count: MAX_TABS_PER_WORD }) }}</span>
+          </div>
+          <div class="flex gap-2.5">
             <button
-              @click="$emit('close')"
-              class="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 text-gray-600 dark:text-white/60 font-medium hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
+              type="button"
+              :disabled="saving || !selectedTabIds.length"
+              class="min-h-11 flex-1 rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-100 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-gray-200 dark:hover:bg-white/10"
+              @click="selectedTabIds = []"
             >
-              Cancel
+              {{ t("vocabulary.clear") }}
             </button>
             <button
+              type="button"
+              :disabled="loading || saving || !selectedTabIds.length || !vocabularyIds.length"
+              class="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 px-4 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
               @click="handleConfirm"
-              :disabled="!selectedTabId || saving"
-              class="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-medium hover:shadow-lg hover:shadow-primary-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              <div
+              <span
                 v-if="saving"
-                class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
-              ></div>
-              <span>{{ saving ? "Adding..." : "Add to Tab" }}</span>
+                class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+              ></span>
+              {{ saving ? t("vocabulary.processingSelection") : t("vocabulary.assignTabs") }}
             </button>
           </div>
         </div>
@@ -190,110 +149,113 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch } from "vue";
+import axios from "axios";
 import { useI18n } from "vue-i18n";
 import apiService from "../../../services/api.service";
+import TabIcon from "../../../components/common/TabIcon.vue";
 import { useToast } from "../../../composables/useToast";
+import { useModalScrollLock } from "../../../composables/useModalScrollLock";
+import { MAX_TABS_PER_WORD } from "../constants/tabLimits";
 
-const props = defineProps<{
-  show: boolean;
-  vocabularyIds: string[];
-}>();
+interface TabOption {
+  id: string;
+  name: string;
+  icon?: string | null;
+  vocabularies?: { id: string }[];
+}
 
-const emit = defineEmits<{
-  close: [];
-  saved: [];
-}>();
-
+const props = defineProps<{ show: boolean; vocabularyIds: string[] }>();
+const emit = defineEmits<{ close: []; saved: [] }>();
 const { t } = useI18n();
-const { showSuccess, showWarning, showError } = useToast();
-
-const tabs = ref<any[]>([]);
+const { showSuccess, showError } = useToast();
+const { lockScroll, unlockScroll } = useModalScrollLock();
+const tabs = ref<TabOption[]>([]);
+const selectedTabIds = ref<string[]>([]);
 const loading = ref(false);
 const saving = ref(false);
-const selectedTabId = ref<string | null>(null);
-
-const vocabularyCount = ref(0);
-
-watch(
-  () => props.vocabularyIds,
-  (ids) => {
-    vocabularyCount.value = ids.length;
-  },
-  { immediate: true }
-);
+let loadVersion = 0;
 
 watch(
   () => props.show,
-  async (newVal) => {
-    if (newVal) {
-      selectedTabId.value = null;
-      await loadTabs();
+  (open) => {
+    if (open) {
+      lockScroll();
+      selectedTabIds.value = [];
+      void loadTabs();
+    } else {
+      unlockScroll();
+      ++loadVersion;
     }
-  }
+  },
+  { immediate: true, flush: "sync" },
 );
 
 async function loadTabs() {
+  const version = ++loadVersion;
   loading.value = true;
   try {
     const response = await apiService.tab.getAll();
-    tabs.value = response.data;
+    if (version === loadVersion) tabs.value = response.data;
   } catch (error) {
-    console.error("Failed to load tabs:", error);
+    if (version === loadVersion) {
+      console.error("Could not load vocabulary tabs:", error);
+      tabs.value = [];
+      showError(t("vocabulary.tabLoadFailed"));
+    }
   } finally {
-    loading.value = false;
+    if (version === loadVersion) loading.value = false;
   }
 }
 
-function selectTab(tab: any) {
-  selectedTabId.value = tab.id;
+function canSelectTab(tabId: string): boolean {
+  if (selectedTabIds.value.includes(tabId)) return true;
+  const selected = [...new Set(props.vocabularyIds)];
+  return selected.every((vocabularyId) => {
+    const current = new Set(
+      tabs.value
+        .filter((tab) => tab.vocabularies?.some((word) => word.id === vocabularyId))
+        .map((tab) => tab.id),
+    );
+    const proposed = new Set([...current, ...selectedTabIds.value, tabId]);
+    return proposed.size <= MAX_TABS_PER_WORD;
+  });
+}
+
+function toggleTab(id: string) {
+  if (saving.value) return;
+  if (!canSelectTab(id)) {
+    showError(t("vocabulary.maxTabsPerWord", { count: MAX_TABS_PER_WORD }));
+    return;
+  }
+  selectedTabIds.value = selectedTabIds.value.includes(id)
+    ? selectedTabIds.value.filter((value) => value !== id)
+    : [...selectedTabIds.value, id];
+}
+
+function closeModal() {
+  if (!saving.value) emit("close");
 }
 
 async function handleConfirm() {
-  if (!selectedTabId.value || props.vocabularyIds.length === 0) return;
-
+  if (saving.value || !selectedTabIds.value.length || !props.vocabularyIds.length) return;
   saving.value = true;
   try {
-    const promises = props.vocabularyIds.map((vocabId) =>
-      apiService.tab
-        .addVocabulary(selectedTabId.value!, vocabId)
-        .then((value) => ({ status: "fulfilled", value }))
-        .catch((reason) => ({ status: "rejected", reason }))
-    );
-
-    const results = await Promise.all(promises);
-
-    const successful = results.filter((r) => r.status === "fulfilled").length;
-    const failed = results.filter((r) => r.status === "rejected");
-    const duplicates = failed.filter(
-      (r: any) => r.reason?.response?.status === 409
-    ).length;
-
-    if (successful > 0) {
-      showSuccess(t("vocabulary.addedToTabSuccess", { count: successful }));
-    }
-
-    if (duplicates > 0) {
-      showWarning(
-        t("vocabulary.addToTabDuplicateWarning", { count: duplicates })
-      );
-    } else if (failed.length > 0) {
-      showError(t("vocabulary.addToTabPartialError"));
-    }
-
+    const result = await apiService.tab.assignMany(selectedTabIds.value, [
+      ...new Set(props.vocabularyIds),
+    ]);
+    showSuccess(t("vocabulary.assignmentSuccess", { count: result.data.assignedCount }));
     emit("saved");
     emit("close");
   } catch (error) {
-    console.error("Failed to add vocabularies to tab:", error);
-    showError(t("vocabulary.unknownError"));
+    console.error("Failed to assign vocabulary to tabs:", error);
+    showError(
+      axios.isAxiosError(error) && error.response?.status === 409
+        ? t("vocabulary.maxTabsPerWord", { count: MAX_TABS_PER_WORD })
+        : t("vocabulary.assignmentFailed"),
+    );
   } finally {
     saving.value = false;
   }
 }
-
-onMounted(() => {
-  if (props.show) {
-    loadTabs();
-  }
-});
 </script>

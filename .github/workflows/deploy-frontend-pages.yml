@@ -1,0 +1,68 @@
+name: Deploy frontend to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "front/**"
+      - ".github/workflows/deploy-frontend-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: front/package-lock.json
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Install frontend dependencies
+        working-directory: front
+        run: npm ci
+
+      - name: Build production frontend
+        working-directory: front
+        env:
+          GITHUB_PAGES_BASE: /${{ github.event.repository.name }}/
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_WS_URL: ${{ vars.VITE_WS_URL }}
+        shell: bash
+        run: |
+          if [[ -z "$VITE_API_URL" ]]; then
+            echo "::warning::No VITE_API_URL supplied. Users can enter their HTTPS Tailscale endpoint from the login page."
+          elif [[ ! "$VITE_API_URL" =~ ^https:// ]]; then
+            echo "::error::VITE_API_URL must use HTTPS."
+            exit 1
+          fi
+          npm run build-only
+          # GitHub Pages has no SPA rewrites; load Vue routes after a direct refresh.
+          cp dist/index.html dist/404.html
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: front/dist
+
+      - name: Publish Pages site
+        id: deployment
+        uses: actions/deploy-pages@v4

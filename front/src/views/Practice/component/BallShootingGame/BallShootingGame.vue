@@ -10,11 +10,7 @@
           stroke="currentColor"
           stroke-width="2"
         >
-          <path
-            d="M19 12H5M12 19l-7-7 7-7"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
+          <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
         {{ t("practice.backToMenu") }}
       </button>
@@ -24,31 +20,18 @@
           <span class="stat-icon">🏆</span>
           <span class="stat-value">{{ gameState.score }}</span>
         </div>
-        <div
-          class="stat-item combo"
-          :class="{ active: gameState.comboCount >= 2 }"
-        >
+        <div class="stat-item combo" :class="{ active: gameState.comboCount >= 2 }">
           <span class="stat-icon">🔥</span>
           <span class="stat-value">x{{ gameState.comboCount }}</span>
         </div>
         <div class="stat-item lives">
-          <span
-            v-for="i in 3"
-            :key="i"
-            class="heart"
-            :class="{ lost: i > gameState.lives }"
-          >
+          <span v-for="i in 3" :key="i" class="heart" :class="{ lost: i > gameState.lives }">
             {{ i <= gameState.lives ? "❤️" : "🖤" }}
           </span>
         </div>
-        <div
-          class="stat-item timer"
-          :class="{ warning: gameState.timeRemaining <= 10 }"
-        >
+        <div class="stat-item timer" :class="{ warning: gameState.timeRemaining <= 10 }">
           <span class="stat-icon">⏱️</span>
-          <span class="stat-value">{{
-            formatTime(gameState.timeRemaining)
-          }}</span>
+          <span class="stat-value">{{ formatTime(gameState.timeRemaining) }}</span>
         </div>
       </div>
     </div>
@@ -58,9 +41,7 @@
       <div class="question-label">{{ t("practice.whatIsMeaning") }}</div>
       <div class="question-meaning">{{ gameState.currentMeaning }}</div>
       <div class="hint-text">
-        {{
-          t("practice.clickToType") || "Click the ball with the correct word!"
-        }}
+        {{ t("practice.clickToType") || "Click the ball with the correct word!" }}
       </div>
     </div>
 
@@ -85,11 +66,7 @@
 
         <!-- Score Popup -->
         <Transition name="score-fly">
-          <div
-            v-if="showScorePopup"
-            class="score-popup"
-            :style="scorePopupStyle"
-          >
+          <div v-if="showScorePopup" class="score-popup" :style="scorePopupStyle">
             +{{ lastScore }}
           </div>
         </Transition>
@@ -116,9 +93,7 @@
           <div class="results-grid">
             <div class="result-item">
               <span class="result-label">{{ t("practice.totalScore") }}</span>
-              <span class="result-value score-value">{{
-                gameState.score
-              }}</span>
+              <span class="result-value score-value">{{ gameState.score }}</span>
             </div>
             <div class="result-item">
               <span class="result-label">{{ t("practice.accuracy") }}</span>
@@ -129,12 +104,8 @@
               <span class="result-value">x{{ gameState.maxCombo }}</span>
             </div>
             <div class="result-item">
-              <span class="result-label">{{
-                t("practice.correctAnswers")
-              }}</span>
-              <span class="result-value"
-                >{{ correctCount }}/{{ totalAnswered }}</span
-              >
+              <span class="result-label">{{ t("practice.correctAnswers") }}</span>
+              <span class="result-value">{{ correctCount }}/{{ totalAnswered }}</span>
             </div>
           </div>
 
@@ -160,32 +131,24 @@
           </h2>
           <p class="game-description">
             {{
-              t("practice.modeDescriptions.ballShooting") ||
-              "Shoot the ball with the correct word!"
+              t("practice.modeDescriptions.ballShooting") || "Shoot the ball with the correct word!"
             }}
           </p>
 
           <div class="instructions">
             <div class="instruction-item">
               <span class="instruction-icon">👆</span>
-              <span>{{
-                t("practice.ballShootingHint1") ||
-                "Click on balls to shoot them"
-              }}</span>
+              <span>{{ t("practice.ballShootingHint1") || "Click on balls to shoot them" }}</span>
             </div>
             <div class="instruction-item">
               <span class="instruction-icon">🎯</span>
               <span>{{
-                t("practice.ballShootingHint2") ||
-                "Match the word to the meaning shown"
+                t("practice.ballShootingHint2") || "Match the word to the meaning shown"
               }}</span>
             </div>
             <div class="instruction-item">
               <span class="instruction-icon">🔥</span>
-              <span>{{
-                t("practice.ballShootingHint3") ||
-                "Build combos for bonus points!"
-              }}</span>
+              <span>{{ t("practice.ballShootingHint3") || "Build combos for bonus points!" }}</span>
             </div>
           </div>
 
@@ -296,10 +259,7 @@ function setupCanvas() {
   if (!observer) {
     observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "class"
-        ) {
+        if (mutation.type === "attributes" && mutation.attributeName === "class") {
           const isDark = document.documentElement.classList.contains("dark");
 
           if (gameEngine.value) {
@@ -425,8 +385,7 @@ function handleBallHit(data: { ball: any; score: number; combo: number }) {
 
   // Add shooting effect animation
   if (gameRenderer.value) {
-    const hitColor =
-      data.combo >= 3 ? "#ff6b6b" : data.combo >= 2 ? "#ffa500" : "#ffd700";
+    const hitColor = data.combo >= 3 ? "#ff6b6b" : data.combo >= 2 ? "#ffa500" : "#ffd700";
     gameRenderer.value.addShootEffect(data.ball.x, data.ball.y, hitColor);
   }
 
@@ -452,14 +411,7 @@ function handleBallMiss(data: { remainingLives: number }) {
 }
 
 function handleCombo(data: { count: number }) {
-  const comboTexts = [
-    "Nice!",
-    "Great!",
-    "Awesome!",
-    "Amazing!",
-    "Incredible!",
-    "LEGENDARY!",
-  ];
+  const comboTexts = ["Nice!", "Great!", "Awesome!", "Amazing!", "Incredible!", "LEGENDARY!"];
   comboText.value = comboTexts[Math.min(data.count - 2, comboTexts.length - 1)];
   lastCombo.value = data.count;
   showCombo.value = true;
@@ -697,11 +649,7 @@ function calculateAccuracy(): number {
 .question-display {
   text-align: center;
   padding: 1.5rem;
-  background: linear-gradient(
-    180deg,
-    rgba(102, 126, 234, 0.2) 0%,
-    transparent 100%
-  );
+  background: linear-gradient(180deg, rgba(102, 126, 234, 0.2) 0%, transparent 100%);
   transition: transform 0.1s ease;
 }
 

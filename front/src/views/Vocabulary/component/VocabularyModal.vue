@@ -377,7 +377,7 @@
               <!-- Option 1: Upload File -->
               <button
                 type="button"
-                @click="$refs.fileInput.click()"
+                @click="fileInput?.click()"
                 class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
               >
                 <svg
@@ -523,7 +523,7 @@
               <!-- Option 1: Upload Video File -->
               <button
                 type="button"
-                @click="$refs.videoFileInput.click()"
+                @click="videoFileInput?.click()"
                 class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
               >
                 <svg
