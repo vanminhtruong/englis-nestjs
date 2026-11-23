@@ -129,17 +129,13 @@
     <RouterLink v-else to="/login" class="mt-6 flex min-h-10 items-center justify-center gap-2 text-sm font-semibold text-gray-600 transition-colors hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">
       <span aria-hidden="true">←</span>{{ t('forgotPassword.backToLogin') }}
     </RouterLink>
-    <ServerConnectionSettings v-if="(isGithubPages || !API_URL) && step !== 'success'" />
   </AuthLayout>
 </template>
 
 <script setup lang="ts">
 import AuthLayout from '../../components/auth/AuthLayout.vue';
-import ServerConnectionSettings from '../../components/common/ServerConnectionSettings.vue';
-import { API_URL } from '../../services/api.service';
 import { useForgotPasswordHandle } from './composable/useForgotPasswordHandle';
 
-const isGithubPages = import.meta.env.PROD && import.meta.env.BASE_URL !== '/';
 const {
   t, step, email, code, password, confirmation, showPassword,
   showConfirmation, submitting, error, notice, remainingSeconds, canResend,

@@ -2,10 +2,16 @@ import { onMounted } from 'vue'
 import { useAuthStore } from '../../../../stores/auth.store'
 import { useRouter } from 'vue-router'
 import type { LoginForm } from '../../interface/login.interface'
+import { loadRememberedPassword } from '../../../../utils/credentialVault'
 
 // Pre-fill the password from the browser's own password manager (never from app storage).
 async function fillPasswordFromBrowser(form: LoginForm) {
   try {
+    const saved = await loadRememberedPassword(form.email)
+    if (saved) {
+      if (!form.password) form.password = saved
+      return
+    }
     if (!navigator.credentials?.get || !(window as any).PasswordCredential) return
     const cred: any = await navigator.credentials.get({
       password: true,

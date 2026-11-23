@@ -3,6 +3,7 @@ import { loginService } from '../../service/login.service'
 import type { LoginForm } from '../../interface/login.interface'
 import { useAuthValidation } from '../../../../composables/useAuthValidation'
 import { useToast } from '../../../../composables/useToast'
+import { saveRememberedLogin, clearRememberedLogin } from '../../../../utils/credentialVault'
 
 async function saveCredentialInBrowser(email: string, password: string) {
   try {
@@ -42,9 +43,11 @@ export function useLoginHandle(
         localStorage.setItem('rememberedEmail', form.email)
         // Hand the password to the browser's own password manager. The app itself
         // never stores the password (not in localStorage, not anywhere else).
+        await saveRememberedLogin(form.email, form.password).catch(() => {})
         await saveCredentialInBrowser(form.email, form.password)
       } else {
         localStorage.removeItem('rememberedEmail')
+        await clearRememberedLogin().catch(() => {})
       }
 
       toast.showSuccess('Login successful')
