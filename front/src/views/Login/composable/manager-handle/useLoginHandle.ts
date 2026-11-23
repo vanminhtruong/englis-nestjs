@@ -4,6 +4,19 @@ import type { LoginForm } from '../../interface/login.interface'
 import { useAuthValidation } from '../../../../composables/useAuthValidation'
 import { useToast } from '../../../../composables/useToast'
 
+async function saveCredentialInBrowser(email: string, password: string) {
+  try {
+    const PasswordCredentialCtor = (window as any).PasswordCredential
+    if (PasswordCredentialCtor && navigator.credentials?.store) {
+      await navigator.credentials.store(
+        new PasswordCredentialCtor({ id: email, password, name: email })
+      )
+    }
+  } catch {
+    // Unsupported browser or blocked: the browser's own save prompt still works.
+  }
+}
+
 export function useLoginHandle(
   form: LoginForm,
   setLoading: (state: boolean) => void,
@@ -27,6 +40,9 @@ export function useLoginHandle(
     if (result.success) {
       if (form.rememberMe) {
         localStorage.setItem('rememberedEmail', form.email)
+        // Hand the password to the browser's own password manager. The app itself
+        // never stores the password (not in localStorage, not anywhere else).
+        await saveCredentialInBrowser(form.email, form.password)
       } else {
         localStorage.removeItem('rememberedEmail')
       }

@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="emit('submit')" class="space-y-5 sm:space-y-6" novalidate>
+  <form @submit.prevent="emit('submit')" class="space-y-5 sm:space-y-6" method="post" autocomplete="on" novalidate>
     <div class="relative group/field">
       <label
         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
@@ -26,6 +26,9 @@
           </svg>
         </div>
         <input
+          id="login-email"
+          name="email"
+          autocomplete="username"
           :value="form.email"
           @input="updateField('email', $event)"
           type="email"
@@ -62,6 +65,9 @@
           </svg>
         </div>
         <input
+          id="login-password"
+          name="password"
+          autocomplete="current-password"
           :value="form.password"
           @input="updateField('password', $event)"
           :type="showPassword ? 'text' : 'password'"

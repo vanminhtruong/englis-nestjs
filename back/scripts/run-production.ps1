@@ -7,7 +7,18 @@ $root = Split-Path -Parent $PSScriptRoot
 Set-Location -LiteralPath $root
 
 $env:NODE_ENV = 'production'
-if (-not $env:PORT) { $env:PORT = '3000' }
+
+# Tailscale Funnel (:10000) proxies to 127.0.0.1:3001, and port 3000 is used by
+# another local project. Read PORT from .env and fall back to 3001 (never 3000).
+if (-not $env:PORT) {
+    $envFile = Join-Path $root '.env'
+    if (Test-Path -LiteralPath $envFile) {
+        foreach ($line in (Get-Content -LiteralPath $envFile)) {
+            if ($line -match '^\s*PORT\s*=\s*(\d+)\s*$') { $env:PORT = $Matches[1]; break }
+        }
+    }
+}
+if (-not $env:PORT) { $env:PORT = '3001' }
 
 $logDir = Join-Path $root 'logs'
 New-Item -ItemType Directory -Path $logDir -Force | Out-Null
@@ -31,7 +42,7 @@ function Test-BackendPort([int]$port) {
 }
 
 # Prevent duplicate watchdogs if Windows starts this script twice.
-$mutex = New-Object System.Threading.Mutex($false, 'Local\VocabMasterProductionAPI')
+$mutex = New-Object System.Threading.Mutex($false, 'Global\VocabMasterProductionAPI')
 if (-not $mutex.WaitOne(0)) { return }
 
 try {
