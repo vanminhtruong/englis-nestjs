@@ -76,6 +76,15 @@ export default {
       }),
   },
 
+  // Data sharing (send my data to another account, answer incoming offers)
+  dataShare: {
+    send: (email: string) => apiClient.post("/data-share", { email }),
+    getIncoming: () => apiClient.get("/data-share/incoming"),
+    accept: (id: string) => apiClient.post(`/data-share/${id}/accept`),
+    reject: (id: string) => apiClient.post(`/data-share/${id}/reject`),
+    cancel: (id: string) => apiClient.delete(`/data-share/${id}`),
+  },
+
   // Vocabulary endpoints
   tab: {
     getAll: () => apiClient.get("/vocabulary-tabs"),

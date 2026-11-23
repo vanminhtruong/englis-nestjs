@@ -75,6 +75,10 @@ class WebSocketService {
       "tag:deleted",
       "user:profile:updated",
       "user:layout:changed",
+      // data sharing
+      "data-share:received",
+      "data-share:responded",
+      "data-share:cancelled",
     ];
 
     events.forEach((event) => {

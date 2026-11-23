@@ -48,14 +48,13 @@ export class UserRepository {
   }
 
   async recalculateTotalWords(id: string): Promise<void> {
-    const vocabularyCount = await this.repository
-      .createQueryBuilder()
-      .select('COUNT(*)', 'count')
-      .from('vocabularies', 'vocabulary')
-      .where('vocabulary.userId = :userId', { userId: id })
-      .getRawOne();
-
-    const totalWords = parseInt(vocabularyCount.count) || 0;
+    // Count only this user's rows. The previous query also selected from the
+    // users table, so the result was multiplied by the number of registered users.
+    const rows: Array<{ count: number | string }> = await this.repository.manager.query(
+      'SELECT COUNT(*) AS count FROM vocabularies WHERE userId = ?',
+      [id],
+    );
+    const totalWords = parseInt(String(rows[0]?.count ?? 0), 10) || 0;
 
     await this.repository.update(id, { totalWords });
   }

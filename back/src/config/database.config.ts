@@ -2,6 +2,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { join } from 'path';
 import { AddVocabularyTabSortOrder1795300000000 } from '../migrations/1795300000000-AddVocabularyTabSortOrder';
 import { CreatePasswordResetChallenges1795400000000 } from '../migrations/1795400000000-CreatePasswordResetChallenges';
+import { CreateDataShares1795500000000 } from '../migrations/1795500000000-CreateDataShares';
 
 export const databaseConfig: TypeOrmModuleOptions = {
   type: 'better-sqlite3',
@@ -11,7 +12,11 @@ export const databaseConfig: TypeOrmModuleOptions = {
   synchronize: process.env.NODE_ENV !== 'production',
   // Run only this safe, additive migration in production; older legacy migrations
   // were never registered in this project's startup configuration.
-  migrations: [AddVocabularyTabSortOrder1795300000000, CreatePasswordResetChallenges1795400000000],
+  migrations: [
+    AddVocabularyTabSortOrder1795300000000,
+    CreatePasswordResetChallenges1795400000000,
+    CreateDataShares1795500000000,
+  ],
   migrationsRun: process.env.NODE_ENV === 'production',
   logging: process.env.NODE_ENV !== 'production',
 };

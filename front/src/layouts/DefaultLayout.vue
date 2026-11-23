@@ -6,6 +6,7 @@
       <BackToTop />
     </main>
     <AppToastContainer />
+    <DataShareIncomingModal />
     <AppFooter />
   </div>
 </template>
@@ -22,6 +23,9 @@ const AppFooter = defineAsyncComponent(
 );
 const BackToTop = defineAsyncComponent(
   () => import("../components/common/BackToTop.vue") as any
+);
+const DataShareIncomingModal = defineAsyncComponent(
+  () => import("../components/data-share/DataShareIncomingModal.vue") as any
 );
 const AppToastContainer = defineAsyncComponent(
   () => import("../components/common/AppToastContainer.vue") as any

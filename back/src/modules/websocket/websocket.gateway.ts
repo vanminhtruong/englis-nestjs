@@ -215,4 +215,17 @@ export class VocabularyWebSocketGateway
       timestamp: new Date(),
     });
   }
+
+  /** Send an event only to the sockets that belong to one user (never broadcast). */
+  emitToUser(userId: string, event: string, data: any) {
+    if (!this.server) return;
+    for (const [socketId, socketUserId] of this.connectedUsers.entries()) {
+      if (socketUserId === userId) {
+        this.server.to(socketId).emit(event, {
+          ...data,
+          timestamp: new Date(),
+        });
+      }
+    }
+  }
 }

@@ -15,7 +15,12 @@
     </div>
 
     <div class="max-w-6xl mx-auto relative z-10">
-      <ProfileHeader :t="t" @export="handleExport" @import="handleImport" />
+      <ProfileHeader
+        :t="t"
+        @export="handleExport"
+        @import="handleImport"
+        @share="showShareModal = true"
+      />
 
       <Transition
         enter-active-class="transition duration-500 ease-out"
@@ -52,6 +57,8 @@
         </div>
       </Transition>
 
+      <ShareDataModal :show="showShareModal" @close="showShareModal = false" />
+
       <ProfileEditModal
         :show="showEditModal"
         :form="form"
@@ -74,6 +81,7 @@ import enLang from "./language/en";
 import viLang from "./language/vi";
 import koLang from "./language/ko";
 import zhCNLang from "./language/zh-CN";
+import { registerDataShareMessages } from "../../components/data-share/dataShare.service";
 
 const ProfileHeader = defineAsyncComponent(
   () => import("./component/ProfileHeader.vue") as any
@@ -84,6 +92,7 @@ const ProfileAvatarSection = defineAsyncComponent(
 const ProfileInfo = defineAsyncComponent(
   () => import("./component/ProfileInfo.vue") as any
 );
+const ShareDataModal = defineAsyncComponent(() => import("../../components/data-share/ShareDataModal.vue") as any);
 const ProfileEditModal = defineAsyncComponent(
   () => import("./component/ProfileEditModal.vue") as any
 );
@@ -94,6 +103,9 @@ mergeLocaleMessage("en", { profile: enLang });
 mergeLocaleMessage("vi", { profile: viLang });
 mergeLocaleMessage("ko", { profile: koLang });
 mergeLocaleMessage("zh-CN", { profile: zhCNLang });
+registerDataShareMessages(mergeLocaleMessage);
+
+const showShareModal = ref(false);
 
 const { profile, loading, saving, form, setProfile, setLoading, setSaving } =
   useProfileState();

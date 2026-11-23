@@ -163,10 +163,29 @@ export class AuthService {
   }
 
   async exportUserData(userId: string): Promise<Buffer> {
-    const user = await this.userRepository.findByIdWithRelations(userId);
+    const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
+
+    // Load vocabularies and histories with two separate queries. Joining both
+    // one-to-many relations in one query multiplies the rows (vocabularies x
+    // histories) and exhausted the Node heap, which crashed the API. A crashed
+    // API makes the Tailscale Funnel answer 502 without CORS headers, so the
+    // browser reported it as a CORS error.
+    const vocabularies = await this.vocabularyRepository.find({
+      where: { userId },
+      order: { createdAt: 'ASC' },
+    });
+    const histories = await this.practiceHistoryRepository.find({
+      where: { userId },
+      order: { createdAt: 'ASC' },
+    });
+    const wordById = new Map(vocabularies.map((v) => [v.id, v.word]));
+
+    // Excel rejects cells longer than 32767 characters (e.g. base64 images).
+    const cap = (value: any) =>
+      typeof value === 'string' && value.length > 32000 ? '' : value;
 
     // ExcelJS is loaded only when importing or exporting data, not on server startup.
     const ExcelJS = require('exceljs') as typeof import('exceljs');
@@ -194,18 +213,18 @@ export class AuthService {
       { header: 'Is Favorite', key: 'isFavorite', width: 15 },
       { header: 'Created At', key: 'createdAt', width: 20 },
     ];
-    if (user.vocabularies) {
-      user.vocabularies.forEach((v) => {
+    {
+      vocabularies.forEach((v) => {
         vocabSheet.addRow({
           word: v.word,
           meaning: v.meaning,
           pronunciation: v.pronunciation,
           example: v.example,
           exampleTranslation: v.exampleTranslation || '',
-          note: v.note || '',
-          image: v.image || '',
-          video: v.video || '',
-          audio: v.audio || '',
+          note: cap(v.note) || '',
+          image: cap(v.image) || '',
+          video: cap(v.video) || '',
+          audio: cap(v.audio) || '',
           difficulty: v.difficulty,
           masteryLevel: v.masteryLevel,
           correctCount: v.correctCount,
@@ -228,10 +247,10 @@ export class AuthService {
       { header: 'Time Spent (s)', key: 'timeSpent', width: 15 },
       { header: 'Date', key: 'createdAt', width: 20 },
     ];
-    if (user.practiceHistories) {
-      user.practiceHistories.forEach((h) => {
+    {
+      histories.forEach((h) => {
         historySheet.addRow({
-          word: h.vocabulary ? h.vocabulary.word : 'N/A',
+          word: wordById.get(h.vocabularyId) || 'N/A',
           practiceType: h.practiceType,
           isCorrect: h.isCorrect ? 'Yes' : 'No',
           userAnswer: h.userAnswer,

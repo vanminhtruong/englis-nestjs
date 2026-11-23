@@ -17,6 +17,7 @@ import { LearningProgressModule } from './modules/learning-progress/learning-pro
 import { VocabularyTabModule } from './modules/vocabulary-tab/vocabulary-tab.module';
 import { BackgroundModule } from './modules/background/background.module';
 import { SrsModule } from './modules/srs/srs.module';
+import { DataShareModule } from './modules/data-share/data-share.module';
 
 @Module({
     imports: [
@@ -37,6 +38,7 @@ import { SrsModule } from './modules/srs/srs.module';
         BackgroundModule,
         VocabularyTabModule,
         SrsModule,
+        DataShareModule,
     ],
     controllers: [AppController],
     providers: [AppService],
