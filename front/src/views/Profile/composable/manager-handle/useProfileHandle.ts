@@ -4,6 +4,7 @@ import type { UserProfile } from '../../interface/profile.interface'
 import { useToast } from '../../../../composables/useToast'
 import { useAuthStore } from '../../../../stores/auth.store'
 import { useI18n } from 'vue-i18n'
+import { describeMergeExtras } from '../../../../components/data-share/dataShare.service'
 
 export function useProfileHandle(
   profile: Ref<UserProfile | null>,
@@ -75,12 +76,14 @@ export function useProfileHandle(
       } else {
         const stats = result.stats
         if (stats) {
-          const statsMessage = t('profile.messages.importStats', {
+          const extras = describeMergeExtras(stats, t as any)
+          const statsMessage = t(extras ? 'dataShare.import.statsMore' : 'dataShare.import.stats', {
             new: stats.newVocabularies,
-            updated: stats.updatedVocabularies,
+            updated: stats.updatedVocabularies ?? 0,
             skipped: stats.skippedVocabularies,
+            extras,
           })
-          showSuccess(`${t('profile.messages.importSuccess')}. ${statsMessage}`)
+          showSuccess(`${t('profile.messages.importSuccess')}. ${statsMessage}`, 8000)
         } else {
           showSuccess(t('profile.messages.importSuccess') || 'Data imported successfully')
         }

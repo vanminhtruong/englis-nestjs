@@ -270,7 +270,7 @@
                     type="button"
                     :disabled="overviewLoading || !overview?.totalWords"
                     class="flex min-h-[72px] min-w-0 w-full items-center justify-center gap-2 rounded-2xl py-3 bg-gradient-to-r from-primary-500 to-secondary-500 px-3 text-center text-sm font-bold leading-snug text-white shadow-lg shadow-primary-500/20 transition hover:from-primary-600 hover:to-secondary-600 hover:shadow-xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none sm:px-5 sm:text-base"
-                    @click="start(sessionSize, shouldPracticeScheduled || sessionIncludesScheduled)"
+                    @click="start(sessionSize, true)"
                   >
                     <span class="shrink-0" aria-hidden="true">✦</span
                     ><span class="min-w-0">{{
@@ -300,7 +300,7 @@
             </section>
 
             <!-- Statistics -->
-            <section aria-label="Statistics" class="grid grid-cols-2 gap-3 md:grid-cols-4 lg:gap-4">
+            <section aria-label="Statistics" class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:gap-4">
               <div
                 v-for="stat in stats"
                 :key="stat.key"
@@ -313,7 +313,7 @@
                   <span aria-hidden="true" class="text-lg">{{ stat.icon }}</span>
                 </span>
                 <p class="mt-4 text-3xl font-extrabold leading-none tabular-nums">
-                  {{ overview?.[stat.key] ?? "—" }}
+                  {{ stat.key === "waitingWords" ? (waitingWords ?? "—") : (overview?.[stat.key] ?? "—") }}
                 </p>
                 <p
                   class="mt-2 break-words text-xs font-medium leading-snug text-gray-500 dark:text-gray-400 sm:text-sm"
@@ -619,7 +619,7 @@
           {{
             t(
               sessionCount
-                ? sessionIncludesScheduled
+                ? sessionIsPracticeOnly
                   ? "srs.practiceFinishText"
                   : "srs.finishText"
                 : "srs.emptyText",
@@ -651,7 +651,7 @@
           <button
             type="button"
             class="rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 px-6 py-3 text-sm font-bold text-white transition hover:brightness-110"
-            @click="start(sessionSize, shouldPracticeScheduled || sessionIncludesScheduled)"
+            @click="start(sessionSize, true)"
           >
             {{ t("srs.continue") }}
           </button>
@@ -674,7 +674,7 @@
         <button
           type="button"
           class="mt-5 rounded-xl bg-primary-500 px-6 py-3 text-sm font-bold text-white"
-          @click="start(sessionSize, shouldPracticeScheduled || sessionIncludesScheduled)"
+          @click="start(sessionSize, true)"
         >
           {{ t("srs.retry") }}
         </button>
@@ -767,7 +767,7 @@ const {
   submitting,
   error,
   sessionCount,
-  sessionIncludesScheduled,
+  sessionIsPracticeOnly,
   sessionRatings,
   progressPercent,
 
@@ -788,6 +788,13 @@ const dueNewTotal = computed(
 const duePercent = computed(() =>
   dueNewTotal.value ? Math.round(((overview.value?.dueWords ?? 0) / dueNewTotal.value) * 100) : 0,
 );
+// Started cards waiting for their scheduled due time are not "due now".
+// Show them separately so a completed practice session does not look empty.
+const waitingWords = computed(() =>
+  overview.value
+    ? Math.max(0, overview.value.totalWords - overview.value.newWords - overview.value.dueWords)
+    : null,
+);
 const stats = computed(() => [
   { key: "totalWords" as const, label: "srs.total", icon: "▤", bg: "bg-gray-100 dark:bg-white/10" },
   { key: "dueWords" as const, label: "srs.due", icon: "↻", bg: "bg-primary-100 dark:bg-white/10" },
@@ -802,6 +809,18 @@ const stats = computed(() => [
     label: "srs.mastered",
     icon: "✓",
     bg: "bg-primary-100 dark:bg-white/10",
+  },
+  {
+    key: "learningWords" as const,
+    label: "srs.learning",
+    icon: "◈",
+    bg: "bg-secondary-100 dark:bg-white/10",
+  },
+  {
+    key: "waitingWords" as const,
+    label: "srs.waiting",
+    icon: "◷",
+    bg: "bg-gray-100 dark:bg-white/10",
   },
 ]);
 const ratings: { id: SrsRating; key: string; classes: string }[] = [

@@ -3,6 +3,9 @@ import { join } from 'path';
 import { AddVocabularyTabSortOrder1795300000000 } from '../migrations/1795300000000-AddVocabularyTabSortOrder';
 import { CreatePasswordResetChallenges1795400000000 } from '../migrations/1795400000000-CreatePasswordResetChallenges';
 import { CreateDataShares1795500000000 } from '../migrations/1795500000000-CreateDataShares';
+import { AddDataShareSummary1795500000001 } from '../migrations/1795500000001-AddDataShareSummary';
+import { AddSrsLastRating1795600000000 } from '../migrations/1795600000000-AddSrsLastRating';
+import { AddSrsPracticeHistory1795700000000 } from '../migrations/1795700000000-AddSrsPracticeHistory';
 
 export const databaseConfig: TypeOrmModuleOptions = {
   type: 'better-sqlite3',
@@ -16,6 +19,9 @@ export const databaseConfig: TypeOrmModuleOptions = {
     AddVocabularyTabSortOrder1795300000000,
     CreatePasswordResetChallenges1795400000000,
     CreateDataShares1795500000000,
+    AddDataShareSummary1795500000001,
+    AddSrsLastRating1795600000000,
+    AddSrsPracticeHistory1795700000000,
   ],
   migrationsRun: process.env.NODE_ENV === 'production',
   logging: process.env.NODE_ENV !== 'production',

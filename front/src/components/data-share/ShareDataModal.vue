@@ -4,10 +4,9 @@
       <div
         v-if="show"
         class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[9999] p-3 sm:p-4"
-        @click.self="close"
       >
         <div
-          class="bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl max-w-md w-full border border-black/5 dark:border-white/10 overflow-hidden"
+          class="bg-white dark:bg-black rounded-3xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-white/10 overflow-hidden"
           role="dialog"
           aria-modal="true"
           :aria-label="t('dataShare.modal.title')"
@@ -65,7 +64,7 @@
                 maxlength="254"
                 :placeholder="t('dataShare.modal.emailPlaceholder')"
                 :disabled="sending"
-                class="w-full px-4 py-3 rounded-xl border bg-white dark:bg-zinc-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition"
+                class="w-full px-4 py-3 rounded-xl border bg-white dark:bg-white/5 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition"
                 :class="
                   error
                     ? 'border-red-400 dark:border-red-500'
@@ -79,23 +78,15 @@
             </div>
 
             <p
-              class="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-white/5 rounded-xl px-3 py-2.5"
+              class="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-white/5 border border-transparent dark:border-white/10 rounded-xl px-3 py-2.5"
             >
               {{ t("dataShare.modal.note") }}
             </p>
 
             <div class="flex gap-3 pt-1">
               <button
-                type="button"
-                class="flex-1 py-3 px-4 rounded-xl text-sm font-bold border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition disabled:opacity-60"
-                :disabled="sending"
-                @click="close"
-              >
-                {{ t("dataShare.modal.cancel") }}
-              </button>
-              <button
                 type="submit"
-                class="flex-1 py-3 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-500 hover:to-purple-500 shadow-lg shadow-primary-500/30 transition disabled:opacity-70 disabled:cursor-not-allowed"
+                class="w-full py-3 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-500 hover:to-purple-500 shadow-lg shadow-primary-500/30 transition disabled:opacity-70 disabled:cursor-not-allowed"
                 :disabled="sending || !email.trim()"
               >
                 <span v-if="!sending">{{ t("dataShare.modal.send") }}</span>

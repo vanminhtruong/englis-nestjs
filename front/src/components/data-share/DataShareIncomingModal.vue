@@ -44,6 +44,12 @@
                   })
                 }}
               </p>
+              <p
+                v-if="extrasText"
+                class="mt-2 text-sm text-gray-700 dark:text-gray-300 break-words"
+              >
+                {{ t("dataShare.incoming.extras", { list: extrasText }) }}
+              </p>
               <p class="mt-3 text-xs text-gray-500 dark:text-gray-400">
                 {{ t("dataShare.incoming.note") }}
               </p>
@@ -95,6 +101,8 @@ import { useModalScrollLock } from "../../composables/useModalScrollLock";
 import { websocketService } from "../../services/websocket.service";
 import {
   dataShareService,
+  describeMergeExtras,
+  describeSummary,
   isShareGone,
   registerDataShareMessages,
   shareErrorMessage,
@@ -112,6 +120,7 @@ const { lockScroll, unlockScroll } = useModalScrollLock();
 const queue = ref<IncomingShare[]>([]);
 const busy = ref(false);
 const current = computed(() => queue.value[0] ?? null);
+const extrasText = computed(() => describeSummary(current.value?.summary, t as any));
 const senderName = computed(
   () =>
     current.value?.sender.fullName ||
@@ -223,12 +232,14 @@ async function answer(action: "accept" | "reject") {
   try {
     if (action === "accept") {
       const result = await dataShareService.accept(share.id);
+      const extras = describeMergeExtras(result.stats, t as any);
       showSuccess(
-        t("dataShare.result.accepted", {
+        t(extras ? "dataShare.result.acceptedMore" : "dataShare.result.accepted", {
           new: result.stats?.newVocabularies ?? 0,
           skipped: result.stats?.skippedVocabularies ?? 0,
+          extras,
         }),
-        6000,
+        8000,
       );
     } else {
       await dataShareService.reject(share.id);

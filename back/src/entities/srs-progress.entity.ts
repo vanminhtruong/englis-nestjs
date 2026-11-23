@@ -11,6 +11,7 @@ import {
 import type { Relation } from 'typeorm';
 import { User } from './user.entity';
 import { Vocabulary } from './vocabulary.entity';
+import type { SrsRating } from './srs-review.entity';
 
 @Entity('srs_progress')
 @Index('UQ_srs_user_word', ['userId', 'vocabularyId'], { unique: true })
@@ -50,6 +51,11 @@ export class SrsProgress {
 
   @Column({ type: 'datetime', nullable: true })
   lastReviewedAt: Date | null;
+
+  // Most recent user rating, including extra practice that must not
+  // shift the official SRS review schedule.
+  @Column({ type: 'text', nullable: true })
+  lastRating: SrsRating | null;
 
   @CreateDateColumn()
   createdAt: Date;

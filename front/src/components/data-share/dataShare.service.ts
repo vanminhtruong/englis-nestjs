@@ -1,18 +1,70 @@
 import apiService from "../../services/api.service";
 import { dataShareMessages } from "./language";
 
+/** How much besides words and practice history an offer carries. */
+export interface ShareSummary {
+  categories: number;
+  tags: number;
+  dateTopics: number;
+  tabs: number;
+  srs: number;
+}
+
 export interface IncomingShare {
   id: string;
   sender: { id: string; fullName: string; email: string };
   vocabularyCount: number;
   historyCount: number;
+  /** Missing on offers sent before categories, tags and Smart review were included. */
+  summary?: ShareSummary | null;
   createdAt: string;
 }
 
+/** What a merge (accepting an offer or importing a file) really changed. */
 export interface ShareMergeStats {
   newVocabularies: number;
+  updatedVocabularies?: number;
   skippedVocabularies: number;
   newHistories: number;
+  newCategories?: number;
+  newTags?: number;
+  newDateTopics?: number;
+  newTabs?: number;
+  newSrsProgress?: number;
+  newSrsReviews?: number;
+  linkedWords?: number;
+  updatedOthers?: number;
+}
+
+/** "5 categories, 3 tags, ..." for the offer; empty when there is nothing extra. */
+export function describeSummary(
+  summary: ShareSummary | null | undefined,
+  t: (key: string, params?: Record<string, unknown>) => string,
+): string {
+  if (!summary) return "";
+  const parts: string[] = [];
+  if (summary.categories > 0) parts.push(t("dataShare.parts.categories", { count: summary.categories }));
+  if (summary.tags > 0) parts.push(t("dataShare.parts.tags", { count: summary.tags }));
+  if (summary.dateTopics > 0) parts.push(t("dataShare.parts.dateTopics", { count: summary.dateTopics }));
+  if (summary.tabs > 0) parts.push(t("dataShare.parts.tabs", { count: summary.tabs }));
+  if (summary.srs > 0) parts.push(t("dataShare.parts.srs", { count: summary.srs }));
+  return parts.join(", ");
+}
+
+/** What was added by a merge, beyond the words themselves. */
+export function describeMergeExtras(
+  stats: ShareMergeStats | undefined,
+  t: (key: string, params?: Record<string, unknown>) => string,
+): string {
+  if (!stats) return "";
+  const parts: string[] = [];
+  if ((stats.newHistories ?? 0) > 0) parts.push(t("dataShare.parts.histories", { count: stats.newHistories }));
+  if ((stats.newCategories ?? 0) > 0) parts.push(t("dataShare.parts.categories", { count: stats.newCategories }));
+  if ((stats.newTags ?? 0) > 0) parts.push(t("dataShare.parts.tags", { count: stats.newTags }));
+  if ((stats.newDateTopics ?? 0) > 0) parts.push(t("dataShare.parts.dateTopics", { count: stats.newDateTopics }));
+  if ((stats.newTabs ?? 0) > 0) parts.push(t("dataShare.parts.tabs", { count: stats.newTabs }));
+  if ((stats.newSrsProgress ?? 0) > 0) parts.push(t("dataShare.parts.srs", { count: stats.newSrsProgress }));
+  return parts.join(", ");
 }
 
 /** Adds the data-sharing messages to vue-i18n (safe to call many times). */

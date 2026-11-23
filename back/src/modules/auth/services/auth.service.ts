@@ -1,5 +1,6 @@
 import {
   Injectable,
+  BadRequestException,
   ConflictException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -13,6 +14,15 @@ import { AuthTokenService } from './auth-token.service';
 import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
+import {
+  buildUserDataSnapshot,
+  mergeChangeCount,
+  mergeUserDataSnapshot,
+} from '../../../common/user-data/user-data-snapshot';
+import {
+  snapshotToXlsxBuffer,
+  xlsxBufferToSnapshot,
+} from '../../../common/user-data/user-data-xlsx';
 
 @Injectable()
 export class AuthService {
@@ -110,6 +120,14 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // Accounts created with Google have no password, so no password can match.
+    // Say so instead of the generic error, which looks like a wrong password.
+    if (!user.password) {
+      throw new UnauthorizedException(
+        'This account has no password (it was created with Google). Sign in with Google, or use "Forgot password" to set one.',
+      );
+    }
+
     const isPasswordValid = await this.hashService.comparePassword(
       loginDto.password,
       user.password,
@@ -162,265 +180,47 @@ export class AuthService {
     };
   }
 
+  /**
+   * One Excel file with everything the account holds: words, practice history,
+   * categories, tags, "by learning date" topics, tabs and Smart review.
+   */
   async exportUserData(userId: string): Promise<Buffer> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
 
-    // Load vocabularies and histories with two separate queries. Joining both
-    // one-to-many relations in one query multiplies the rows (vocabularies x
-    // histories) and exhausted the Node heap, which crashed the API. A crashed
-    // API makes the Tailscale Funnel answer 502 without CORS headers, so the
-    // browser reported it as a CORS error.
-    const vocabularies = await this.vocabularyRepository.find({
-      where: { userId },
-      order: { createdAt: 'ASC' },
-    });
-    const histories = await this.practiceHistoryRepository.find({
-      where: { userId },
-      order: { createdAt: 'ASC' },
-    });
-    const wordById = new Map(vocabularies.map((v) => [v.id, v.word]));
-
-    // Excel rejects cells longer than 32767 characters (e.g. base64 images).
-    const cap = (value: any) =>
-      typeof value === 'string' && value.length > 32000 ? '' : value;
-
-    // ExcelJS is loaded only when importing or exporting data, not on server startup.
-    const ExcelJS = require('exceljs') as typeof import('exceljs');
-    const workbook = new ExcelJS.Workbook();
-    workbook.creator = 'English Learning App';
-    workbook.created = new Date();
-
-    // Sheet 1: Vocabularies
-    const vocabSheet = workbook.addWorksheet('Vocabularies');
-    vocabSheet.columns = [
-      { header: 'Word', key: 'word', width: 20 },
-      { header: 'Meaning', key: 'meaning', width: 30 },
-      { header: 'Pronunciation', key: 'pronunciation', width: 20 },
-      { header: 'Example', key: 'example', width: 40 },
-      { header: 'Example Translation', key: 'exampleTranslation', width: 40 },
-      { header: 'Note', key: 'note', width: 30 },
-      { header: 'Image', key: 'image', width: 50 },
-      { header: 'Video', key: 'video', width: 50 },
-      { header: 'Audio', key: 'audio', width: 50 },
-      { header: 'Difficulty', key: 'difficulty', width: 15 },
-      { header: 'Mastery Level', key: 'masteryLevel', width: 15 },
-      { header: 'Correct Count', key: 'correctCount', width: 15 },
-      { header: 'Incorrect Count', key: 'incorrectCount', width: 15 },
-      { header: 'Tags', key: 'tags', width: 30 },
-      { header: 'Is Favorite', key: 'isFavorite', width: 15 },
-      { header: 'Created At', key: 'createdAt', width: 20 },
-    ];
-    {
-      vocabularies.forEach((v) => {
-        vocabSheet.addRow({
-          word: v.word,
-          meaning: v.meaning,
-          pronunciation: v.pronunciation,
-          example: v.example,
-          exampleTranslation: v.exampleTranslation || '',
-          note: cap(v.note) || '',
-          image: cap(v.image) || '',
-          video: cap(v.video) || '',
-          audio: cap(v.audio) || '',
-          difficulty: v.difficulty,
-          masteryLevel: v.masteryLevel,
-          correctCount: v.correctCount,
-          incorrectCount: v.incorrectCount,
-          tags: v.tags ? v.tags.join(',') : '',
-          isFavorite: v.isFavorite ? 'Yes' : 'No',
-          createdAt: v.createdAt,
-        });
-      });
-    }
-
-    // Sheet 2: Practice History
-    const historySheet = workbook.addWorksheet('Practice History');
-    historySheet.columns = [
-      { header: 'Word', key: 'word', width: 20 },
-      { header: 'Type', key: 'practiceType', width: 20 },
-      { header: 'Is Correct', key: 'isCorrect', width: 15 },
-      { header: 'User Answer', key: 'userAnswer', width: 30 },
-      { header: 'Score', key: 'score', width: 10 },
-      { header: 'Time Spent (s)', key: 'timeSpent', width: 15 },
-      { header: 'Date', key: 'createdAt', width: 20 },
-    ];
-    {
-      histories.forEach((h) => {
-        historySheet.addRow({
-          word: wordById.get(h.vocabularyId) || 'N/A',
-          practiceType: h.practiceType,
-          isCorrect: h.isCorrect ? 'Yes' : 'No',
-          userAnswer: h.userAnswer,
-          score: h.score,
-          timeSpent: h.timeSpent,
-          createdAt: h.createdAt,
-        });
-      });
-    }
-
-    return (await workbook.xlsx.writeBuffer()) as unknown as Buffer;
+    const { snapshot } = await buildUserDataSnapshot(
+      this.vocabularyRepository.manager,
+      userId,
+    );
+    return snapshotToXlsxBuffer(snapshot);
   }
 
   async importUserData(userId: string, file: Express.Multer.File) {
-    // ExcelJS is loaded only when importing or exporting data, not on server startup.
-    const ExcelJS = require('exceljs') as typeof import('exceljs');
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(file.buffer as any);
-
-    let newVocabCount = 0;
-    let updatedVocabCount = 0;
-    let skippedVocabCount = 0;
-    let newHistoryCount = 0;
-
-    // Sheet 1: Vocabularies
-    const vocabSheet = workbook.getWorksheet('Vocabularies');
-    if (vocabSheet) {
-      const vocabRows: any[] = [];
-      vocabSheet.eachRow((row, rowNumber) => {
-        if (rowNumber > 1) {
-          const word = row.getCell(1).value?.toString();
-          if (word) {
-            const tagsValue = row.getCell(14).value?.toString() || '';
-            vocabRows.push({
-              userId,
-              word: word,
-              meaning: row.getCell(2).value?.toString() || '',
-              pronunciation: row.getCell(3).value?.toString() || '',
-              example: row.getCell(4).value?.toString() || '',
-              exampleTranslation: row.getCell(5).value?.toString() || '',
-              note: row.getCell(6).value?.toString() || '',
-              image: row.getCell(7).value?.toString() || null,
-              video: row.getCell(8).value?.toString() || null,
-              audio: row.getCell(9).value?.toString() || null,
-              difficulty: row.getCell(10).value?.toString() || 'easy',
-              masteryLevel: row.getCell(11).value?.toString() || 'new',
-              correctCount: parseInt(row.getCell(12).value?.toString() || '0'),
-              incorrectCount: parseInt(row.getCell(13).value?.toString() || '0'),
-              tags: tagsValue ? tagsValue.split(',').map(t => t.trim()) : null,
-              isFavorite: row.getCell(15).value?.toString() === 'Yes',
-              createdAt: row.getCell(16).value ? new Date(row.getCell(16).value as string) : new Date(),
-            });
-          }
-        }
-      });
-
-      for (const vocab of vocabRows) {
-        const existing = await this.vocabularyRepository.findOne({
-          where: { userId, word: vocab.word },
-        });
-        if (existing) {
-          // Normalize values for comparison (treat empty string as null)
-          const normalize = (val: any) => (val === '' || val === undefined ? null : val);
-          const normalizeArray = (val: any) => {
-            if (!val || (Array.isArray(val) && val.length === 0)) return null;
-            return val;
-          };
-
-          // Check if data has changed
-          const hasChanges =
-            normalize(existing.meaning) !== normalize(vocab.meaning) ||
-            normalize(existing.pronunciation) !== normalize(vocab.pronunciation) ||
-            normalize(existing.example) !== normalize(vocab.example) ||
-            normalize(existing.exampleTranslation) !== normalize(vocab.exampleTranslation) ||
-            normalize(existing.note) !== normalize(vocab.note) ||
-            normalize(existing.image) !== normalize(vocab.image) ||
-            normalize(existing.video) !== normalize(vocab.video) ||
-            normalize(existing.audio) !== normalize(vocab.audio) ||
-            existing.difficulty !== vocab.difficulty ||
-            existing.masteryLevel !== vocab.masteryLevel ||
-            existing.correctCount !== vocab.correctCount ||
-            existing.incorrectCount !== vocab.incorrectCount ||
-            JSON.stringify(normalizeArray(existing.tags)) !== JSON.stringify(normalizeArray(vocab.tags)) ||
-            existing.isFavorite !== vocab.isFavorite;
-
-          if (hasChanges) {
-            await this.vocabularyRepository.update(existing.id, vocab);
-            updatedVocabCount++;
-          } else {
-            skippedVocabCount++;
-          }
-        } else {
-          await this.vocabularyRepository.save(vocab);
-          newVocabCount++;
-        }
-      }
-
-      // Recalculate total words
-      await this.userRepository.recalculateTotalWords(userId);
+    if (!file?.buffer) {
+      throw new BadRequestException('NO_FILE');
     }
 
-    // Sheet 2: Practice History
-    const historySheet = workbook.getWorksheet('Practice History');
-    if (historySheet) {
-      const historyRows: any[] = [];
-      historySheet.eachRow((row, rowNumber) => {
-        if (rowNumber > 1) {
-          const word = row.getCell(1).value?.toString();
-          if (word) {
-            historyRows.push({
-              userId,
-              word,
-              practiceType: row.getCell(2).value?.toString() || 'flashcard',
-              isCorrect: row.getCell(3).value?.toString() === 'Yes',
-              userAnswer: row.getCell(4).value?.toString() || '',
-              score: parseInt(row.getCell(5).value?.toString() || '0'),
-              timeSpent: parseInt(row.getCell(6).value?.toString() || '0'),
-              createdAt: row.getCell(7).value ? new Date(row.getCell(7).value as string) : new Date(),
-            });
-          }
-        }
-      });
-
-      for (const history of historyRows) {
-        const vocabulary = await this.vocabularyRepository.findOne({
-          where: { userId, word: history.word },
-        });
-
-        if (vocabulary) {
-          // Check if this exact history already exists
-          const existingHistory = await this.practiceHistoryRepository.findOne({
-            where: {
-              userId,
-              vocabularyId: vocabulary.id,
-              practiceType: history.practiceType,
-              score: history.score,
-              timeSpent: history.timeSpent,
-            },
-          });
-
-          if (!existingHistory) {
-            await this.practiceHistoryRepository.save({
-              userId,
-              vocabularyId: vocabulary.id,
-              practiceType: history.practiceType,
-              isCorrect: history.isCorrect,
-              userAnswer: history.userAnswer,
-              score: history.score,
-              timeSpent: history.timeSpent,
-              createdAt: history.createdAt,
-            });
-            newHistoryCount++;
-          }
-        }
-      }
+    let snapshot;
+    try {
+      snapshot = await xlsxBufferToSnapshot(file.buffer);
+    } catch {
+      throw new BadRequestException('INVALID_FILE');
     }
 
-    const totalChanges = newVocabCount + updatedVocabCount + newHistoryCount;
+    // All or nothing: a file that fails halfway must not leave half its data behind.
+    const stats = await this.vocabularyRepository.manager.transaction((manager) =>
+      mergeUserDataSnapshot(manager, userId, snapshot, 'import'),
+    );
+    await this.userRepository.recalculateTotalWords(userId);
 
-    if (totalChanges === 0) {
+    if (mergeChangeCount(stats) === 0) {
       return {
         success: true,
         noChanges: true,
         message: 'DATA_ALREADY_EXISTS',
-        stats: {
-          newVocabularies: 0,
-          updatedVocabularies: 0,
-          skippedVocabularies: skippedVocabCount,
-          newHistories: 0,
-        },
+        stats,
       };
     }
 
@@ -428,12 +228,7 @@ export class AuthService {
       success: true,
       noChanges: false,
       message: 'IMPORT_SUCCESS',
-      stats: {
-        newVocabularies: newVocabCount,
-        updatedVocabularies: updatedVocabCount,
-        skippedVocabularies: skippedVocabCount,
-        newHistories: newHistoryCount,
-      },
+      stats,
     };
   }
 }

@@ -16,10 +16,11 @@ export function useSrs(selectedTabId: Ref<string | null>) {
   const error = ref("");
   const sessionCount = ref(0);
   // Self-practice uses the same flashcards without advancing scheduled SRS reviews.
-  const sessionIncludesScheduled = ref(false);
+  const sessionIsPracticeOnly = ref(false);
   const sessionRatings = ref<Record<SrsRating, number>>({ again: 0, hard: 0, good: 0, easy: 0 });
   const lastResult = ref<SrsReviewResult | null>(null);
   let overviewRequest = 0;
+  let previousSessionOrder: string[] = [];
 
   const tabParams = () => (selectedTabId.value ? { tabId: selectedTabId.value } : {});
 
@@ -49,21 +50,33 @@ export function useSrs(selectedTabId: Ref<string | null>) {
   }
 
   async function start(limit: number, includeScheduled = false) {
-    sessionIncludesScheduled.value = includeScheduled;
+    sessionIsPracticeOnly.value = false;
     phase.value = "loading";
     error.value = "";
     try {
       const { data } = await apiClient.get<SrsCard[]>("/srs/queue", {
         params: { limit, ...tabParams(), ...(includeScheduled ? { includeScheduled: true } : {}) },
       });
-      queue.value = data;
+      // If the server happens to return the same cards in the same order,
+      // rotate the queue so consecutive practice sessions feel different.
+      const cards = [...data];
+      if (
+        cards.length > 1 &&
+        cards.length === previousSessionOrder.length &&
+        cards.every((card, i) => card.id === previousSessionOrder[i])
+      ) {
+        cards.push(cards.shift()!);
+      }
+      previousSessionOrder = cards.map((card) => card.id);
+      sessionIsPracticeOnly.value = cards.length > 0 && cards.every((card) => card.isPracticeOnly);
+      queue.value = cards;
       index.value = 0;
-      sessionCount.value = data.length;
+      sessionCount.value = cards.length;
       sessionRatings.value = { again: 0, hard: 0, good: 0, easy: 0 };
       revealed.value = false;
       hintVisible.value = false;
       lastResult.value = null;
-      phase.value = data.length ? "review" : "complete";
+      phase.value = cards.length ? "review" : "complete";
     } catch {
       error.value = "queue";
       phase.value = "error";
@@ -80,19 +93,9 @@ export function useSrs(selectedTabId: Ref<string | null>) {
     submitting.value = true;
     error.value = "";
     try {
-      // These cards are scheduled for the future. Local practice must not
-      // overwrite their due date or create an official SRS review record.
-      if (currentCard.value.isPracticeOnly) {
-        sessionRatings.value[rating] += 1;
-        index.value += 1;
-        revealed.value = false;
-        hintVisible.value = false;
-        if (index.value >= queue.value.length) {
-          phase.value = "complete";
-          await refreshOverview();
-        }
-        return;
-      }
+      // One stable API handles both due reviews and extra practice.
+      // The backend decides at submission time whether the card is due,
+      // avoiding stale state and a separate /practice route.
       const { data } = await apiClient.post<SrsReviewResult>(
         `/srs/${encodeURIComponent(currentCard.value.id)}/review`,
         { rating },
@@ -123,7 +126,7 @@ export function useSrs(selectedTabId: Ref<string | null>) {
     if (submitting.value) return;
     phase.value = "overview";
     queue.value = [];
-    sessionIncludesScheduled.value = false;
+    sessionIsPracticeOnly.value = false;
     index.value = 0;
     revealed.value = false;
     hintVisible.value = false;
@@ -143,7 +146,7 @@ export function useSrs(selectedTabId: Ref<string | null>) {
     submitting,
     error,
     sessionCount,
-    sessionIncludesScheduled,
+    sessionIsPracticeOnly,
     sessionRatings,
     lastResult,
     progressPercent,

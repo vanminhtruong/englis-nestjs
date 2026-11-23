@@ -8,19 +8,28 @@ export const dataShareMessages: Record<string, any> = {
       description:
         'Enter the email of a VocabMaster account. They will see a prompt and choose to accept or decline.',
       emailLabel: 'Recipient email',
-      emailPlaceholder: "name{'@'}example.com",
-      note: 'Your words and practice history are copied as they are now. Nothing changes on their account unless they accept.',
+      emailPlaceholder: 'Enter recipient email address',
+      note: 'Your words, practice history, categories, tags, learning-date topics, tabs and Smart review are copied as they are now. Nothing changes on their account unless they accept.',
       send: 'Send',
       sending: 'Sending...',
       cancel: 'Cancel',
     },
     invalidEmail: 'Please enter a valid email address',
     sent: 'Sent to {email}. Waiting for them to accept.',
+    parts: {
+      histories: 'Practice records: {count}',
+      categories: 'Categories: {count}',
+      tags: 'Tags: {count}',
+      dateTopics: 'Learning-date topics: {count}',
+      tabs: 'Tabs: {count}',
+      srs: 'Smart review: {count} words',
+    },
     incoming: {
       title: 'Someone shared data with you',
       message:
         '{name} ({email}) wants to share {words} words and {histories} practice records with you.',
-      note: 'Words you already have stay unchanged. Nothing is added unless you accept.',
+      extras: 'Also included: {list}.',
+      note: 'Words you already have stay unchanged. Everything else is only added, never replaced. Nothing is added unless you accept.',
       accept: 'Accept',
       reject: 'Decline',
       working: 'Please wait...',
@@ -29,7 +38,14 @@ export const dataShareMessages: Record<string, any> = {
     },
     result: {
       accepted: 'Added {new} new words, skipped {skipped} you already had',
+      acceptedMore:
+        'Added {new} new words, skipped {skipped} you already had. Also added: {extras}',
       rejected: 'Request declined',
+    },
+    import: {
+      stats: 'Added {new} new words, updated {updated}, skipped {skipped} unchanged',
+      statsMore:
+        'Added {new} new words, updated {updated}, skipped {skipped} unchanged. Also added: {extras}',
     },
     responded: {
       accepted: '{name} accepted your data ({new} new words added)',
@@ -56,19 +72,28 @@ export const dataShareMessages: Record<string, any> = {
       description:
         'Nhập email của một tài khoản VocabMaster. Người đó sẽ thấy hộp thoại và chọn đồng ý hoặc từ chối.',
       emailLabel: 'Email người nhận',
-      emailPlaceholder: "ten{'@'}example.com",
-      note: 'Từ vựng và lịch sử luyện tập được sao chép đúng như hiện tại. Tài khoản của họ không thay đổi nếu họ không đồng ý.',
+      emailPlaceholder: 'Nhập địa chỉ email người nhận',
+      note: 'Từ vựng, lịch sử luyện tập, danh mục, thẻ, chủ đề theo ngày học, tab và Smart review được sao chép đúng như hiện tại. Tài khoản của họ không thay đổi nếu họ không đồng ý.',
       send: 'Gửi',
       sending: 'Đang gửi...',
       cancel: 'Hủy',
     },
     invalidEmail: 'Vui lòng nhập email hợp lệ',
     sent: 'Đã gửi tới {email}. Đang chờ họ đồng ý.',
+    parts: {
+      histories: 'Lượt luyện tập: {count}',
+      categories: 'Danh mục: {count}',
+      tags: 'Thẻ: {count}',
+      dateTopics: 'Chủ đề theo ngày học: {count}',
+      tabs: 'Tab: {count}',
+      srs: 'Smart review: {count} từ',
+    },
     incoming: {
       title: 'Có người chia sẻ dữ liệu cho bạn',
       message:
         '{name} ({email}) muốn chia sẻ {words} từ vựng và {histories} lượt luyện tập cho bạn.',
-      note: 'Những từ bạn đã có sẽ giữ nguyên. Sẽ không có gì được thêm nếu bạn không đồng ý.',
+      extras: 'Kèm theo: {list}.',
+      note: 'Những từ bạn đã có sẽ giữ nguyên. Mọi thứ khác chỉ được thêm vào, không ghi đè. Sẽ không có gì được thêm nếu bạn không đồng ý.',
       accept: 'Đồng ý',
       reject: 'Từ chối',
       working: 'Vui lòng chờ...',
@@ -77,7 +102,14 @@ export const dataShareMessages: Record<string, any> = {
     },
     result: {
       accepted: 'Đã thêm {new} từ mới, bỏ qua {skipped} từ bạn đã có',
+      acceptedMore:
+        'Đã thêm {new} từ mới, bỏ qua {skipped} từ bạn đã có. Đã thêm thêm: {extras}',
       rejected: 'Đã từ chối yêu cầu',
+    },
+    import: {
+      stats: 'Đã thêm {new} từ mới, cập nhật {updated} từ, giữ nguyên {skipped} từ',
+      statsMore:
+        'Đã thêm {new} từ mới, cập nhật {updated} từ, giữ nguyên {skipped} từ. Đã thêm thêm: {extras}',
     },
     responded: {
       accepted: '{name} đã đồng ý nhận dữ liệu của bạn (thêm {new} từ mới)',
@@ -104,19 +136,28 @@ export const dataShareMessages: Record<string, any> = {
       description:
         'VocabMaster 계정의 이메일을 입력하세요. 상대방에게 확인 창이 표시되며 수락 또는 거절할 수 있습니다.',
       emailLabel: '받는 사람 이메일',
-      emailPlaceholder: "name{'@'}example.com",
-      note: '현재 단어와 연습 기록이 그대로 복사됩니다. 상대방이 수락하지 않으면 계정에 변화가 없습니다.',
+      emailPlaceholder: '받는 사람의 이메일 주소를 입력하세요',
+      note: '현재 단어, 연습 기록, 카테고리, 태그, 학습 날짜 주제, 탭, 스마트 복습이 그대로 복사됩니다. 상대방이 수락하지 않으면 계정에 변화가 없습니다.',
       send: '보내기',
       sending: '보내는 중...',
       cancel: '취소',
     },
     invalidEmail: '올바른 이메일 주소를 입력하세요',
     sent: '{email}(으)로 보냈습니다. 수락을 기다리는 중입니다.',
+    parts: {
+      histories: '연습 기록: {count}',
+      categories: '카테고리: {count}',
+      tags: '태그: {count}',
+      dateTopics: '학습 날짜 주제: {count}',
+      tabs: '탭: {count}',
+      srs: '스마트 복습: 단어 {count}개',
+    },
     incoming: {
       title: '누군가 데이터를 공유했습니다',
       message:
         '{name} ({email}) 님이 단어 {words}개와 연습 기록 {histories}건을 공유하려고 합니다.',
-      note: '이미 가지고 있는 단어는 그대로 유지됩니다. 수락하지 않으면 아무것도 추가되지 않습니다.',
+      extras: '함께 포함됨: {list}.',
+      note: '이미 가지고 있는 단어는 그대로 유지됩니다. 나머지도 추가만 되고 덮어쓰지 않습니다. 수락하지 않으면 아무것도 추가되지 않습니다.',
       accept: '수락',
       reject: '거절',
       working: '잠시만 기다려 주세요...',
@@ -125,7 +166,14 @@ export const dataShareMessages: Record<string, any> = {
     },
     result: {
       accepted: '새 단어 {new}개 추가, 이미 있던 {skipped}개는 건너뜀',
+      acceptedMore:
+        '새 단어 {new}개 추가, 이미 있던 {skipped}개는 건너뜀. 추가로 가져옴: {extras}',
       rejected: '요청을 거절했습니다',
+    },
+    import: {
+      stats: '새 단어 {new}개 추가, {updated}개 업데이트, {skipped}개 변경 없음',
+      statsMore:
+        '새 단어 {new}개 추가, {updated}개 업데이트, {skipped}개 변경 없음. 추가로 가져옴: {extras}',
     },
     responded: {
       accepted: '{name} 님이 데이터를 수락했습니다 (새 단어 {new}개 추가)',
@@ -152,18 +200,27 @@ export const dataShareMessages: Record<string, any> = {
       description:
         '输入 VocabMaster 账号的邮箱。对方会看到提示并选择接受或拒绝。',
       emailLabel: '收件人邮箱',
-      emailPlaceholder: "name{'@'}example.com",
-      note: '你当前的单词和练习记录会按现状复制。对方不接受，其账号不会有任何变化。',
+      emailPlaceholder: '请输入收件人的邮箱地址',
+      note: '你当前的单词、练习记录、分类、标签、学习日期主题、标签页和智能复习会按现状复制。对方不接受，其账号不会有任何变化。',
       send: '发送',
       sending: '发送中...',
       cancel: '取消',
     },
     invalidEmail: '请输入有效的邮箱地址',
     sent: '已发送到 {email}，等待对方接受。',
+    parts: {
+      histories: '练习记录：{count}',
+      categories: '分类：{count}',
+      tags: '标签：{count}',
+      dateTopics: '学习日期主题：{count}',
+      tabs: '标签页：{count}',
+      srs: '智能复习：{count} 个单词',
+    },
     incoming: {
       title: '有人向你分享了数据',
       message: '{name}（{email}）想与你分享 {words} 个单词和 {histories} 条练习记录。',
-      note: '你已有的单词保持不变。不接受就不会添加任何内容。',
+      extras: '还包含：{list}。',
+      note: '你已有的单词保持不变，其余内容只会新增，不会覆盖。不接受就不会添加任何内容。',
       accept: '接受',
       reject: '拒绝',
       working: '请稍候...',
@@ -172,7 +229,13 @@ export const dataShareMessages: Record<string, any> = {
     },
     result: {
       accepted: '已新增 {new} 个单词，跳过你已有的 {skipped} 个',
+      acceptedMore: '已新增 {new} 个单词，跳过你已有的 {skipped} 个。另外新增：{extras}',
       rejected: '已拒绝请求',
+    },
+    import: {
+      stats: '已新增 {new} 个单词，更新 {updated} 个，{skipped} 个无变化',
+      statsMore:
+        '已新增 {new} 个单词，更新 {updated} 个，{skipped} 个无变化。另外新增：{extras}',
     },
     responded: {
       accepted: '{name} 已接受你的数据（新增 {new} 个单词）',

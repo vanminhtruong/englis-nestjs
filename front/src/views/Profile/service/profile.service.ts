@@ -1,6 +1,7 @@
 import apiService from '../../../services/api.service'
 import { websocketService } from '../../../services/websocket.service'
 import type { UserProfile } from '../interface/profile.interface'
+import type { ShareMergeStats } from '../../../components/data-share/dataShare.service'
 import { useAuthStore } from '../../../stores/auth.store'
 
 export class ProfileService {
@@ -53,12 +54,7 @@ export class ProfileService {
     success: boolean
     error?: string
     noChanges?: boolean
-    stats?: {
-      newVocabularies: number
-      updatedVocabularies: number
-      skippedVocabularies: number
-      newHistories: number
-    }
+    stats?: ShareMergeStats
   }> {
     try {
       const formData = new FormData()

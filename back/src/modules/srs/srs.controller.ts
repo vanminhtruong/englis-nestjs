@@ -56,6 +56,15 @@ export class SrsController {
     return this.service.getHistory(req.user.id, limit, page, tabId);
   }
 
+  @Post(':vocabularyId/practice')
+  practice(
+    @Request() req: { user: { id: string } },
+    @Param('vocabularyId') vocabularyId: string,
+    @Body() dto: ReviewSrsDto,
+  ) {
+    return this.service.submitPracticeRating(req.user.id, vocabularyId, dto.rating);
+  }
+
   @Post(':vocabularyId/review')
   review(
     @Request() req: { user: { id: string } },

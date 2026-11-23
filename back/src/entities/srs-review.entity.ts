@@ -45,6 +45,10 @@ export class SrsReview {
   @Column({ type: 'datetime' })
   nextReviewAt: Date;
 
+  // Distinguish self-practice from scheduled SRS reviews in the activity log.
+  @Column({ default: false })
+  isPracticeOnly: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 }

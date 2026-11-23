@@ -284,11 +284,17 @@
               >
                 {{ item.word }}
               </p>
-              <time
-                class="mt-0.5 block truncate text-[11px] text-gray-500 dark:text-gray-400"
-                :datetime="item.reviewedAt"
-                >{{ formatDate(item.reviewedAt) }}</time
-              >
+              <div class="mt-0.5 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <time
+                  class="block text-[11px] tabular-nums text-gray-500 dark:text-gray-400"
+                  :datetime="item.reviewedAt"
+                  >{{ formatDate(item.reviewedAt) }}</time
+                >
+                <span
+                  v-if="item.isPracticeOnly"
+                  class="rounded-full border border-gray-200 px-1.5 py-0.5 text-[10px] font-medium text-gray-500 dark:border-white/15 dark:text-gray-400"
+                >{{ t("srs.practiceBadge") }}</span>
+              </div>
             </div>
             <span
               class="shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold"
@@ -414,7 +420,7 @@ function formatDate(value: string) {
         : locale.value === "zh-CN"
           ? "zh-CN"
           : "en-US";
-  return new Intl.DateTimeFormat(language, { dateStyle: "short", timeStyle: "short" }).format(date);
+  return new Intl.DateTimeFormat(language, { dateStyle: "short", timeStyle: "medium" }).format(date);
 }
 
 const ratingStyles: Record<SrsRating, string> = {

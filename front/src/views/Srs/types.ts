@@ -43,6 +43,7 @@ export interface SrsHistory {
   vocabularyId: string;
   word: string;
   rating: SrsRating;
+  isPracticeOnly: boolean;
   reviewedAt: string;
   nextReviewAt: string;
 }

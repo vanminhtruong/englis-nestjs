@@ -11,7 +11,13 @@ export class UserRepository {
   ) { }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.repository.findOne({ where: { email } });
+    const normalized = (email ?? '').trim().toLowerCase();
+    if (!normalized) return null;
+    // Email addresses are not case sensitive: "Minh@Gmail.com" is the same account.
+    return this.repository
+      .createQueryBuilder('user')
+      .where('LOWER(user.email) = :email', { email: normalized })
+      .getOne();
   }
 
   async findById(id: string): Promise<User | null> {

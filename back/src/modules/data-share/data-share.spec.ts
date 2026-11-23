@@ -34,8 +34,6 @@ describe('Sharing vocabulary data with another account', () => {
     service = new DataShareService(
       database.getRepository(DataShare),
       database.getRepository(User),
-      database.getRepository(Vocabulary),
-      database.getRepository(PracticeHistory),
       new UserRepository(database.getRepository(User)),
       database,
       gateway as any,
@@ -48,13 +46,13 @@ describe('Sharing vocabulary data with another account', () => {
     carol = await users.save(users.create({ fullName: 'Carol', email: 'carol@example.com' }));
 
     const apple = await vocabularies().save(
-      vocabularies().create({ userId: alice.id, word: 'apple', meaning: 'quả táo', pronunciation: '/a/' }),
+      vocabularies().create({ userId: alice.id, word: 'apple', meaning: 'apple meaning', pronunciation: '/a/' }),
     );
     await vocabularies().save(
-      vocabularies().create({ userId: alice.id, word: 'book', meaning: 'sách', pronunciation: '/b/' }),
+      vocabularies().create({ userId: alice.id, word: 'book', meaning: 'book meaning', pronunciation: '/b/' }),
     );
     await vocabularies().save(
-      vocabularies().create({ userId: bob.id, word: 'book', meaning: 'quyển sách của Bob', pronunciation: '/b/' }),
+      vocabularies().create({ userId: bob.id, word: 'book', meaning: "bob's own meaning", pronunciation: '/b/' }),
     );
     const histories = database.getRepository(PracticeHistory);
     await histories.save(
@@ -122,11 +120,11 @@ describe('Sharing vocabulary data with another account', () => {
 
   it('merges only new words on accept, keeps existing ones and counts words', async () => {
     const result = await service.accept(bob.id, shareId);
-    expect(result.stats).toEqual({ newVocabularies: 1, skippedVocabularies: 1, newHistories: 1 });
+    expect(result.stats).toMatchObject({ newVocabularies: 1, skippedVocabularies: 1, newHistories: 1 });
     expect(await wordsOf(bob.id)).toEqual(['apple', 'book']);
 
     const bobBook = await vocabularies().findOneByOrFail({ userId: bob.id, word: 'book' });
-    expect(bobBook.meaning).toBe('quyển sách của Bob');
+    expect(bobBook.meaning).toBe("bob's own meaning");
 
     const histories = await database.getRepository(PracticeHistory).find({ where: { userId: bob.id } });
     expect(histories).toHaveLength(1);

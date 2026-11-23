@@ -8,11 +8,28 @@ their meanings, practice scores, or previous learning history.
 
 - `GET /srs/overview`: due/new/learning/mastered counts, review activity,
   and the next future review date.
-- `GET /srs/queue?limit=20`: due cards first (oldest due first), then new
-  cards (oldest created first). Limit is clamped to 1–50.
+- `GET /srs/queue?limit=20`: normal mode selects due cards first, then new
+  cards, and shuffles their presentation order. With `includeScheduled=true`
+  (used by the frontend's practice session), it randomly samples from ALL owned
+  vocabulary in the chosen tab **before** applying the session limit, including
+  new, due, and future-scheduled cards. Only future-scheduled cards are marked
+  `isPracticeOnly` to prevent an early review from changing their SRS schedule.
+  Limit is clamped to 1–50.
 - `POST /srs/:vocabularyId/review`, body `{"rating":"good"}`:
-  the only valid ratings are `again`, `hard`, `good`, `easy`.
-- `GET /srs/upcoming?page=1&limit=6`: all scheduled cards (due/overdue first, then future), sorted by due date. Each row has an `isDue` flag; cards remain listed after their due time.
+  the primary review endpoint for all sessions. It determines due status on
+  the server: due/new cards update the official SRS schedule; future-scheduled
+  cards only update the latest difficulty rating, keeping their due date unchanged
+  (response includes `isPracticeOnly: true`). Both append a timestamped event
+  to the review history so repeated practice appears at the top.
+- `POST /srs/:vocabularyId/practice`: retained for compatibility with clients
+  already using this endpoint. Only accepts future-scheduled owned cards, logs
+  each practice attempt, and preserves the official due date.
+  Ratings: `again`, `hard`, `good`, `easy`.
+- `GET /srs/upcoming?page=1&limit=6`: attention list showing only words most
+  recently rated `again` or `hard`, ordered by due date. The most recent
+  saved rating also includes extra practice; for pre-migration records it falls
+  back to the latest official review. Good/easy cards remain scheduled but are
+  hidden from this list. Each row has an `isDue` flag.
 - `GET /srs/history?page=1&limit=6`: recent review events, newest first.
 
 The upcoming and history endpoints each return `{ data, meta: { page, limit, total, pageCount } }`. Page is at least 1, clamped to the final available page; page size is limited to 1–20. Their pagination state is independent in the frontend.
@@ -20,8 +37,8 @@ The upcoming and history endpoints each return `{ data, meta: { page, limit, tot
 All four GET endpoints accept an optional `tabId=<existing-vocabulary-tab-uuid>` query parameter. Without `tabId`, they operate on all the user's vocabulary. With `tabId`, they filter by the existing many-to-many `Vocabulary.tabs` relation (a word can appear in several tabs). The overview, due queue, upcoming reviews, and review history use the same membership filter. A tab's selection never resets the saved SRS progress, and the POST review endpoint continues to verify word ownership.
 
 Each endpoint derives the user ID from the validated JWT. The review endpoint
-verifies the vocabulary belongs to the user, rejects a second submission before
-the due time (HTTP 409), and writes progress + audit history in one transaction.
+verifies vocabulary ownership. Regular reviews write progress and history in
+one transaction; early self-practice changes only the last difficulty rating.
 
 ## Schedule
 
@@ -42,13 +59,15 @@ TypeORM. Reviews within the last rolling 24 hours count as recent activity.
 ## Tables
 
 - `srs_progress`: one row per user and word; next date, interval, ease, lapses,
-  repetitions. Unique (userId, vocabularyId), indexed due-time queries.
-- `srs_reviews`: immutable review events with rating and scheduled outcome.
+  repetitions, latest difficulty rating (including extra practice).
+  Unique (userId, vocabularyId), indexed due-time queries.
+- `srs_reviews`: append-only review and practice events with rating, timestamp,
+  scheduled outcome and `isPracticeOnly` flag (false for existing historical rows).
 
-The project's TypeORM settings currently use `synchronize: true`, so new
-tables appear when the backend starts. For a production environment with
-`synchronize: false`, create and run a matching database migration before
-starting this module. Avoid disabling synchronization without migrations.
+In development, TypeORM synchronizes the nullable `lastRating` column.
+Production uses additive `AddSrsLastRating1795600000000` and
+`AddSrsPracticeHistory1795700000000` migrations.
+Legacy saved progress is handled without resetting the review schedule.
 
 ## Tests
 

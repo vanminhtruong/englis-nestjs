@@ -39,6 +39,10 @@ export class DataShare {
   @Column({ type: 'text', nullable: true })
   resultStats: string | null;
 
+  /** JSON counts of categories, tags, tabs, topics and Smart review rows in the offer. */
+  @Column({ type: 'text', nullable: true })
+  summary: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 

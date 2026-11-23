@@ -4,7 +4,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
+import { DataSource, EntityManager, In, Repository, SelectQueryBuilder } from 'typeorm';
+import { randomInt } from 'node:crypto';
 import { Vocabulary } from '../../entities/vocabulary.entity';
 import { SrsProgress } from '../../entities/srs-progress.entity';
 import { SrsReview, SrsRating } from '../../entities/srs-review.entity';
@@ -89,6 +90,38 @@ export class SrsService {
   ) {
     const limit = Math.max(1, Math.min(50, Math.trunc(requestedLimit) || 20));
     const now = new Date();
+
+    if (includeScheduled) {
+      // Self-practice samples from ALL vocabulary in the selected tab first,
+      // not just words that already have SRS progress. Random selection must
+      // happen before the session limit so unreviewed words are equally eligible.
+      const sampledWords = await this.filterTab(
+        this.words.createQueryBuilder('v').where('v.userId = :userId', { userId }),
+        tabId,
+      )
+        .orderBy('RANDOM()')
+        .take(limit)
+        .getMany();
+
+      if (!sampledWords.length) return [];
+
+      const states = await this.progress.find({
+        where: {
+          userId,
+          vocabularyId: In(sampledWords.map((word) => word.id)),
+        },
+      });
+      const stateByWordId = new Map(states.map((state) => [state.vocabularyId, state]));
+      return sampledWords.map((word) => {
+        const state = stateByWordId.get(word.id) ?? null;
+        return this.formatCard(
+          word,
+          state,
+          Boolean(state && state.nextReviewAt.getTime() > now.getTime()),
+        );
+      });
+    }
+
     const dueProgress = await this.filterTab(
       this.progress
         .createQueryBuilder('p')
@@ -105,7 +138,7 @@ export class SrsService {
 
     const due = dueProgress.map((p) => this.formatCard(p.vocabulary, p));
     const remaining = limit - due.length;
-    if (!remaining) return due;
+    if (!remaining) return this.shuffleQueue(due);
 
     const newWords = await this.filterTab(
       this.words
@@ -121,27 +154,10 @@ export class SrsService {
       .addOrderBy('v.id', 'ASC')
       .take(remaining)
       .getMany();
-    const available = [...due, ...newWords.map((word) => this.formatCard(word, null))];
-    const slots = limit - available.length;
-    if (!includeScheduled || slots <= 0) return available;
-
-    // Optional self-practice: include cards scheduled for the future without
-    // changing their SRS due dates. Only owned vocabulary from the selected tab.
-    const scheduled = await this.filterTab(
-      this.progress
-        .createQueryBuilder('p')
-        .innerJoinAndSelect('p.vocabulary', 'v', 'v.userId = :userId', {
-          userId,
-        })
-        .where('p.userId = :userId', { userId })
-        .andWhere('p.nextReviewAt > :now', { now: this.sqlDate(now) }),
-      tabId,
-    )
-      .orderBy('p.nextReviewAt', 'ASC')
-      .addOrderBy('p.id', 'ASC')
-      .take(slots)
-      .getMany();
-    return [...available, ...scheduled.map((p) => this.formatCard(p.vocabulary, p, true))];
+    return this.shuffleQueue([
+      ...due,
+      ...newWords.map((word) => this.formatCard(word, null)),
+    ]);
   }
 
   async submitReview(userId: string, vocabularyId: string, rating: SrsRating) {
@@ -156,7 +172,8 @@ export class SrsService {
         where: { userId, vocabularyId },
       });
       if (previous && previous.nextReviewAt > now) {
-        throw new ConflictException('This card is not due for review yet');
+        // Extra practice records each attempt in history without advancing SRS.
+        return this.recordPractice(manager, previous, rating, now);
       }
       const schedule = calculateSrsSchedule(
         {
@@ -177,6 +194,7 @@ export class SrsService {
           vocabularyId,
           ...schedule,
           lastReviewedAt: now,
+          lastRating: rating,
         }),
       );
       await manager.save(
@@ -188,6 +206,8 @@ export class SrsService {
           previousIntervalDays: previous?.intervalDays ?? 0,
           intervalDays: schedule.intervalDays,
           nextReviewAt: schedule.nextReviewAt,
+          isPracticeOnly: false,
+          createdAt: now,
         }),
       );
 
@@ -202,6 +222,64 @@ export class SrsService {
         intervalDays: saved.intervalDays,
         nextReviewAt: saved.nextReviewAt,
       };
+    });
+  }
+
+  // Extra practice has a history event of its own, but never advances
+  // the official next-review time or resets repetitions.
+  private async recordPractice(
+    manager: EntityManager,
+    state: SrsProgress,
+    rating: SrsRating,
+    now: Date,
+  ) {
+    await manager.update(
+      SrsProgress,
+      { id: state.id, userId: state.userId, vocabularyId: state.vocabularyId },
+      { lastRating: rating },
+    );
+    await manager.save(
+      SrsReview,
+      manager.create(SrsReview, {
+        userId: state.userId,
+        vocabularyId: state.vocabularyId,
+        rating,
+        previousIntervalDays: state.intervalDays,
+        intervalDays: state.intervalDays,
+        nextReviewAt: state.nextReviewAt,
+        isPracticeOnly: true,
+        createdAt: now,
+      }),
+    );
+    return {
+      vocabularyId: state.vocabularyId,
+      rating,
+      repetitions: state.repetitions,
+      lapses: state.lapses,
+      easeFactor: state.easeFactor,
+      intervalDays: state.intervalDays,
+      nextReviewAt: state.nextReviewAt,
+      isPracticeOnly: true,
+    };
+  }
+
+  async submitPracticeRating(
+    userId: string,
+    vocabularyId: string,
+    rating: SrsRating,
+  ) {
+    return this.dataSource.transaction(async (manager) => {
+      const state = await manager.findOne(SrsProgress, {
+        where: { userId, vocabularyId },
+        relations: { vocabulary: true },
+      });
+      if (!state || state.vocabulary?.userId !== userId) {
+        throw new NotFoundException('Vocabulary progress not found');
+      }
+      if (state.nextReviewAt.getTime() <= Date.now()) {
+        throw new ConflictException('Card is due for a regular SRS review');
+      }
+      return this.recordPractice(manager, state, rating, new Date());
     });
   }
 
@@ -223,8 +301,21 @@ export class SrsService {
         .where('p.userId = :userId', { userId }),
       tabId,
     )
-      // A due/overdue review is still scheduled and should remain visible.
-      // Previously excluding it made the panel empty once all cards became due.
+      // Only words the learner most recently marked Again or Hard belong
+      // in the "needs attention" list. Legacy progress without lastRating
+      // falls back to its most recent official review (SQLite rowid breaks
+      // same-timestamp ties in favor of the last inserted review).
+      .andWhere(
+        `COALESCE(p.lastRating, (
+          SELECT lastReview.rating
+          FROM srs_reviews lastReview
+          WHERE lastReview.userId = p.userId
+            AND lastReview.vocabularyId = p.vocabularyId
+          ORDER BY lastReview.createdAt DESC, lastReview.rowid DESC
+          LIMIT 1
+        )) IN (:...attentionRatings)`,
+        { attentionRatings: ['again', 'hard'] },
+      )
       .orderBy('p.nextReviewAt', 'ASC')
       .addOrderBy('p.id', 'ASC');
 
@@ -283,11 +374,22 @@ export class SrsService {
         vocabularyId: r.vocabularyId,
         word: r.vocabulary.word,
         rating: r.rating,
+        isPracticeOnly: r.isPracticeOnly,
         reviewedAt: r.createdAt,
         nextReviewAt: r.nextReviewAt,
       })),
       meta: { page: currentPage, limit, total, pageCount },
     };
+  }
+
+  // Randomize presentation only; selection and SRS scheduling remain unchanged.
+  private shuffleQueue<T>(cards: T[]): T[] {
+    const shuffled = [...cards];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = randomInt(i + 1);
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   }
 
   private filterTab<T extends SelectQueryBuilder<any>>(
