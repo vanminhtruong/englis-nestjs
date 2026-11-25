@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
   pages: write
   id-token: write
 
@@ -62,6 +63,23 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: front/dist
+
+      - name: Wait for Pages artifact
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for attempt in $(seq 1 24); do
+            if artifact_id=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts?name=github-pages" --jq '.artifacts[] | select(.name == "github-pages" and .expired == false) | .id') && [[ -n "$artifact_id" ]]; then
+              echo "Pages artifact is visible to the deployment API."
+              sleep 5
+              exit 0
+            fi
+            echo "Waiting for Pages artifact metadata ($attempt/24)"
+            sleep 5
+          done
+          echo "::error::Pages artifact is not visible after waiting for the artifact API."
+          exit 1
 
       - name: Publish Pages site
         id: deployment
