@@ -115,21 +115,4 @@ input:-webkit-autofill:active {
   .text-gradient {
     @apply bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent;
   }
-
-  /* Scrollbar styling */
-  .scrollbar-custom::-webkit-scrollbar {
-    @apply w-2 h-2;
-  }
-
-  .scrollbar-custom::-webkit-scrollbar-track {
-    @apply bg-gray-100 dark:bg-gray-900;
-  }
-
-  .scrollbar-custom::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 dark:bg-gray-700 rounded-full;
-  }
-
-  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-400 dark:bg-gray-600;
-  }
 }

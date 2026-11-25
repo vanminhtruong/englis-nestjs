@@ -420,29 +420,4 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
 
-.scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  border-radius: 9999px;
-  background: rgba(var(--primary-500), 0.3);
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(var(--primary-500), 0.5);
-}
-</style>

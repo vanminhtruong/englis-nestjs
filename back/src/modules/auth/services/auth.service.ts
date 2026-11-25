@@ -13,6 +13,7 @@ import { AuthHashService } from './auth-hash.service';
 import { AuthTokenService } from './auth-token.service';
 import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
+import { ChangePasswordDto } from '../dto/change-password.dto';
 import { UpdateProfileDto } from '../dto/update-profile.dto';
 import {
   buildUserDataSnapshot,
@@ -88,6 +89,26 @@ export class AuthService {
     };
   }
 
+  async changePassword(userId: string, dto: ChangePasswordDto) {
+    const user = await this.userRepository.findById(userId);
+    if (!user) throw new UnauthorizedException('User not found');
+    if (!user.password) throw new BadRequestException('NO_PASSWORD');
+    if (Buffer.byteLength(dto.newPassword, 'utf8') > 72) {
+      throw new BadRequestException('PASSWORD_TOO_LONG');
+    }
+    if (!(await this.hashService.comparePassword(dto.currentPassword, user.password))) {
+      throw new BadRequestException('INCORRECT_PASSWORD');
+    }
+    if (await this.hashService.comparePassword(dto.newPassword, user.password)) {
+      throw new BadRequestException('SAME_PASSWORD');
+    }
+    const password = await this.hashService.hashPassword(dto.newPassword);
+    if (!(await this.userRepository.replacePassword(userId, user.password, password))) {
+      throw new ConflictException('PASSWORD_CHANGED');
+    }
+    return { success: true };
+  }
+
   async updateProfile(
     userId: string,
     payload: UpdateProfileDto,
@@ -104,6 +125,7 @@ export class AuthService {
 
     return {
       id: updatedUser.id,
+      hasPassword: Boolean(updatedUser.password),
       email: updatedUser.email,
       fullName: updatedUser.fullName,
       avatar: updatedUser.avatar,

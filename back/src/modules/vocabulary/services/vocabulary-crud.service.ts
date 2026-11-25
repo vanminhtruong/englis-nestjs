@@ -76,28 +76,25 @@ export class VocabularyCrudService {
 
   async delete(id: string, userId: string) {
     const vocabulary = await this.vocabularyRepository.findById(id, userId);
+    if (!vocabulary) return;
 
-    // Log history TRƯỚC KHI delete để tránh foreign key constraint
-    if (vocabulary) {
-      await this.historyService.create({
-        userId,
-        vocabularyId: id,
-        action: HistoryAction.VOCABULARY_DELETED,
-        metadata: {
-          word: vocabulary.word,
-          translation: vocabulary.meaning,
-        },
-        description: `Deleted vocabulary: ${vocabulary.word}`,
-      });
-    }
-
-    // Delete vocabulary sau khi đã log history
+    // Delete the word and tab memberships first. A failed delete must not
+    // create a false "deleted" history event as the previous ordering did.
     await this.vocabularyRepository.delete(id, userId);
 
-    // Decrement user's total words count if vocabulary existed
-    if (vocabulary) {
-      await this.userRepository.decrementTotalWords(userId);
-    }
+    // The vocabulary no longer exists, so keep its name/meaning in metadata
+    // instead of trying to create a foreign key to a deleted record.
+    await this.historyService.create({
+      userId,
+      action: HistoryAction.VOCABULARY_DELETED,
+      metadata: {
+        word: vocabulary.word,
+        translation: vocabulary.meaning,
+      },
+      description: `Deleted vocabulary: ${vocabulary.word}`,
+    });
+
+    await this.userRepository.decrementTotalWords(userId);
   }
 
   async toggleFavorite(id: string, userId: string) {

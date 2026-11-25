@@ -1,7 +1,24 @@
 import { h } from 'vue'
+import { MAX_ICON_DATA_LENGTH } from './categoryIconImage'
+
+export function isCustomCategoryIcon(value?: string | null): boolean {
+  return !!value && value.length <= MAX_ICON_DATA_LENGTH && /^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(value)
+}
 
 export function getIconComponent(iconName: string) {
+  if (isCustomCategoryIcon(iconName)) {
+    return (props: any) => h('img', {
+      src: iconName,
+      alt: '',
+      class: ['object-contain rounded-sm', props.class],
+      'aria-hidden': 'true',
+    })
+  }
   const iconMap: Record<string, any> = {
+    'search': (props: any) => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '24', height: '24', viewBox: '0 0 24 24', fill: 'none', stroke: props.color || 'currentColor', 'stroke-width': '2', 'stroke-linecap': 'round', class: props.class }, [
+      h('circle', { cx: 11, cy: 11, r: 7 }),
+      h('path', { d: 'm16 16 4 4' })
+    ]),
     'folder': (props: any) => h('svg', { xmlns: 'http://www.w3.org/2000/svg', width: '24', height: '24', viewBox: '0 0 24 24', fill: 'none', stroke: props.color || 'currentColor', 'stroke-width': '2', class: props.class }, [
       h('path', { d: 'M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z' })
     ]),

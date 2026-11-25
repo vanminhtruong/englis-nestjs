@@ -16,13 +16,17 @@
         <!-- Content -->
         <div v-else-if="detailState.category.value">
           <!-- Header -->
-          <CategoryDetailHeader :category="detailState.category.value" />
+          <CategoryDetailHeader :category="detailState.category.value" :vocabulary-count="detailState.vocabulariesByDate.value.length" />
 
           <!-- Vocabularies (flat list, no date grouping) -->
           <div
             v-if="detailState.vocabulariesByDate.value.length > 0"
-            class="space-y-8"
+            class="min-w-0 space-y-4"
           >
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-3 dark:border-white/10">
+              <h2 class="text-lg font-bold text-black dark:text-white sm:text-xl">{{ t('categories.detailVocabularyTitle') }}</h2>
+              <span class="text-xs font-medium tabular-nums text-black/50 dark:text-white/50 sm:text-sm">{{ t('categories.detailWordCount', { count: detailState.vocabulariesByDate.value.length }) }}</span>
+            </div>
             <CategoryDetailGrid
               :vocabularies="detailState.vocabulariesByDate.value"
               :get-video-thumbnail="detailHandle.getVideoThumbnail"
@@ -99,7 +103,7 @@ const VideoZoomModal = defineAsyncComponent(
   () => import("../../components/common/VideoZoomModal.vue") as any
 );
 
-const { mergeLocaleMessage } = useI18n();
+const { mergeLocaleMessage, t } = useI18n();
 mergeLocaleMessage("en", { categories: enLang });
 mergeLocaleMessage("vi", { categories: viLang });
 mergeLocaleMessage("ko", { categories: koLang });

@@ -1,6 +1,5 @@
 <template>
-  <div class="relative z-[60]">
-    <div v-if="isOpen" class="fixed inset-0 z-40" @click="isOpen = false"></div>
+  <div ref="switcherRoot" class="relative z-[60]">
 
     <button
       @click="isOpen = !isOpen"
@@ -108,11 +107,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useLanguage } from "../composables/useLanguage";
 
 const { locale, availableLocales, setLocale } = useLanguage();
-const isOpen = ref(false);
+const props = defineProps<{ open?: boolean }>();
+const emit = defineEmits<{ (e: "update:open", value: boolean): void }>();
+const localOpen = ref(false);
+const switcherRoot = ref<HTMLElement | null>(null);
+const isOpen = computed({
+  get: () => props.open ?? localOpen.value,
+  set: (value: boolean) => {
+    if (props.open === undefined) localOpen.value = value;
+    emit("update:open", value);
+  },
+});
+
+function handleOutsidePointer(event: PointerEvent) {
+  if (isOpen.value && event.target instanceof Node && !switcherRoot.value?.contains(event.target)) {
+    isOpen.value = false;
+  }
+}
+
+onMounted(() => document.addEventListener("pointerdown", handleOutsidePointer));
+onBeforeUnmount(() => document.removeEventListener("pointerdown", handleOutsidePointer));
 
 const currentFlagClass = computed(() => {
   const current = availableLocales.find((l) => l.code === locale.value);

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative overflow-hidden bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl p-5 sm:p-8 flex flex-col items-center text-center shadow-2xl shadow-gray-200/50 dark:shadow-none"
+    class="relative overflow-hidden bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl p-5 sm:p-8 flex flex-1 flex-col items-center text-center shadow-2xl shadow-gray-200/50 dark:shadow-none"
   >
     <!-- Background Decor -->
     <div
@@ -70,7 +70,7 @@
       </p>
     </div>
 
-    <div class="w-full grid grid-cols-2 gap-4">
+    <div class="w-full grid grid-cols-2 gap-4 mt-auto">
       <div
         class="group relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-500/10 dark:to-blue-500/5 border border-blue-100 dark:border-blue-500/20 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1"
       >

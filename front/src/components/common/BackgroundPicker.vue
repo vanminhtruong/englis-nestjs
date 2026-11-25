@@ -122,7 +122,7 @@
         <!-- Backgrounds Grid -->
         <div
           v-else-if="pickerMode === 'preset'"
-          class="p-3 max-h-[35vh] overflow-y-auto scrollbar-thin scrollbar-thumb-primary-500/30 hover:scrollbar-thumb-primary-500/50"
+          class="p-3 max-h-[35vh] overflow-y-auto scrollbar-thin"
         >
           <div class="grid grid-cols-3 gap-2">
             <button
@@ -342,24 +342,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
 
-.scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  border-radius: 9999px;
-}
-</style>

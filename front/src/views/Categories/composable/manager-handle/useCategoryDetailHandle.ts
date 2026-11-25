@@ -1,4 +1,4 @@
-import { getPreferredVoice } from '../../../../composables/usePreferredVoice'
+import { speakPreferred } from '../../../../composables/usePreferredVoice'
 
 export function useCategoryDetailHandle(
     showDetailModal: any,
@@ -37,17 +37,7 @@ export function useCategoryDetailHandle(
     }
 
     function handleSpeak(word: string) {
-        if (!('speechSynthesis' in window)) return
-        const utterance = new SpeechSynthesisUtterance(word)
-        const voice = getPreferredVoice('en-US')
-        if (voice) {
-            utterance.voice = voice
-            utterance.lang = voice.lang
-        } else {
-            utterance.lang = 'en-US'
-        }
-        utterance.rate = 0.8
-        window.speechSynthesis.speak(utterance)
+      void speakPreferred(word)
     }
 
     function getVideoThumbnail(videoUrl: string) {

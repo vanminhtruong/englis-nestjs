@@ -69,6 +69,7 @@ class WebSocketService {
       "category:updated",
       "category:deleted",
       "category:pinned",
+      "category:bulk-changed",
       // tag realtime events
       "tag:created",
       "tag:updated",

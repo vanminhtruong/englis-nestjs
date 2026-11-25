@@ -3,7 +3,7 @@
     class="flex max-h-[min(74dvh,520px)] min-h-0 flex-col overflow-hidden bg-white text-black dark:bg-black dark:text-white"
   >
     <div
-      class="max-h-[min(50dvh,330px)] shrink-0 overflow-y-auto border-b border-black/10 px-3 pb-3 pt-3 dark:border-white/10"
+      class="max-h-[min(50dvh,330px)] shrink-0 overflow-y-auto border-b border-black/10 px-3 pb-3 pt-3 dark:border-white/10 scrollbar-custom"
     >
       <div
         class="mb-3 grid grid-cols-3 gap-1 rounded-xl bg-gray-100 p-1 dark:bg-white/10"
@@ -212,7 +212,7 @@
       </p>
     </div>
 
-    <div class="min-h-0 flex-1 overflow-y-auto px-3 pb-3 pt-3">
+    <div class="min-h-0 flex-1 overflow-y-auto px-3 pb-3 pt-3 scrollbar-custom">
       <div class="mb-2 flex items-center justify-between gap-2">
         <span class="text-xs font-bold text-black/75 dark:text-white/80">{{
           t("background.myBackgrounds")

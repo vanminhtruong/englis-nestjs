@@ -110,6 +110,41 @@ describe('Practice vocabulary tab scope (SQLite)', () => {
     );
   });
 
+  it('deletes an owned vocabulary from all tabs without a SQLite FK error', async () => {
+    // Use a dedicated word so the existing practice-tab tests remain independent.
+    const words = db.getRepository(Vocabulary);
+    const tabs = db.getRepository(VocabularyTab);
+    const target = await words.save(words.create({
+      userId: userA.id,
+      word: 'deletable-tab-word',
+      meaning: 'Delete test',
+      pronunciation: '/test/',
+    }));
+    const first = await tabs.save(tabs.create({
+      userId: userA.id,
+      name: 'Delete test first tab',
+      vocabularies: [target],
+    }));
+    const second = await tabs.save(tabs.create({
+      userId: userA.id,
+      name: 'Delete test second tab',
+      vocabularies: [target],
+    }));
+
+    await repository.delete(target.id, userB.id);
+    expect(await words.findOneBy({ id: target.id })).not.toBeNull();
+    await expect(repository.delete(target.id, userA.id)).resolves.toBeUndefined();
+    expect(await words.findOneBy({ id: target.id })).toBeNull();
+    const remaining = await db.query(
+      'SELECT COUNT(*) AS total FROM "vocabulary_tab_vocabularies_vocabularies" WHERE "vocabulariesId" = ?',
+      [target.id],
+    );
+    expect(remaining[0].total).toBe(0);
+    expect(await tabs.findOneBy({ id: first.id })).not.toBeNull();
+    expect(await tabs.findOneBy({ id: second.id })).not.toBeNull();
+    expect(await db.query('PRAGMA foreign_key_check')).toEqual([]);
+  });
+
   it('filters date options and date vocabulary by the same tab', async () => {
     const datesA = await repository.findByLearningDate(userA.id, tabA.id);
     const datesB = await repository.findByLearningDate(userA.id, tabB.id);

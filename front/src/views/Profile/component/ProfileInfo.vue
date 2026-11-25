@@ -1,6 +1,6 @@
 <template>
   <div
-    class="relative overflow-hidden bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl p-5 sm:p-8 flex flex-col shadow-2xl shadow-gray-200/50 dark:shadow-none h-full transition-all duration-300 hover:shadow-gray-200/80 dark:hover:shadow-none"
+    class="relative overflow-hidden bg-white/60 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-3xl p-5 sm:p-8 flex flex-col shadow-2xl shadow-gray-200/50 dark:shadow-none flex-1 transition-all duration-300 hover:shadow-gray-200/80 dark:hover:shadow-none"
   >
     <!-- Background Decor -->
     <div
@@ -117,6 +117,8 @@
         </div>
       </div>
 
+
+
       <!-- Theme -->
       <div
         class="group p-4 rounded-2xl bg-gray-50/50 dark:bg-white/5 border border-transparent hover:border-gray-200 dark:hover:border-white/10 transition-colors"
@@ -151,6 +153,7 @@
 </template>
 
 <script setup lang="ts">
+
 import { getIconComponent } from "../../../utils/iconRenderer";
 import type { UserProfile } from "../interface/profile.interface";
 

@@ -51,7 +51,7 @@
           </button>
         </div>
 
-        <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6">
+        <div class="min-h-0 flex-1 overflow-y-auto px-5 py-4 sm:px-6 scrollbar-custom">
           <div v-if="loading" class="flex justify-center py-10" role="status">
             <span
               class="h-8 w-8 animate-spin rounded-full border-2 border-primary-200 border-t-primary-600 dark:border-primary-500/30 dark:border-t-primary-400"

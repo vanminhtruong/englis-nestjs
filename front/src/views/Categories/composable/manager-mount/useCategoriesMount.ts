@@ -1,38 +1,17 @@
 import { onMounted, onUnmounted } from 'vue'
-import { categoriesService } from '../../service/categories.service'
+import { websocketService } from '../../../../services/websocket.service'
+import { useAuthStore } from '../../../../stores/auth.store'
 
-export function useCategoriesMount(
-  setCategories: (data: any[]) => void,
-  setLoading: (value: boolean) => void,
-  addCategory: (category: any) => void,
-  updateCategory: (id: string, category: any) => void,
-  removeCategory: (id: string) => void
-) {
-  onMounted(async () => {
-    setLoading(true)
-    const result = await categoriesService.loadCategories()
-    if (result.success) {
-      setCategories(result.data)
-    }
-    setLoading(false)
-
-    // Setup websocket listeners
-    categoriesService.setupWebSocketListeners(
-      (category) => {
-        // Chỉ thêm nếu từ user khác (tránh duplicate)
-        // addCategory sẽ tự kiểm tra xem category đã tồn tại chưa
-        addCategory(category)
-      },
-      (category) => {
-        updateCategory(category.id, category)
-      },
-      (data) => {
-        removeCategory(data.id)
-      }
-    )
+export function useCategoriesMount(load: () => Promise<void>, refresh: () => void) {
+  const auth = useAuthStore()
+  const events = ['category:created', 'category:updated', 'category:deleted', 'category:pinned', 'category:bulk-changed', 'vocabulary:created', 'vocabulary:updated', 'vocabulary:deleted', 'vocabulary:bydate:refresh', 'practice:completed', 'history:created']
+  const onChange = (data?: { userId?: string }) => {
+    if (data?.userId && auth.user?.id && data.userId !== auth.user.id) return
+    refresh()
+  }
+  onMounted(() => {
+    events.forEach(event => websocketService.on(event, onChange))
+    void load()
   })
-
-  onUnmounted(() => {
-    categoriesService.cleanupWebSocketListeners()
-  })
+  onUnmounted(() => events.forEach(event => websocketService.off(event, onChange)))
 }

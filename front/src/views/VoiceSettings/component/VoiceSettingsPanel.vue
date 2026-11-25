@@ -71,7 +71,7 @@
           </button>
           <Transition name="dropdown-fade">
             <div v-if="langDropdownOpen" class="dropdown-menu">
-              <div class="dropdown-menu-inner">
+              <div class="dropdown-menu-inner scrollbar-thin">
                 <div
                   v-for="lang in languages"
                   :key="lang.code"
@@ -148,14 +148,14 @@
           </button>
           <Transition name="dropdown-fade">
             <div v-if="voiceDropdownOpen" class="dropdown-menu">
-              <div class="dropdown-menu-inner">
+              <div class="dropdown-menu-inner scrollbar-thin">
                 <div
                   v-for="voice in filteredVoices"
                   :key="voice.key"
                   class="dropdown-option"
                   :class="{ 'is-active': selectedVoiceKey === voice.key }"
                   @click="
-                    selectedVoiceKey = voice.key;
+                    selectVoice(voice.key);
                     voiceDropdownOpen = false;
                   "
                 >
@@ -271,7 +271,7 @@
         <span>{{ t("voiceSettings.noVoices") }}</span>
       </div>
 
-      <div v-else class="voices-grid">
+      <div v-else class="voices-grid scrollbar-thin">
         <div
           v-for="voice in browserVoices"
           :key="voice.voiceURI"
@@ -315,6 +315,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch, onUnmounted } from "vue";
+import { getPreferredVoiceKey, speakPreferred, stopSpeech } from "../../../composables/usePreferredVoice";
 import { useI18n } from "vue-i18n";
 import { useVoiceSettingsMount } from "../composable/manager-mount/useVoiceSettingsMount";
 import { useVoiceSettingsState } from "../composable/manager-state/useVoiceSettingsState";
@@ -525,61 +526,50 @@ watch(
   }
 );
 
+let mounted = true;
 onMounted(() => {
-  loadVoices().catch((error) => {
-    console.error("Failed to load voices", error);
-  });
-
+  setSelectedVoiceKey(getPreferredVoiceKey());
+  loadVoices().catch(error => console.error("Failed to load voices", error));
   loadBrowserVoices();
   if ("speechSynthesis" in window) {
-    window.speechSynthesis.onvoiceschanged = () => {
-      loadBrowserVoices();
-    };
+    window.speechSynthesis.addEventListener("voiceschanged", loadBrowserVoices);
   }
+});
+onUnmounted(() => {
+  mounted = false;
+  if ("speechSynthesis" in window) window.speechSynthesis.removeEventListener("voiceschanged", loadBrowserVoices);
+  stopSpeech();
 });
 
 function handlePreview() {
-  const voice = state.voices.find((v) => v.key === state.selectedVoiceKey);
+  if (isPlaying.value) { stopSpeech(); isPlaying.value = false; return; }
+  const voice = state.voices.find(v => v.key === state.selectedVoiceKey);
   if (!voice) return;
-
   isPlaying.value = true;
-  handlePreviewVoice(voice);
-
-  // Reset playing state after speech ends
-  setTimeout(() => {
-    isPlaying.value = false;
-  }, 3000);
+  handlePreviewVoice(voice, () => { if (mounted) isPlaying.value = false; });
 }
 
-async function handleSave() {
-  if (!state.selectedVoiceKey) return;
-  await handleSavePreferredVoice(state.selectedVoiceKey);
+function handleSave() {
+  if (state.selectedVoiceKey) void handleSavePreferredVoice(state.selectedVoiceKey);
+}
+
+function selectVoice(key: string) {
+  setSelectedVoiceKey(key);
+  void handleSavePreferredVoice(key);
 }
 
 function selectAndPreviewVoice(voice: SpeechSynthesisVoice) {
-  setSelectedVoiceKey(voice.voiceURI);
+  selectVoice(voice.voiceURI);
   previewBrowserVoice(voice);
 }
 
-async function previewBrowserVoice(voice: SpeechSynthesisVoice) {
-  if (!("speechSynthesis" in window)) return;
-
-  try {
-    localStorage.setItem("preferredVoiceURI", voice.voiceURI);
-    await handleSavePreferredVoice(voice.voiceURI);
-  } catch {
-    // ignore storage error
-  }
-
-  window.speechSynthesis.cancel();
-
-  const utterance = new SpeechSynthesisUtterance(
-    t("voiceSettings.previewSample")
-  );
-  utterance.voice = voice;
-  utterance.lang = voice.lang;
-  utterance.rate = 0.9;
-  window.speechSynthesis.speak(utterance);
+// Preview buttons never change or save the chosen voice.
+function previewBrowserVoice(voice: SpeechSynthesisVoice) {
+  void speakPreferred(t("voiceSettings.previewSample"), {
+    voiceKey: voice.voiceURI,
+    lang: voice.lang,
+    rate: 0.9,
+  });
 }
 </script>
 
@@ -749,22 +739,9 @@ async function previewBrowserVoice(voice: SpeechSynthesisVoice) {
   padding: 6px;
 }
 
-.dropdown-menu-inner::-webkit-scrollbar {
-  width: 4px;
-}
 
-.dropdown-menu-inner::-webkit-scrollbar-track {
-  background: transparent;
-}
 
-.dropdown-menu-inner::-webkit-scrollbar-thumb {
-  background: rgba(139, 92, 246, 0.4);
-  border-radius: 2px;
-}
 
-.dropdown-menu-inner::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 92, 246, 0.7);
-}
 
 .dropdown-option {
   display: flex;
@@ -954,22 +931,9 @@ async function previewBrowserVoice(voice: SpeechSynthesisVoice) {
   padding-right: 8px;
 }
 
-.voices-grid::-webkit-scrollbar {
-  width: 6px;
-}
 
-.voices-grid::-webkit-scrollbar-track {
-  background: transparent;
-}
 
-.voices-grid::-webkit-scrollbar-thumb {
-  background: rgba(139, 92, 246, 0.3);
-  border-radius: 3px;
-}
 
-.voices-grid::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 92, 246, 0.5);
-}
 
 /* Voice Card */
 .voice-card {

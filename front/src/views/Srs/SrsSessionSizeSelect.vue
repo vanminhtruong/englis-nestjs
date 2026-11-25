@@ -70,7 +70,7 @@
         :id="listId"
         role="listbox"
         :aria-labelledby="labelId"
-        class="absolute inset-x-0 top-full z-50 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-gray-200 bg-white p-2 shadow-2xl shadow-gray-900/10 dark:border-white/15 dark:bg-black dark:shadow-black/50"
+        class="absolute inset-x-0 top-full z-50 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-gray-200 bg-white p-2 shadow-2xl shadow-gray-900/10 dark:border-white/15 dark:bg-black dark:shadow-black/50 scrollbar-custom"
         @keydown="onListKeydown"
       >
         <button

@@ -135,7 +135,7 @@
             </svg>
           </button>
         </div>
-        <ul class="max-h-56 space-y-0.5 overflow-y-auto p-2">
+        <ul class="max-h-56 space-y-0.5 overflow-y-auto p-2 scrollbar-custom">
           <li
             v-for="tab in assignedTabs"
             :key="tab.id"

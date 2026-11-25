@@ -5,7 +5,7 @@
   >
     <!-- Toggle Button -->
     <button
-      class="filters-toggle"
+      type="button" :aria-expanded="isExpanded" class="filters-toggle"
       :class="{ 'filters-toggle--active': hasActiveFilters }"
       @click="toggleExpanded"
     >
@@ -89,182 +89,30 @@
         </div>
 
         <div class="filters-grid">
-          <!-- Categories Filter -->
-          <div class="filter-group">
-            <div class="filter-group__header">
-              <div class="filter-group__icon filter-group__icon--categories">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
-                  />
-                </svg>
-              </div>
-              <span class="filter-group__title">{{ labels.categories }}</span>
-              <button
-                v-if="selectedCategories.length > 0"
-                class="filter-group__clear"
-                @click="clearCategories"
-              >
-                {{ labels.clear }}
-              </button>
-            </div>
-            <div class="filter-chips" v-if="categories.length > 0">
-              <button
-                v-for="category in categories"
-                :key="category.id"
-                class="filter-chip"
-                :class="{
-                  'filter-chip--selected': selectedCategories.includes(
-                    category.id
-                  ),
-                }"
-                :style="
-                  getChipStyle(
-                    category,
-                    selectedCategories.includes(category.id)
-                  )
-                "
-                @click="toggleCategory(category.id)"
-              >
-                <span class="filter-chip__icon" v-if="category.icon">{{
-                  category.icon
-                }}</span>
-                <span class="filter-chip__name">{{ category.name }}</span>
-                <span
-                  class="filter-chip__check"
-                  v-if="selectedCategories.includes(category.id)"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="3"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </span>
-              </button>
-            </div>
-            <div v-else class="filter-empty">
-              <span>{{ labels.noCategories }}</span>
-            </div>
-          </div>
-
-          <!-- Tags Filter -->
-          <div class="filter-group">
-            <div class="filter-group__header">
-              <div class="filter-group__icon filter-group__icon--tags">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path
-                    d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"
-                  />
-                  <line x1="7" y1="7" x2="7.01" y2="7" />
-                </svg>
-              </div>
-              <span class="filter-group__title">{{ labels.tags }}</span>
-              <button
-                v-if="selectedTags.length > 0"
-                class="filter-group__clear"
-                @click="clearTags"
-              >
-                {{ labels.clear }}
-              </button>
-            </div>
-            <div class="filter-chips" v-if="availableTags.length > 0">
-              <button
-                v-for="tag in availableTags"
-                :key="tag.id || tag.name"
-                class="filter-chip filter-chip--tag"
-                :class="{
-                  'filter-chip--selected': selectedTags.includes(tag.name),
-                }"
-                :style="getTagStyle(tag, selectedTags.includes(tag.name))"
-                @click="toggleTag(tag.name)"
-              >
-                <span class="filter-chip__hash">#</span>
-                <span class="filter-chip__name">{{ tag.name }}</span>
-                <span
-                  class="filter-chip__check"
-                  v-if="selectedTags.includes(tag.name)"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="3"
-                  >
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                </span>
-              </button>
-            </div>
-            <div v-else class="filter-empty">
-              <span>{{ labels.noTags }}</span>
-            </div>
-          </div>
+          <ModalSelect data-vocabulary-category-filter multiple searchable compact-selection
+            :model-value="selectedCategories" :options="categoryOptions"
+            :label="labels.categories" :placeholder="categories.length ? labels.chooseCategories : labels.noCategories"
+            :search-placeholder="labels.searchCategories" :no-matches-label="labels.noMatchingOptions"
+            :selected-only-label="labels.selectedOnly" :clear-label="labels.clear"
+            :selection-summary="labels.categorySelectionSummary"
+            @update:model-value="updateCategories" />
+          <ModalSelect data-vocabulary-tag-filter multiple searchable compact-selection
+            :model-value="selectedTags" :options="tagOptions"
+            :label="labels.tags" :placeholder="availableTags.length ? labels.chooseTags : labels.noTags"
+            :search-placeholder="labels.searchTags" :no-matches-label="labels.noMatchingOptions"
+            :selected-only-label="labels.selectedOnly" :clear-label="labels.clear"
+            :selection-summary="labels.tagSelectionSummary"
+            @update:model-value="updateTags" />
         </div>
 
-        <!-- Active Filters Summary -->
-        <div v-if="hasActiveFilters" class="filters-summary">
-          <div class="filters-summary__content">
-            <span class="filters-summary__label"
-              >{{ labels.activeFilters }}:</span
-            >
-            <div class="filters-summary__tags">
-              <span
-                v-for="cat in selectedCategoryNames"
-                :key="cat.id"
-                class="summary-tag summary-tag--category"
-              >
-                <span v-if="cat.icon" class="summary-tag__icon">{{
-                  cat.icon
-                }}</span>
-                {{ cat.name }}
-                <button
-                  class="summary-tag__remove"
-                  @click="toggleCategory(cat.id)"
-                >
-                  ×
-                </button>
-              </span>
-              <span
-                v-for="tag in selectedTags"
-                :key="tag"
-                class="summary-tag summary-tag--tag"
-              >
-                #{{ tag }}
-                <button class="summary-tag__remove" @click="toggleTag(tag)">
-                  ×
-                </button>
-              </span>
-            </div>
+        <div v-if="hasActiveFilters" class="mt-4 flex min-w-0 flex-wrap items-center justify-between gap-2 border-t border-black/10 pt-3 dark:border-white/10">
+          <div class="flex min-w-0 flex-1 flex-wrap items-center gap-1.5 text-xs text-black/60 dark:text-white/60" aria-live="polite">
+            <span class="font-semibold">{{ labels.activeFilters }}:</span>
+            <span v-if="selectedCategories.length" class="rounded-md bg-primary-500/10 px-2 py-1 font-medium text-primary-700 dark:text-primary-300">{{ labels.categories }}: {{ selectedCategories.length }}</span>
+            <span v-if="selectedTags.length" class="rounded-md bg-primary-500/10 px-2 py-1 font-medium text-primary-700 dark:text-primary-300">{{ labels.tags }}: {{ selectedTags.length }}</span>
+            <span v-if="currentDifficulty !== 'all'" class="rounded-md bg-black/5 px-2 py-1 font-medium dark:bg-white/10">{{ labels[currentDifficulty] }}</span>
           </div>
-          <button class="filters-clear-all" @click="clearAllFilters">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-            {{ labels.clearAll }}
-          </button>
+          <button type="button" data-vocabulary-clear-filters class="shrink-0 rounded-lg px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10" @click="clearAllFilters">{{ labels.clearAll }}</button>
         </div>
       </div>
     </Transition>
@@ -273,6 +121,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
+import ModalSelect from "../../../components/common/ModalSelect.vue";
 import apiService from "../../../services/api.service";
 
 interface Category {
@@ -306,6 +155,14 @@ const props = defineProps<{
     easy: string;
     medium: string;
     hard: string;
+    chooseCategories: string;
+    chooseTags: string;
+    searchCategories: string;
+    searchTags: string;
+    noMatchingOptions: string;
+    selectedOnly: string;
+    categorySelectionSummary: string;
+    tagSelectionSummary: string;
   };
 }>();
 
@@ -332,9 +189,10 @@ const activeFilterCount = computed(() => {
   return count;
 });
 
-const selectedCategoryNames = computed(() =>
-  categories.value.filter((c) => props.selectedCategories.includes(c.id))
-);
+const categoryOptions = computed(() => categories.value.map(c => ({ value: c.id, label: c.name, icon: c.icon || 'folder', color: c.color })));
+const tagOptions = computed(() => availableTags.value.map(tag => ({ value: tag.name, label: '#' + tag.name, color: tag.color })));
+function updateCategories(value: string | string[]) { if (Array.isArray(value)) emit("update:selectedCategories", value); }
+function updateTags(value: string | string[]) { if (Array.isArray(value)) emit("update:selectedTags", value); }
 
 const difficultyOptions = computed(() => [
   { value: "all" as const, label: props.labels.all },
@@ -357,81 +215,16 @@ function toggleExpanded() {
   isExpanded.value = !isExpanded.value;
 }
 
-function toggleCategory(categoryId: string) {
-  const newSelection = props.selectedCategories.includes(categoryId)
-    ? props.selectedCategories.filter((id) => id !== categoryId)
-    : [...props.selectedCategories, categoryId];
-  emit("update:selectedCategories", newSelection);
-}
-
-function toggleTag(tagName: string) {
-  const newSelection = props.selectedTags.includes(tagName)
-    ? props.selectedTags.filter((t) => t !== tagName)
-    : [...props.selectedTags, tagName];
-  emit("update:selectedTags", newSelection);
-}
-
-function clearCategories() {
-  emit("update:selectedCategories", []);
-}
-
-function clearTags() {
-  emit("update:selectedTags", []);
-}
-
 function clearAllFilters() {
   emit("update:selectedCategories", []);
   emit("update:selectedTags", []);
   emit("set-difficulty", "all");
 }
 
-function getChipStyle(category: Category, isSelected: boolean) {
-  if (isSelected && category.color) {
-    return {
-      backgroundColor: category.color,
-      borderColor: category.color,
-      color: getContrastColor(category.color),
-    };
-  }
-  if (category.color) {
-    return {
-      borderColor: category.color + "40",
-      color: category.color,
-    };
-  }
-  return {};
-}
-
-function getTagStyle(tag: Tag, isSelected: boolean) {
-  if (isSelected && tag.color) {
-    return {
-      backgroundColor: tag.color,
-      borderColor: tag.color,
-      color: getContrastColor(tag.color),
-    };
-  }
-  if (tag.color) {
-    return {
-      borderColor: tag.color + "40",
-      color: tag.color,
-    };
-  }
-  return {};
-}
-
-function getContrastColor(hexColor: string): string {
-  const hex = hexColor.replace("#", "");
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.5 ? "#000000" : "#ffffff";
-}
-
 async function loadCategories() {
   try {
     const response = await apiService.category.getAll();
-    categories.value = response.data;
+    categories.value = Array.isArray(response.data) ? response.data : [];
   } catch (error) {
     console.error("Failed to load categories:", error);
   }
@@ -440,7 +233,7 @@ async function loadCategories() {
 async function loadTags() {
   try {
     const response = await apiService.tag.getAll();
-    availableTags.value = response.data;
+    availableTags.value = Array.isArray(response.data) ? response.data : [];
   } catch (error) {
     console.error("Failed to load tags:", error);
   }
@@ -554,7 +347,8 @@ watch(hasActiveFilters, (hasFilters) => {
 /* Filters Content */
 .filters-content {
   margin-top: 12px;
-  padding: 20px;
+  padding: 12px;
+  min-width: 0;
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(99, 102, 241, 0.1);
   border-radius: 16px;
@@ -566,6 +360,7 @@ watch(hasActiveFilters, (hasFilters) => {
   border-color: rgba(255, 255, 255, 0.1);
 }
 
+@media (min-width: 640px) { .filters-content { padding: 16px; } }
 /* Animation Classes */
 .filters-content--enter-active,
 .filters-content--leave-active {
@@ -591,13 +386,13 @@ watch(hasActiveFilters, (hasFilters) => {
 /* Filters Grid */
 .filters-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 20px;
 }
 
 @media (min-width: 768px) {
   .filters-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -628,24 +423,6 @@ watch(hasActiveFilters, (hasFilters) => {
   height: 18px;
 }
 
-.filter-group__icon--categories {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.15),
-    rgba(99, 102, 241, 0.15)
-  );
-  color: #3b82f6;
-}
-
-.filter-group__icon--tags {
-  background: linear-gradient(
-    135deg,
-    rgba(168, 85, 247, 0.15),
-    rgba(236, 72, 153, 0.15)
-  );
-  color: #a855f7;
-}
-
 .filter-group__title {
   flex: 1;
   font-size: 14px;
@@ -655,222 +432,6 @@ watch(hasActiveFilters, (hasFilters) => {
 
 .dark .filter-group__title {
   color: #e5e7eb;
-}
-
-.filter-group__clear {
-  padding: 4px 10px;
-  background: rgba(239, 68, 68, 0.1);
-  border: none;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #ef4444;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.filter-group__clear:hover {
-  background: rgba(239, 68, 68, 0.2);
-}
-
-/* Filter Chips */
-.filter-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.filter-chip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: #f3f4f6;
-  border: 2px solid transparent;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #4b5563;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dark .filter-chip {
-  background: rgba(255, 255, 255, 0.05);
-  color: #d1d5db;
-}
-
-.filter-chip:hover {
-  background: #e5e7eb;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.dark .filter-chip:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.filter-chip--selected {
-  background: linear-gradient(135deg, #6366f1, #a855f7);
-  border-color: transparent;
-  color: white;
-  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
-}
-
-.filter-chip--selected:hover {
-  background: linear-gradient(135deg, #4f46e5, #9333ea);
-  transform: translateY(-2px);
-}
-
-.filter-chip__icon {
-  font-size: 16px;
-}
-
-.filter-chip__hash {
-  opacity: 0.7;
-  font-weight: 400;
-}
-
-.filter-chip__check {
-  width: 14px;
-  height: 14px;
-  margin-left: 2px;
-}
-
-.filter-chip__check svg {
-  width: 100%;
-  height: 100%;
-}
-
-/* Filter Empty State */
-.filter-empty {
-  padding: 16px;
-  text-align: center;
-  color: #9ca3af;
-  font-size: 13px;
-  background: rgba(156, 163, 175, 0.05);
-  border-radius: 10px;
-  border: 2px dashed rgba(156, 163, 175, 0.2);
-}
-
-/* Filters Summary */
-.filters-summary {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(99, 102, 241, 0.1);
-}
-
-@media (min-width: 640px) {
-  .filters-summary {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-}
-
-.filters-summary__content {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.filters-summary__label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.filters-summary__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.summary-tag {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.summary-tag--category {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.15),
-    rgba(99, 102, 241, 0.15)
-  );
-  color: #3b82f6;
-}
-
-.summary-tag--tag {
-  background: linear-gradient(
-    135deg,
-    rgba(168, 85, 247, 0.15),
-    rgba(236, 72, 153, 0.15)
-  );
-  color: #a855f7;
-}
-
-.summary-tag__icon {
-  font-size: 12px;
-}
-
-.summary-tag__remove {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  margin-left: 2px;
-  background: rgba(0, 0, 0, 0.1);
-  border: none;
-  border-radius: 50%;
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1;
-  color: inherit;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.summary-tag__remove:hover {
-  background: rgba(0, 0, 0, 0.2);
-  transform: scale(1.1);
-}
-
-.filters-clear-all {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #ef4444;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.filters-clear-all svg {
-  width: 14px;
-  height: 14px;
-}
-
-.filters-clear-all:hover {
-  background: rgba(239, 68, 68, 0.2);
-  transform: translateY(-1px);
 }
 
 /* Difficulty Filter Styles */

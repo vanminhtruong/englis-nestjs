@@ -6,4 +6,5 @@ export interface UserProfile {
   totalScore: number
   totalWords: number
   theme?: string
+  hasPassword?: boolean
 }

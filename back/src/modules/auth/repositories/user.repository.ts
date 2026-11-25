@@ -41,6 +41,11 @@ export class UserRepository {
     return this.findById(id);
   }
 
+  async replacePassword(id: string, previous: string, password: string): Promise<boolean> {
+    const result = await this.repository.update({ id, password: previous }, { password });
+    return result.affected === 1;
+  }
+
   async findAll(): Promise<User[]> {
     return this.repository.find();
   }

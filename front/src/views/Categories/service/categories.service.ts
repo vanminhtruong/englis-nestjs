@@ -1,9 +1,36 @@
 import apiService from '../../../services/api.service'
 import { websocketService } from '../../../services/websocket.service'
-import type { Category, CategoryForm } from '../interface/category.interface'
+import type { Category, CategoryForm, CategoryPageQuery, CategoryPage, CategoryBulkAction, CategoryBulkResult } from '../interface/category.interface'
 
 export class CategoriesService {
   private listeners: Map<string, Function> = new Map()
+  async bulk(action: CategoryBulkAction, ids: string[]): Promise<CategoryBulkResult> {
+    const unique = [...new Set(ids)]
+    const processedIds: string[] = []
+    const failedIds: string[] = []
+    for (let index = 0; index < unique.length; index += 200) {
+      const chunk = unique.slice(index, index + 200)
+      try {
+        const { data } = await apiService.category.bulk(action, chunk)
+        const processed = new Set(data.processedIds)
+        for (const id of chunk) (processed.has(id) ? processedIds : failedIds).push(id)
+      } catch {
+        failedIds.push(...chunk)
+      }
+    }
+    return { processedIds, failedIds }
+  }
+
+  async loadPage(query: CategoryPageQuery): Promise<{ success: boolean; data?: CategoryPage }> {
+    try {
+      const response = await apiService.category.getPage(query)
+      if (!Array.isArray(response.data?.data)) return { success: false }
+      return { success: true, data: response.data }
+    } catch {
+      return { success: false }
+    }
+  }
+
   async loadCategories() {
     try {
       const response = await apiService.category.getAll()

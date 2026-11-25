@@ -122,17 +122,19 @@
 
     <RouterLink
       v-if="step === 'success'"
-      to="/login"
+      :to="authStore.isAuthenticated ? '/profile' : '/login'"
       class="flex min-h-12 w-full items-center justify-center rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 px-4 py-3 font-semibold text-white transition-all hover:shadow-lg hover:shadow-primary-500/20"
     >{{ t('forgotPassword.backToLogin') }}</RouterLink>
 
-    <RouterLink v-else to="/login" class="mt-6 flex min-h-10 items-center justify-center gap-2 text-sm font-semibold text-gray-600 transition-colors hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">
+    <RouterLink v-else :to="authStore.isAuthenticated ? '/profile' : '/login'" class="mt-6 flex min-h-10 items-center justify-center gap-2 text-sm font-semibold text-gray-600 transition-colors hover:text-primary-600 dark:text-gray-300 dark:hover:text-primary-400">
       <span aria-hidden="true">←</span>{{ t('forgotPassword.backToLogin') }}
     </RouterLink>
   </AuthLayout>
 </template>
 
 <script setup lang="ts">
+import { useAuthStore } from '../../stores/auth.store';
+const authStore = useAuthStore();
 import AuthLayout from '../../components/auth/AuthLayout.vue';
 import { useForgotPasswordHandle } from './composable/useForgotPasswordHandle';
 

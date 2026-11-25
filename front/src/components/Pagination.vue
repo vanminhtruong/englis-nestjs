@@ -4,11 +4,11 @@
     class="w-full flex items-center justify-center mt-8"
   >
     <nav
-      class="inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/40 dark:bg-black/40 border border-black/5 dark:border-white/10 backdrop-blur-md shadow-lg"
+      class="inline-flex items-center gap-1 p-1 min-[390px]:gap-1.5 min-[390px]:p-1.5 rounded-2xl bg-white/40 dark:bg-black/40 border border-black/5 dark:border-white/10 backdrop-blur-md shadow-lg"
     >
       <!-- First Page -->
       <button
-        class="group relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/5 dark:hover:bg-white/10 active:scale-95"
+        class="group relative flex items-center justify-center w-8 h-9 min-[390px]:w-10 min-[390px]:h-10 rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/5 dark:hover:bg-white/10 active:scale-95"
         @click="goToPage(1)"
         :disabled="page === 1"
         aria-label="First page"
@@ -30,7 +30,7 @@
 
       <!-- Previous Page -->
       <button
-        class="group relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/5 dark:hover:bg-white/10 active:scale-95"
+        class="group relative flex items-center justify-center w-8 h-9 min-[390px]:w-10 min-[390px]:h-10 rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/5 dark:hover:bg-white/10 active:scale-95"
         @click="goToPage(page - 1)"
         :disabled="page === 1"
         aria-label="Previous page"
@@ -50,12 +50,12 @@
       </button>
 
       <!-- Pages -->
-      <div class="flex items-center gap-1.5">
+      <div class="flex items-center gap-1 min-[390px]:gap-1.5">
         <button
           v-for="p in visiblePages"
           :key="'page-' + p"
           @click="goToPage(p)"
-          class="relative flex items-center justify-center w-10 h-10 rounded-xl text-sm font-bold transition-all duration-300 overflow-hidden group active:scale-95"
+          class="relative flex items-center justify-center w-8 h-9 min-[390px]:w-10 min-[390px]:h-10 rounded-xl text-sm font-bold transition-all duration-300 overflow-hidden group active:scale-95"
           :class="
             p === page
               ? 'text-white shadow-[0_0_15px_rgba(102,126,234,0.5)]'
@@ -80,7 +80,7 @@
 
       <!-- Next Page -->
       <button
-        class="group relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/5 dark:hover:bg-white/10 active:scale-95"
+        class="group relative flex items-center justify-center w-8 h-9 min-[390px]:w-10 min-[390px]:h-10 rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/5 dark:hover:bg-white/10 active:scale-95"
         @click="goToPage(page + 1)"
         :disabled="page === pageCount"
         aria-label="Next page"
@@ -101,7 +101,7 @@
 
       <!-- Last Page -->
       <button
-        class="group relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/5 dark:hover:bg-white/10 active:scale-95"
+        class="group relative flex items-center justify-center w-8 h-9 min-[390px]:w-10 min-[390px]:h-10 rounded-xl transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-black/5 dark:hover:bg-white/10 active:scale-95"
         @click="goToPage(pageCount)"
         :disabled="page === pageCount"
         aria-label="Last page"

@@ -1,0 +1,84 @@
+/* One scrollbar theme for the entire app, including teleported dropdowns.
+   Theme colors come directly from the existing Tailwind design tokens. */
+:root {
+  --app-scroll-track: theme('colors.gray.100');
+  --app-scroll-start: theme('colors.primary.500');
+  --app-scroll-end: theme('colors.secondary.500');
+  --app-scroll-hover-start: theme('colors.primary.600');
+  --app-scroll-hover-end: theme('colors.secondary.600');
+  --app-scroll-size: 10px;
+  --app-scroll-inset: 1px;
+}
+
+:root.dark {
+  --app-scroll-track: rgba(255, 255, 255, 0.05);
+  --app-scroll-hover-start: theme('colors.primary.400');
+  --app-scroll-hover-end: theme('colors.secondary.400');
+}
+
+/* Local scroll areas can opt into the smaller shared size.
+   Do not inherit the root's wider scrollbar into nested scroll areas. */
+body {
+  --app-scroll-size: 8px;
+}
+
+.scrollbar-custom,
+.custom-scrollbar {
+  --app-scroll-size: 8px;
+}
+
+.scrollbar-thin {
+  --app-scroll-size: 6px;
+}
+
+*::-webkit-scrollbar {
+  width: var(--app-scroll-size);
+  height: var(--app-scroll-size);
+}
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+  background: var(--app-scroll-track);
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--app-scroll-start), var(--app-scroll-end));
+  border: var(--app-scroll-inset) solid transparent;
+  background-clip: padding-box;
+  border-radius: 9999px;
+}
+
+*::-webkit-scrollbar-thumb:horizontal {
+  background-image: linear-gradient(90deg, var(--app-scroll-start), var(--app-scroll-end));
+}
+
+*::-webkit-scrollbar-thumb:hover,
+*::-webkit-scrollbar-thumb:active {
+  background-image: linear-gradient(180deg, var(--app-scroll-hover-start), var(--app-scroll-hover-end));
+}
+
+*::-webkit-scrollbar-thumb:horizontal:hover,
+*::-webkit-scrollbar-thumb:horizontal:active {
+  background-image: linear-gradient(90deg, var(--app-scroll-hover-start), var(--app-scroll-hover-end));
+}
+
+/* Native CSS fallback where gradient scrollbar pseudo-elements are unavailable. */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--app-scroll-start) var(--app-scroll-track);
+  }
+}
+
+/* Preserve intentionally hidden horizontal tab strips and drag carousels. */
+.scrollbar-hide,
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

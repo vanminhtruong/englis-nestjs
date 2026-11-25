@@ -31,6 +31,15 @@ export class ProfileService {
     }
   }
 
+  async changePassword(currentPassword: string, newPassword: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      await apiService.auth.changePassword({ currentPassword, newPassword })
+      return { success: true }
+    } catch (error: any) {
+      return { success: false, error: error.response?.data?.message }
+    }
+  }
+
   async exportData(): Promise<{ success: boolean; error?: string }> {
     try {
       const response = await apiService.auth.exportData()

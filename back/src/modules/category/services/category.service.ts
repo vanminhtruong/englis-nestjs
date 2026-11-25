@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CategoryCrudService } from './category-crud.service';
+import { BulkCategoryDto } from '../dto/bulk-category.dto';
 import { CreateCategoryDto } from '../dto/create-category.dto';
+import { QueryCategoryDto } from '../dto/query-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
 
 @Injectable()
@@ -9,6 +11,14 @@ export class CategoryService {
 
   async findAll(userId: string) {
     return this.crudService.findAll(userId);
+  }
+
+  async findPage(userId: string, query: QueryCategoryDto) {
+    return this.crudService.findPage(userId, query);
+  }
+
+  async bulk(userId: string, dto: BulkCategoryDto) {
+    return this.crudService.bulk(userId, dto);
   }
 
   async findById(id: string, userId: string) {

@@ -33,7 +33,7 @@
       </div>
 
       <!-- Content - Scrollable -->
-      <div class="flex-1 overflow-y-auto p-6 space-y-6">
+      <div class="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-custom">
         <!-- Media Display -->
         <div v-if="vocabulary?.image || vocabulary?.video" class="w-full">
           <!-- Image Display -->
@@ -284,7 +284,7 @@ import { resolveAssetUrl } from "@/utils/assetUrl";
 import { watch } from "vue";
 import { getIconComponent } from "../utils/iconRenderer";
 import { useModalScrollLock } from "../composables/useModalScrollLock";
-import { getPreferredVoice } from "../composables/usePreferredVoice";
+import { speakPreferred } from "../composables/usePreferredVoice";
 
 const props = defineProps<{
   show: boolean;
@@ -311,17 +311,7 @@ const emit = defineEmits<{
 }>();
 
 function handleSpeak() {
-  if (!props.vocabulary?.word || !("speechSynthesis" in window)) return;
-  const utterance = new SpeechSynthesisUtterance(props.vocabulary.word);
-  const voice = getPreferredVoice("en-US");
-  if (voice) {
-    utterance.voice = voice;
-    utterance.lang = voice.lang;
-  } else {
-    utterance.lang = "en-US";
-  }
-  utterance.rate = 0.8;
-  window.speechSynthesis.speak(utterance);
+  if (props.vocabulary?.word) void speakPreferred(props.vocabulary.word)
 }
 
 function handleEdit() {

@@ -59,7 +59,7 @@
 
           <!-- Grid -->
           <div
-            class="grid grid-cols-6 gap-1 max-h-40 overflow-y-auto custom-scrollbar"
+            class="grid grid-cols-6 gap-1 max-h-40 overflow-y-auto scrollbar-custom"
           >
             <button
               v-for="icon in filteredIcons"
@@ -254,18 +254,4 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.3);
-  border-radius: 2px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.5);
-}
-</style>
+

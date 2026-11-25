@@ -1,3 +1,4 @@
+import { speakPreferred } from '../../../../composables/usePreferredVoice'
 export function useTagDetailHandle() {
     function getVideoThumbnail(url: string) {
         if (!url) return ''
@@ -12,11 +13,7 @@ export function useTagDetailHandle() {
     }
 
     function handleSpeak(word: string) {
-        if ('speechSynthesis' in window) {
-            const utterance = new SpeechSynthesisUtterance(word)
-            utterance.lang = 'en-US' // Default to English, can be adjusted
-            window.speechSynthesis.speak(utterance)
-        }
+      void speakPreferred(word)
     }
 
     return {

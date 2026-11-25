@@ -696,6 +696,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";
 import apiService from "../../services/api.service";
 import { useI18n } from "vue-i18n";
+import { speakPreferred, stopSpeech } from "../../composables/usePreferredVoice";
 import { useSrs } from "./composables/useSrs";
 import SrsActivity from "./SrsActivity.vue";
 import SrsSessionSizeSelect from "./SrsSessionSizeSelect.vue";
@@ -872,22 +873,7 @@ function mediaUrl(value: string) {
 
 function speak() {
   const card = currentCard.value;
-  if (!card) return;
-  const fallback = () => {
-    if (!("speechSynthesis" in window)) return;
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(card.word);
-    utterance.lang = "en-US";
-    utterance.rate = 0.85;
-    window.speechSynthesis.speak(utterance);
-  };
-
-  if (card.audio) {
-    const audio = new Audio(mediaUrl(card.audio));
-    void audio.play().catch(fallback);
-  } else {
-    fallback();
-  }
+  if (card) void speakPreferred(card.word, { rate: 0.85 });
 }
 
 function onKeydown(event: KeyboardEvent) {
@@ -930,6 +916,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (overviewRefreshTimer) clearInterval(overviewRefreshTimer);
   window.removeEventListener("keydown", onKeydown);
-  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  stopSpeech();
 });
 </script>

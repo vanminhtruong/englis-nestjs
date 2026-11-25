@@ -11,6 +11,8 @@
         :is-dark="isDark"
         :is-authenticated="authStore.isAuthenticated"
         :is-user-menu-open="isUserMenuOpen"
+        :is-language-menu-open="isLanguageMenuOpen"
+        @update-language-menu="setLanguageMenu"
         :is-mobile-menu-open="isMobileMenuOpen"
         :is-mobile-account-menu-open="isMobileAccountMenuOpen"
         :user-avatar-src="userAvatarSrc"
@@ -85,6 +87,7 @@ const isMobileMenuOpen = ref(false);
 const isMobileAccountMenuOpen = ref(false);
 const isMobileVocabMenuOpen = ref(false);
 const isUserMenuOpen = ref(false);
+const isLanguageMenuOpen = ref(false);
 
 const userAvatarSrc = computed(() => {
   const user = authStore.user;
@@ -231,6 +234,8 @@ const toggleTheme = async () => {
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value;
   if (isMobileMenuOpen.value) {
+    setLanguageMenu(false);
+    closeUserMenu();
     isMobileAccountMenuOpen.value = false;
     isMobileVocabMenuOpen.value = false;
   }
@@ -244,6 +249,8 @@ const closeMobileMenu = () => {
 const toggleMobileAccountMenu = () => {
   isMobileAccountMenuOpen.value = !isMobileAccountMenuOpen.value;
   if (isMobileAccountMenuOpen.value) {
+    setLanguageMenu(false);
+    closeUserMenu();
     isMobileMenuOpen.value = false;
     isMobileVocabMenuOpen.value = false;
   }
@@ -262,8 +269,20 @@ const closeMobileMenus = () => {
   closeMobileAccountMenu();
 };
 
+const setLanguageMenu = (open: boolean) => {
+  isLanguageMenuOpen.value = open;
+  if (open) {
+    closeUserMenu();
+    closeMobileMenus();
+  }
+};
+
 const toggleUserMenu = () => {
   isUserMenuOpen.value = !isUserMenuOpen.value;
+  if (isUserMenuOpen.value) {
+    setLanguageMenu(false);
+    closeMobileMenus();
+  }
 };
 
 const closeUserMenu = () => {

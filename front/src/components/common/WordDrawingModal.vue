@@ -175,7 +175,7 @@
             </div>
 
             <!-- Keyboard Input Area (only when keyboard mode) -->
-            <div v-else class="flex-1 flex flex-col p-4 lg:p-6 overflow-y-auto">
+            <div v-else class="flex-1 flex flex-col p-4 lg:p-6 overflow-y-auto scrollbar-custom">
               <!-- Keyboard Language Selector -->
               <div class="mb-3 flex items-center gap-3 flex-wrap">
                 <div class="flex bg-gray-100 dark:bg-white/10 rounded-lg p-0.5">
@@ -507,7 +507,7 @@
 
             <!-- Tools & Preview Panel -->
             <div
-              class="w-full lg:w-80 flex-shrink-0 border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-white/10 p-4 lg:p-6 flex flex-col gap-4 overflow-y-auto bg-gray-50/50 dark:bg-white/5"
+              class="w-full lg:w-80 flex-shrink-0 border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-white/10 p-4 lg:p-6 flex flex-col gap-4 overflow-y-auto bg-gray-50/50 dark:bg-white/5 scrollbar-custom"
             >
               <!-- Word Input Section -->
               <div
@@ -526,56 +526,13 @@
 
                 <!-- OCR Language Selector (only for draw mode) -->
                 <div v-if="state.inputMode === 'draw'" class="mb-3">
-                  <label
-                    class="text-xs text-gray-500 dark:text-gray-400 mb-1 block"
-                    >{{ t("wordDrawing.ocrLanguage") }}</label
-                  >
-                  <select
-                    v-model="state.ocrLanguage"
-                    class="w-full px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-600/50 bg-white dark:bg-neutral-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 cursor-pointer appearance-none bg-no-repeat bg-right pr-10"
-                    style="
-                      background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724%27 height=%2724%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%2310b981%27 stroke-width=%272%27%3E%3Cpolyline points=%276 9 12 15 18 9%27/%3E%3C/svg%3E');
-                      background-position: right 0.5rem center;
-                      background-size: 1.25rem;
-                    "
-                  >
-                    <option
-                      value="chi_sim"
-                      class="bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
-                    >
-                      中文 (简体)
-                    </option>
-                    <option
-                      value="chi_tra"
-                      class="bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
-                    >
-                      中文 (繁體)
-                    </option>
-                    <option
-                      value="eng"
-                      class="bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
-                    >
-                      English
-                    </option>
-                    <option
-                      value="jpn"
-                      class="bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
-                    >
-                      日本語
-                    </option>
-                    <option
-                      value="kor"
-                      class="bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
-                    >
-                      한국어
-                    </option>
-                    <option
-                      value="vie"
-                      class="bg-white dark:bg-neutral-800 text-gray-900 dark:text-white"
-                    >
-                      Tiếng Việt
-                    </option>
-                  </select>
+                  <ModalSelect
+                    :model-value="state.ocrLanguage"
+                    :label="t('wordDrawing.ocrLanguage')"
+                    :options="ocrLanguageOptions"
+                    accent="emerald"
+                    @update:model-value="state.ocrLanguage = String($event)"
+                  />
                 </div>
 
                 <!-- Recognize Button (only for draw mode) -->
@@ -990,6 +947,7 @@
 
 <script setup lang="ts">
 import { reactive } from "vue";
+import ModalSelect from "./ModalSelect.vue";
 import { useI18n } from "vue-i18n";
 import { useWordDrawingState } from "./composables/word-drawing/manager-state/useWordDrawingState";
 import { useWordDrawingHandle } from "./composables/word-drawing/manager-handle/useWordDrawingHandle";
@@ -1010,6 +968,15 @@ const emit = defineEmits<{
   (e: "close"): void;
   (e: "confirm", payload: { imageDataUrl: string; word: string }): void;
 }>();
+
+const ocrLanguageOptions = [
+  { value: "chi_sim", label: "\u4e2d\u6587 (\u7b80\u4f53)" },
+  { value: "chi_tra", label: "\u4e2d\u6587 (\u7e41\u9ad4)" },
+  { value: "eng", label: "English" },
+  { value: "jpn", label: "\u65e5\u672c\u8a9e" },
+  { value: "kor", label: "\ud55c\uad6d\uc5b4" },
+  { value: "vie", label: "Ti\u1ebfng Vi\u1ec7t" },
+];
 
 const { t } = useI18n();
 

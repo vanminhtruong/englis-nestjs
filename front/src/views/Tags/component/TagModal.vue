@@ -31,7 +31,7 @@
           </div>
 
           <!-- Form Content - Scrollable -->
-          <form @submit.prevent="$emit('submit')" class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6">
+          <form @submit.prevent="$emit('submit')" class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6 scrollbar-custom">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ t('tags.name') }}

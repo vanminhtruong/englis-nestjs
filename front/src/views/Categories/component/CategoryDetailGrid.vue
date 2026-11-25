@@ -7,7 +7,7 @@
       :vocab-id="vocab.id"
       :initial-background-url="vocab.backgroundUrl"
       :initial-animated-background="vocab.animatedBackground"
-      class="group"
+      class="group min-w-0 !p-4 sm:!p-5"
     >
       <template #default="{ hasBackground }">
         <!-- Media Preview -->
@@ -16,7 +16,7 @@
           <button
             v-if="vocab.image && !vocab.video"
             type="button"
-            class="w-full h-32 rounded-xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary-400"
+            class="w-full h-40 rounded-xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary-400"
             @click="
               $emit('open-image-preview', {
                 src: vocab.image.startsWith('data:')
@@ -40,7 +40,7 @@
           <button
             v-if="vocab.video"
             type="button"
-            class="w-full h-32 rounded-xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary-400 relative"
+            class="w-full h-40 rounded-xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-primary-400 relative"
             @click="
               $emit('open-video-preview', {
                 src: vocab.video,
@@ -73,12 +73,15 @@
           </button>
         </div>
 
+        <div v-else class="mb-4 h-40 w-full">
+          <VocabularyMediaPlaceholder :has-background="hasBackground" />
+        </div>
         <!-- Header: word, pronunciation, favorite, difficulty -->
         <div class="flex items-start justify-between gap-2 mb-4">
-          <div class="flex-1">
+          <div class="min-w-0 flex-1">
             <div class="flex items-center gap-2 mb-1">
               <h3
-                class="text-2xl font-bold"
+                class="min-w-0 break-words text-xl font-bold sm:text-2xl"
                 :class="
                   hasBackground ? 'text-white' : 'text-black dark:text-white'
                 "
@@ -87,7 +90,7 @@
               </h3>
               <button
                 @click="$emit('speak', vocab.word)"
-                class="p-1.5 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all"
+                class="shrink-0 p-1.5 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -114,7 +117,7 @@
               {{ vocab.pronunciation }}
             </p>
           </div>
-          <div class="flex flex-col items-end gap-2">
+          <div class="flex shrink-0 flex-col items-end gap-2">
             <button
               v-if="vocab.isFavorite"
               class="p-2 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-all"
@@ -143,16 +146,16 @@
                 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400':
                   vocab.difficulty === 'hard',
               }"
-              class="px-3 py-1 rounded-full text-xs font-semibold"
+              class="rounded-full px-2 py-1 text-xs font-semibold"
             >
-              {{ vocab.difficulty }}
+              {{ t("vocabulary." + vocab.difficulty) }}
             </span>
           </div>
         </div>
 
         <!-- Meaning -->
         <p
-          class="mb-4"
+          class="mb-4 break-words"
           :class="
             hasBackground ? 'text-white/80' : 'text-black/70 dark:text-white/70'
           "
@@ -161,23 +164,23 @@
         </p>
 
         <!-- Stats + detail button -->
-        <div class="flex items-center justify-between mb-4">
-          <div class="flex gap-2">
+        <div class="mb-3 flex items-center justify-between gap-2 border-t border-black/10 pt-3 dark:border-white/10">
+          <div class="flex min-w-0 flex-wrap gap-2">
             <span
-              class="px-2 py-1 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg text-xs"
+              class="inline-flex items-center gap-1 rounded-lg bg-blue-100 px-2 py-1 text-xs text-blue-700 dark:bg-blue-900/20 dark:text-blue-400" :title="t('categories.detailCorrect')"
             >
-              ✓ {{ vocab.correctCount }}
+              <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>{{ vocab.correctCount ?? 0 }}
             </span>
             <span
-              class="px-2 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg text-xs"
+              class="inline-flex items-center gap-1 rounded-lg bg-red-100 px-2 py-1 text-xs text-red-700 dark:bg-red-900/20 dark:text-red-400" :title="t('categories.detailIncorrect')"
             >
-              ✗ {{ vocab.incorrectCount }}
+              <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>{{ vocab.incorrectCount ?? 0 }}
             </span>
           </div>
           <button
             @click="$emit('open-detail-modal', vocab)"
             class="p-2 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all"
-            title="View Details"
+            :title="t('categories.detailViewWord')" :aria-label="t('categories.detailViewWord')"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -202,18 +205,10 @@
           <span
             v-for="cat in vocab.categories"
             :key="cat.id"
-            class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-xs font-medium"
-            :style="{
-              backgroundColor: cat.color + '20',
-              color: cat.color,
-            }"
+            class="inline-flex max-w-full min-w-0 items-center gap-2 rounded-xl border border-black/10 bg-white/80 p-1 pr-2.5 text-xs font-medium text-black/80 dark:border-white/10 dark:bg-black/70 dark:text-white/80"
           >
-            <component
-              :is="getIconComponent(cat.icon)"
-              :color="cat.color"
-              class="w-3 h-3"
-            />
-            {{ cat.name }}
+            <CategoryIcon :icon="cat.icon" :color="cat.color" size="small" />
+            <span class="min-w-0 truncate" :title="cat.name">{{ cat.name }}</span>
           </span>
         </div>
 
@@ -238,7 +233,10 @@
 <script setup lang="ts">
 import { resolveAssetUrl } from "@/utils/assetUrl";
 import { defineAsyncComponent } from "vue";
-import { getIconComponent } from "../../../utils/iconRenderer";
+import CategoryIcon from "./CategoryIcon.vue";
+import VocabularyMediaPlaceholder from "../../Vocabulary/component/VocabularyMediaPlaceholder.vue";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const VocabularyCardWrapper = defineAsyncComponent(
   () => import("../../../components/common/VocabularyCardWrapper.vue") as any

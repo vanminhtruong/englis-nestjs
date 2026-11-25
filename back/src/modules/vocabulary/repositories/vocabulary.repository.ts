@@ -152,7 +152,24 @@ export class VocabularyRepository {
   }
 
   async delete(id: string, userId: string): Promise<void> {
-    await this.repository.delete({ id, userId });
+    // The existing SQLite vocabulary-tab junction has a NO ACTION foreign key
+    // for vocabulariesId. A plain repository.delete fails whenever a word
+    // belongs to a tab. Remove only this user's word memberships first, in the
+    // same transaction, then let SQLite cascade SRS and practice references.
+    await this.repository.manager.transaction(async (manager) => {
+      const word = await manager.findOne(Vocabulary, {
+        where: { id, userId },
+        select: { id: true },
+      });
+      if (!word) return;
+
+      await manager.query(
+        'DELETE FROM "vocabulary_tab_vocabularies_vocabularies" WHERE "vocabulariesId" = ? ' +
+          'AND EXISTS (SELECT 1 FROM "vocabularies" WHERE "id" = ? AND "userId" = ?)',
+        [id, id, userId],
+      );
+      await manager.delete(Vocabulary, { id, userId });
+    });
   }
 
   async findByTags(userId: string, tags: string[]): Promise<Vocabulary[]> {

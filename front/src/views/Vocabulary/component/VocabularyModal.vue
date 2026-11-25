@@ -38,7 +38,7 @@
       <!-- Content - Scrollable -->
       <form
         @submit.prevent="onSubmit"
-        class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6"
+        class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6 scrollbar-custom"
       >
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -118,507 +118,402 @@
           />
         </div>
 
-        <div>
-          <label
-            class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2"
-          >
-            {{ t("vocabulary.example") }}
-          </label>
-          <textarea
-            v-model="form.example"
-            rows="2"
-            class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-          />
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 pt-2">
+          <h3 class="min-w-0 text-xs font-semibold uppercase tracking-wide text-black/50 dark:text-white/50">
+            {{ t("vocabulary.formAdditional") }}
+          </h3>
+          <span class="h-px min-w-0 flex-1 bg-black/10 dark:bg-white/10"></span>
+          <span class="min-w-0 text-xs text-black/40 dark:text-white/40">{{ t("vocabulary.formOptional") }}</span>
         </div>
 
-        <div>
-          <label
-            class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2"
+        <div class="space-y-2.5">
+          <CollapsibleFormSection
+            v-model="expandedSections.examples"
+            :title="t('vocabulary.formExamples')"
+            :summary="exampleSummary"
+            icon="book"
           >
-            {{ t("vocabulary.exampleTranslation") }}
-          </label>
-          <textarea
-            v-model="form.exampleTranslation"
-            rows="2"
-            class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-          />
-        </div>
-
-        <div>
-          <label
-            class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2"
-          >
-            {{ t("vocabulary.difficulty") }}
-          </label>
-          <select
-            v-model="form.difficulty"
-            class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent [&>option]:bg-white [&>option]:dark:bg-black [&>option]:text-black [&>option]:dark:text-white"
-          >
-            <option value="easy">{{ t("vocabulary.easy") }}</option>
-            <option value="medium">{{ t("vocabulary.medium") }}</option>
-            <option value="hard">{{ t("vocabulary.hard") }}</option>
-          </select>
-        </div>
-
-        <div>
-          <label
-            class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2"
-          >
-            {{ t("vocabulary.categories") }}
-          </label>
-          <div class="relative">
-            <button
-              type="button"
-              @click="showCategoryDropdown = !showCategoryDropdown"
-              class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent flex items-center justify-between"
-            >
-              <div class="flex items-center gap-2">
-                <component
-                  v-if="selectedCategoryData"
-                  :is="getIconComponent(selectedCategoryData.icon)"
-                  :color="selectedCategoryData.color"
-                  class="w-4 h-4 flex-shrink-0"
+            <div class="space-y-4">
+              <div>
+                <label
+                  class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2"
+                >
+                  {{ t("vocabulary.example") }}
+                </label>
+                <textarea
+                  v-model="form.example"
+                  rows="2"
+                  class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
-                <span>{{
-                  selectedCategoryData?.name ||
-                  `-- ${t("vocabulary.selectCategory") || "Select Category"} --`
-                }}</span>
               </div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                class="transition-transform"
-                :class="{ 'rotate-180': showCategoryDropdown }"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
 
-            <div
-              v-if="showCategoryDropdown"
-              class="absolute z-10 w-full mt-2 bg-white dark:bg-black border border-black/10 dark:border-white/10 rounded-xl shadow-lg max-h-60 overflow-y-auto"
-            >
-              <button
-                type="button"
-                @click="selectCategory('')"
-                class="w-full px-4 py-3 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-black dark:text-white"
-              >
-                -- {{ t("vocabulary.selectCategory") || "Select Category" }} --
-              </button>
-              <button
-                v-for="category in categories"
-                :key="category.id"
-                type="button"
-                @click="selectCategory(category.id)"
-                class="w-full px-4 py-3 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center gap-2"
-                :class="{
-                  'bg-primary-50 dark:bg-primary-900/20':
-                    selectedCategory === category.id,
-                }"
-              >
-                <component
-                  :is="getIconComponent(category.icon)"
-                  :color="category.color"
-                  class="w-4 h-4 flex-shrink-0"
+              <div>
+                <label
+                  class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2"
+                >
+                  {{ t("vocabulary.exampleTranslation") }}
+                </label>
+                <textarea
+                  v-model="form.exampleTranslation"
+                  rows="2"
+                  class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 />
-                <span class="text-black dark:text-white">{{
-                  category.name
-                }}</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label
-            class="block text-sm font-medium text-black/70 dark:text-white/70 mb-2"
-          >
-            {{ t("vocabulary.tags") }}
-          </label>
-          <div class="relative">
-            <button
-              type="button"
-              @click="showTagDropdown = !showTagDropdown"
-              class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent flex items-center justify-between"
-            >
-              <div class="flex flex-wrap gap-2 max-w-full">
-                <span
-                  v-if="!Array.isArray(form.tags) || form.tags.length === 0"
-                  class="text-sm text-black/50 dark:text-white/50"
-                >
-                  -- Select tags --
-                </span>
-                <span
-                  v-for="tagName in Array.isArray(form.tags) ? form.tags : []"
-                  :key="tagName"
-                  class="px-2 py-1 bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-lg text-xs"
-                >
-                  #{{ tagName }}
-                </span>
               </div>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                class="transition-transform"
-                :class="{ 'rotate-180': showTagDropdown }"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-
-            <div
-              v-if="showTagDropdown"
-              class="absolute z-10 w-full mt-2 bg-white dark:bg-black border border-black/10 dark:border-white/10 rounded-xl shadow-lg max-h-60 overflow-y-auto"
-            >
-              <button
-                type="button"
-                @click="form.tags = []"
-                class="w-full px-4 py-3 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-black dark:text-white text-sm"
-              >
-                -- Clear tags --
-              </button>
-              <button
-                v-for="tag in tags"
-                :key="tag.id"
-                type="button"
-                @click="toggleTag(tag.name)"
-                class="w-full px-4 py-3 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center justify-between text-sm"
-                :class="{
-                  'bg-primary-50 dark:bg-primary-900/20': isTagSelected(
-                    tag.name
-                  ),
-                }"
-              >
-                <span class="text-black dark:text-white">#{{ tag.name }}</span>
-                <span
-                  v-if="isTagSelected(tag.name)"
-                  class="w-2.5 h-2.5 rounded-full bg-primary-500 flex-shrink-0"
-                ></span>
-              </button>
             </div>
-          </div>
-        </div>
+          </CollapsibleFormSection>
 
-        <!-- Media Tabs -->
-        <div>
-          <div
-            class="flex gap-2 mb-4 border-b border-black/10 dark:border-white/10"
+          <CollapsibleFormSection
+            v-model="expandedSections.classification"
+            :title="t('vocabulary.formClassification')"
+            :summary="classificationSummary"
+            icon="folder"
           >
-            <button
-              type="button"
-              @click="activeMediaTab = 'image'"
-              :class="[
-                'px-4 py-2 font-medium text-sm transition-all border-b-2',
-                activeMediaTab === 'image'
-                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                  : 'border-transparent text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white',
-              ]"
-            >
-              {{ t("vocabulary.image") }}
-            </button>
-            <button
-              type="button"
-              @click="activeMediaTab = 'video'"
-              :class="[
-                'px-4 py-2 font-medium text-sm transition-all border-b-2',
-                activeMediaTab === 'video'
-                  ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                  : 'border-transparent text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white',
-              ]"
-            >
-              {{ t("vocabulary.video") }}
-            </button>
-          </div>
-
-          <!-- Image Tab -->
-          <div v-if="activeMediaTab === 'image'">
-            <!-- Image Preview -->
-            <div
-              v-if="imagePreview"
-              class="relative w-full h-48 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 mb-3"
-            >
-              <img
-                :src="imagePreview"
-                alt="Preview"
-                class="w-full h-full object-contain"
+            <div class="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
+              <ModalSelect
+                v-model="form.difficulty"
+                :label="t('vocabulary.difficulty')"
+                :options="difficultyOptions"
               />
-              <button
-                type="button"
-                @click="removeImage"
-                class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
 
-            <!-- Image Upload Options -->
-            <div class="grid grid-cols-3 gap-2">
-              <!-- Option 1: Upload File -->
-              <button
-                type="button"
-                @click="fileInput?.click()"
-                class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  class="text-primary-500"
-                >
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="17 8 12 3 7 8"></polyline>
-                  <line x1="12" y1="3" x2="12" y2="15"></line>
-                </svg>
-                <span
-                  class="text-xs text-black/70 dark:text-white/70 text-center"
-                  >{{ t("vocabulary.uploadFile") }}</span
-                >
-              </button>
-
-              <!-- Option 2: Paste URL -->
-              <button
-                type="button"
-                @click="showImageUrlInput = !showImageUrlInput"
-                class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  class="text-primary-500"
-                >
-                  <path
-                    d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
-                  ></path>
-                  <path
-                    d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
-                  ></path>
-                </svg>
-                <span
-                  class="text-xs text-black/70 dark:text-white/70 text-center"
-                  >{{ t("vocabulary.pasteUrl") }}</span
-                >
-              </button>
-
-              <!-- Option 3: Paste Image -->
-              <button
-                type="button"
-                @click="handlePasteImage"
-                class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  class="text-primary-500"
-                >
-                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                  <path
-                    d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
-                  ></path>
-                </svg>
-                <span
-                  class="text-xs text-black/70 dark:text-white/70 text-center"
-                  >{{ t("vocabulary.pasteImage") }}</span
-                >
-              </button>
-            </div>
-
-            <!-- Image URL Input (hidden by default) -->
-            <div v-if="showImageUrlInput" class="mt-3">
-              <input
-                v-model="imageUrl"
-                type="text"
-                :placeholder="t('vocabulary.imageUrlPlaceholder')"
-                @keyup.enter="handleImageUrlSubmit"
-                class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              <ModalSelect
+                :model-value="selectedCategory"
+                :label="t('vocabulary.categories')"
+                :placeholder="t('vocabulary.selectCategory')"
+                :options="categoryOptions"
+                @update:model-value="selectedCategory = String($event)"
               />
-              <button
-                type="button"
-                @click="handleImageUrlSubmit"
-                class="mt-2 w-full py-2 px-4 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all"
-              >
-                {{ t("vocabulary.loadImage") }}
-              </button>
-            </div>
 
-            <input
-              type="file"
-              ref="fileInput"
-              @change="handleFileChange"
-              accept="image/*"
-              class="hidden"
-            />
-          </div>
-
-          <!-- Video Tab -->
-          <div v-if="activeMediaTab === 'video'">
-            <!-- Video Preview -->
-            <div
-              v-if="videoPreview"
-              class="relative w-full h-48 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 mb-3"
-            >
-              <iframe
-                :src="videoPreview"
-                class="w-full h-full"
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-              ></iframe>
-              <button
-                type="button"
-                @click="removeVideo"
-                class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-
-            <!-- Video Upload Options -->
-            <div class="grid grid-cols-2 gap-2">
-              <!-- Option 1: Upload Video File -->
-              <button
-                type="button"
-                @click="videoFileInput?.click()"
-                class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  class="text-primary-500"
-                >
-                  <path d="M23 7l-7 5 7 5V7z"></path>
-                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-                </svg>
-                <span
-                  class="text-xs text-black/70 dark:text-white/70 text-center"
-                  >{{ t("vocabulary.uploadVideo") }}</span
-                >
-              </button>
-
-              <!-- Option 2: Paste Video URL -->
-              <button
-                type="button"
-                @click="showVideoUrlInput = !showVideoUrlInput"
-                class="flex flex-col items-center gap-2 p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  class="text-primary-500"
-                >
-                  <path
-                    d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
-                  ></path>
-                  <path
-                    d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
-                  ></path>
-                </svg>
-                <span
-                  class="text-xs text-black/70 dark:text-white/70 text-center"
-                  >{{ t("vocabulary.pasteVideoUrl") }}</span
-                >
-              </button>
-            </div>
-
-            <!-- Video URL Input (hidden by default) -->
-            <div v-if="showVideoUrlInput" class="mt-3">
-              <input
-                v-model="videoUrl"
-                type="text"
-                :placeholder="t('vocabulary.videoUrlPlaceholder')"
-                @keyup.enter="handleVideoUrlSubmit"
-                class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              <ModalSelect
+                class="sm:col-span-2"
+                v-model="selectedTags"
+                :label="t('vocabulary.tags')"
+                :placeholder="t('vocabulary.selectTags')"
+                :clear-label="t('vocabulary.clear')"
+                :options="tagOptions"
+                :max-selections="3"
+                multiple
               />
-              <button
-                type="button"
-                @click="handleVideoUrlSubmit"
-                class="mt-2 w-full py-2 px-4 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all"
-              >
-                {{ t("vocabulary.loadVideo") }}
-              </button>
             </div>
+          </CollapsibleFormSection>
 
-            <input
-              type="file"
-              ref="videoFileInput"
-              @change="handleVideoFileChange"
-              accept="video/*"
-              class="hidden"
-            />
-          </div>
+          <CollapsibleFormSection
+            v-model="expandedSections.media"
+            :title="t('vocabulary.formMedia')"
+            :summary="mediaSummary"
+            icon="camera"
+          >
+            <!-- Media Tabs -->
+            <div>
+              <div
+                class="mb-4 grid grid-cols-2 gap-1 rounded-xl bg-black/5 p-1 dark:bg-white/5"
+              >
+                <button
+                  type="button"
+                  @click="activeMediaTab = 'image'"
+                  :class="[
+                    'min-w-0 break-words rounded-lg px-2 py-2 text-sm font-medium transition-colors',
+                    activeMediaTab === 'image'
+                      ? 'bg-white text-primary-600 shadow-sm dark:bg-black dark:text-primary-400'
+                      : 'text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white',
+                  ]"
+                >
+                  {{ t("vocabulary.image") }}
+                </button>
+                <button
+                  type="button"
+                  @click="activeMediaTab = 'video'"
+                  :class="[
+                    'min-w-0 break-words rounded-lg px-2 py-2 text-sm font-medium transition-colors',
+                    activeMediaTab === 'video'
+                      ? 'bg-white text-primary-600 shadow-sm dark:bg-black dark:text-primary-400'
+                      : 'text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white',
+                  ]"
+                >
+                  {{ t("vocabulary.video") }}
+                </button>
+              </div>
+
+              <!-- Image Tab -->
+              <div v-if="activeMediaTab === 'image'">
+                <!-- Image Preview -->
+                <div
+                  v-if="imagePreview"
+                  class="relative w-full h-48 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 mb-3"
+                >
+                  <img
+                    :src="imagePreview"
+                    alt="Preview"
+                    class="w-full h-full object-contain"
+                  />
+                  <button
+                    type="button"
+                    @click="removeImage"
+                    class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Image Upload Options -->
+                <div class="grid grid-cols-3 gap-2">
+                  <!-- Option 1: Upload File -->
+                  <button
+                    type="button"
+                    @click="fileInput?.click()"
+                    class="flex min-w-0 flex-col items-center gap-2 p-2.5 sm:p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      class="text-primary-500"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="17 8 12 3 7 8"></polyline>
+                      <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <span
+                      class="text-xs text-black/70 dark:text-white/70 text-center"
+                      >{{ t("vocabulary.uploadFile") }}</span
+                    >
+                  </button>
+
+                  <!-- Option 2: Paste URL -->
+                  <button
+                    type="button"
+                    @click="showImageUrlInput = !showImageUrlInput"
+                    class="flex min-w-0 flex-col items-center gap-2 p-2.5 sm:p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      class="text-primary-500"
+                    >
+                      <path
+                        d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                      ></path>
+                      <path
+                        d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                      ></path>
+                    </svg>
+                    <span
+                      class="text-xs text-black/70 dark:text-white/70 text-center"
+                      >{{ t("vocabulary.pasteUrl") }}</span
+                    >
+                  </button>
+
+                  <!-- Option 3: Paste Image -->
+                  <button
+                    type="button"
+                    @click="handlePasteImage"
+                    class="flex min-w-0 flex-col items-center gap-2 p-2.5 sm:p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      class="text-primary-500"
+                    >
+                      <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                      <path
+                        d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"
+                      ></path>
+                    </svg>
+                    <span
+                      class="text-xs text-black/70 dark:text-white/70 text-center"
+                      >{{ t("vocabulary.pasteImage") }}</span
+                    >
+                  </button>
+                </div>
+
+                <!-- Image URL Input (hidden by default) -->
+                <div v-if="showImageUrlInput" class="mt-3">
+                  <input
+                    v-model="imageUrl"
+                    type="text"
+                    :placeholder="t('vocabulary.imageUrlPlaceholder')"
+                    @keydown.enter.prevent="handleImageUrlSubmit"
+                    class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                  <button
+                    type="button"
+                    @click="handleImageUrlSubmit"
+                    class="mt-2 w-full py-2 px-4 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all"
+                  >
+                    {{ t("vocabulary.loadImage") }}
+                  </button>
+                </div>
+
+                <input
+                  type="file"
+                  ref="fileInput"
+                  @change="handleFileChange"
+                  accept="image/*"
+                  class="hidden"
+                />
+              </div>
+
+              <!-- Video Tab -->
+              <div v-if="activeMediaTab === 'video'">
+                <!-- Video Preview -->
+                <div
+                  v-if="videoPreview"
+                  class="relative w-full h-48 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 mb-3"
+                >
+                  <iframe
+                    :src="videoPreview"
+                    class="w-full h-full"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                  ></iframe>
+                  <button
+                    type="button"
+                    @click="removeVideo"
+                    class="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Video Upload Options -->
+                <div class="grid grid-cols-2 gap-2">
+                  <!-- Option 1: Upload Video File -->
+                  <button
+                    type="button"
+                    @click="videoFileInput?.click()"
+                    class="flex min-w-0 flex-col items-center gap-2 p-2.5 sm:p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      class="text-primary-500"
+                    >
+                      <path d="M23 7l-7 5 7 5V7z"></path>
+                      <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                    </svg>
+                    <span
+                      class="text-xs text-black/70 dark:text-white/70 text-center"
+                      >{{ t("vocabulary.uploadVideo") }}</span
+                    >
+                  </button>
+
+                  <!-- Option 2: Paste Video URL -->
+                  <button
+                    type="button"
+                    @click="showVideoUrlInput = !showVideoUrlInput"
+                    class="flex min-w-0 flex-col items-center gap-2 p-2.5 sm:p-4 border-2 border-dashed border-black/20 dark:border-white/20 rounded-xl hover:border-primary-500 dark:hover:border-primary-400 transition-all"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      class="text-primary-500"
+                    >
+                      <path
+                        d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+                      ></path>
+                      <path
+                        d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+                      ></path>
+                    </svg>
+                    <span
+                      class="text-xs text-black/70 dark:text-white/70 text-center"
+                      >{{ t("vocabulary.pasteVideoUrl") }}</span
+                    >
+                  </button>
+                </div>
+
+                <!-- Video URL Input (hidden by default) -->
+                <div v-if="showVideoUrlInput" class="mt-3">
+                  <input
+                    v-model="videoUrl"
+                    type="text"
+                    :placeholder="t('vocabulary.videoUrlPlaceholder')"
+                    @keydown.enter.prevent="handleVideoUrlSubmit"
+                    class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                  <button
+                    type="button"
+                    @click="handleVideoUrlSubmit"
+                    class="mt-2 w-full py-2 px-4 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition-all"
+                  >
+                    {{ t("vocabulary.loadVideo") }}
+                  </button>
+                </div>
+
+                <input
+                  type="file"
+                  ref="videoFileInput"
+                  @change="handleVideoFileChange"
+                  accept="video/*"
+                  class="hidden"
+                />
+              </div>
+            </div>
+          </CollapsibleFormSection>
         </div>
       </form>
 
       <!-- Footer - Fixed -->
       <div
-        class="p-6 border-t border-white/20 dark:border-white/10 flex gap-3 flex-shrink-0"
+        class="flex shrink-0 gap-2.5 border-t border-black/10 bg-white p-3 dark:border-white/10 dark:bg-black sm:gap-3 sm:p-5"
       >
         <button
           type="submit"
           @click="onSubmit"
-          class="flex-1 py-3 px-4 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary-500/25 transition-all"
+          class="min-w-0 flex-1 break-words py-3 px-3 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary-500/25 transition-all"
         >
           {{ t("vocabulary.save") }}
         </button>
         <button
           type="button"
           @click="onClose"
-          class="flex-1 py-3 px-4 bg-black/10 dark:bg-white/10 text-black dark:text-white font-semibold rounded-xl hover:bg-black/20 dark:hover:bg-white/20 transition-all"
+          class="min-w-0 flex-1 break-words py-3 px-3 bg-black/10 dark:bg-white/10 text-black dark:text-white font-semibold rounded-xl hover:bg-black/20 dark:hover:bg-white/20 transition-all"
         >
           {{ t("vocabulary.cancel") }}
         </button>
@@ -638,7 +533,8 @@ import {
   defineAsyncComponent,
 } from "vue";
 import apiService from "../../../services/api.service";
-import { getIconComponent } from "../../../utils/iconRenderer";
+import ModalSelect from "../../../components/common/ModalSelect.vue";
+import CollapsibleFormSection from "../../../components/common/CollapsibleFormSection.vue";
 import { useModalScrollLock } from "../../../composables/useModalScrollLock";
 import { websocketService } from "../../../services/websocket.service";
 
@@ -676,8 +572,7 @@ const imageUrl = ref("");
 const videoUrl = ref("");
 const activeMediaTab = ref<"image" | "video">("image");
 
-const showCategoryDropdown = ref(false);
-const showTagDropdown = ref(false);
+const expandedSections = ref({ examples: false, classification: false, media: false });
 const isIPAModalVisible = ref(false);
 const isWordDrawingModalVisible = ref(false);
 
@@ -691,52 +586,53 @@ const selectedCategory = computed({
   },
 });
 
-const selectedCategoryData = computed(() => {
-  if (!selectedCategory.value) return null;
-  return categories.value.find((c) => c.id === selectedCategory.value);
+const difficultyOptions = computed(() => ["easy", "medium", "hard"].map(value => ({
+  value,
+  label: props.t("vocabulary." + value),
+})));
+
+const categoryOptions = computed(() => [
+  { value: "", label: props.t("vocabulary.selectCategory") },
+  ...categories.value.map(category => ({
+    value: category.id,
+    label: category.name,
+    icon: category.icon,
+    color: category.color,
+  })),
+]);
+
+const tagOptions = computed(() => tags.value.map(tag => ({
+  value: tag.name,
+  label: "#" + tag.name,
+})));
+
+const selectedTags = computed({
+  get: (): string[] => {
+    if (Array.isArray(props.form.tags)) return props.form.tags;
+    if (typeof props.form.tags === "string") return props.form.tags.split(",").map((tag: string) => tag.trim()).filter(Boolean);
+    return [];
+  },
+  set: (value: string | string[]) => {
+    if (Array.isArray(value)) props.form.tags = value;
+  },
 });
 
-function selectCategory(categoryId: string) {
-  selectedCategory.value = categoryId;
-  showCategoryDropdown.value = false;
-}
-
-function ensureTagsArray() {
-  if (!Array.isArray(props.form.tags)) {
-    if (
-      typeof props.form.tags === "string" &&
-      props.form.tags.trim().length > 0
-    ) {
-      props.form.tags = props.form.tags
-        .split(",")
-        .map((t: string) => t.trim())
-        .filter((t: string) => t.length > 0);
-    } else {
-      props.form.tags = [];
-    }
-  }
-}
-
-function toggleTag(tagName: string) {
-  ensureTagsArray();
-  const current = props.form.tags as string[];
-  if (current.includes(tagName)) {
-    props.form.tags = current.filter((t: string) => t !== tagName);
-  } else if (current.length < 3) {
-    props.form.tags = [...current, tagName];
-  }
-}
-
-function isTagSelected(tagName: string) {
-  return (
-    Array.isArray(props.form.tags) &&
-    (props.form.tags as string[]).includes(tagName)
-  );
-}
-
-const isTagLimitReached = computed(
-  () => (props.form.tags as string[]).length >= 3
+const exampleSummary = computed(() =>
+  [props.form.example, props.form.exampleTranslation]
+    .filter(value => typeof value === "string" && value.trim())
+    .join(" · ") || props.t("vocabulary.formOptional")
 );
+
+const classificationSummary = computed(() => [
+  difficultyOptions.value.find(option => option.value === props.form.difficulty)?.label,
+  categoryOptions.value.find(option => selectedCategory.value && option.value === selectedCategory.value)?.label,
+  selectedTags.value.length ? props.t("vocabulary.formTagCount", { count: selectedTags.value.length }) : "",
+].filter(Boolean).join(" · "));
+
+const mediaSummary = computed(() => [
+  props.form.image ? props.t("vocabulary.image") : "",
+  props.form.video ? props.t("vocabulary.video") : "",
+].filter(Boolean).join(" · ") || props.t("vocabulary.formNoMedia"));
 
 // Option 1: Upload File
 function handleFileChange(event: Event) {
@@ -923,16 +819,20 @@ watch(
       lockScroll();
       loadCategories();
       loadTags();
-      if (props.form.image) {
-        imagePreview.value = resolveAssetUrl(props.form.image);
-      }
+      expandedSections.value = { examples: false, classification: false, media: false };
+      imagePreview.value = resolveAssetUrl(props.form.image);
+      videoPreview.value = resolveAssetUrl(props.form.video);
+      activeMediaTab.value = !props.form.image && props.form.video ? "video" : "image";
+      showImageUrlInput.value = false;
+      showVideoUrlInput.value = false;
+      imageUrl.value = "";
+      videoUrl.value = "";
     } else {
       unlockScroll();
       imagePreview.value = "";
-      showCategoryDropdown.value = false;
-      showTagDropdown.value = false;
     }
-  }
+  },
+  { immediate: true }
 );
 
 onUnmounted(() => {

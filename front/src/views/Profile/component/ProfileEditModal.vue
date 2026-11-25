@@ -21,7 +21,7 @@
               </h2>
               <button
                 type="button"
-                @click="emit('close')"
+                @click="close" :disabled="saving || passwordSaving"
                 class="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-all text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 active:scale-95 duration-200"
               >
                 <svg
@@ -41,25 +41,36 @@
               </button>
             </div>
 
+            <div class="px-4 sm:px-6 pt-3 pb-3 border-b border-gray-100 dark:border-white/10 shrink-0">
+              <div class="grid grid-cols-2 gap-1 p-1 rounded-2xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10" role="group">
+                <button v-for="tab in tabs" :key="tab.key" type="button" :aria-pressed="activeTab === tab.key" :disabled="saving || passwordSaving" @click="activeTab = tab.key" class="min-w-0 min-h-11 px-2 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-60" :class="activeTab === tab.key ? 'bg-white dark:bg-white/10 text-primary-600 dark:text-primary-400 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'">
+                  <svg v-if="tab.key === 'profile'" class="shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>
+                  <svg v-else class="shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <span class="break-words">{{ t(tab.label) }}</span>
+                </button>
+              </div>
+            </div>
             <!-- Content -->
-            <div class="p-0 overflow-y-auto custom-scrollbar flex-1 relative">
-              <ProfileForm :form="form" :t="t" />
+            <div class="p-0 overflow-y-auto scrollbar-custom flex-1 relative">
+              <ProfileForm v-if="activeTab === 'profile'" :form="form" :t="t" />
+              <ProfileSecurity v-else :has-password="hasPassword" @busy="passwordSaving = $event" @success="close" />
             </div>
 
             <!-- Footer -->
             <div
-              class="p-6 border-t border-gray-100 dark:border-white/10 bg-white dark:bg-zinc-900/50 flex gap-4"
+              class="p-4 sm:p-6 border-t border-gray-100 dark:border-white/10 bg-white dark:bg-zinc-900/50 flex gap-3 sm:gap-4 shrink-0"
             >
               <button
                 type="button"
                 class="flex-1 py-3.5 px-4 rounded-xl text-sm font-bold border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 bg-white dark:bg-transparent hover:bg-gray-50 dark:hover:bg-white/5 hover:border-gray-300 dark:hover:border-white/20 transition-all duration-200 active:scale-98"
-                @click="emit('close')"
+                @click="close" :disabled="saving || passwordSaving"
               >
                 {{ t("profile.actions.cancel") }}
               </button>
               <button
                 type="button"
                 class="flex-1 py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-500 hover:to-purple-500 shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 transform hover:-translate-y-0.5 transition-all duration-200 active:scale-98 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                v-if="activeTab === 'profile'"
                 :disabled="saving"
                 @click="emit('submit')"
               >
@@ -93,6 +104,7 @@
                   <span>{{ t("common.loading") }}</span>
                 </div>
               </button>
+              <button v-else-if="hasPassword !== false" type="submit" form="profile-password-form" :disabled="passwordSaving" class="flex-1 py-3.5 px-4 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary-600 to-purple-600 hover:from-primary-500 hover:to-purple-500 shadow-lg shadow-primary-500/30 disabled:opacity-70 disabled:cursor-not-allowed">{{ t(passwordSaving ? 'common.loading' : 'profile.security.change') }}</button>
             </div>
           </div>
         </Transition>
@@ -104,7 +116,10 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from "vue";
 import { useModalScrollLock } from "../../../composables/useModalScrollLock";
-import { watch } from "vue";
+import { watch, ref } from "vue";
+import ProfileSecurity from "./ProfileSecurity.vue";
+const activeTab = ref<"profile" | "security">("profile");
+const passwordSaving = ref(false);
 
 const ProfileForm = defineAsyncComponent(
   () => import("./ProfileForm.vue") as any
@@ -114,6 +129,7 @@ const props = defineProps<{
   show: boolean;
   form: any;
   saving: boolean;
+  hasPassword?: boolean;
   t: (key: string) => string;
 }>();
 
@@ -122,12 +138,16 @@ const emit = defineEmits<{
   (e: "close"): void;
 }>();
 
+const tabs = [{ key: "profile", label: "profile.tabs.personal" }, { key: "security", label: "profile.tabs.security" }] as const;
+function close() {
+  if (!props.saving && !passwordSaving.value) emit("close");
+}
 const { lockScroll, unlockScroll } = useModalScrollLock();
 
 watch(
   () => props.show,
   (val) => {
-    if (val) lockScroll();
+    if (val) { activeTab.value = "profile"; passwordSaving.value = false; lockScroll(); }
     else unlockScroll();
   }
 );
@@ -155,29 +175,9 @@ watch(
   transform: scale(0.95);
 }
 
-/* Custom Scrollbar for a premium look */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(156, 163, 175, 0.5);
-  border-radius: 20px;
-}
 
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.2);
-}
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(156, 163, 175, 0.8);
-}
 
-.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(255, 255, 255, 0.4);
-}
 </style>

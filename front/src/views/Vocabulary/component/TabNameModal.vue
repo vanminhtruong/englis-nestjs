@@ -73,7 +73,7 @@
 
         <form
           id="vocabulary-tab-editor"
-          class="min-h-0 flex-1 space-y-6 overflow-y-auto px-5 py-6 sm:px-7"
+          class="min-h-0 flex-1 space-y-6 overflow-y-auto px-5 py-6 sm:px-7 scrollbar-custom"
           @submit.prevent="submitTab"
         >
           <div>

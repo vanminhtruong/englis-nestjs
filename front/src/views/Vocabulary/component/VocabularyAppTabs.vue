@@ -263,7 +263,7 @@
             </div>
 
             <!-- Tab list -->
-            <div class="dropdown-body p-2 flex flex-col gap-1 max-h-72 overflow-y-auto">
+            <div class="dropdown-body p-2 flex flex-col gap-1 max-h-72 overflow-y-auto scrollbar-thin">
               <div
                 v-for="tab in hiddenTabs"
                 :key="tab.id"
@@ -494,13 +494,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
 
 /* More Tabs Dropdown */
 .more-tabs-dropdown {
@@ -510,20 +503,6 @@ onUnmounted(() => {
   transform-origin: top left;
 }
 
-/* Scrollbar for dropdown tab list */
-.dropdown-body::-webkit-scrollbar {
-  width: 4px;
-}
-.dropdown-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-.dropdown-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-}
-.dropdown-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
 
 /* More button glow when active */
 .more-tabs-btn:hover {

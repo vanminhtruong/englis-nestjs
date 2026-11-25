@@ -1,7 +1,10 @@
 <template>
   <div class="flex shrink-0 items-center gap-1 sm:gap-2">
-    <LanguageSwitcher v-if="!isAuthenticated" class="md:hidden" />
-    <LanguageSwitcher class="hidden md:block" />
+    <LanguageSwitcher
+      :class="isAuthenticated ? 'hidden md:block' : ''"
+      :open="isLanguageMenuOpen"
+      @update:open="emit('update-language-menu', $event)"
+    />
 
     <button
       @click="$emit('toggle-theme')"
@@ -322,6 +325,7 @@ const props = defineProps<{
   isDark: boolean;
   isAuthenticated: boolean;
   isUserMenuOpen: boolean;
+  isLanguageMenuOpen: boolean;
   isMobileMenuOpen: boolean;
   isMobileAccountMenuOpen: boolean;
   userAvatarSrc: string;
@@ -332,6 +336,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "toggle-theme"): void;
   (e: "toggle-user-menu"): void;
+  (e: "update-language-menu", value: boolean): void;
   (e: "close-user-menu"): void;
   (e: "logout"): void;
   (e: "toggle-mobile-menu"): void;

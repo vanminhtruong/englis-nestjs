@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-8 flex min-w-0 flex-col items-stretch gap-4 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between">
+  <div class="mb-4 sm:mb-5 flex min-w-0 flex-col items-stretch gap-4 min-[390px]:flex-row min-[390px]:items-center min-[390px]:justify-between">
     <div>
       <h1
         class="mb-2 break-words bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-3xl font-bold leading-tight text-transparent sm:text-4xl"

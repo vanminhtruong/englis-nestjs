@@ -15,6 +15,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from './services/auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { VocabularyWebSocketGateway } from '../websocket/websocket.gateway';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -92,6 +93,7 @@ export class AuthController {
       theme: req.user.theme || 'light',
       vocabularyLayout: req.user.vocabularyLayout || 'grid',
       preferredVoiceKey: req.user.preferredVoiceKey || null,
+      hasPassword: Boolean(req.user.password),
     };
   }
 
@@ -121,6 +123,12 @@ export class AuthController {
   async recalculateTotalWords(@Request() req) {
     const result = await this.authService.recalculateTotalWords(req.user.id);
     return result;
+  }
+
+  @Put('password')
+  @UseGuards(JwtAuthGuard)
+  async changePassword(@Request() req, @Body() dto: ChangePasswordDto) {
+    return this.authService.changePassword(req.user.id, dto);
   }
 
   @Put('profile')

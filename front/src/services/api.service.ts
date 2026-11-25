@@ -61,6 +61,8 @@ export default {
     resetPassword: (data: { email: string; code: string; password: string }) =>
       apiClient.post("/auth/forgot-password/reset", data),
     getProfile: () => apiClient.get("/auth/me"),
+    changePassword: (data: { currentPassword: string; newPassword: string }) =>
+      apiClient.put("/auth/password", data),
     updateTheme: (theme: string) => apiClient.put("/auth/theme", { theme }),
     updateVocabularyLayout: (layout: "grid" | "list") => apiClient.put("/auth/layout", { layout }),
     updateCategoriesLayout: (layout: "grid" | "list") =>
@@ -184,6 +186,8 @@ export default {
   // Category endpoints
   category: {
     getAll: () => apiClient.get("/category"),
+    bulk: (action: import("../views/Categories/interface/category.interface").CategoryBulkAction, ids: string[]) => apiClient.post<import("../views/Categories/interface/category.interface").CategoryBulkResult>("/category/bulk", { action, ids }),
+    getPage: (params: import("../views/Categories/interface/category.interface").CategoryPageQuery) => apiClient.get<import("../views/Categories/interface/category.interface").CategoryPage>("/category/page", { params: { ...params, color: params.color || undefined } }),
     getById: (id: string) => apiClient.get(`/category/${id}`),
     getWithVocabularies: (id: string) => apiClient.get(`/category/${id}/vocabularies`),
     create: (data: any) => apiClient.post("/category", data),

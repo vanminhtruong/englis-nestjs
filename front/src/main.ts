@@ -1,4 +1,5 @@
 import './assets/main.css'
+import './styles/scrollbar.css'
 import 'flag-icons/css/flag-icons.min.css'
 
 import { createApp } from 'vue'

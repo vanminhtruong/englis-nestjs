@@ -63,7 +63,7 @@
           </div>
 
           <!-- Content with Scrollable IPA Symbols -->
-          <div class="flex-1 overflow-y-auto p-6">
+          <div class="flex-1 overflow-y-auto p-6 scrollbar-custom">
             <!-- Grid Layout for IPA Categories -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
@@ -236,7 +236,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
+import { speakPreferred, stopSpeech } from '../../composables/usePreferredVoice'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
@@ -302,40 +303,19 @@ const clearPronunciation = () => {
   currentPronunciation.value = ''
 }
 
-const playPreview = async () => {
-  if (!currentPronunciation.value || isPlaying.value) return
-  
+const playPreview = () => {
+  if (!currentPronunciation.value) return
+  if (isPlaying.value) { stopSpeech(); isPlaying.value = false; return }
   isPlaying.value = true
-  try {
-    const utterance = new SpeechSynthesisUtterance(currentPronunciation.value)
-    
-    // Get preferred voice from localStorage
-    const preferredVoiceURI = localStorage.getItem('preferredVoiceURI')
-    if (preferredVoiceURI && 'speechSynthesis' in window) {
-      const voices = window.speechSynthesis.getVoices()
-      const preferredVoice = voices.find(v => v.voiceURI === preferredVoiceURI)
-      if (preferredVoice) {
-        utterance.voice = preferredVoice
-        utterance.lang = preferredVoice.lang
-      }
-    }
-    
-    utterance.rate = 0.8
-    utterance.pitch = 1
-    utterance.volume = 1
-    
-    utterance.onend = () => {
-      isPlaying.value = false
-    }
-    
-    window.speechSynthesis.speak(utterance)
-  } catch (error) {
-    console.error('Failed to play pronunciation:', error)
-    isPlaying.value = false
-  }
+  void speakPreferred(currentPronunciation.value, {
+    rate: 0.8,
+    onDone: () => { isPlaying.value = false },
+  })
 }
+onBeforeUnmount(() => { if (isPlaying.value) stopSpeech() })
 
 const close = () => {
+  if (isPlaying.value) stopSpeech()
   emit('close')
 }
 

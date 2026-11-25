@@ -15,7 +15,7 @@
 
       <div
         v-if="showActionDropdown"
-        class="absolute z-10 w-full mt-2 bg-white dark:bg-black border border-black/10 dark:border-white/10 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+        class="absolute z-10 w-full mt-2 bg-white dark:bg-black border border-black/10 dark:border-white/10 rounded-xl shadow-lg max-h-60 overflow-y-auto scrollbar-custom"
       >
         <button
           type="button"
@@ -101,7 +101,7 @@
 
       <div
         v-if="showDateDropdown"
-        class="absolute z-10 w-full mt-2 bg-white dark:bg-black border border-black/10 dark:border-white/10 rounded-xl shadow-lg max-h-60 overflow-y-auto"
+        class="absolute z-10 w-full mt-2 bg-white dark:bg-black border border-black/10 dark:border-white/10 rounded-xl shadow-lg max-h-60 overflow-y-auto scrollbar-custom"
       >
         <button
           type="button"

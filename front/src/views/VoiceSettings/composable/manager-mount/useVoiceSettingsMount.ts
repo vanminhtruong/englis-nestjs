@@ -1,4 +1,5 @@
 import apiService from '../../../../services/api.service'
+import { getPreferredVoiceKey } from '../../../../composables/usePreferredVoice'
 import { useAuthStore } from '../../../../stores/auth.store'
 import type { VoiceViewModel, LanguageOption } from '../../interface/voice-settings.interface'
 
@@ -17,12 +18,14 @@ export function useVoiceSettingsMount(
     try {
       const authStore = useAuthStore()
 
-      let preferredVoiceKey: string | null = authStore.user?.preferredVoiceKey ?? null
+      const initialKey = getPreferredVoiceKey()
+      let preferredVoiceKey: string | null = initialKey || null
 
       // Nếu store chưa có (vd: không qua AppHeader), gọi API để lấy
       if (authStore.isAuthenticated && preferredVoiceKey === null) {
         const profileResponse = await apiService.auth.getProfile()
         preferredVoiceKey = profileResponse.data?.preferredVoiceKey ?? null
+        if (getPreferredVoiceKey() !== initialKey) return
         authStore.updateUser({ preferredVoiceKey })
       }
 

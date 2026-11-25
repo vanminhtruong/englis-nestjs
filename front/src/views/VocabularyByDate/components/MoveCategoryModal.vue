@@ -4,7 +4,7 @@
     class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-3 dark:bg-black/60 sm:p-4"
   >
     <div
-      class="bg-white dark:bg-black rounded-2xl shadow-xl border border-black/10 dark:border-white/10 w-full max-w-md max-h-[calc(100dvh-1.5rem)] overflow-y-auto p-4 sm:p-6"
+      class="bg-white dark:bg-black rounded-2xl shadow-xl border border-black/10 dark:border-white/10 w-full max-w-md max-h-[calc(100dvh-1.5rem)] overflow-y-auto p-4 sm:p-6 scrollbar-custom"
     >
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-semibold text-black dark:text-white">
@@ -49,61 +49,14 @@
         </div>
 
         <div>
-          <label
-            class="block text-xs font-medium text-black/60 dark:text-white/60 mb-1"
-          >
-            {{ toDateLabel }}
-          </label>
-          <div v-if="availableDates.length > 0" class="relative">
-            <button
-              type="button"
-              @click="toggleDropdown"
-              class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent flex items-center justify-between"
-            >
-              <span class="text-sm truncate">
-                {{ selectedDateLabel }}
-              </span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                class="transition-transform"
-                :class="{ 'rotate-180': showDropdown }"
-              >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
-
-            <div
-              v-if="showDropdown"
-              class="absolute z-10 w-full mt-2 bg-white dark:bg-black border border-black/10 dark:border-white/10 rounded-xl shadow-lg max-h-60 overflow-y-auto"
-            >
-              <button
-                type="button"
-                class="w-full px-4 py-3 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-black dark:text-white text-sm"
-                @click="$emit('select-date', '')"
-              >
-                -- {{ placeholder }} --
-              </button>
-              <button
-                v-for="date in availableDates"
-                :key="date.value"
-                type="button"
-                class="w-full px-4 py-3 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-sm"
-                :class="{
-                  'bg-primary-50 dark:bg-primary-900/20':
-                    selectedDate === date.value,
-                }"
-                @click="$emit('select-date', date.value)"
-              >
-                <span class="text-black dark:text-white">{{ date.label }}</span>
-              </button>
-            </div>
-          </div>
+          <ModalSelect
+            v-if="availableDates.length > 0"
+            :model-value="selectedDate"
+            :label="toDateLabel"
+            :placeholder="placeholder"
+            :options="[{ value: '', label: placeholder }, ...availableDates]"
+            @update:model-value="$emit('select-date', String($event))"
+          />
 
           <div
             v-else
@@ -152,6 +105,7 @@
 
 <script setup lang="ts">
 import { watch } from "vue";
+import ModalSelect from "../../../components/common/ModalSelect.vue";
 import { useModalScrollLock } from "../../../composables/useModalScrollLock";
 
 const props = defineProps<{
@@ -172,7 +126,7 @@ const props = defineProps<{
   noDatesText: string;
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   "toggle-dropdown": [];
   "select-date": [date: string];
   cancel: [];
@@ -192,7 +146,4 @@ watch(
   }
 );
 
-function toggleDropdown() {
-  // Emit to parent
-}
 </script>
