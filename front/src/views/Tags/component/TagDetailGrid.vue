@@ -76,44 +76,7 @@
         <!-- Header: word, pronunciation, favorite, difficulty -->
         <div class="flex items-start justify-between gap-2 mb-4">
           <div class="flex-1">
-            <div class="flex items-center gap-2 mb-1">
-              <h3
-                class="text-2xl font-bold"
-                :class="
-                  hasBackground ? 'text-white' : 'text-black dark:text-white'
-                "
-              >
-                {{ vocab.word }}
-              </h3>
-              <PartOfSpeechLabel :value="vocab.partOfSpeech" :on-image="hasBackground" />
-              <button
-                @click="$emit('speak', vocab.word)"
-                class="p-1.5 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                </svg>
-              </button>
-            </div>
-            <p
-              class="text-sm"
-              :class="
-                hasBackground
-                  ? 'text-white/60'
-                  : 'text-black/50 dark:text-white/50'
-              "
-            >
-              {{ vocab.pronunciation }}
-            </p>
+            <VocabularyWordSwitcher :source="vocab" :on-image="hasBackground" />
           </div>
           <div class="flex flex-col items-end gap-2">
             <button
@@ -158,7 +121,7 @@
             hasBackground ? 'text-white/80' : 'text-black/70 dark:text-white/70'
           "
         >
-          {{ vocab.meaning }}
+          {{ displayedMeaning(vocab) }}
         </p>
 
         <!-- Stats + detail button -->
@@ -237,7 +200,8 @@
 </template>
 
 <script setup lang="ts">
-import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
+import { displayedMeaning } from '@/views/Vocabulary/utils/synonyms';
+import VocabularyWordSwitcher from "@/components/common/VocabularyWordSwitcher.vue";
 import { resolveAssetUrl } from "@/utils/assetUrl";
 import { defineAsyncComponent } from "vue";
 import { getIconComponent } from "../../../utils/iconRenderer";

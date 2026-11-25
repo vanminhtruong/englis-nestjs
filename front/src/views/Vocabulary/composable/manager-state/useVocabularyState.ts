@@ -13,6 +13,7 @@ export function useVocabularyState() {
 
   const form = reactive<VocabularyForm>({
     word: '',
+    synonyms: [],
     partOfSpeech: 'unspecified',
     pronunciation: '',
     meaning: '',
@@ -49,6 +50,7 @@ export function useVocabularyState() {
 
   function resetForm() {
     form.word = ''
+    form.synonyms = []
     form.partOfSpeech = 'unspecified'
     form.image = ''
     form.video = ''
@@ -71,6 +73,7 @@ export function useVocabularyState() {
 
   function openEditModal(vocabulary: any) {
     form.word = vocabulary.word
+    form.synonyms = (vocabulary.synonyms || []).map((item: any) => ({ ...item }))
     form.partOfSpeech = vocabulary.partOfSpeech || 'unspecified'
     form.image = vocabulary.image || ''
     form.video = vocabulary.video || ''

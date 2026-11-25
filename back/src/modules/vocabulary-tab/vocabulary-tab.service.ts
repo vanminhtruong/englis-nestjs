@@ -10,6 +10,8 @@ import { VocabularyTab } from '../../entities/vocabulary-tab.entity';
 import { Vocabulary } from '../../entities/vocabulary.entity';
 import { CreateVocabularyTabDto } from './dto/create-vocabulary-tab.dto';
 import { UpdateVocabularyTabDto } from './dto/update-vocabulary-tab.dto';
+import { UploadService } from '../../common/services/upload.service';
+import { cleanupUnusedUploads } from '../../common/services/unused-upload';
 import { AssignVocabularyTabsDto } from './dto/assign-vocabulary-tabs.dto';
 
 @Injectable()
@@ -19,7 +21,17 @@ export class VocabularyTabService {
     private readonly vocabularyTabRepository: Repository<VocabularyTab>,
     @InjectRepository(Vocabulary)
     private readonly vocabularyRepository: Repository<Vocabulary>,
+    private readonly uploads: UploadService = new UploadService(),
   ) {}
+
+  private readonly writes = new Map<string, Promise<unknown>>();
+  private async serialize<T>(id: string, operation: () => Promise<T>): Promise<T> {
+    const previous = this.writes.get(id) ?? Promise.resolve();
+    const job = previous.catch(() => undefined).then(operation);
+    this.writes.set(id, job);
+    try { return await job; }
+    finally { if (this.writes.get(id) === job) this.writes.delete(id); }
+  }
 
   async create(
     userId: string,
@@ -30,14 +42,19 @@ export class VocabularyTabService {
       .select('MAX(tab.sortOrder)', 'maxOrder')
       .where('tab.userId = :userId', { userId })
       .getRawOne<{ maxOrder: number | null }>();
+    const uploaded = createDto.iconData ? await this.uploads.saveTabIconData(createDto.iconData) : undefined;
     const tab = this.vocabularyTabRepository.create({
       name: createDto.name,
-      icon: createDto.icon ?? null,
+      icon: uploaded ?? createDto.icon ?? null,
       userId,
       isDefault: false,
       sortOrder: Number(latest?.maxOrder ?? 0) + 1,
     });
-    return this.vocabularyTabRepository.save(tab);
+    try { return await this.vocabularyTabRepository.save(tab); }
+    catch (error) {
+      await cleanupUnusedUploads(this.vocabularyTabRepository.manager, [uploaded]);
+      throw error;
+    }
   }
 
   async findAll(userId: string): Promise<VocabularyTab[]> {
@@ -113,21 +130,34 @@ export class VocabularyTabService {
     id: string,
     updateDto: UpdateVocabularyTabDto,
   ): Promise<VocabularyTab> {
-    const tab = await this.findOne(userId, id);
-    if (updateDto.name !== undefined) tab.name = updateDto.name;
-    if (updateDto.icon !== undefined) tab.icon = updateDto.icon;
-    await this.vocabularyTabRepository.save(tab);
-    return this.findOne(userId, id);
+    return this.serialize(id, async () => {
+      const tab = await this.findOne(userId, id);
+      const previous = tab.icon;
+      const uploaded = updateDto.iconData ? await this.uploads.saveTabIconData(updateDto.iconData) : undefined;
+      if (updateDto.name !== undefined) tab.name = updateDto.name;
+      if (uploaded !== undefined) tab.icon = uploaded;
+      else if (updateDto.icon !== undefined) tab.icon = updateDto.icon;
+      try { await this.vocabularyTabRepository.save(tab); }
+      catch (error) {
+        await cleanupUnusedUploads(this.vocabularyTabRepository.manager, [uploaded]);
+        throw error;
+      }
+      if (previous !== tab.icon) await cleanupUnusedUploads(this.vocabularyTabRepository.manager, [previous]);
+      return this.findOne(userId, id);
+    });
   }
 
   async remove(userId: string, id: string): Promise<void> {
-    await this.findOne(userId, id);
+    await this.serialize(id, async () => {
+    const tab = await this.findOne(userId, id);
     await this.vocabularyTabRepository.delete({ id, userId });
     // Remove the deleted tab from this user's saved selection only.
     await this.vocabularyRepository.update(
       { userId, activeTabId: id },
       { activeTabId: null },
     );
+    await cleanupUnusedUploads(this.vocabularyTabRepository.manager, [tab.icon]);
+    });
   }
 
   /**

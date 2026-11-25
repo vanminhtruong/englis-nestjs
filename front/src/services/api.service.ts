@@ -90,9 +90,9 @@ export default {
   // Vocabulary endpoints
   tab: {
     getAll: () => apiClient.get("/vocabulary-tabs"),
-    create: (data: { name: string; icon?: string | null }) =>
+    create: (data: { name: string; icon?: string | null; iconData?: string }) =>
       apiClient.post("/vocabulary-tabs", data),
-    update: (id: string, data: { name?: string; icon?: string | null }) =>
+    update: (id: string, data: { name?: string; icon?: string | null; iconData?: string }) =>
       apiClient.patch(`/vocabulary-tabs/${id}`, data),
     uploadIcon: (file: File) => {
       const formData = new FormData();
@@ -136,6 +136,7 @@ export default {
     checkDuplicate: (params: { word: string; meaning?: string; partOfSpeech?: string; excludeId?: string }, signal?: AbortSignal) => apiClient.get('/vocabulary/check-duplicate', { params, signal }),
     getById: (id: string) => apiClient.get(`/vocabulary/${id}`),
     create: (data: any) => apiClient.post("/vocabulary", data),
+    selectSynonym: (id: string, selectedSynonym: string | null) => apiClient.patch<{id: string; selectedSynonym: string | null}>(`/vocabulary/${id}/selected-synonym`, { selectedSynonym }),
     update: (id: string, data: any) => apiClient.put(`/vocabulary/${id}`, data),
     delete: (id: string) => apiClient.delete(`/vocabulary/${id}`),
     toggleFavorite: (id: string) => apiClient.put(`/vocabulary/${id}/favorite`),

@@ -190,7 +190,7 @@ export function useVocabularyTabHandle(
   function handleEditTab(tab: Tab) {
     isEditingTab.value = true;
     editingTabName.value = tab.name;
-    editingTabIcon.value = tab.icon ?? "book";
+    editingTabIcon.value = tab.icon ?? null;
     editingTabId.value = tab.id;
     showTabNameModal.value = true;
   }
@@ -210,16 +210,19 @@ export function useVocabularyTabHandle(
     if (isSavingTab.value) return;
     isSavingTab.value = true;
     try {
-      let icon = payload.icon;
-      if (payload.file) {
-        const uploaded = await apiService.tab.uploadIcon(payload.file);
-        icon = uploaded.data.url;
-      }
+      // Upload and save in one request; the backend owns rollback and cleanup.
+      const iconData = payload.file ? await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result));
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(payload.file!);
+      }) : undefined;
+      const data = { name: payload.name, icon: payload.icon, iconData };
       if (isEditingTab.value && editingTabId.value) {
-        await apiService.tab.update(editingTabId.value, { name: payload.name, icon });
+        await apiService.tab.update(editingTabId.value, data);
         toast.showSuccess(t("vocabulary.tabUpdatedSuccess"));
       } else {
-        await apiService.tab.create({ name: payload.name, icon });
+        await apiService.tab.create(data);
         toast.showSuccess(t("vocabulary.tabCreatedSuccess"));
       }
       await loadTabs();

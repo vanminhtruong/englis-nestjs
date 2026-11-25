@@ -4,6 +4,7 @@ export interface SrsCard {
   id: string;
   word: string;
   partOfSpeech?: import('../Vocabulary/utils/partOfSpeech').PartOfSpeech;
+  synonyms?: import('../Vocabulary/utils/synonyms').VocabularySynonym[];
   pronunciation: string | null;
   meaning: string;
   example: string | null;
@@ -34,6 +35,7 @@ export interface SrsUpcoming {
   vocabularyId: string;
   word: string;
   partOfSpeech?: import('../Vocabulary/utils/partOfSpeech').PartOfSpeech;
+  synonyms?: import('../Vocabulary/utils/synonyms').VocabularySynonym[];
   meaning: string;
   nextReviewAt: string;
   intervalDays: number;
@@ -41,10 +43,12 @@ export interface SrsUpcoming {
 }
 
 export interface SrsHistory {
+  meaning?: string;
   id: string;
   vocabularyId: string;
   word: string;
   partOfSpeech?: import('../Vocabulary/utils/partOfSpeech').PartOfSpeech;
+  synonyms?: import('../Vocabulary/utils/synonyms').VocabularySynonym[];
   rating: SrsRating;
   isPracticeOnly: boolean;
   reviewedAt: string;

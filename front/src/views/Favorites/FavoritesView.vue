@@ -118,49 +118,7 @@
             </div>
             <div class="flex items-start justify-between gap-2 mb-4">
               <div class="min-w-0 flex-1">
-                <div class="mb-1 flex min-w-0 flex-wrap items-center gap-2">
-                  <h3
-                    class="min-w-0 max-w-full break-words [overflow-wrap:anywhere] text-lg font-bold leading-snug sm:text-2xl"
-                    :class="
-                      hasBackground
-                        ? 'text-white'
-                        : 'text-gray-900 dark:text-white'
-                    "
-                  >
-                    {{ vocab.word }}
-                  </h3>
-              <PartOfSpeechLabel :value="vocab.partOfSpeech" :on-image="hasBackground" />
-                  <button
-                    @click="handleSpeak(vocab.word)"
-                    class="p-1.5 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all"
-                    :title="t('favorites.speak')"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                    >
-                      <polygon
-                        points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"
-                      ></polygon>
-                      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                    </svg>
-                  </button>
-                </div>
-                <p
-                  class="text-sm"
-                  :class="
-                    hasBackground
-                      ? 'text-white/70'
-                      : 'text-gray-500 dark:text-gray-400'
-                  "
-                >
-                  {{ vocab.pronunciation }}
-                </p>
+                <VocabularyWordSwitcher :source="vocab" :on-image="hasBackground" word-class="text-lg sm:text-2xl font-bold" />
               </div>
               <div class="flex flex-col items-end gap-2">
                 <button
@@ -207,7 +165,7 @@
                   : 'text-gray-700 dark:text-gray-300'
               "
             >
-              {{ vocab.meaning }}
+              {{ displayedMeaning(vocab) }}
             </p>
 
             <div class="flex flex-wrap gap-2 mb-4">
@@ -300,7 +258,8 @@
 </template>
 
 <script setup lang="ts">
-import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
+import { displayedMeaning } from '@/views/Vocabulary/utils/synonyms';
+import VocabularyWordSwitcher from "@/components/common/VocabularyWordSwitcher.vue";
 import { resolveAssetUrl } from "@/utils/assetUrl";
 import { ref, defineAsyncComponent } from "vue";
 import { RouterLink } from "vue-router";

@@ -341,7 +341,7 @@ describe('Export, import and sharing carry every page of the app', () => {
     const to = await users.save(users.create({ fullName: 'Word senses destination' }));
     const vr = db.getRepository(Vocabulary);
     const noun = await vr.save(vr.create({userId:from.id,word:'book',meaning:'volume',pronunciation:'/buk/',partOfSpeech:'noun' as any}));
-    const verb = await vr.save(vr.create({userId:from.id,word:'book',meaning:'reserve',pronunciation:'/buk/',partOfSpeech:'verb' as any}));
+    const verb = await vr.save(vr.create({userId:from.id,word:'book',meaning:'reserve',pronunciation:'/buk/',partOfSpeech:'verb' as any,synonyms:[{word:'reserve',pronunciation:'/test/',partOfSpeech:'noun' as any,meaning:'reservation'}],selectedSynonym:'reserve'}));
     const cr = db.getRepository(Category);
     await cr.save(cr.create({userId:from.id,name:'Nouns',vocabularies:[noun]}));
     await cr.save(cr.create({userId:from.id,name:'Verbs',vocabularies:[verb]}));
@@ -356,6 +356,8 @@ describe('Export, import and sharing carry every page of the app', () => {
     expect(restored.find(v=>v.partOfSpeech==='noun')?.categories.map(c=>c.name)).toEqual(['Nouns']);
     const restoredVerb=restored.find(v=>v.partOfSpeech==='verb');
     expect(restoredVerb?.categories.map(c=>c.name)).toEqual(['Verbs']);
+    expect(restoredVerb?.synonyms).toEqual([{word:'reserve',pronunciation:'/test/',partOfSpeech:'noun' as any,meaning:'reservation'}]);
+    expect(restoredVerb?.selectedSynonym).toBe('reserve');
     expect((await pr.findOneByOrFail({userId:to.id})).vocabularyId).toBe(restoredVerb?.id);
     const again=await db.transaction(m=>mergeUserDataSnapshot(m,to.id,file,'import'));
     expect(mergeChangeCount(again)).toBe(0);

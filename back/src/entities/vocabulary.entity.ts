@@ -10,6 +10,7 @@ import {
   JoinTable,
 } from 'typeorm';
 import type { Relation } from 'typeorm';
+import type { VocabularySynonym } from '../common/vocabulary-synonyms';
 import { User } from './user.entity';
 import { Category } from './category.entity';
 import { VocabularyTab } from './vocabulary-tab.entity';
@@ -52,6 +53,12 @@ export class Vocabulary {
 
   @Column()
   word: string;
+
+  @Column({ type: 'simple-json', nullable: true })
+  synonyms: VocabularySynonym[] | null;
+
+  @Column({ type: 'text', nullable: true })
+  selectedSynonym: string | null;
 
   @Column({ type: 'text', default: PartOfSpeech.UNSPECIFIED })
   partOfSpeech: PartOfSpeech;

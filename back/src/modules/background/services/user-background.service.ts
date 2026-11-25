@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserBackground } from '../../../entities/user-background.entity';
+import { cleanupUnusedUploads } from '../../../common/services/unused-upload';
 import { UploadService } from '../../../common/services/upload.service';
 import { downloadRemoteBackground } from './remote-background-download';
 
@@ -44,6 +45,11 @@ export class UserBackgroundService {
       .replace(/[\x00-\x1f\x7f]/g, '')
       .trim();
     const name = rawName.slice(0, 100) || 'Custom background';
-    return this.repository.save(this.repository.create({ userId, name, url }));
+    try {
+      return await this.repository.save(this.repository.create({ userId, name, url }));
+    } catch (error) {
+      await cleanupUnusedUploads(this.repository.manager, [url]);
+      throw error;
+    }
   }
 }

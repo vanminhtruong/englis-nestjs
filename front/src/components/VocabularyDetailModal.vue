@@ -74,26 +74,7 @@
         <!-- Word & Pronunciation -->
         <div>
           <div class="flex flex-wrap items-center gap-3 mb-2">
-            <h3 class="text-3xl font-bold text-black dark:text-white">
-              {{ vocabulary?.word }}
-            </h3>
-            <button
-              @click="handleSpeak"
-              class="p-2 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-              </svg>
-            </button>
+            <VocabularyWordSwitcher :source="vocabulary" word-class="text-3xl font-bold" />
             <button
               v-if="vocabulary?.isFavorite"
               class="p-2 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-all ml-auto"
@@ -114,9 +95,6 @@
               </svg>
             </button>
           </div>
-          <p class="text-lg text-black/60 dark:text-white/60 italic">
-            {{ vocabulary?.pronunciation }}
-          </p>
         </div>
 
         <!-- Meaning -->
@@ -127,7 +105,7 @@
             Meaning
           </h4>
           <p class="text-lg text-black dark:text-white">
-            {{ vocabulary?.meaning }}
+            {{ displayedMeaning(vocabulary) }}
           </p>
         </div>
 
@@ -281,6 +259,8 @@
 </template>
 
 <script setup lang="ts">
+import { displayedMeaning } from '@/views/Vocabulary/utils/synonyms';
+import VocabularyWordSwitcher from "./common/VocabularyWordSwitcher.vue";
 import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
 import { resolveAssetUrl } from "@/utils/assetUrl";
 import { watch } from "vue";

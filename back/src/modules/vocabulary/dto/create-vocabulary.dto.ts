@@ -17,6 +17,11 @@ export class CreateVocabularyDto {
   word: string;
 
   @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(20)
+  synonyms?: import('../../../common/vocabulary-synonyms').VocabularySynonym[];
+
+  @IsOptional()
   @IsEnum(PartOfSpeech)
   partOfSpeech?: PartOfSpeech;
 

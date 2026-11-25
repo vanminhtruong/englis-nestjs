@@ -57,6 +57,10 @@ export class VocabularyService {
     return this.crudService.create(userId, createDto);
   }
 
+  async selectSynonym(id: string, userId: string, selected: string | null) {
+    return this.vocabularyRepository.selectSynonym(id, userId, selected);
+  }
+
   async update(id: string, userId: string, updateDto: UpdateVocabularyDto) {
     return this.crudService.update(id, userId, updateDto);
   }

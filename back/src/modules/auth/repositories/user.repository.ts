@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { cleanupUnusedUploads } from '../../../common/services/unused-upload';
 import { User } from '../../../entities/user.entity';
 
 @Injectable()
@@ -37,8 +38,13 @@ export class UserRepository {
   }
 
   async update(id: string, userData: Partial<User>): Promise<User | null> {
+    const previous = userData.avatar !== undefined ? await this.findById(id) : null;
     await this.repository.update(id, userData);
-    return this.findById(id);
+    const saved = await this.findById(id);
+    if (previous && saved && previous.avatar !== saved.avatar) {
+      await cleanupUnusedUploads(this.repository.manager, [previous.avatar]);
+    }
+    return saved;
   }
 
   async replacePassword(id: string, previous: string, password: string): Promise<boolean> {

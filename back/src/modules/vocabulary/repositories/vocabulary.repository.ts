@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Vocabulary, PartOfSpeech } from '../../../entities/vocabulary.entity';
@@ -10,6 +10,8 @@ import {
   checkVocabularyIdentity,
   normalizeIdentity,
 } from './vocabulary-identity';
+import { normalizeSynonyms } from '../../../common/vocabulary-synonyms';
+import { cleanupUnusedUploads } from '../../../common/services/unused-upload';
 import { CheckDuplicateDto } from '../dto/check-duplicate.dto';
 
 @Injectable()
@@ -101,7 +103,7 @@ export class VocabularyRepository {
     if (search && search.trim()) {
       const s = `%${search.toLowerCase()}%`;
       qb.andWhere(
-        '(LOWER(vocabulary.word) LIKE :s OR LOWER(vocabulary.meaning) LIKE :s)',
+        "(LOWER(vocabulary.word) LIKE :s OR LOWER(vocabulary.meaning) LIKE :s OR EXISTS (SELECT 1 FROM json_each(CASE WHEN json_valid(vocabulary.synonyms) THEN vocabulary.synonyms ELSE '[]' END) AS synonym WHERE (LOWER(json_extract(synonym.value, '$.word')) LIKE :s OR LOWER(json_extract(synonym.value, '$.meaning')) LIKE :s)))",
         { s },
       );
     }
@@ -160,6 +162,7 @@ export class VocabularyRepository {
     return this.serializeIdentity(vocabularyData.userId!, async () => {
       const { categoryIds, ...data } = vocabularyData;
       data.partOfSpeech = data.partOfSpeech ?? PartOfSpeech.UNSPECIFIED;
+      data.synonyms = normalizeSynonyms(data.synonyms, data.word ?? '');
       await assertVocabularyIdentity(this.repository, vocabularyData.userId!, {
         word: data.word ?? '',
         meaning: data.meaning,
@@ -185,6 +188,22 @@ export class VocabularyRepository {
     });
   }
 
+  async selectSynonym(id: string, userId: string, selection: string | null) {
+    return this.serializeIdentity(userId, async () => {
+      const vocabulary = await this.repository.findOneBy({ id, userId });
+      if (!vocabulary) throw new NotFoundException('Vocabulary not found');
+      const selected = selection === null ? null : (vocabulary.synonyms ?? []).find(item => item.word === selection)?.word;
+      if (selected === undefined) throw new BadRequestException('Selected synonym does not exist');
+      if (selected !== vocabulary.selectedSynonym) {
+        const result = await this.repository.createQueryBuilder().update(Vocabulary)
+          .set({ selectedSynonym: selected, updatedAt: () => '"updatedAt"' })
+          .where('id = :id AND userId = :userId', { id, userId }).execute();
+        if (!result.affected) throw new NotFoundException('Vocabulary not found');
+      }
+      return { id, selectedSynonym: selected };
+    });
+  }
+
   async update(
     id: string,
     userId: string,
@@ -207,12 +226,19 @@ export class VocabularyRepository {
 
       if (!vocabulary) return null;
 
+      if (data.synonyms !== undefined || data.word !== undefined) {
+        data.synonyms = normalizeSynonyms(data.synonyms === undefined ? vocabulary.synonyms : data.synonyms, data.word ?? vocabulary.word);
+        if (vocabulary.selectedSynonym) data.selectedSynonym = data.synonyms.find(item => normalizeIdentity(item.word) === normalizeIdentity(vocabulary.selectedSynonym))?.word ?? null;
+      }
       await assertVocabularyIdentity(
         this.repository,
         userId,
         { ...vocabulary, ...data },
         vocabulary,
       );
+      const previousMedia = (['image', 'video', 'audio', 'backgroundUrl', 'animatedBackground'] as const)
+        .filter(field => data[field] !== undefined && data[field] !== vocabulary[field])
+        .map(field => vocabulary[field]);
       Object.assign(vocabulary, data);
 
       if (categoryIds !== undefined) {
@@ -226,7 +252,9 @@ export class VocabularyRepository {
         }
       }
 
-      return this.repository.save(vocabulary);
+      const saved = await this.repository.save(vocabulary);
+      await cleanupUnusedUploads(this.repository.manager, previousMedia);
+      return saved;
     });
   }
 
@@ -235,10 +263,9 @@ export class VocabularyRepository {
     // for vocabulariesId. A plain repository.delete fails whenever a word
     // belongs to a tab. Remove only this user's word memberships first, in the
     // same transaction, then let SQLite cascade SRS and practice references.
-    await this.repository.manager.transaction(async (manager) => {
+    const previousMedia = await this.repository.manager.transaction(async (manager) => {
       const word = await manager.findOne(Vocabulary, {
         where: { id, userId },
-        select: { id: true },
       });
       if (!word) return;
 
@@ -248,7 +275,9 @@ export class VocabularyRepository {
         [id, id, userId],
       );
       await manager.delete(Vocabulary, { id, userId });
+      return [word.image, word.video, word.audio, word.backgroundUrl, word.animatedBackground];
     });
+    await cleanupUnusedUploads(this.repository.manager, previousMedia ?? []);
   }
 
   async findByTags(userId: string, tags: string[]): Promise<Vocabulary[]> {
@@ -441,6 +470,7 @@ export class VocabularyRepository {
     let dateTopic = await this.topicRepository.findOne({
       where: { userId, date },
     });
+    const previousIcon = dateTopic?.icon;
     if (dateTopic) {
       dateTopic.topic = topic;
       if (icon !== undefined) dateTopic.icon = icon;
@@ -454,7 +484,9 @@ export class VocabularyRepository {
         color,
       });
     }
-    return this.topicRepository.save(dateTopic);
+    const saved = await this.topicRepository.save(dateTopic);
+    if (previousIcon !== saved.icon) await cleanupUnusedUploads(this.topicRepository.manager, [previousIcon]);
+    return saved;
   }
 
   async moveByLearningDate(

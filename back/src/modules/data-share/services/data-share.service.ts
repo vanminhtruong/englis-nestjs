@@ -1,3 +1,4 @@
+import { cleanupUnusedUploads, snapshotUploadCandidates } from '../../../common/services/unused-upload';
 import {
   BadRequestException,
   ConflictException,
@@ -242,6 +243,7 @@ export class DataShareService {
       return merged;
     });
 
+    await cleanupUnusedUploads(this.dataSource.manager, snapshotUploadCandidates(share.payload));
     await this.userRepository.recalculateTotalWords(userId);
 
     const recipient = await this.userRepository.findById(userId);
@@ -263,6 +265,7 @@ export class DataShareService {
       { status: 'rejected', respondedAt: new Date() },
     );
     if (!result.affected) throw new ConflictException('SHARE_ALREADY_HANDLED');
+    await cleanupUnusedUploads(this.dataSource.manager, snapshotUploadCandidates(share.payload));
 
     const recipient = await this.userRepository.findById(userId);
     this.gateway.emitToUser(share.senderId, 'data-share:responded', {
@@ -283,6 +286,7 @@ export class DataShareService {
       { status: 'cancelled', respondedAt: new Date() },
     );
     if (!result.affected) throw new ConflictException('SHARE_ALREADY_HANDLED');
+    await cleanupUnusedUploads(this.dataSource.manager, snapshotUploadCandidates(share.payload));
 
     this.gateway.emitToUser(share.recipientId, 'data-share:cancelled', { id });
     return { id, status: 'cancelled' as const };

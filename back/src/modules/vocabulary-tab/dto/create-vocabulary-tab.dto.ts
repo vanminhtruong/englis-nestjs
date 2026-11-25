@@ -18,4 +18,9 @@ export class CreateVocabularyTabDto {
     /^(?:[a-z][a-z0-9-]{0,39}|\/uploads\/tab-icons\/[a-f0-9-]{36}\.(?:png|jpg|webp))$/,
   )
   icon?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2796300)
+  iconData?: string;
 }

@@ -2,6 +2,7 @@ export interface PracticeQuestion {
   vocabularyId: string;
   word: string;
   partOfSpeech?: import('../../Vocabulary/utils/partOfSpeech').PartOfSpeech;
+  synonyms?: import('../../Vocabulary/utils/synonyms').VocabularySynonym[];
   pronunciation: string;
   meaning: string;
   example?: string;

@@ -25,6 +25,7 @@ import { UpdateCategoryTopicDto } from './dto/update-category-topic.dto';
 import { VocabularyTabService } from '../vocabulary-tab/vocabulary-tab.service';
 
 import { PartOfSpeech } from '../../entities/vocabulary.entity';
+import { SelectSynonymDto } from './dto/select-synonym.dto';
 import { CheckDuplicateDto } from './dto/check-duplicate.dto';
 
 @Controller('vocabulary')
@@ -193,8 +194,7 @@ export class VocabularyController {
     try {
       return await this.vocabularyService.create(req.user.id, createDto);
     } catch (error) {
-      if (uploadedImage && error?.getStatus?.() === 409)
-        await this.uploadService.deleteFile(uploadedImage);
+      if (uploadedImage) await this.uploadService.discardIfUnused(uploadedImage);
       throw error;
     }
   }
@@ -221,6 +221,13 @@ export class VocabularyController {
     return vocabulary;
   }
 
+  @Patch(':id/selected-synonym')
+  async selectSynonym(@Param('id') id: string, @Body() dto: SelectSynonymDto, @Request() req) {
+    const result = await this.vocabularyService.selectSynonym(id, req.user.id, dto.selectedSynonym);
+    this.websocketGateway.emitToUser(req.user.id, 'vocabulary:synonym-selected', result);
+    return result;
+  }
+
   @Put(':id')
   async update(
     @Param('id') id: string,
@@ -230,7 +237,6 @@ export class VocabularyController {
     let uploadedImage: string | undefined;
     // Handle base64 image if provided
     if (updateDto.image && updateDto.image.startsWith('data:image')) {
-      // Preserve existing images, including copies referenced by shared vocabulary.
       const imagePath = await this.uploadService.saveBase64Image(
         updateDto.image,
       );
@@ -244,11 +250,10 @@ export class VocabularyController {
         updateDto,
       );
       if (!result && uploadedImage)
-        await this.uploadService.deleteFile(uploadedImage);
+        await this.uploadService.discardIfUnused(uploadedImage);
       return result;
     } catch (error) {
-      if (uploadedImage && error?.getStatus?.() === 409)
-        await this.uploadService.deleteFile(uploadedImage);
+      if (uploadedImage) await this.uploadService.discardIfUnused(uploadedImage);
       throw error;
     }
   }

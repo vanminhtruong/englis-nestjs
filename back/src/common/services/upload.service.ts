@@ -1,13 +1,16 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Optional } from '@nestjs/common';
 import { randomUUID } from 'crypto';
-import { existsSync, mkdirSync, writeFileSync, unlinkSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { cleanupUnusedUploads } from './unused-upload';
 
 @Injectable()
 export class UploadService {
   private readonly uploadPath = join(process.cwd(), 'uploads');
 
-  constructor() {
+  constructor(@Optional() @InjectDataSource() private readonly database?: DataSource) {
     // Ensure upload directory exists
     if (!existsSync(this.uploadPath)) {
       mkdirSync(this.uploadPath, { recursive: true });
@@ -15,13 +18,10 @@ export class UploadService {
   }
 
   async saveFile(file: any): Promise<string> {
-    const timestamp = Date.now();
-    const fileName = `${timestamp}-${file.originalname}`;
-    const filePath = join(this.uploadPath, fileName);
-
-    writeFileSync(filePath, file.buffer);
-
-    return `/uploads/${fileName}`;
+    if (!file?.buffer || !/^image\/(?:png|jpeg|webp|gif|bmp|x-icon)$/.test(file.mimetype ?? '')) {
+      throw new BadRequestException('Invalid image upload');
+    }
+    return this.saveBase64Image(`data:${file.mimetype};base64,${file.buffer.toString('base64')}`);
   }
 
   /** Safe, purpose-built tab icon upload. Never trust the client filename or MIME alone. */
@@ -120,26 +120,30 @@ export class UploadService {
     return `/uploads/user-backgrounds/${name}`;
   }
 
-  async deleteFile(filePath: string): Promise<void> {
-    try {
-      const fullPath = join(process.cwd(), filePath);
-      if (existsSync(fullPath)) {
-        unlinkSync(fullPath);
-      }
-    } catch (error) {
-      console.error('Error deleting file:', error);
-    }
+  async discardIfUnused(...paths: unknown[]): Promise<void> {
+    if (this.database) await cleanupUnusedUploads(this.database.manager, paths);
   }
 
+  async saveTabIconData(data: string): Promise<string> {
+    const match = /^data:(image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(data);
+    if (!match || match[2].length > Math.ceil(2 * 1024 * 1024 / 3) * 4) {
+      throw new BadRequestException('Invalid tab icon image');
+    }
+    return this.saveTabIcon({ mimetype: match[1], buffer: Buffer.from(match[2], 'base64') });
+  }
+
+
   async saveBase64Image(base64Data: string): Promise<string> {
-    // Remove data:image/...;base64, prefix if present
-    const base64Image = base64Data.replace(/^data:image\/\w+;base64,/, '');
-    const buffer = Buffer.from(base64Image, 'base64');
-
-    const fileName = `${randomUUID()}.png`;
+    const match = /^data:image\/([a-z0-9.+-]+);base64,([A-Za-z0-9+/]+={0,2})$/i.exec(base64Data);
+    if (!match) throw new BadRequestException('Invalid image data');
+    const extensions: Record<string, string> = { png: 'png', jpeg: 'jpg', jpg: 'jpg', webp: 'webp', gif: 'gif', bmp: 'bmp', avif: 'avif', tiff: 'tiff', 'x-icon': 'ico', 'vnd.microsoft.icon': 'ico' };
+    const extension = extensions[match[1].toLowerCase()];
+    if (!extension) throw new BadRequestException('Unsupported image format');
+    const buffer = Buffer.from(match[2], 'base64');
+    if (!buffer.length) throw new BadRequestException('Empty image data');
+    const fileName = `${randomUUID()}.${extension}`;
     const filePath = join(this.uploadPath, fileName);
-
-    writeFileSync(filePath, buffer);
+    writeFileSync(filePath, buffer, { flag: 'wx' });
 
     return `/uploads/${fileName}`;
   }

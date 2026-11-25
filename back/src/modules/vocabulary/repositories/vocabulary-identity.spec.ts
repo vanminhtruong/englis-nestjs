@@ -201,4 +201,44 @@ describe('Vocabulary identity and word classification', () => {
       await old.destroy();
     }
   });
+  it('stores normalized synonyms, searches aliases, preserves them on partial edits and clears explicitly', async () => {
+    const entry = await repo.create({...word(a.id,'rapid','fast',PartOfSpeech.ADJECTIVE), synonyms:[{word:' quick ',pronunciation:' /kw\u026ak/ '},{word:'QUICK'},{word:'rapid'},{word:'swift',partOfSpeech:PartOfSpeech.VERB}]});
+    expect(entry.synonyms).toEqual([{word:'quick',pronunciation:'/kwɪk/'},{word:'swift',pronunciation:'',partOfSpeech:PartOfSpeech.VERB}]);
+    expect((await repo.findAllPaginated(a.id,1,10,'quick')).items.map(x=>x.id)).toContain(entry.id);
+    expect((await repo.findAllPaginated(b.id,1,10,'quick')).items).toHaveLength(0);
+    const updated=await repo.update(entry.id,a.id,{note:'new note'});
+    expect(updated?.synonyms).toEqual(entry.synonyms);
+    await expect(repo.update(entry.id,a.id,{synonyms:[{word:'swift',partOfSpeech:'invalid' as PartOfSpeech}]})).rejects.toMatchObject({status:400});
+    await expect(repo.update(entry.id,a.id,{synonyms:[{word:''}]})).rejects.toMatchObject({status:400});
+    await expect(repo.update(entry.id,a.id,{synonyms:Array.from({length:21},(_,i)=>({word:'alias'+i}))})).rejects.toMatchObject({status:400});
+    expect((await repo.update(entry.id,a.id,{word:'quick'}))?.synonyms).toEqual([{word:'swift',pronunciation:'',partOfSpeech:PartOfSpeech.VERB}]);
+    expect((await repo.update(entry.id,a.id,{synonyms:[]}))?.synonyms).toEqual([]);
+  });
+  it('persists a display selection without changing the canonical word or modification date', async () => {
+    const entry = await repo.create({...word(a.id,'selection-original','test selection',PartOfSpeech.NOUN), synonyms:[{word:'chosen',partOfSpeech:PartOfSpeech.VERB},{word:'another'}]});
+    expect(await repo.selectSynonym(entry.id,a.id,'chosen')).toEqual({id:entry.id,selectedSynonym:'chosen'});
+    const persisted=await repo.findById(entry.id,a.id);
+    expect(persisted).toMatchObject({word:entry.word,partOfSpeech:PartOfSpeech.NOUN,selectedSynonym:'chosen',updatedAt:entry.updatedAt});
+    await expect(repo.selectSynonym(entry.id,b.id,'another')).rejects.toMatchObject({status:404});
+    await expect(repo.selectSynonym(entry.id,a.id,'unknown')).rejects.toMatchObject({status:400});
+    expect((await repo.update(entry.id,a.id,{note:'preserved'}))?.selectedSynonym).toBe('chosen');
+    expect((await repo.update(entry.id,a.id,{synonyms:[{word:'CHOSEN'},{word:'another'}]}))?.selectedSynonym).toBe('CHOSEN');
+    expect((await repo.update(entry.id,a.id,{synonyms:[{word:'another'}]}))?.selectedSynonym).toBeNull();
+    await repo.selectSynonym(entry.id,a.id,'another');
+    expect(await repo.selectSynonym(entry.id,a.id,null)).toEqual({id:entry.id,selectedSynonym:null});
+    expect((await repo.findById(entry.id,a.id))?.selectedSynonym).toBeNull();
+  });
+  it('stores individual synonym meanings and preserves inherited meanings', async () => {
+    const entry=await repo.create({...word(a.id,'meaning-original','original meaning',PartOfSpeech.NOUN),synonyms:[{word:'meaning-alias',meaning:'  specific-definition  '},{word:'meaning-inherited',meaning:'  '}]});
+    expect(entry.synonyms).toEqual([{word:'meaning-alias',pronunciation:'',meaning:'specific-definition'},{word:'meaning-inherited',pronunciation:''}]);
+    expect((await repo.findAllPaginated(a.id,1,10,'specific-definition')).items.map(x=>x.id)).toContain(entry.id);
+    expect((await repo.findAllPaginated(b.id,1,10,'specific-definition')).items).toHaveLength(0);
+    await repo.selectSynonym(entry.id,a.id,'meaning-alias');
+    expect((await repo.findById(entry.id,a.id))?.selectedSynonym).toBe('meaning-alias');
+    expect((await repo.update(entry.id,a.id,{note:'partial edit'}))?.synonyms).toEqual(entry.synonyms);
+    await expect(repo.update(entry.id,a.id,{synonyms:[{word:'meaning-alias',meaning:123 as any}]})).rejects.toMatchObject({status:400});
+    await expect(repo.update(entry.id,a.id,{synonyms:[{word:'meaning-alias',meaning:'x'.repeat(501)}]})).rejects.toMatchObject({status:400});
+    const updated=await repo.update(entry.id,a.id,{synonyms:[{word:'meaning-alias',meaning:'changed meaning'}]});
+    expect(updated).toMatchObject({word:'meaning-original',meaning:'original meaning',selectedSynonym:'meaning-alias',synonyms:[{word:'meaning-alias',meaning:'changed meaning',pronunciation:''}]});
+  });
 });

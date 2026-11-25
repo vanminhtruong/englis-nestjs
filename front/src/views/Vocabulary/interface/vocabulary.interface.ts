@@ -2,6 +2,7 @@ import type { PartOfSpeech } from '../utils/partOfSpeech'
 
 export interface VocabularyForm {
   partOfSpeech?: PartOfSpeech
+  synonyms?: import('../utils/synonyms').VocabularySynonym[]
   word: string
   pronunciation: string
   meaning: string

@@ -4,7 +4,9 @@ import { ref } from 'vue'
 import type { PartOfSpeech } from '../views/Vocabulary/utils/partOfSpeech'
 
 export interface Vocabulary {
+  selectedSynonym?: string | null
   partOfSpeech?: PartOfSpeech
+  synonyms?: import('../views/Vocabulary/utils/synonyms').VocabularySynonym[]
   id: string
   word: string
   pronunciation: string

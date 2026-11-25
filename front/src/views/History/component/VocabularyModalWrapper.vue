@@ -37,6 +37,7 @@ const saving = ref(false)
 const vocabularyData = ref<any>(null)
 const form = ref<any>({
   word: '',
+  synonyms: [],
   partOfSpeech: 'unspecified',
   pronunciation: '',
   meaning: '',
@@ -62,6 +63,7 @@ async function loadVocabulary(id: string) {
     // Fill form with vocabulary data
     form.value = {
       word: response.data.word || '',
+      synonyms: (response.data.synonyms || []).map((item: any) => ({ ...item })),
       pronunciation: response.data.pronunciation || '',
       meaning: response.data.meaning || response.data.translation || '',
       partOfSpeech: response.data.partOfSpeech || 'unspecified',
@@ -90,6 +92,7 @@ async function handleSubmit() {
 
     const updateData = {
       word: form.value.word,
+      synonyms: form.value.synonyms,
       pronunciation: form.value.pronunciation,
       meaning: form.value.meaning,
       partOfSpeech: form.value.partOfSpeech,

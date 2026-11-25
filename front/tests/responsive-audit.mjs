@@ -22,6 +22,8 @@ const defaultLocaleAudit = process.argv.includes('--default-locale')
 const posAudit = process.argv.includes('--pos-only')
 const noteAudit = process.argv.includes('--note-only')
 const layoutAudit = process.argv.includes('--layout-only')
+const uploadAudit = process.argv.includes('--upload-only')
+const synonymAudit = process.argv.includes('--synonym-only')
 const longContent = process.argv.includes('--long-content')
 const themes = themeFlag === 'both' ? ['light', 'dark'] : [themeFlag]
 const base = 'http://127.0.0.1:5199'
@@ -66,6 +68,11 @@ if (longContent) {
 }
 if (posAudit) { words[0].partOfSpeech='noun'; words[1].partOfSpeech='adjective'; words[0].meaning='building design'; words[1].pronunciation='/test/' }
 const posWrites = [];
+const synonymWrites=[];
+if(synonymAudit){words[0].partOfSpeech='noun';words[0].synonyms=[{word:'design',pronunciation:'/design/',partOfSpeech:'verb',meaning:'design-specific-meaning'},{word:'construction',pronunciation:''},...Array.from({length:18},(_,i)=>({word:'Related '+(i+1),pronunciation:'/test/',partOfSpeech:'noun'}))];}
+const tabRequests=[];
+const auditTabs=[{id:'tab1',name:'English',icon:'book',vocabularies:words}];
+let uploadActive=null;
 function mockPayload(url, method, postData, currentRoute) {
   const path = new URL(url).pathname
   if (path === '/auth/me') return user
@@ -73,8 +80,34 @@ function mockPayload(url, method, postData, currentRoute) {
   if (path === '/auth/theme') return {success:true}
   if (path === '/auth/forgot-password/request') return {message:'If the email is registered, we will send a verification code.'}
   if (path === '/auth/forgot-password/reset') return {success:true}
+  if(uploadAudit && path==='/vocabulary-tabs/upload-icon'){tabRequests.push({method:'legacy',body:{}});return {url:'/uploads/legacy.png'};}
+  if(uploadAudit && path==='/vocabulary-tabs' && method==='POST'){
+    const body=JSON.parse(postData||'{}');tabRequests.push({method,body});
+    const row={id:'audit-upload-tab',name:body.name,icon:'/uploads/tab-icons/123e4567-e89b-12d3-a456-426614174000.png',vocabularies:[]};
+    auditTabs.push(row);return row;
+  }
+  if(uploadAudit && path.startsWith('/vocabulary-tabs/') && method==='PATCH'){
+    const body=JSON.parse(postData||'{}');tabRequests.push({method,body});
+    const row=auditTabs.find(t=>t.id===path.split('/')[2]);if(row)row.icon='/uploads/tab-icons/123e4567-e89b-12d3-a456-426614174001.png';return row;
+  }
+  if(uploadAudit && path==='/vocabulary-tabs') return auditTabs;
+  if(uploadAudit && path==='/vocabulary/settings/active-tab'){uploadActive=JSON.parse(postData||'{}').tabId;return {success:true};}
+  if(uploadAudit && path==='/vocabulary/settings')return {isFilterExpanded:false,isAllTabHidden:false,activeTabId:uploadActive};
   if (path === '/vocabulary-tabs') return [{id:'tab1', name:'English', icon:'book', vocabularies:words}]
   if (path === '/vocabulary/settings') return {isFilterExpanded: false, isAllTabHidden:false, activeTabId:null}
+  if(synonymAudit && path.endsWith('/selected-synonym') && method==='PATCH') {
+    const row=words.find(w=>w.id===path.split('/')[2])||synonymWrites.find(w=>w.id===path.split('/')[2]);
+    const body=JSON.parse(postData||'{}'); if(!row)return null; row.selectedSynonym=body.selectedSynonym; return {id:row.id,selectedSynonym:row.selectedSynonym};
+  }
+  if(synonymAudit && path==='/vocabulary/check-duplicate') return {duplicate:false,total:0,matches:[]};
+  if(synonymAudit && path==='/vocabulary' && method==='POST'){
+    const body=JSON.parse(postData||'{}');const row={...body,id:'audit-synonym-word',createdAt:'2026-11-25T15:00:00Z',updatedAt:'2026-11-25T15:00:00Z'};synonymWrites.splice(0,synonymWrites.length,row);return row;
+  }
+  if(synonymAudit && path.startsWith('/vocabulary/') && method==='PUT'){
+    const row=words.find(w=>w.id===path.split('/')[2])||synonymWrites.find(w=>w.id===path.split('/')[2]);
+    if(row)Object.assign(row,JSON.parse(postData||'{}'));return row;
+  }
+  if(synonymAudit && path==='/vocabulary' && method==='GET')return {data:[...words,...synonymWrites],meta:{page:1,limit:6,total:words.length+synonymWrites.length,pageCount:1}};
   if (posAudit && path === '/vocabulary/check-duplicate') {
     const params=new URL(url).searchParams;
     const norm=v=>String(v||'').trim().replace(/\s+/g,' ').toLowerCase();
@@ -145,6 +178,7 @@ function mockPayload(url, method, postData, currentRoute) {
   if (path.startsWith('/tag')) return path === '/tag' ? [] : {id:'audit-tag',name:'Demo',vocabularies:[]}
   if (path === '/history/statistics') return {totalActivities:0,vocabulary:{total:0,created:0,updated:0,deleted:0},practice:{totalPractices:0,accuracy:0,totalScore:0}}
   if (path.startsWith('/history')) return {data:[],items:[],total:0,page:1,totalPages:0}
+  if(synonymAudit && path==='/srs/queue') return [{...words[0],isNew:true,isPracticeOnly:false,repetitions:0,lapses:0,intervalDays:0,nextReviewAt:null,synonyms:Array.from({length:20},(_,i)=>({word:'Related word '+(i+1),pronunciation:'/test/',partOfSpeech:i===0?'verb':'noun',meaning:i===0?'specific review meaning':undefined}))}];
   if (path.includes('/srs/') || path.startsWith('/srs')) return {totalWords:12,availableWords:4,dueWords:2,newWords:2,reviewed24h:0,reviews:[],items:[],data:[],total:0,meta:{page:1,limit:5,total:0,pageCount:0}}
   if (path === '/learning-progress') return {totalWords:12,masteredWords:4,learningWords:6,newWords:2,masteryPercentage:33.3,totalScore:170,averageScore:85,rank:'beginner',rankProgress:0.3,practiceStats:{totalPractices:6,flashcardCount:2,multipleChoiceCount:1,typingCount:1,listeningCount:1,snakeCount:1,correctAnswers:25,wrongAnswers:5,accuracy:83.3,totalTimeSpent:100},streak:{currentStreak:2,longestStreak:3,lastPracticeDate:'2026-11-21',isActiveToday:false},weeklyProgress:[],achievements:[]}
   if (path === '/voice') return []
@@ -260,6 +294,7 @@ try {
   for (const theme of themes) {
     activeTheme=theme; user.theme=theme
     for (const width of widths) {
+      if(synonymAudit){user.vocabularyLayout=width<768?'grid':'list';synonymWrites.length=0;}
       await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:true,screenWidth:width,screenHeight:height})
       for (const route of routes) {
         currentRoute=route
@@ -339,6 +374,156 @@ try {
           scenarioResults.push({theme,width,route,scenario:'forgot-password-3-steps',activated:emailEntered&&otpReady,visiblePanel:successVisible,...detail})
         }
 
+        if (uploadAudit && route === '/vocabulary') {
+          tabRequests.length=0;
+          const result=await evaluate(`(async()=>{
+            const wait=async f=>{for(let i=0;i<70;i++){if(f())return true;await new Promise(r=>setTimeout(r,100))}return false};
+            const modal=()=>document.querySelector('#vocabulary-tab-editor');
+            const add=()=>document.querySelector('[data-tab-create]');
+            const ready=await wait(()=>add());
+            if(!ready)return {ready:false};
+            const pick=()=>{
+              const data=new DataTransfer();
+              const canvas=document.createElement('canvas');canvas.width=canvas.height=2;
+              const bytes=Uint8Array.from(atob(canvas.toDataURL().split(',')[1]),c=>c.charCodeAt(0));
+              data.items.add(new File([bytes],'icon.png',{type:'image/png'}));
+              const input=modal().querySelector('input[type="file"]');
+              input.files=data.files; input.dispatchEvent(new Event('change',{bubbles:true}));
+            };
+            add().click();await wait(()=>modal());pick();
+            document.querySelector('[role="dialog"] header button').click();
+            const cancelled=await wait(()=>!modal());
+            add().click();await wait(()=>modal());pick();pick();
+            const name=modal().querySelector('input[type="text"]');
+            name.value='Uploaded icon';name.dispatchEvent(new Event('input',{bubbles:true}));
+            await wait(()=>!document.querySelector('button[form="vocabulary-tab-editor"]').disabled);
+            document.querySelector('button[form="vocabulary-tab-editor"]').click();
+            const saved=await wait(()=>!modal()&&document.body.innerText.includes('Uploaded icon'));
+            const active=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='English');
+            active?.click();
+            const edit=()=>document.querySelector('[data-tab-edit]');
+            const editable=await wait(()=>edit());edit()?.click();
+            const editing=await wait(()=>modal());
+            if(!editing)return {ready,cancelled,saved,editable,editing};
+            pick();
+            document.querySelector('button[form="vocabulary-tab-editor"]').click();
+            const updated=await wait(()=>!modal());
+            return {ready,cancelled,saved,editable,editing,updated};
+          })()`,45000)
+          const atomic=tabRequests.length===2&&tabRequests[0].method==='POST'&&tabRequests[1].method==='PATCH'&&tabRequests.every(x=>x.body.iconData?.startsWith('data:image/png;base64,'));
+          scenarioResults.push({theme,width,route,scenario:'tab-upload-atomic',...result,atomic,activated:Object.values(result).every(v=>v===true)&&atomic,visiblePanel:result.saved===true});
+          continue;
+        }
+        if (synonymAudit && route === '/vocabulary') {
+          const check=await evaluate(`(async()=>{
+            const wait=async f=>{for(let i=0;i<75;i++){if(f())return true;await new Promise(r=>setTimeout(r,100))}return false};
+            const root=()=>document.querySelector('[data-word-switcher]');
+            const trigger=()=>root()?.querySelector('[data-synonym-switch] button');
+            const ready=await wait(()=>trigger());
+            if(!ready)return {ready:false};
+            const original=root().querySelector('[data-displayed-word]').textContent.trim()==='architecture';
+            trigger().scrollIntoView({block:'center'});await new Promise(r=>setTimeout(r,350));trigger().click();
+            await wait(()=>document.querySelector('[role="option"]'));
+            const list=document.querySelector('[role="listbox"]');
+            await wait(()=>list.style.maxHeight&&list.scrollHeight>list.clientHeight);
+            const fourth=list.children[3], fifth=list.children[4];
+            const cap=!!fourth&&!!fifth&&list.clientHeight<=fourth.getBoundingClientRect().bottom-list.getBoundingClientRect().top+list.scrollTop+1&&list.scrollHeight>list.clientHeight;
+            list.scrollTop=list.scrollHeight;
+            await new Promise(r=>setTimeout(r,150));
+            const last=list.lastElementChild;
+            const scrolled=!!last&&list.scrollTop>0&&last.getBoundingClientRect().bottom<=list.getBoundingClientRect().bottom+1&&document.contains(list);
+            list.scrollTop=0;
+            [...document.querySelectorAll('[role="option"]')].find(b=>b.querySelector('span')?.textContent.trim()==='design')?.click();
+            const switched=await wait(()=>root()?.querySelector('[data-displayed-word]')?.textContent.trim()==='design');
+            await wait(()=>!trigger()?.disabled);
+            const ipa=root()?.querySelector('[data-displayed-ipa]')?.textContent.trim()==='/design/';
+            const posChanged=root()?.querySelector('[data-part-of-speech]')?.textContent.trim()==='Verb';
+            const meaningChanged=document.body.innerText.includes('design-specific-meaning');
+            const voice=root()?.querySelector('[data-synonym-speak]')?.getAttribute('aria-label')?.endsWith(': design');
+            await new Promise(r=>setTimeout(r,250)); trigger()?.click();await wait(()=>document.querySelector('[role="option"]'));
+            [...document.querySelectorAll('[role="option"]')].find(b=>b.querySelector('span')?.textContent.trim()==='architecture')?.click();
+            const returned=await wait(()=>root()?.querySelector('[data-displayed-word]')?.textContent.trim()==='architecture');
+            await wait(()=>!trigger()?.disabled);
+            const fit=root().scrollWidth<=root().clientWidth+1;
+            const modal=()=>document.querySelector('form[id^="vocabulary-form-"]');
+            document.querySelector('button.add-button')?.click();
+            const opened=await wait(()=>modal());
+            if(!opened)return {ready,original,switched,ipa,voice,returned,fit,opened};
+            const set=(el,value)=>{el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));};
+            const inputs=modal().querySelectorAll('input[required]');
+            set(inputs[0],'audit-happy');set(inputs[1],'/happy/');set(inputs[2],'happy meaning');
+            const section=[...modal().querySelectorAll('section>button')].find(b=>b.textContent.includes('Synonyms'));
+            section?.click();await wait(()=>document.querySelector('[data-synonym-editor]'));
+            const editor=()=>document.querySelector('[data-synonym-editor]');
+            [...editor().querySelectorAll('button')].find(b=>b.textContent.includes('Add synonym'))?.click();
+            await wait(()=>editor().querySelector('input'));
+            set(editor().querySelectorAll('input')[0],'joyful');await new Promise(r=>setTimeout(r,150));set(editor().querySelectorAll('input')[1],'/joyful/');await new Promise(r=>setTimeout(r,450));
+            set(editor().querySelector('[data-synonym-meaning]'),'joyful-specific-meaning');await new Promise(r=>setTimeout(r,150));
+            const pos=editor().querySelector('[data-synonym-pos] button');pos.scrollIntoView({block:'center'});await new Promise(r=>setTimeout(r,300));pos.click();await wait(()=>document.querySelector('[role="option"]'));[...document.querySelectorAll('[role="option"]')].find(b=>b.textContent.trim()==='Adjective')?.click();await new Promise(r=>setTimeout(r,250));
+            const add=()=>[...editor().querySelectorAll('button')].find(b=>b.textContent.includes('Add synonym'));
+            const editorList=()=>editor().querySelector('[data-synonym-editor-list]');
+            for(let i=1;i<5;i++){add()?.click();await wait(()=>editorList().children.length===i+1);set(editorList().lastElementChild.querySelector('input'),'Extra synonym '+i);await new Promise(r=>setTimeout(r,150));}
+            await wait(()=>editorList().scrollHeight>editorList().clientHeight&&editorList().scrollTop>0);
+            const editScroll=editorList().children.length===5&&editorList().scrollHeight>editorList().clientHeight&&editorList().scrollTop>0&&!editorList().contains(add());
+            const save=document.querySelector('[data-vocabulary-save]');
+            save?.click();
+            const saved=await wait(()=>!modal()&&[...document.querySelectorAll('[data-displayed-word]')].some(el=>el.textContent.trim()==='audit-happy'));
+            const edit=document.querySelector('[data-vocabulary-edit]');
+            edit?.click();const editing=await wait(()=>modal());
+            if(!editing)return {ready,original,switched,ipa,voice,returned,fit,opened,saved,editing};
+            const syn=[...modal().querySelectorAll('section>button')].find(b=>b.textContent.includes('Synonyms'));
+            syn?.click();await wait(()=>editor()?.querySelector('input'));
+            const loaded=editor()?.querySelector('input')?.value==='design';
+            if(loaded){set(editor().querySelectorAll('input')[1],'/updated/');await new Promise(r=>setTimeout(r,450));}
+            document.querySelector('[data-vocabulary-save]')?.click();
+            const edited=await wait(()=>!modal());
+            return {ready,original,switched,ipa,voice,returned,fit,opened,saved,editing,loaded,edited,posChanged,cap,scrolled,editScroll,meaningChanged};
+          })()`,45000)
+          const sent=synonymWrites.some(w=>w.word==='audit-happy'&&w.synonyms?.[0]?.word==='joyful'&&w.synonyms[0].pronunciation==='/joyful/'&&w.synonyms[0].partOfSpeech==='adjective'&&w.synonyms[0].meaning==='joyful-specific-meaning')&&words[0].synonyms[0].pronunciation==='/updated/';
+          words[0].synonyms[0].pronunciation='/design/';
+          const chose=await evaluate(`(async()=>{const root=document.querySelector('[data-word-switcher]');const btn=root?.querySelector('[data-synonym-switch] button');if(!btn)return false;btn.scrollIntoView({block:'center'});await new Promise(r=>setTimeout(r,300));btn.click();await new Promise(r=>setTimeout(r,300));[...document.querySelectorAll('[role="option"]')].find(b=>b.querySelector('span')?.textContent.trim()==='design')?.click();for(let i=0;i<60;i++){if(!btn.disabled&&root.querySelector('[data-displayed-word]')?.textContent.trim()==='design')return true;await new Promise(r=>setTimeout(r,100));}return false;})()`);
+          const persisted=words[0].selectedSynonym==='design';
+          await send('Page.reload',{ignoreCache:true},30000);
+          const restored=await evaluate(`(async()=>{for(let i=0;i<80;i++){const root=document.querySelector('[data-word-switcher]');if(root?.querySelector('[data-displayed-word]')?.textContent.trim()==='design'&&root.querySelector('[data-part-of-speech]')?.textContent.trim()==='Verb'&&document.body.innerText.includes('design-specific-meaning'))return true;await new Promise(r=>setTimeout(r,100));}return false;})()`);
+          Object.assign(check,{chose,persisted,restored});
+          words[0].selectedSynonym=null;
+          scenarioResults.push({theme,width,route,scenario:'synonym-switch-save',...check,sent,activated:Object.values(check).every(v=>v===true)&&sent,visiblePanel:check.fit===true});
+          continue;
+        }
+        if (synonymAudit && route === '/srs') {
+          const check=await evaluate(`(async()=>{
+            const wait=async f=>{for(let i=0;i<70;i++){if(f())return true;await new Promise(r=>setTimeout(r,100))}return false};
+            const btn=(text)=>[...document.querySelectorAll('button')].find(b=>b.textContent.includes(text)&&!b.disabled);
+            const started=await wait(()=>btn('Start smart review')||btn('Practice these words'));
+            if(!started)return {started};
+            (btn('Start smart review')||btn('Practice these words')).click();
+            const question=await wait(()=>btn('Show answer'));
+            if(!question)return {started,question};
+            const hiddenBefore=!document.querySelector('[data-synonym-review]');
+            btn('Show answer').click();
+            const review=()=>document.querySelector('[data-synonym-review]');
+            const ready=await wait(()=>review());
+            if(!ready)return {started,question,hiddenBefore,ready};
+            const trigger=()=>review().querySelector('button[aria-expanded]');
+            const closed=trigger().getAttribute('aria-expanded')==='false'&&!review().querySelector('[data-synonym-review-list]');
+            trigger().click();
+            const opened=await wait(()=>review().querySelector('[data-synonym-review-list]'));
+            const list=review().querySelector('[data-synonym-review-list]');
+            await wait(()=>list.style.maxHeight.includes('min(')&&list.scrollHeight>list.clientHeight);
+            const bounded=!!list&&list.scrollHeight>list.clientHeight&&list.clientHeight<=list.children[3].getBoundingClientRect().bottom-list.getBoundingClientRect().top+list.scrollTop+1;
+            list.scrollTop=list.scrollHeight;await new Promise(r=>setTimeout(r,100));
+            const scrolled=list.scrollTop>0&&list.lastElementChild.getBoundingClientRect().bottom<=list.getBoundingClientRect().bottom+1;
+            const all=!!list&&list.querySelectorAll('button').length===20;
+            const meanings=list.querySelector('[data-synonym-review-meaning]')?.textContent.trim()==='specific review meaning'&&list.querySelectorAll('[data-synonym-review-meaning]').length===20;
+            const type=!!list&&[...list.querySelectorAll('[data-part-of-speech]')].some(x=>x.textContent.trim()==='Verb');
+            const fit=review().scrollWidth<=review().clientWidth+1;
+            trigger().click();
+            const recollapsed=await wait(()=>trigger().getAttribute('aria-expanded')==='false'&&!review().querySelector('[data-synonym-review-list]'));
+            return {started,question,hiddenBefore,ready,closed,opened,bounded,all,type,fit,recollapsed,scrolled,meanings};
+          })()`,45000)
+          scenarioResults.push({theme,width,route,scenario:'synonym-review-collapse',...check,activated:Object.values(check).every(v=>v===true),visiblePanel:check.fit===true});
+          continue;
+        }
         if (layoutAudit && route === '/vocabulary') {
           const result=await evaluate(`(async () => {
             let el;

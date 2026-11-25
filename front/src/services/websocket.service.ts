@@ -56,6 +56,7 @@ class WebSocketService {
       "user:disconnected",
       "vocabulary:created",
       "vocabulary:updated",
+      "vocabulary:synonym-selected",
       "vocabulary:deleted",
       "vocabulary:pinned",
       "vocabulary:bydate:refresh",

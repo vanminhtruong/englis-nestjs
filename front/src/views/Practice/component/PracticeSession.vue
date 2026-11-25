@@ -109,6 +109,7 @@
         </div>
       </div>
 
+      <VocabularySynonymReview v-if="showAnswer" :source="currentQuestion" class="mb-4" />
       <!-- Flashcard Mode: Click to reveal -->
       <div v-if="session.mode === 'flashcard' && !showAnswer" class="space-y-4">
         <div class="text-center py-12">
@@ -365,6 +366,7 @@
 </template>
 
 <script setup lang="ts">
+import VocabularySynonymReview from "@/components/common/VocabularySynonymReview.vue";
 import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
 import { ref, watch, computed, defineAsyncComponent, onMounted, nextTick } from "vue";
 import { useI18n } from "vue-i18n";

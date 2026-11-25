@@ -95,39 +95,7 @@
 
         <div class="flex items-start justify-between mb-3">
           <div class="flex-1 min-w-0">
-            <div class="flex min-w-0 flex-wrap items-center gap-2 mb-1">
-              <h3
-                class="text-2xl font-bold truncate"
-                :class="hasBackground ? 'text-white' : 'text-gray-900 dark:text-white'"
-              >
-                {{ vocab.word }}
-              </h3>
-              <PartOfSpeechLabel :value="vocab.partOfSpeech" :on-image="hasBackground" />
-              <button
-                @click="emit('speak', vocab.word)"
-                class="p-1.5 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all flex-shrink-0"
-                :title="t('vocabulary.speak')"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                </svg>
-              </button>
-            </div>
-            <p
-              class="text-sm truncate"
-              :class="hasBackground ? 'text-white/60' : 'text-gray-500 dark:text-gray-400'"
-            >
-              {{ vocab.pronunciation }}
-            </p>
+            <VocabularyWordSwitcher :source="vocab" :on-image="hasBackground" />
           </div>
           <div class="flex flex-col items-end gap-2 flex-shrink-0 ml-3">
             <div class="flex items-center gap-2">
@@ -186,7 +154,7 @@
           class="mb-4"
           :class="hasBackground ? 'text-white/80' : 'text-gray-700 dark:text-gray-300'"
         >
-          {{ vocab.meaning }}
+          {{ displayedMeaning(vocab) }}
         </p>
 
         <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
@@ -216,7 +184,7 @@
               </svg>
             </button>
             <button
-              @click="emit('open-edit', vocab)"
+              data-vocabulary-edit @click="emit('open-edit', vocab)"
               class="p-2 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all"
             >
               <svg
@@ -307,7 +275,8 @@
 </template>
 
 <script setup lang="ts">
-import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
+import { displayedMeaning } from '@/views/Vocabulary/utils/synonyms';
+import VocabularyWordSwitcher from "@/components/common/VocabularyWordSwitcher.vue";
 import { resolveAssetUrl } from "@/utils/assetUrl";
 import { defineAsyncComponent } from "vue";
 import type { Vocabulary } from "../../../stores/vocabulary.store";

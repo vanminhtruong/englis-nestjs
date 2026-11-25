@@ -102,7 +102,8 @@
         >
           <button
             v-if="activeTabId === tab.id"
-            @click.stop="$emit('edit', tab)"
+            data-tab-edit
+              @click.stop="$emit('edit', tab)"
             class="p-0.5 rounded-full hover:bg-white/20 text-white/70 hover:text-white transition-colors"
             :title="t('vocabularyTabs.editName')"
           >
@@ -304,7 +305,8 @@
                 >
                   <button
                     type="button"
-                    @click.stop="$emit('edit', tab)"
+                    data-tab-edit
+              @click.stop="$emit('edit', tab)"
                     class="flex h-9 w-9 min-h-[36px] min-w-[36px] items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-2 focus-visible:ring-primary-500 dark:bg-white/5 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
                     :aria-label="t('vocabularyTabs.editName')"
                     :title="t('vocabularyTabs.editName')"
@@ -365,7 +367,8 @@
       <!-- Create New Tab Button -->
       <button
         v-if="!selectionOnly"
-        @click="$emit('create')"
+        data-tab-create
+          @click="$emit('create')"
         class="p-2 rounded-xl bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-white/40 hover:bg-gray-200 dark:hover:bg-white/10 transition-all ml-1 shrink-0"
         :title="t('vocabularyTabs.createNewTab')"
       >

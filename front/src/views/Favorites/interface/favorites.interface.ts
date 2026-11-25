@@ -2,6 +2,8 @@ export interface Vocabulary {
   id: string
   word: string
   partOfSpeech?: import('../../Vocabulary/utils/partOfSpeech').PartOfSpeech
+  selectedSynonym?: string | null
+  synonyms?: import('../../Vocabulary/utils/synonyms').VocabularySynonym[];
   pronunciation: string
   meaning: string
   example?: string

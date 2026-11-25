@@ -512,6 +512,7 @@
               </div>
             </div>
             <div v-else class="space-y-5" aria-live="polite">
+              <VocabularySynonymReview :source="currentCard" />
               <div
                 class="rounded-2xl border border-primary-100 bg-primary-50/70 p-5 dark:border-white/10 dark:bg-white/5"
               >
@@ -692,6 +693,7 @@
 </template>
 
 <script setup lang="ts">
+import VocabularySynonymReview from "@/components/common/VocabularySynonymReview.vue";
 import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
 import { resolveAssetUrl } from "@/utils/assetUrl";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";

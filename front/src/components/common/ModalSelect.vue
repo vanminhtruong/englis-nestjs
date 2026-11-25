@@ -1,18 +1,19 @@
 <template>
   <div class="min-w-0">
-    <label :id="labelId" :for="triggerId" class="mb-2 block text-sm font-medium text-black/70 dark:text-white/70">
+    <label :id="labelId" :for="triggerId" class="text-sm font-medium text-black/70 dark:text-white/70" :class="compactTrigger ? 'sr-only' : 'mb-2 block'">
       {{ label }}
     </label>
     <button
       :id="triggerId" ref="trigger" type="button"
       :aria-labelledby="labelId + ' ' + valueId"
-      aria-haspopup="listbox" :aria-expanded="open" :aria-controls="open ? listId : undefined"
-      class="flex min-h-12 w-full min-w-0 items-center gap-3 rounded-xl border px-3.5 py-2.5 text-left text-sm text-black outline-none transition-colors focus-visible:ring-2 dark:text-white"
-      :class="accent === 'emerald' ? [ 'bg-white dark:bg-neutral-800 hover:border-emerald-500 focus-visible:ring-emerald-500/30', open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-emerald-300 dark:border-emerald-600/50' ] : [ 'bg-white dark:bg-white/5 hover:border-primary-300 dark:hover:border-primary-400/50 focus-visible:ring-primary-500/30', open ? 'border-primary-500 ring-2 ring-primary-500/15 dark:border-primary-400' : 'border-black/10 dark:border-white/10' ]"
+      aria-haspopup="listbox" :disabled="disabled" :aria-expanded="open" :aria-controls="open ? listId : undefined"
+      class="flex w-full min-w-0 items-center rounded-xl border text-left text-black outline-none transition-colors focus-visible:ring-2 dark:text-white"
+      :class="[pillTrigger ? 'min-h-[30px] gap-1.5 px-2.5 py-1 text-xs font-semibold !rounded-full' : compactTrigger ? 'min-h-[32px] gap-1.5 px-2 py-1 text-xs' : 'min-h-12 gap-3 px-3.5 py-2.5 text-sm', accent === 'emerald' ? [ 'bg-white dark:bg-neutral-800 hover:border-emerald-500 focus-visible:ring-emerald-500/30', open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-emerald-300 dark:border-emerald-600/50' ] : [ 'bg-white dark:bg-white/5 hover:border-primary-300 dark:hover:border-primary-400/50 focus-visible:ring-primary-500/30', open ? 'border-primary-500 ring-2 ring-primary-500/15 dark:border-primary-400' : 'border-black/10 dark:border-white/10' ], pillTrigger ? (onImage ? '!bg-black/40 !text-white !border-white/20' : '!bg-primary-50 !text-primary-700 !border-primary-200 dark:!bg-primary-500/10 dark:!text-primary-300 dark:!border-primary-500/25') : '', disabled ? 'cursor-not-allowed opacity-50' : '']"
       @click="open ? close() : show()" @keydown.down.prevent="show()" @keydown.up.prevent="show(true)"
     >
       <span :id="valueId" class="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-        <template v-if="multiple && selectedValues.length && compactSelection">
+        <template v-if="compactTrigger"><slot name="trigger-content"><span class="truncate font-medium">{{ label }}</span></slot></template>
+        <template v-else-if="multiple && selectedValues.length && compactSelection">
           <span class="min-w-0 flex-1 truncate font-medium" :title="selectionText">{{ selectionText }}</span>
         </template>
         <template v-else-if="multiple && selectedValues.length">
@@ -47,7 +48,7 @@
             {{ clearLabel }}
             <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
           </button>
-          <div :id="listId" role="listbox" :aria-labelledby="labelId" :aria-multiselectable="multiple || undefined" class="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain scrollbar-custom" @keydown="onListKeydown">
+          <div :id="listId" ref="listElement" :style="maxVisibleOptions ? { maxHeight: optionHeight, scrollbarGutter: visibleOptions.length > maxVisibleOptions ? 'stable' : undefined } : undefined" role="listbox" :aria-labelledby="labelId" :aria-multiselectable="multiple || undefined" class="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain scrollbar-custom" @keydown="onListKeydown">
             <button
               v-for="(option, index) in visibleOptions" :key="option.value" :ref="el => setOptionRef(el, index)"
               type="button" role="option" :aria-selected="isSelected(option.value)" :aria-disabled="isDisabled(option.value)"
@@ -58,7 +59,7 @@
               @focus="activeIndex = index"
             >
               <component v-if="option.icon" :is="getIconComponent(option.icon)" :color="option.color" class="h-5 w-5 shrink-0" />
-              <span class="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{{ option.label }}</span>
+              <slot name="option-content" :option="option"><span class="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{{ option.label }}</span></slot>
               <span v-if="multiple" class="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border" :class="isSelected(option.value) ? 'border-primary-500 bg-primary-500 text-white' : 'border-black/15 dark:border-white/20'">
                 <svg v-if="isSelected(option.value)" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m5 12 4 4 10-10" /></svg>
               </span>
@@ -74,6 +75,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useId, watch } from "vue";
+import { useVisibleRows } from '../../composables/useVisibleRows';
 import { getIconComponent } from "../../utils/iconRenderer";
 
 interface SelectOption {
@@ -93,6 +95,11 @@ const props = defineProps<{
   accent?: "emerald";
   searchable?: boolean;
   compactSelection?: boolean;
+  compactTrigger?: boolean;
+  maxVisibleOptions?: number;
+  pillTrigger?: boolean;
+  onImage?: boolean;
+  disabled?: boolean;
   searchPlaceholder?: string;
   noMatchesLabel?: string;
   selectedOnlyLabel?: string;
@@ -106,6 +113,7 @@ const valueId = triggerId + "-value";
 const listId = triggerId + "-list";
 const trigger = ref<HTMLButtonElement | null>(null);
 const panel = ref<HTMLElement | null>(null);
+const listElement = ref<HTMLElement | null>(null);
 const optionRefs = ref<(HTMLButtonElement | null)[]>([]);
 const open = ref(false);
 const activeIndex = ref(0);
@@ -128,6 +136,7 @@ const visibleOptions = computed(() => {
     terms.every(term => normalize(option.label).includes(term))
   );
 });
+const optionHeight = useVisibleRows(listElement, () => visibleOptions.value.length, () => props.maxVisibleOptions);
 const selectedOption = computed(() => props.options.find(option => option.value === props.modelValue));
 
 function isSelected(value: string) {
@@ -163,7 +172,7 @@ function place() {
   }
   const upwards = below < Math.min(props.searchable ? 340 : 280, visibleOptions.value.length * 46 + (props.searchable ? 110 : 14)) && above > below;
   const height = Math.max(40, Math.min(props.searchable ? 340 : 288, upwards ? above : below));
-  const width = Math.min(rect.width, right - left - 16);
+  const width = Math.min(props.compactTrigger ? Math.max(rect.width, 240) : rect.width, right - left - 16);
   position.value = {
     left: Math.max(left + 8, Math.min(rect.left, right - width - 8)) + "px",
     width: width + "px",
@@ -187,7 +196,7 @@ function focusActive() {
   });
 }
 function show(last = false) {
-  if (open.value) return;
+  if (open.value || props.disabled) return;
   search.value = ""; selectedOnly.value = false;
   const selected = visibleOptions.value.findIndex(option => isSelected(option.value));
   activeIndex.value = selected >= 0 ? selected : last ? Math.max(0, visibleOptions.value.length - 1) : 0;

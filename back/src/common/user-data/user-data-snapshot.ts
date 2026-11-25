@@ -1,3 +1,4 @@
+import { normalizeSynonyms } from '../vocabulary-synonyms';
 import { EntityManager } from 'typeorm';
 import { Category } from '../../entities/category.entity';
 import { CategoryDateTopic } from '../../entities/category-date-topic.entity';
@@ -28,6 +29,8 @@ export interface SnapshotVocabulary {
   word: string;
   entryKey?: string;
   partOfSpeech?: string;
+  synonyms?: import('../vocabulary-synonyms').VocabularySynonym[];
+  selectedSynonym?: string | null;
   pronunciation: string;
   meaning: string;
   example: string;
@@ -335,6 +338,8 @@ export async function buildUserDataSnapshot(
       word,
       entryKey: v.id,
       partOfSpeech: v.partOfSpeech,
+      synonyms: v.synonyms ?? [],
+      selectedSynonym: v.selectedSynonym ?? null,
       pronunciation: v.pronunciation || '',
       meaning: v.meaning || '',
       example: v.example || '',
@@ -588,6 +593,7 @@ function vocabularyFields(shared: SnapshotVocabulary): Record<string, any> {
     isFavorite: !!shared.isFavorite,
     createdAt: toDate(shared.createdAt),
   };
+  if (shared.synonyms !== undefined) fields.synonyms = normalizeSynonyms(shared.synonyms, shared.word);
   // Only copy what the source really has, so an older file cannot reset them.
   if (shared.partOfSpeech && Object.values(PartOfSpeech).includes(shared.partOfSpeech as PartOfSpeech)) fields.partOfSpeech = shared.partOfSpeech;
   if (shared.isPinned !== undefined) fields.isPinned = !!shared.isPinned;
@@ -620,6 +626,8 @@ function vocabularyChanged(existing: Vocabulary, fields: Record<string, any>): b
   ) {
     return true;
   }
+  if ('selectedSynonym' in fields && (existing.selectedSynonym ?? null) !== fields.selectedSynonym) return true;
+  if ('synonyms' in fields && JSON.stringify(existing.synonyms ?? []) !== JSON.stringify(fields.synonyms)) return true;
   if ('partOfSpeech' in fields && existing.partOfSpeech !== fields.partOfSpeech) return true;
   if ('isPinned' in fields && !!existing.isPinned !== fields.isPinned) return true;
   if ('pinnedAt' in fields && timeOf(existing.pinnedAt) !== timeOf(fields.pinnedAt)) return true;
@@ -633,6 +641,7 @@ export async function mergeUserDataSnapshot(
   userId: string,
   raw: unknown,
   mode: MergeMode,
+  replacedUploads: unknown[] = [],
 ): Promise<MergeStats> {
   const snapshot = normalizeSnapshot(raw);
   const stats = emptyMergeStats();
@@ -674,9 +683,17 @@ export async function mergeUserDataSnapshot(
       stats.skippedVocabularies++;
       continue;
     }
+    if (shared.selectedSynonym !== undefined || fields.synonyms !== undefined) {
+      const candidate = shared.selectedSynonym !== undefined ? shared.selectedSynonym : existing?.selectedSynonym;
+      const available = fields.synonyms ?? existing?.synonyms ?? [];
+      fields.selectedSynonym = available.find(item => item.word === candidate)?.word ?? null;
+    }
     if (existing && mode === 'import' && !created.has(existing)) {
       if (part === PartOfSpeech.UNSPECIFIED && existing.partOfSpeech !== PartOfSpeech.UNSPECIFIED) delete fields.partOfSpeech;
       if (vocabularyChanged(existing, fields)) {
+        for (const field of ['image', 'video', 'audio'] as const) {
+          if (fields[field] !== undefined && fields[field] !== existing[field]) replacedUploads.push(existing[field]);
+        }
         await vocabRepo.update(existing.id, fields as any);
         Object.assign(existing, fields);
         stats.updatedVocabularies++;
@@ -821,6 +838,7 @@ export async function mergeUserDataSnapshot(
       if (icon && icon !== existing.icon) patch.icon = icon;
       if (color && color !== existing.color) patch.color = color;
       if (Object.keys(patch).length > 0) {
+        if (patch.icon !== undefined && patch.icon !== existing.icon) replacedUploads.push(existing.icon);
         await topicRepo.update(existing.id, patch);
         stats.updatedOthers++;
       }
@@ -878,6 +896,7 @@ export async function mergeUserDataSnapshot(
         patch.pinnedAt = toDateOrNull(shared.pinnedAt);
       }
       if (Object.keys(patch).length > 0) {
+        if (patch.icon !== undefined && patch.icon !== category.icon) replacedUploads.push(category.icon);
         await categoryRepo.update(category.id, patch);
         stats.updatedOthers++;
       }
@@ -925,6 +944,7 @@ export async function mergeUserDataSnapshot(
     } else if (mode === 'import') {
       const icon = optionalText(shared.icon);
       if (icon && icon !== tab.icon) {
+        replacedUploads.push(tab.icon);
         await tabRepo.update(tab.id, { icon });
         stats.updatedOthers++;
       }

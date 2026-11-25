@@ -155,6 +155,7 @@
               >
                 {{ item.meaning }}
               </p>
+              <VocabularySynonymReview :source="item" class="mt-2" />
               <time
                 class="mt-0.5 block text-[11px] font-semibold tabular-nums text-gray-700 dark:text-gray-300"
                 :datetime="item.nextReviewAt"
@@ -285,6 +286,7 @@
               >
                 {{ item.word }}
               </p>
+              <VocabularySynonymReview :source="item" />
               <div class="mt-0.5 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
                 <time
                   class="block text-[11px] tabular-nums text-gray-500 dark:text-gray-400"
@@ -353,6 +355,7 @@
 </template>
 
 <script setup lang="ts">
+import VocabularySynonymReview from "@/components/common/VocabularySynonymReview.vue";
 import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";

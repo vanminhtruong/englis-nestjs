@@ -4,6 +4,7 @@ import {
   ConflictException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { cleanupUnusedUploads } from '../../../common/services/unused-upload';
 import { UserRepository } from '../repositories/user.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -232,9 +233,11 @@ export class AuthService {
     }
 
     // All or nothing: a file that fails halfway must not leave half its data behind.
+    const replacedUploads: unknown[] = [];
     const stats = await this.vocabularyRepository.manager.transaction((manager) =>
-      mergeUserDataSnapshot(manager, userId, snapshot, 'import'),
+      mergeUserDataSnapshot(manager, userId, snapshot, 'import', replacedUploads),
     );
+    await cleanupUnusedUploads(this.vocabularyRepository.manager, replacedUploads);
     await this.userRepository.recalculateTotalWords(userId);
 
     if (mergeChangeCount(stats) === 0) {

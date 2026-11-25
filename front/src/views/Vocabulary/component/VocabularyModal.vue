@@ -134,6 +134,9 @@
         </div>
 
         <div class="space-y-2.5">
+          <CollapsibleFormSection v-model="expandedSections.synonyms" :title="t('vocabulary.synonyms')" :summary="t('vocabulary.synonymCount',{count:form.synonyms?.length || 0})" icon="book">
+            <VocabularySynonymEditor :model-value="form.synonyms || []" :word="form.word" :meaning="form.meaning" :part-of-speech="form.partOfSpeech" :disabled="busy" @update:model-value="form.synonyms=$event" />
+          </CollapsibleFormSection>
           <CollapsibleFormSection
             v-model="expandedSections.examples"
             :title="t('vocabulary.formExamples')"
@@ -548,6 +551,8 @@ import { websocketService } from "../../../services/websocket.service";
 
 import { partOfSpeechOptions } from '../utils/partOfSpeech';
 import { useVocabularyDuplicate } from '../composable/manager-state/useVocabularyDuplicate';
+import VocabularySynonymEditor from './VocabularySynonymEditor.vue';
+import { synonymKey } from '../utils/synonyms';
 import VocabularyDuplicateNotice from './VocabularyDuplicateNotice.vue';
 
 const IPAPronunciationModal = defineAsyncComponent(
@@ -589,7 +594,7 @@ const imageUrl = ref("");
 const videoUrl = ref("");
 const activeMediaTab = ref<"image" | "video">("image");
 
-const expandedSections = ref({ examples: false, classification: false, media: false });
+const expandedSections = ref({ synonyms: false, examples: false, classification: false, media: false });
 const isIPAModalVisible = ref(false);
 const isWordDrawingModalVisible = ref(false);
 
@@ -836,7 +841,7 @@ watch(
       lockScroll();
       loadCategories();
       loadTags();
-      expandedSections.value = { examples: false, classification: false, media: false };
+      expandedSections.value = { synonyms: false, examples: false, classification: false, media: false };
       imagePreview.value = resolveAssetUrl(props.form.image);
       videoPreview.value = resolveAssetUrl(props.form.video);
       activeMediaTab.value = !props.form.image && props.form.video ? "video" : "image";
@@ -857,7 +862,14 @@ onUnmounted(() => {
 });
 
 function onSubmit() {
-  if (!props.busy && !duplicate.result.value?.duplicate) emit("submit");
+  if (props.busy || duplicate.result.value?.duplicate) return;
+  const seen = new Set([synonymKey(props.form.word || '')]);
+  for (const item of props.form.synonyms || []) {
+    const key = synonymKey(item.word);
+    if (!key || seen.has(key)) { expandedSections.value.synonyms = true; return; }
+    seen.add(key);
+  }
+  emit("submit");
 }
 
 function onClose() {

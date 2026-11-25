@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
+import { cleanupUnusedUploads } from '../../../common/services/unused-upload';
 import { Category } from '../../../entities/category.entity';
 import { BulkCategoryDto } from '../dto/bulk-category.dto';
 import { CreateCategoryDto } from '../dto/create-category.dto';
@@ -149,8 +150,11 @@ export class CategoryRepository {
     const category = await this.findById(id, userId);
     if (!category) return null;
 
-    Object.assign(category, updateDto);
-    return this.repository.save(category);
+    const previousIcon = category.icon;
+    Object.assign(category, Object.fromEntries(Object.entries(updateDto).filter(([, value]) => value !== undefined)));
+    const saved = await this.repository.save(category);
+    if (previousIcon !== saved.icon) await cleanupUnusedUploads(this.repository.manager, [previousIcon]);
+    return saved;
   }
 
   async togglePin(
