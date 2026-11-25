@@ -4,6 +4,8 @@
     :show="show"
     :isEditing="mode === 'edit'"
     :form="form"
+    :editing-id="vocabularyId"
+    :busy="saving"
     :t="t"
     @submit="handleSubmit"
     @close="handleClose"
@@ -13,6 +15,7 @@
 <script setup lang="ts">
 import { ref, watch, defineAsyncComponent } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useToast } from '../../../composables/useToast'
 import apiService from '../../../services/api.service'
 
 const VocabularyModal = defineAsyncComponent(() => import('../../Vocabulary/component/VocabularyModal.vue') as any)
@@ -29,9 +32,12 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const { showError, showSuccess } = useToast()
+const saving = ref(false)
 const vocabularyData = ref<any>(null)
 const form = ref<any>({
   word: '',
+  partOfSpeech: 'unspecified',
   pronunciation: '',
   meaning: '',
   example: '',
@@ -57,7 +63,9 @@ async function loadVocabulary(id: string) {
     form.value = {
       word: response.data.word || '',
       pronunciation: response.data.pronunciation || '',
-      meaning: response.data.translation || '',
+      meaning: response.data.meaning || response.data.translation || '',
+      partOfSpeech: response.data.partOfSpeech || 'unspecified',
+      video: response.data.video || '',
       example: response.data.example || '',
       exampleTranslation: response.data.exampleTranslation || '',
       difficulty: response.data.difficulty || 'medium',
@@ -72,7 +80,8 @@ async function loadVocabulary(id: string) {
 }
 
 async function handleSubmit() {
-  if (!vocabularyData.value) return
+  if (!vocabularyData.value || saving.value) return
+  saving.value = true
 
   try {
     const tags = typeof form.value.tags === 'string' 
@@ -82,7 +91,9 @@ async function handleSubmit() {
     const updateData = {
       word: form.value.word,
       pronunciation: form.value.pronunciation,
-      translation: form.value.meaning,
+      meaning: form.value.meaning,
+      partOfSpeech: form.value.partOfSpeech,
+      video: form.value.video,
       example: form.value.example,
       exampleTranslation: form.value.exampleTranslation,
       difficulty: form.value.difficulty,
@@ -92,11 +103,11 @@ async function handleSubmit() {
     }
 
     await apiService.vocabulary.update(vocabularyData.value.id, updateData)
+    showSuccess(t('vocabulary.save'))
     emit('saved')
-  } catch (error) {
-    console.error('Failed to update vocabulary:', error)
-    alert('Failed to update vocabulary')
-  }
+  } catch (error: any) {
+    showError(error.response?.data?.code === 'VOCABULARY_DUPLICATE' ? t('vocabulary.duplicateBlocked') : error.response?.data?.message || 'Failed to update vocabulary')
+  } finally { saving.value = false }
 }
 
 function handleClose() {

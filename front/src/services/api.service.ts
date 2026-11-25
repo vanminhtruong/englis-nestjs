@@ -119,6 +119,7 @@ export default {
       limit?: number;
       search?: string;
       difficulty?: "easy" | "medium" | "hard";
+      partOfSpeech?: string;
       tabId?: string;
       categoryIds?: string[];
       tags?: string[];
@@ -132,6 +133,7 @@ export default {
       }
       return apiClient.get("/vocabulary", { params: queryParams });
     },
+    checkDuplicate: (params: { word: string; meaning?: string; partOfSpeech?: string; excludeId?: string }, signal?: AbortSignal) => apiClient.get('/vocabulary/check-duplicate', { params, signal }),
     getById: (id: string) => apiClient.get(`/vocabulary/${id}`),
     create: (data: any) => apiClient.post("/vocabulary", data),
     update: (id: string, data: any) => apiClient.put(`/vocabulary/${id}`, data),

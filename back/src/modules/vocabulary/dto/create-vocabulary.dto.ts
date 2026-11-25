@@ -1,10 +1,24 @@
-import { IsNotEmpty, IsString, IsOptional, IsEnum, IsArray, ArrayMaxSize } from 'class-validator';
-import { DifficultyLevel } from '../../../entities/vocabulary.entity';
+import {
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsArray,
+  ArrayMaxSize,
+} from 'class-validator';
+import {
+  DifficultyLevel,
+  PartOfSpeech,
+} from '../../../entities/vocabulary.entity';
 
 export class CreateVocabularyDto {
   @IsString()
   @IsNotEmpty()
   word: string;
+
+  @IsOptional()
+  @IsEnum(PartOfSpeech)
+  partOfSpeech?: PartOfSpeech;
 
   @IsString()
   @IsNotEmpty()

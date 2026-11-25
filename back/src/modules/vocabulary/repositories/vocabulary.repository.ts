@@ -1,9 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { Vocabulary } from '../../../entities/vocabulary.entity';
+import { Vocabulary, PartOfSpeech } from '../../../entities/vocabulary.entity';
 import { Category } from '../../../entities/category.entity';
 import { CategoryDateTopic } from '../../../entities/category-date-topic.entity';
+
+import {
+  assertVocabularyIdentity,
+  checkVocabularyIdentity,
+  normalizeIdentity,
+} from './vocabulary-identity';
+import { CheckDuplicateDto } from '../dto/check-duplicate.dto';
 
 @Injectable()
 export class VocabularyRepository {
@@ -15,6 +22,50 @@ export class VocabularyRepository {
     @InjectRepository(CategoryDateTopic)
     private readonly topicRepository: Repository<CategoryDateTopic>,
   ) {}
+
+  private readonly identityQueue = new Map<string, Promise<void>>();
+
+  private async serializeIdentity<T>(
+    userId: string,
+    operation: () => Promise<T>,
+  ): Promise<T> {
+    const previous = this.identityQueue.get(userId) ?? Promise.resolve();
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const tail = previous.then(() => gate);
+    this.identityQueue.set(userId, tail);
+    await previous;
+    try {
+      return await operation();
+    } finally {
+      release();
+      if (this.identityQueue.get(userId) === tail)
+        this.identityQueue.delete(userId);
+    }
+  }
+
+  async checkDuplicate(userId: string, input: CheckDuplicateDto) {
+    const result = await checkVocabularyIdentity(
+      this.repository,
+      userId,
+      input,
+      input.excludeId,
+    );
+    const previous = input.excludeId
+      ? await this.findById(input.excludeId, userId)
+      : null;
+    // Existing records with unchanged identity may still be edited.
+    const unchanged =
+      previous &&
+      normalizeIdentity(previous.word) === normalizeIdentity(input.word) &&
+      normalizeIdentity(previous.meaning) ===
+        normalizeIdentity(input.meaning) &&
+      previous.partOfSpeech ===
+        (input.partOfSpeech ?? PartOfSpeech.UNSPECIFIED);
+    return { ...result, duplicate: unchanged ? false : result.duplicate };
+  }
 
   async findAll(userId: string): Promise<Vocabulary[]> {
     return this.repository.find({
@@ -33,6 +84,7 @@ export class VocabularyRepository {
     tabId?: string,
     categoryIds?: string[],
     tags?: string[],
+    partOfSpeech?: PartOfSpeech,
   ): Promise<{ items: Vocabulary[]; total: number }> {
     const qb = this.repository
       .createQueryBuilder('vocabulary')
@@ -56,6 +108,10 @@ export class VocabularyRepository {
 
     if (difficulty && ['easy', 'medium', 'hard'].includes(difficulty)) {
       qb.andWhere('vocabulary.difficulty = :difficulty', { difficulty });
+    }
+
+    if (partOfSpeech && Object.values(PartOfSpeech).includes(partOfSpeech)) {
+      qb.andWhere('vocabulary.partOfSpeech = :partOfSpeech', { partOfSpeech });
     }
 
     // Filter by category IDs (vocabulary must be in at least one of the selected categories)
@@ -101,24 +157,32 @@ export class VocabularyRepository {
   async create(
     vocabularyData: Partial<Vocabulary> & { categoryIds?: string[] },
   ): Promise<Vocabulary> {
-    const { categoryIds, ...data } = vocabularyData;
-
-    // Get existing settings to apply to the new record
-    const settings = await this.getSettings(vocabularyData.userId!);
-    const vocabulary = this.repository.create({
-      ...data,
-      isAllTabHidden: settings.isAllTabHidden,
-      activeTabId: settings.activeTabId,
-    });
-
-    if (categoryIds && categoryIds.length > 0) {
-      const categories = await this.categoryRepository.find({
-        where: { id: In(categoryIds), userId: vocabularyData.userId },
+    return this.serializeIdentity(vocabularyData.userId!, async () => {
+      const { categoryIds, ...data } = vocabularyData;
+      data.partOfSpeech = data.partOfSpeech ?? PartOfSpeech.UNSPECIFIED;
+      await assertVocabularyIdentity(this.repository, vocabularyData.userId!, {
+        word: data.word ?? '',
+        meaning: data.meaning,
+        partOfSpeech: data.partOfSpeech,
       });
-      vocabulary.categories = categories;
-    }
 
-    return this.repository.save(vocabulary);
+      // Get existing settings to apply to the new record
+      const settings = await this.getSettings(vocabularyData.userId!);
+      const vocabulary = this.repository.create({
+        ...data,
+        isAllTabHidden: settings.isAllTabHidden,
+        activeTabId: settings.activeTabId,
+      });
+
+      if (categoryIds && categoryIds.length > 0) {
+        const categories = await this.categoryRepository.find({
+          where: { id: In(categoryIds), userId: vocabularyData.userId },
+        });
+        vocabulary.categories = categories;
+      }
+
+      return this.repository.save(vocabulary);
+    });
   }
 
   async update(
@@ -126,29 +190,44 @@ export class VocabularyRepository {
     userId: string,
     vocabularyData: Partial<Vocabulary> & { categoryIds?: string[] },
   ): Promise<Vocabulary | null> {
-    const { categoryIds, ...data } = vocabularyData;
+    return this.serializeIdentity(userId, async () => {
+      const { categoryIds, ...patch } = vocabularyData;
+      // Transformed DTOs have own properties initialized to undefined, even
+      // when those fields were not sent in the request. Keep only actual
+      // changes so a note/background update retains the original identity.
+      const data = Object.fromEntries(
+        Object.entries(patch).filter(([, value]) => value !== undefined),
+      ) as Partial<Vocabulary>;
+      if (data.partOfSpeech == null) delete data.partOfSpeech;
 
-    const vocabulary = await this.repository.findOne({
-      where: { id, userId },
-      relations: ['categories'],
-    });
+      const vocabulary = await this.repository.findOne({
+        where: { id, userId },
+        relations: ['categories'],
+      });
 
-    if (!vocabulary) return null;
+      if (!vocabulary) return null;
 
-    Object.assign(vocabulary, data);
+      await assertVocabularyIdentity(
+        this.repository,
+        userId,
+        { ...vocabulary, ...data },
+        vocabulary,
+      );
+      Object.assign(vocabulary, data);
 
-    if (categoryIds !== undefined) {
-      if (categoryIds.length > 0) {
-        const categories = await this.categoryRepository.find({
-          where: { id: In(categoryIds), userId },
-        });
-        vocabulary.categories = categories;
-      } else {
-        vocabulary.categories = [];
+      if (categoryIds !== undefined) {
+        if (categoryIds.length > 0) {
+          const categories = await this.categoryRepository.find({
+            where: { id: In(categoryIds), userId },
+          });
+          vocabulary.categories = categories;
+        } else {
+          vocabulary.categories = [];
+        }
       }
-    }
 
-    return this.repository.save(vocabulary);
+      return this.repository.save(vocabulary);
+    });
   }
 
   async delete(id: string, userId: string): Promise<void> {

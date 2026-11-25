@@ -40,6 +40,8 @@
             :selected-categories="vocabularyState.filter.categoryIds || []"
             :selected-tags="vocabularyState.filter.tags || []"
             :current-difficulty="vocabularyState.filter.difficulty"
+            :current-pos="vocabularyState.filter.partOfSpeech || 'all'"
+            @update:pos="vocabularyState.filter.partOfSpeech = $event"
             :labels="{
               advancedFilters: t('vocabulary.advancedFilters'),
               categories: t('vocabulary.categories'),
@@ -188,6 +190,8 @@
       :show="vocabularyState.showModal"
       :isEditing="vocabularyState.isEditing"
       :form="vocabularyState.form"
+      :editing-id="vocabularyState.editingId"
+      :busy="vocabularyHandle.saving.value"
       :t="t"
       @submit="vocabularyHandle.handleSubmit"
       @close="vocabularyState.closeModal"

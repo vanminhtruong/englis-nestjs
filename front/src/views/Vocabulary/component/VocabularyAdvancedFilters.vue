@@ -89,6 +89,7 @@
         </div>
 
         <div class="filters-grid">
+          <ModalSelect class="sm:col-span-2" data-vocabulary-pos-filter :model-value="currentPos" :label="t('vocabulary.partOfSpeech')" :options="posOptions" @update:model-value="emit('update:pos', $event as PartOfSpeech | 'all')" />
           <ModalSelect data-vocabulary-category-filter multiple searchable compact-selection
             :model-value="selectedCategories" :options="categoryOptions"
             :label="labels.categories" :placeholder="categories.length ? labels.chooseCategories : labels.noCategories"
@@ -110,6 +111,7 @@
             <span class="font-semibold">{{ labels.activeFilters }}:</span>
             <span v-if="selectedCategories.length" class="rounded-md bg-primary-500/10 px-2 py-1 font-medium text-primary-700 dark:text-primary-300">{{ labels.categories }}: {{ selectedCategories.length }}</span>
             <span v-if="selectedTags.length" class="rounded-md bg-primary-500/10 px-2 py-1 font-medium text-primary-700 dark:text-primary-300">{{ labels.tags }}: {{ selectedTags.length }}</span>
+            <span v-if="currentPos !== 'all'" class="rounded-md bg-primary-500/10 px-2 py-1 font-medium text-primary-700 dark:text-primary-300">{{ t('vocabulary.pos_' + currentPos) }}</span>
             <span v-if="currentDifficulty !== 'all'" class="rounded-md bg-black/5 px-2 py-1 font-medium dark:bg-white/10">{{ labels[currentDifficulty] }}</span>
           </div>
           <button type="button" data-vocabulary-clear-filters class="shrink-0 rounded-lg px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10" @click="clearAllFilters">{{ labels.clearAll }}</button>
@@ -121,6 +123,10 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
+import { useI18n } from 'vue-i18n';
+import { partOfSpeechOptions, type PartOfSpeech } from '../utils/partOfSpeech';
+const { t } = useI18n();
+const posOptions = computed(() => [{ value: 'all', label: t('vocabulary.all') }, ...partOfSpeechOptions(t)]);
 import ModalSelect from "../../../components/common/ModalSelect.vue";
 import apiService from "../../../services/api.service";
 
@@ -140,6 +146,7 @@ interface Tag {
 const props = defineProps<{
   selectedCategories: string[];
   selectedTags: string[];
+  currentPos: PartOfSpeech | 'all';
   currentDifficulty: "all" | "easy" | "medium" | "hard";
   labels: {
     advancedFilters: string;
@@ -167,6 +174,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
+  (e: 'update:pos', value: PartOfSpeech | 'all'): void;
   (e: "update:selectedCategories", value: string[]): void;
   (e: "update:selectedTags", value: string[]): void;
   (e: "set-difficulty", value: "all" | "easy" | "medium" | "hard"): void;
@@ -180,12 +188,13 @@ const hasActiveFilters = computed(
   () =>
     props.selectedCategories.length > 0 ||
     props.selectedTags.length > 0 ||
-    props.currentDifficulty !== "all"
+    props.currentDifficulty !== "all" || props.currentPos !== 'all'
 );
 
 const activeFilterCount = computed(() => {
   let count = props.selectedCategories.length + props.selectedTags.length;
   if (props.currentDifficulty !== "all") count++;
+  if (props.currentPos !== 'all') count++;
   return count;
 });
 
@@ -219,6 +228,7 @@ function clearAllFilters() {
   emit("update:selectedCategories", []);
   emit("update:selectedTags", []);
   emit("set-difficulty", "all");
+  emit('update:pos', 'all');
 }
 
 async function loadCategories() {

@@ -95,13 +95,14 @@
 
         <div class="flex items-start justify-between mb-3">
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-1">
+            <div class="flex min-w-0 flex-wrap items-center gap-2 mb-1">
               <h3
                 class="text-2xl font-bold truncate"
                 :class="hasBackground ? 'text-white' : 'text-gray-900 dark:text-white'"
               >
                 {{ vocab.word }}
               </h3>
+              <PartOfSpeechLabel :value="vocab.partOfSpeech" :on-image="hasBackground" />
               <button
                 @click="emit('speak', vocab.word)"
                 class="p-1.5 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all flex-shrink-0"
@@ -306,6 +307,7 @@
 </template>
 
 <script setup lang="ts">
+import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
 import { resolveAssetUrl } from "@/utils/assetUrl";
 import { defineAsyncComponent } from "vue";
 import type { Vocabulary } from "../../../stores/vocabulary.store";

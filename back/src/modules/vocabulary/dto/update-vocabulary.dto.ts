@@ -1,13 +1,24 @@
-import { IsOptional, IsString, IsEnum, IsArray, ArrayMaxSize } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsEnum,
+  IsArray,
+  ArrayMaxSize,
+} from 'class-validator';
 import {
   DifficultyLevel,
   MasteryLevel,
+  PartOfSpeech,
 } from '../../../entities/vocabulary.entity';
 
 export class UpdateVocabularyDto {
   @IsString()
   @IsOptional()
   word?: string;
+
+  @IsOptional()
+  @IsEnum(PartOfSpeech)
+  partOfSpeech?: PartOfSpeech;
 
   @IsString()
   @IsOptional()

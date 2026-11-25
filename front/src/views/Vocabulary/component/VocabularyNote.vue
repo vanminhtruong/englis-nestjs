@@ -1,7 +1,9 @@
 <template>
   <div>
     <button
-      @click="isOpen = true"
+      type="button"
+      data-vocabulary-note-trigger
+      @click="open"
       class="p-2 text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-lg transition-all relative group"
       :title="note ? t('vocabulary.note.edit') : t('vocabulary.note.add')"
     >
@@ -32,6 +34,7 @@
     <Teleport to="body">
       <div
         v-if="isOpen"
+        data-vocabulary-note-modal
         class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/50 backdrop-blur-sm"
       >
         <div
@@ -52,20 +55,25 @@
 
           <textarea
             v-model="localNote"
+            :disabled="isUpdating"
             :placeholder="t('vocabulary.note.placeholder')"
             class="w-full h-48 bg-transparent border-none resize-none focus:ring-0 text-gray-800 dark:text-gray-200 text-lg font-handwriting leading-[2rem] bg-[length:100%_2rem] bg-[linear-gradient(transparent_95%,rgba(0,0,0,0.2)_95%)] dark:bg-[linear-gradient(transparent_95%,rgba(255,255,255,0.2)_95%)]"
           ></textarea>
 
           <div class="flex justify-end gap-3 mt-4">
             <button
+              type="button"
+              :disabled="isUpdating"
               @click="close"
-              class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
+              class="disabled:opacity-50 px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white font-medium transition-colors"
             >
               {{ t("vocabulary.cancel") }}
             </button>
             <button
+              type="button"
+              data-vocabulary-note-save
               @click="save"
-              class="px-6 py-2 bg-gray-800 dark:bg-gray-700 text-white rounded-lg shadow-lg hover:transform hover:-translate-y-0.5 transition-all flex items-center gap-2"
+              class="px-6 py-2 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-primary-500/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 transition-all flex items-center gap-2"
               :disabled="isUpdating"
             >
               <span v-if="isUpdating" class="animate-spin">⌛</span>
@@ -109,19 +117,27 @@ export default defineComponent({
     watch(
       () => props.note,
       (newVal) => {
-        localNote.value = newVal || "";
+        if (!isOpen.value) localNote.value = newVal || "";
       }
     );
 
+    const open = () => {
+      localNote.value = props.note || "";
+      isOpen.value = true;
+    };
+
     const close = () => {
+      if (isUpdating.value) return;
       isOpen.value = false;
       localNote.value = props.note || "";
     };
 
     const save = async () => {
-      const result = await updateNote(props.id, localNote.value);
-      if (result.success) {
-        emit("update", localNote.value);
+      if (isUpdating.value) return;
+      const note = localNote.value;
+      const result = await updateNote(props.id, note);
+      if (result?.success) {
+        emit("update", note);
         isOpen.value = false;
       }
     };
@@ -131,6 +147,7 @@ export default defineComponent({
       isOpen,
       localNote,
       isUpdating,
+      open,
       close,
       save,
     };

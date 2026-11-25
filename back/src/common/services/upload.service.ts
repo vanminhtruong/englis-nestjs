@@ -136,8 +136,7 @@ export class UploadService {
     const base64Image = base64Data.replace(/^data:image\/\w+;base64,/, '');
     const buffer = Buffer.from(base64Image, 'base64');
 
-    const timestamp = Date.now();
-    const fileName = `${timestamp}.png`;
+    const fileName = `${randomUUID()}.png`;
     const filePath = join(this.uploadPath, fileName);
 
     writeFileSync(filePath, buffer);

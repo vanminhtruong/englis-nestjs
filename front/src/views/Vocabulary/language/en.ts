@@ -1,4 +1,27 @@
 export default {
+  partOfSpeech: "Part of speech",
+  pos_unspecified: "Not specified",
+  pos_noun: "Noun",
+  pos_verb: "Verb",
+  pos_adjective: "Adjective",
+  pos_adverb: "Adverb",
+  pos_pronoun: "Pronoun",
+  pos_preposition: "Preposition",
+  pos_conjunction: "Conjunction",
+  pos_determiner: "Determiner",
+  pos_interjection: "Interjection",
+  pos_numeral: "Numeral",
+  pos_auxiliary: "Auxiliary verb",
+  pos_phrase: "Phrase",
+  pos_phrasal_verb: "Phrasal verb",
+  pos_idiom: "Idiom",
+  duplicateChecking: "Checking for duplicates\u2026",
+  duplicateUnavailable: "Live check unavailable. Your word will be checked when saved.",
+  duplicateBlocked: "This word, meaning and part of speech already exist.",
+  duplicateRelated: "{count} existing entries use this spelling. Different meanings or word types can be saved.",
+  duplicateShow: "View matching entries",
+  duplicateHide: "Hide matches",
+
   chooseCategoriesFilter: "Choose categories",
   chooseTagsFilter: "Choose tags",
   searchCategoriesFilter: "Search categories\u2026",
@@ -126,6 +149,8 @@ export default {
 
   // Note
   note: {
+    saved: "Note saved successfully",
+    saveError: "Could not save note. Please try again.",
     title: 'Note for "{word}"',
     edit: "Edit Note",
     add: "Add Note",

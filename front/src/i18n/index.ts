@@ -1,4 +1,5 @@
 import { createI18n } from 'vue-i18n'
+import { watch } from 'vue'
 
 // Layout & Common
 import layoutEn from './locales/en'
@@ -58,10 +59,10 @@ import aboutZhCN from '../views/About/language/zh-CN'
 
 const getInitialLocale = () => {
   const savedLocale = localStorage.getItem('locale')
-  if (savedLocale && ['vi', 'en', 'ko', 'zh-CN'].includes(savedLocale)) {
+  if (savedLocale && ['en', 'vi', 'ko', 'zh-CN'].includes(savedLocale)) {
     return savedLocale
   }
-  return 'vi'
+  return 'en'
 }
 
 const i18n = createI18n({
@@ -123,5 +124,9 @@ const i18n = createI18n({
     },
   },
 })
+
+watch(i18n.global.locale, (locale) => {
+  document.documentElement.lang = locale
+}, { immediate: true })
 
 export default i18n

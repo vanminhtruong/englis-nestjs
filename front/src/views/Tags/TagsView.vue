@@ -33,6 +33,7 @@
         :show="tagsState.showModal.value"
         :isEditing="tagsState.isEditing.value"
         :form="tagsState.form"
+        :busy="tagsHandle.saving.value"
         @submit="tagsHandle.handleSubmit"
         @close="tagsState.closeModal"
       />

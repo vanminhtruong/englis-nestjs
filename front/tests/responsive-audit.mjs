@@ -18,6 +18,10 @@ const themeFlag = process.argv.find((a) => a.startsWith('--theme='))?.slice(8) |
 const widths = (widthFlag ? widthFlag.slice(9) : '280,320,360,390,430,768,1280').split(',').map(Number)
 const height = Math.max(240, Number(process.argv.find((a)=>a.startsWith('--height='))?.slice(9) || 820))
 const locale = process.argv.find((a)=>a.startsWith('--locale='))?.slice(9) || 'vi'
+const defaultLocaleAudit = process.argv.includes('--default-locale')
+const posAudit = process.argv.includes('--pos-only')
+const noteAudit = process.argv.includes('--note-only')
+const layoutAudit = process.argv.includes('--layout-only')
 const longContent = process.argv.includes('--long-content')
 const themes = themeFlag === 'both' ? ['light', 'dark'] : [themeFlag]
 const base = 'http://127.0.0.1:5199'
@@ -60,7 +64,9 @@ if (longContent) {
   words[0].meaning = 'This is a very long meaning to verify the vocabulary layout adapts to narrow screens without clipping useful text'
   words[1].word = 'antidisestablishmentarianism-super-long-word'
 }
-function mockPayload(url, method, postData) {
+if (posAudit) { words[0].partOfSpeech='noun'; words[1].partOfSpeech='adjective'; words[0].meaning='building design'; words[1].pronunciation='/test/' }
+const posWrites = [];
+function mockPayload(url, method, postData, currentRoute) {
   const path = new URL(url).pathname
   if (path === '/auth/me') return user
   if (path === '/auth/recalculate-words') return {totalWords:12}
@@ -69,6 +75,29 @@ function mockPayload(url, method, postData) {
   if (path === '/auth/forgot-password/reset') return {success:true}
   if (path === '/vocabulary-tabs') return [{id:'tab1', name:'English', icon:'book', vocabularies:words}]
   if (path === '/vocabulary/settings') return {isFilterExpanded: false, isAllTabHidden:false, activeTabId:null}
+  if (posAudit && path === '/vocabulary/check-duplicate') {
+    const params=new URL(url).searchParams;
+    const norm=v=>String(v||'').trim().replace(/\s+/g,' ').toLowerCase();
+    const matches=words.filter(w=>w.id!==params.get('excludeId')&&norm(w.word)===norm(params.get('word')));
+    return {total:matches.length,matches,duplicate:matches.some(w=>norm(w.meaning)===norm(params.get('meaning'))&&(w.partOfSpeech===params.get('partOfSpeech')||params.get('partOfSpeech')==='unspecified'))};
+  }
+  if (posAudit && path === '/vocabulary' && method === 'POST') {
+    const entry={...JSON.parse(postData||'{}'),id:'audit-pos-created',createdAt:'2026-11-25T15:00:00Z',updatedAt:'2026-11-25T15:00:00Z'};
+    posWrites.push(entry);
+    return entry;
+  }
+  if (posAudit && path === '/vocabulary' && method === 'GET') {
+    const part=new URL(url).searchParams.get('partOfSpeech');
+    const data=[...posWrites,...words].filter(w=>!part||w.partOfSpeech===part);
+    return {data,meta:{page:1,limit:6,total:data.length,pageCount:1}};
+  }
+  if (noteAudit && path.startsWith('/vocabulary/') && method === 'PUT') {
+    const word=words.find(w=>w.id===path.split('/')[2]);
+    const patch=JSON.parse(postData||'{}');
+    if (!word || Object.keys(patch).length!==1 || typeof patch.note!=='string') return null;
+    Object.assign(word,patch);
+    return word;
+  }
   if (path === '/vocabulary' || path === '/vocabulary/favorites/list') return {data:words, items:words, vocabularies:words, total:2, page:1, limit:20, totalPages:1}
   if (path === '/vocabulary/by-learning-date') return []
   if (path === '/category/bulk' && method === 'POST') {
@@ -102,6 +131,9 @@ function mockPayload(url, method, postData) {
     return {data:filtered.slice((page-1)*8,page*8),total:filtered.length,totalCategories:all.length,page,pageCount,limit:8,smartSummary:{interested:2,neglected:2,recommended:4}}
   }
   if (path === '/category') return Array.from({length:150},(_,i)=>({id:'audit-filter-cat-'+i,name:i===149?'\u0110\u1ED3 \u0103n '+ 'X'.repeat(120):'Category '+String(i+1).padStart(3,'0'),icon:'folder',color:'#3B82F6'}))
+  if (path === '/tag' && method === 'POST') return {id:'audit-created-tag',...JSON.parse(postData||'{}'),createdAt:'2026-11-25T12:00:00Z',updatedAt:'2026-11-25T12:00:00Z'}
+  if (path.startsWith('/tag/') && method === 'PUT') return {id:path.split('/')[2],...JSON.parse(postData||'{}'),createdAt:'2026-11-24T12:00:00Z',updatedAt:'2026-11-25T12:00:00Z'}
+  if (path === '/tag' && currentRoute === '/tags') return Array.from({length:8},(_,i)=>({id:'audit-tag-'+i,name:i===3?'VeryLongTag'+'X'.repeat(120):'Tag '+String(i+1).padStart(2,'0'),description:i===0?'Useful vocabulary for everyday practice':i===3?'Long description '+ 'X'.repeat(120):'',color:['#FFFFFF','#000000','#A855F7','#3B82F6'][i%4],createdAt:'2026-11-24T12:00:00Z',updatedAt:'2026-11-24T12:00:00Z'}))
   if (path === '/tag') return Array.from({length:200},(_,i)=>({id:'audit-filter-tag-'+i,name:i===199?'LongTag'+'X'.repeat(120):'Tag '+String(i+1).padStart(3,'0'),color:'#6366F1'}))
   if (path === '/category/audit-category/vocabularies') return {id:'audit-category',name:'Travel and everyday vocabulary',description:'Useful words for trips, airports and conversations.',icon:'plane',color:'#FFFFFF',isPinned:true,vocabularies:words.map(w=>({...w,categories:[{id:'audit-category',name:'Travel',icon:'plane',color:'#FFFFFF'}],correctCount:3,incorrectCount:1}))}
   if (path === '/category/audit-custom/vocabularies') {
@@ -211,7 +243,7 @@ try {
       const headers=[{name:'Content-Type',value:'application/json; charset=utf-8'},
         {name:'Access-Control-Allow-Origin',value:base},{name:'Access-Control-Allow-Methods',value:'GET,POST,PUT,PATCH,DELETE,OPTIONS'},
         {name:'Access-Control-Allow-Headers',value:'Content-Type,Authorization'},{name:'Access-Control-Allow-Credentials',value:'true'}]
-      const content=JSON.stringify(mockPayload(request.url,request.method,request.postData))
+      const content=JSON.stringify(mockPayload(request.url,request.method,request.postData,currentRoute))
       send('Fetch.fulfillRequest',{requestId:id,responseCode:200,responseHeaders:headers,
         body:Buffer.from(content).toString('base64')}).catch(()=>{})
     }
@@ -231,7 +263,7 @@ try {
       await send('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:true,screenWidth:width,screenHeight:height})
       for (const route of routes) {
         currentRoute=route
-        await evaluate(`localStorage.setItem('theme',${JSON.stringify(theme)});localStorage.setItem('locale',${JSON.stringify(locale)});localStorage.${guestRoutes.has(route)?'removeItem':'setItem'}('token'${guestRoutes.has(route)?'':",'mobile-audit-only'"});`)
+        await evaluate(`localStorage.setItem('theme',${JSON.stringify(theme)});${defaultLocaleAudit?"localStorage.removeItem('locale')":"localStorage.setItem('locale',"+JSON.stringify(locale)+")"};localStorage.${guestRoutes.has(route)?'removeItem':'setItem'}('token'${guestRoutes.has(route)?'':",'mobile-audit-only'"});`)
         await send('Page.navigate',{url:base+route},30000)
         await pause(900)
         let m
@@ -251,6 +283,28 @@ try {
         }
         if((m?.scrollWidth||0)>width+2 || (m?.overflowing?.length||0)>0)
           console.log('OVERFLOW '+theme+' '+width+' '+route+' scroll='+m.scrollWidth+' off='+m.overflowing.map(x=>x.node).slice(0,3).join('|'))
+        if (defaultLocaleAudit && route === '/login') {
+          const initial = await evaluate(`(async () => {
+            const wait=async f=>{for(let i=0;i<50;i++){if(f())return true;await new Promise(r=>setTimeout(r,100))}return false};
+            const root=()=>document.querySelector('[data-language-switcher]');
+            const ready=await wait(()=>root()?.querySelector('button'));
+            if(!ready)return {ready:false};
+            const defaultEnglish=document.documentElement.lang==='en' && !!root().querySelector('.fi-us');
+            root().querySelector('button').click();
+            await wait(()=>root().querySelectorAll('[data-language-code]').length===4);
+            const options=()=>[...root().querySelectorAll('[data-language-code]')];
+            const ordered=options().map(x=>x.dataset.languageCode).join(',')==='en,vi,ko,zh-CN';
+            const selected=options()[0]?.getAttribute('aria-pressed')==='true';
+            options()[1]?.click();
+            await wait(()=>document.documentElement.lang==='vi');
+            const saved=localStorage.getItem('locale')==='vi'&&document.documentElement.lang==='vi';
+            return {ready,defaultEnglish,ordered,selected,saved};
+          })()`)
+          await send('Page.navigate',{url:base+route},30000)
+          await pause(1100)
+          const persisted=await evaluate("document.documentElement.lang==='vi' && localStorage.getItem('locale')==='vi'")
+          scenarioResults.push({theme,width,route,scenario:'default-language-order',activated:Object.values(initial).every(v=>v===true)&&persisted,visiblePanel:initial.ordered===true,...initial,persisted})
+        }
         if (width <= 390 && route === '/login') {
           let linkWorks = false
           for (let attempt = 0; attempt < 12 && !linkWorks; attempt++) {
@@ -283,6 +337,87 @@ try {
           }
           const detail=await evaluate(measurement.replace('const viewport = window.innerWidth', 'const viewport = '+width))
           scenarioResults.push({theme,width,route,scenario:'forgot-password-3-steps',activated:emailEntered&&otpReady,visiblePanel:successVisible,...detail})
+        }
+
+        if (layoutAudit && route === '/vocabulary') {
+          const result=await evaluate(`(async () => {
+            let el;
+            for(let i=0;i<70;i++){el=document.querySelector('[data-vocabulary-layout-toggle]');if(el)break;await new Promise(r=>setTimeout(r,100));}
+            const expected=innerWidth>=768;
+            const visible=!!el&&getComputedStyle(el).display!=='none'&&el.getBoundingClientRect().height>0;
+            const buttons=el?.querySelectorAll('button').length===2;
+            return {expected,visible,buttons,activated:!!el&&visible===expected&&buttons,visiblePanel:!!el&&visible===expected};
+          })()`)
+          scenarioResults.push({theme,width,route,scenario:'vocabulary-layout-responsive',...result})
+          continue
+        }
+        if (noteAudit && route === '/vocabulary') {
+          const check=await evaluate(`(async()=>{
+            const wait=async f=>{for(let i=0;i<80;i++){if(f())return true;await new Promise(r=>setTimeout(r,100))}return false};
+            const trigger=()=>document.querySelector('[data-vocabulary-note-trigger]');
+            const modal=()=>document.querySelector('[data-vocabulary-note-modal]');
+            const save=()=>document.querySelector('[data-vocabulary-note-save]');
+            const ready=await wait(()=>trigger());
+            if(!ready)return {ready:false};
+            trigger().click();
+            const opened=await wait(()=>modal());
+            if(!opened)return {ready,opened};
+            const gradient=getComputedStyle(save()).backgroundImage.includes('gradient')&&save().classList.contains('from-primary-500')&&save().classList.contains('to-secondary-500');
+            const fit=modal().scrollWidth<=innerWidth+1&&save().getBoundingClientRect().right<=innerWidth+1;
+            const area=modal().querySelector('textarea');
+            area.value='423432';area.dispatchEvent(new Event('input',{bubbles:true}));
+            save().click();
+            const saved=await wait(()=>!modal()&&document.body.innerText.includes('Note saved successfully'));
+            trigger()?.click();
+            const reopened=await wait(()=>modal()?.querySelector('textarea')?.value==='423432');
+            if(reopened){const a=modal().querySelector('textarea');a.value='';a.dispatchEvent(new Event('input',{bubbles:true}));save().click();}
+            const cleared=await wait(()=>!modal());
+            trigger()?.click();
+            const empty=await wait(()=>modal()?.querySelector('textarea')?.value==='');
+            return {ready,opened,gradient,fit,saved,reopened,cleared,empty};
+          })()`,40000)
+          scenarioResults.push({theme,width,route,scenario:'vocabulary-note',activated:Object.values(check).every(v=>v===true),visiblePanel:check.fit===true,...check});
+          continue
+        }
+        if (posAudit && route === '/vocabulary') {
+          posWrites.length=0;
+          const check=await evaluate(`(async()=>{
+            const wait=async f=>{for(let i=0;i<80;i++){if(f())return true;await new Promise(r=>setTimeout(r,100))}return false};
+            const modal=()=>document.querySelector('form[id^="vocabulary-form-"]');
+            const save=()=>document.querySelector('[data-vocabulary-save]');
+            const ready=await wait(()=>document.querySelector('button.add-button')&&document.querySelector('[data-part-of-speech]'));
+            if(!ready)return {ready:false};
+            const labels=[...document.querySelectorAll('[data-part-of-speech]')].map(x=>x.textContent.trim());
+            document.querySelector('button.add-button').click();
+            const opened=await wait(()=>modal());
+            if(!opened)return {ready,opened};
+            const inputs=()=>[...modal().querySelectorAll('input[required]')];
+            const set=(el,value)=>{el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));};
+            set(inputs()[0],'architecture'); set(inputs()[1],'/test/'); set(inputs()[2],'building design');
+            const blocked=await wait(()=>save()?.disabled&&document.querySelector('[data-vocabulary-duplicate-notice]')?.textContent.includes('already exist'));
+            const select=()=>document.querySelector('[data-vocabulary-pos] button[aria-haspopup="listbox"]');
+            select()?.scrollIntoView({block:'center'}); await new Promise(r=>setTimeout(r,250)); select()?.click();
+            const options=await wait(()=>document.querySelectorAll('[role="option"]').length>=15);
+            const verb=[...document.querySelectorAll('[role="option"]')].find(o=>o.textContent.trim()==='Verb');
+            verb?.click();
+            const allowed=await wait(()=>!save()?.disabled&&document.querySelector('[data-vocabulary-duplicate-notice]')?.textContent.includes('same spelling')||!save()?.disabled&&document.querySelector('[data-vocabulary-duplicate-notice]')?.textContent.includes('existing entries'));
+            const fit=modal().scrollWidth<=modal().clientWidth+1;
+            set(inputs()[0],'audit-new-verb'); set(inputs()[2],'test verb');
+            await wait(()=>!document.querySelector('[data-vocabulary-duplicate-notice]'));
+            save()?.click();
+            const saved=await wait(()=>!modal()&&[...document.querySelectorAll('[data-part-of-speech]')].some(e=>e.textContent.trim()==='Verb'));
+            const toggle=document.querySelector('.filters-toggle');
+            if(toggle?.getAttribute('aria-expanded')!=='true')toggle?.click();
+            const filter=()=>document.querySelector('[data-vocabulary-pos-filter] button[aria-haspopup="listbox"]');
+            await wait(()=>filter());filter()?.scrollIntoView({block:'center'});await new Promise(r=>setTimeout(r,250));filter()?.click();
+            await wait(()=>document.querySelectorAll('[role="option"]').length>=15);
+            [...document.querySelectorAll('[role="option"]')].find(o=>o.textContent.trim()==='Verb')?.click();
+            const filtered=await wait(()=>[...document.querySelectorAll('[data-part-of-speech]')].length===1&&document.querySelector('[data-part-of-speech]')?.textContent.trim()==='Verb');
+            document.querySelector('[data-vocabulary-clear-filters]')?.click();
+            return {ready,labels:labels.includes('Noun')&&labels.includes('Adjective'),opened,blocked,options,allowed:!!allowed,fit,saved,filtered};
+          })()`,45000)
+          scenarioResults.push({theme,width,route,scenario:'vocabulary-pos-duplicate',activated:Object.values(check).every(v=>v===true),visiblePanel:check.fit===true,...check})
+          continue
         }
         if (route === '/vocabulary') {
           const filterTest = await evaluate(`(async () => {
@@ -628,6 +763,47 @@ try {
             mode()?.click(); const finalHidden = await wait(()=>!document.querySelector('[data-category-select]')); return {ready,defaultHidden,modeOpened,quickSelect,modeClosed,one,fit,all,retained,acrossPages,both,pageOnly,returned,processed,confirmation,deleted,cleared,filterClears,finalHidden};
           })()`,40000)
           scenarioResults.push({theme,width,route,scenario:'category-bulk-selection',activated:Object.values(selection).every(value=>value===true),visiblePanel:selection.fit===true,...selection})
+        }
+        if (route === '/tags') {
+          const check=await evaluate(`(async()=>{
+            const wait=async f=>{for(let i=0;i<80;i++){if(f())return true;await new Promise(r=>setTimeout(r,100))}return false};
+            const cards=()=>[...document.querySelectorAll('[data-tag-card]')];
+            const modal=()=>document.querySelector('[data-tag-modal]');
+            const ready=await wait(()=>cards().length===8);
+            if(!ready)return {ready:false};
+            const icons=cards().map(c=>c.querySelector('[data-tag-icon]'));
+            const contrast=getComputedStyle(icons[0]).color==='rgb(0, 0, 0)'&&getComputedStyle(icons[1]).color==='rgb(255, 255, 255)';
+            const large=icons.every(el=>el.getBoundingClientRect().width>=59);
+            const fit=cards().every(c=>c.scrollWidth<=c.clientWidth+1&&c.getBoundingClientRect().right<=innerWidth+1);
+            const links=cards().every(c=>!!c.querySelector('a[href^="/tags/"]'));
+            const actions=cards().every(c=>c.querySelector('[data-tag-edit]').getBoundingClientRect().width>20&&c.querySelector('[data-tag-delete]').getBoundingClientRect().width>20);
+            cards()[0].querySelector('[data-tag-edit]').click();
+            const opened=await wait(()=>modal());
+            if(!opened)return {ready,opened};
+            const name=()=>modal()?.querySelector('input[required]');
+            const editTitle=modal().querySelector('h2').textContent.trim()==='Edit tag'&&name().value==='Tag 01';
+            const set=(el,value)=>{el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));};
+            set(name(),'Edited audit tag');
+            modal().querySelector('[data-tag-color][aria-label="#000000"]').click();
+            await wait(()=>modal().querySelector('[data-tag-preview]').textContent.includes('Edited audit tag'));
+            const preview=modal().querySelector('[data-tag-preview]').textContent.includes('Edited audit tag')&&modal().querySelector('input[type="color"]').value==='#000000';
+            const bounds=modal().getBoundingClientRect();
+            const modalFit=bounds.width<=innerWidth&&bounds.bottom<=innerHeight+1&&modal().scrollWidth<=modal().clientWidth+1;
+            modal().querySelector('button[type="submit"]').click();
+            const edited=await wait(()=>!modal()&&cards().some(c=>c.textContent.includes('Edited audit tag')));
+            const add=[...document.querySelectorAll('button')].find(b=>b.textContent.trim()==='Add New Tag');
+            add?.click();
+            const create=await wait(()=>modal());
+            if(!create)return {ready,opened,editTitle,preview,modalFit,edited,create};
+            const blankDisabled=modal().querySelector('button[type="submit"]').disabled;
+            const createTitle=modal().querySelector('h2').textContent.trim()==='Create tag';
+            set(name(),'New audit tag');
+            await wait(()=>!modal().querySelector('button[type="submit"]').disabled);
+            modal().querySelector('button[type="submit"]').click();
+            const created=await wait(()=>!modal()&&cards().some(c=>c.textContent.includes('New audit tag')));
+            return {ready,contrast,large,fit,links,actions,opened,editTitle,preview,modalFit,edited,create,blankDisabled,createTitle,created};
+          })()`,30000)
+          scenarioResults.push({theme,width,route,scenario:'tag-card-editor',activated:Object.values(check).every(v=>v===true),visiblePanel:check.modalFit===true,...check})
         }
         if (width <= 390 && (route === '/categories' || route === '/tags')) {
           let activated = false

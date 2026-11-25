@@ -1,16 +1,8 @@
-import { computed, type MaybeRefOrGetter, toValue } from 'vue'
+import { computed, type MaybeRefOrGetter } from 'vue'
+import { useAccentAppearance } from '../../../composables/useAccentAppearance'
 
 export function useCategoryAppearance(color: MaybeRefOrGetter<string | undefined>) {
-  const accent = computed(() => {
-    const value = toValue(color)
-    return value && /^#[0-9a-f]{6}$/i.test(value) ? value : '#667eea'
-  })
-  const ink = computed(() => {
-    const channels = [1, 3, 5].map(i => parseInt(accent.value.slice(i, i + 2), 16) / 255)
-    const [r, g, b] = channels.map(v => v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4)
-    const luminance = 0.2126 * r! + 0.7152 * g! + 0.0722 * b!
-    return luminance > 0.179 ? '#000000' : '#ffffff'
-  })
+  const { accent, ink } = useAccentAppearance(color)
   const style = computed(() => ({ '--category-accent': accent.value, '--category-ink': ink.value }))
   return { accent, ink, style }
 }

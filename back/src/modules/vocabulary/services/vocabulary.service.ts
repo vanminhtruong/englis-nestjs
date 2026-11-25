@@ -6,6 +6,9 @@ import { UpdateVocabularyDto } from '../dto/update-vocabulary.dto';
 import { VocabularyRepository } from '../repositories/vocabulary.repository';
 import { MoveVocabularyByDateDto } from '../dto/move-vocabulary-by-date.dto';
 
+import { PartOfSpeech } from '../../../entities/vocabulary.entity';
+import { CheckDuplicateDto } from '../dto/check-duplicate.dto';
+
 @Injectable()
 export class VocabularyService {
   constructor(
@@ -13,6 +16,10 @@ export class VocabularyService {
     private readonly searchService: VocabularySearchService,
     private readonly vocabularyRepository: VocabularyRepository,
   ) {}
+
+  async checkDuplicate(userId: string, input: CheckDuplicateDto) {
+    return this.vocabularyRepository.checkDuplicate(userId, input);
+  }
 
   async findAll(userId: string) {
     return this.crudService.findAll(userId);
@@ -27,6 +34,7 @@ export class VocabularyService {
     tabId?: string,
     categoryIds?: string[],
     tags?: string[],
+    partOfSpeech?: PartOfSpeech,
   ) {
     return this.vocabularyRepository.findAllPaginated(
       userId,
@@ -37,6 +45,7 @@ export class VocabularyService {
       tabId,
       categoryIds,
       tags,
+      partOfSpeech,
     );
   }
 

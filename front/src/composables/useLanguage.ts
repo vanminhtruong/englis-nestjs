@@ -13,8 +13,8 @@ export function useLanguage() {
   })
 
   const availableLocales = [
-    { code: 'vi', name: 'Tiếng Việt', flagClass: 'fi fi-vn' },
     { code: 'en', name: 'English', flagClass: 'fi fi-us' },
+    { code: 'vi', name: 'Tiếng Việt', flagClass: 'fi fi-vn' },
     { code: 'ko', name: '한국어', flagClass: 'fi fi-kr' },
     { code: 'zh-CN', name: '简体中文', flagClass: 'fi fi-cn' },
   ]

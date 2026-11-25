@@ -88,6 +88,7 @@
               >
                 {{ vocab.word }}
               </h3>
+              <PartOfSpeechLabel :value="vocab.partOfSpeech" :on-image="hasBackground" />
               <button
                 @click="$emit('speak', vocab.word)"
                 class="shrink-0 p-1.5 text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all"
@@ -231,6 +232,7 @@
 </template>
 
 <script setup lang="ts">
+import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
 import { resolveAssetUrl } from "@/utils/assetUrl";
 import { defineAsyncComponent } from "vue";
 import CategoryIcon from "./CategoryIcon.vue";

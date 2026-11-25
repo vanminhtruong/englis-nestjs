@@ -334,4 +334,30 @@ describe('Export, import and sharing carry every page of the app', () => {
     expect(stats.newVocabularies).toBe(1);
     expect(stats.newCategories).toBe(0);
   });
+
+  it('restores same-spelling classified senses and keeps their links separate through Excel', async () => {
+    const users = db.getRepository(User);
+    const from = await users.save(users.create({ fullName: 'Word senses source' }));
+    const to = await users.save(users.create({ fullName: 'Word senses destination' }));
+    const vr = db.getRepository(Vocabulary);
+    const noun = await vr.save(vr.create({userId:from.id,word:'book',meaning:'volume',pronunciation:'/buk/',partOfSpeech:'noun' as any}));
+    const verb = await vr.save(vr.create({userId:from.id,word:'book',meaning:'reserve',pronunciation:'/buk/',partOfSpeech:'verb' as any}));
+    const cr = db.getRepository(Category);
+    await cr.save(cr.create({userId:from.id,name:'Nouns',vocabularies:[noun]}));
+    await cr.save(cr.create({userId:from.id,name:'Verbs',vocabularies:[verb]}));
+    const pr = db.getRepository(PracticeHistory);
+    await pr.save(pr.create({userId:from.id,vocabularyId:verb.id,practiceType:PracticeType.FLASHCARD,isCorrect:true,score:10,timeSpent:3}));
+    const {snapshot} = await buildUserDataSnapshot(db.manager,from.id);
+    const file = await xlsxBufferToSnapshot(await snapshotToXlsxBuffer(snapshot));
+    expect(file.vocabularies.map(v=>v.partOfSpeech).sort()).toEqual(['noun','verb']);
+    await db.transaction(m=>mergeUserDataSnapshot(m,to.id,file,'import'));
+    const restored = await vr.find({where:{userId:to.id},relations:['categories']});
+    expect(restored).toHaveLength(2);
+    expect(restored.find(v=>v.partOfSpeech==='noun')?.categories.map(c=>c.name)).toEqual(['Nouns']);
+    const restoredVerb=restored.find(v=>v.partOfSpeech==='verb');
+    expect(restoredVerb?.categories.map(c=>c.name)).toEqual(['Verbs']);
+    expect((await pr.findOneByOrFail({userId:to.id})).vocabularyId).toBe(restoredVerb?.id);
+    const again=await db.transaction(m=>mergeUserDataSnapshot(m,to.id,file,'import'));
+    expect(mergeChangeCount(again)).toBe(0);
+  });
 });

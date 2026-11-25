@@ -32,6 +32,7 @@
       <div class="flex-1 min-w-0">
         <div class="flex flex-wrap items-center gap-x-2 gap-y-1 sm:gap-3 mb-2">
           <h4 class="min-w-0 break-words text-lg sm:text-xl font-bold text-black dark:text-white">{{ vocabulary.word }}</h4>
+              <PartOfSpeechLabel :value="vocabulary.partOfSpeech" />
           <button 
             @click="$emit('speak', vocabulary.word)" 
             class="p-1.5 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 text-primary-500 dark:text-primary-400 transition-colors" 
@@ -85,6 +86,7 @@
 </template>
 
 <script setup lang="ts">
+import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
 import { resolveAssetUrl } from "@/utils/assetUrl";
 import { computed } from 'vue'
 

@@ -13,6 +13,7 @@ export function useVocabularyState() {
 
   const form = reactive<VocabularyForm>({
     word: '',
+    partOfSpeech: 'unspecified',
     pronunciation: '',
     meaning: '',
     example: '',
@@ -24,6 +25,7 @@ export function useVocabularyState() {
   const filter = reactive<VocabularyFilter & { tabId?: string | null }>({
     search: '',
     difficulty: 'all',
+    partOfSpeech: 'all',
     tabId: null,
     categoryIds: [],
     tags: [],
@@ -47,6 +49,10 @@ export function useVocabularyState() {
 
   function resetForm() {
     form.word = ''
+    form.partOfSpeech = 'unspecified'
+    form.image = ''
+    form.video = ''
+    form.audio = ''
     form.pronunciation = ''
     form.meaning = ''
     form.example = ''
@@ -65,6 +71,10 @@ export function useVocabularyState() {
 
   function openEditModal(vocabulary: any) {
     form.word = vocabulary.word
+    form.partOfSpeech = vocabulary.partOfSpeech || 'unspecified'
+    form.image = vocabulary.image || ''
+    form.video = vocabulary.video || ''
+    form.audio = vocabulary.audio || ''
     form.pronunciation = vocabulary.pronunciation
     form.meaning = vocabulary.meaning
     form.example = vocabulary.example || ''

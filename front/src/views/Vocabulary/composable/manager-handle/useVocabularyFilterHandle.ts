@@ -4,6 +4,7 @@ import { vocabularyService } from '../../service/vocabulary.service'
 export function useVocabularyFilterHandle(
   filter: {
     search: string;
+    partOfSpeech?: import('../../utils/partOfSpeech').PartOfSpeech | 'all';
     difficulty: 'all' | 'easy' | 'medium' | 'hard',
     tabId?: string | null,
     categoryIds?: string[],
@@ -23,12 +24,15 @@ export function useVocabularyFilterHandle(
       page,
       limit: store.limit,
       search: filter.search,
+      partOfSpeech: filter.partOfSpeech,
       difficulty,
       tabId: filter.tabId,
       categoryIds: filter.categoryIds,
       tags: filter.tags,
     })
   }
+
+  watch(() => filter.partOfSpeech, () => handlePageChange(1))
 
   watch(
     () => filter.search,

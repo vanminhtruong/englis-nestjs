@@ -1,4 +1,27 @@
 export default {
+  partOfSpeech: "\ud488\uc0ac",
+  pos_unspecified: "\ubbf8\uc9c0\uc815",
+  pos_noun: "\uba85\uc0ac",
+  pos_verb: "\ub3d9\uc0ac",
+  pos_adjective: "\ud615\uc6a9\uc0ac",
+  pos_adverb: "\ubd80\uc0ac",
+  pos_pronoun: "\ub300\uba85\uc0ac",
+  pos_preposition: "\uc804\uce58\uc0ac",
+  pos_conjunction: "\uc811\uc18d\uc0ac",
+  pos_determiner: "\ud55c\uc815\uc0ac",
+  pos_interjection: "\uac10\ud0c4\uc0ac",
+  pos_numeral: "\uc218\uc0ac",
+  pos_auxiliary: "\uc870\ub3d9\uc0ac",
+  pos_phrase: "\uad6c",
+  pos_phrasal_verb: "\uad6c\ub3d9\uc0ac",
+  pos_idiom: "\uad00\uc6a9\uad6c",
+  duplicateChecking: "\uc911\ubcf5 \ud655\uc778 \uc911\u2026",
+  duplicateUnavailable: "\uc2e4\uc2dc\uac04 \ud655\uc778 \ubd88\uac00. \uc800\uc7a5 \uc2dc \ud655\uc778\ud569\ub2c8\ub2e4.",
+  duplicateBlocked: "\uac19\uc740 \ub2e8\uc5b4, \ub73b, \ud488\uc0ac\uac00 \uc774\ubbf8 \uc788\uc2b5\ub2c8\ub2e4.",
+  duplicateRelated: "\uac19\uc740 \ucca0\uc790\uc758 \ub2e8\uc5b4 {count}\uac1c\uac00 \uc788\uc2b5\ub2c8\ub2e4. \ub73b\uc774\ub098 \ud488\uc0ac\uac00 \ub2e4\ub974\uba74 \uc800\uc7a5\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.",
+  duplicateShow: "\uc77c\uce58 \ud56d\ubaa9 \ubcf4\uae30",
+  duplicateHide: "\uc811\uae30",
+
   chooseCategoriesFilter: "\uce74\ud14c\uace0\ub9ac \uc120\ud0dd",
   chooseTagsFilter: "\ud0dc\uadf8 \uc120\ud0dd",
   searchCategoriesFilter: "\uce74\ud14c\uace0\ub9ac \uac80\uc0c9\u2026",
@@ -126,6 +149,8 @@ export default {
 
   // Note
   note: {
+    saved: "\uba54\ubaa8\uac00 \uc800\uc7a5\ub418\uc5c8\uc2b5\ub2c8\ub2e4.",
+    saveError: "\uba54\ubaa8\ub97c \uc800\uc7a5\ud560 \uc218 \uc5c6\uc2b5\ub2c8\ub2e4. \ub2e4\uc2dc \uc2dc\ub3c4\ud574 \uc8fc\uc138\uc694.",
     title: '"{word}"에 대한 메모',
     edit: "메모 편집",
     add: "메모 추가",

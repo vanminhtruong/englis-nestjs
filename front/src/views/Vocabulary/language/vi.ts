@@ -1,4 +1,27 @@
 export default {
+  partOfSpeech: "T\u1eeb lo\u1ea1i",
+  pos_unspecified: "Ch\u01b0a ph\u00e2n lo\u1ea1i",
+  pos_noun: "Danh t\u1eeb",
+  pos_verb: "\u0110\u1ed9ng t\u1eeb",
+  pos_adjective: "T\u00ednh t\u1eeb",
+  pos_adverb: "Tr\u1ea1ng t\u1eeb",
+  pos_pronoun: "\u0110\u1ea1i t\u1eeb",
+  pos_preposition: "Gi\u1edbi t\u1eeb",
+  pos_conjunction: "Li\u00ean t\u1eeb",
+  pos_determiner: "T\u1eeb h\u1ea1n \u0111\u1ecbnh",
+  pos_interjection: "Th\u00e1n t\u1eeb",
+  pos_numeral: "S\u1ed1 t\u1eeb",
+  pos_auxiliary: "Tr\u1ee3 \u0111\u1ed9ng t\u1eeb",
+  pos_phrase: "C\u1ee5m t\u1eeb",
+  pos_phrasal_verb: "C\u1ee5m \u0111\u1ed9ng t\u1eeb",
+  pos_idiom: "Th\u00e0nh ng\u1eef",
+  duplicateChecking: "\u0110ang ki\u1ec3m tra t\u1eeb tr\u00f9ng\u2026",
+  duplicateUnavailable: "Ch\u01b0a ki\u1ec3m tra tr\u1ef1c ti\u1ebfp \u0111\u01b0\u1ee3c. H\u1ec7 th\u1ed1ng s\u1ebd ki\u1ec3m tra khi l\u01b0u.",
+  duplicateBlocked: "T\u1eeb, ngh\u0129a v\u00e0 t\u1eeb lo\u1ea1i n\u00e0y \u0111\u00e3 t\u1ed3n t\u1ea1i.",
+  duplicateRelated: "C\u00f3 {count} t\u1eeb c\u00f9ng c\u00e1ch vi\u1ebft. V\u1eabn c\u00f3 th\u1ec3 l\u01b0u n\u1ebfu kh\u00e1c ngh\u0129a ho\u1eb7c t\u1eeb lo\u1ea1i.",
+  duplicateShow: "Xem c\u00e1c t\u1eeb li\u00ean quan",
+  duplicateHide: "Thu g\u1ecdn",
+
   chooseCategoriesFilter: "Ch\u1ecdn ch\u1ee7 \u0111\u1ec1",
   chooseTagsFilter: "Ch\u1ecdn th\u1ebb",
   searchCategoriesFilter: "T\u00ecm ch\u1ee7 \u0111\u1ec1\u2026",
@@ -132,6 +155,8 @@ export default {
 
   // Note
   note: {
+    saved: "\u0110\u00e3 l\u01b0u ghi ch\u00fa th\u00e0nh c\u00f4ng",
+    saveError: "Kh\u00f4ng th\u1ec3 l\u01b0u ghi ch\u00fa. Vui l\u00f2ng th\u1eed l\u1ea1i.",
     title: 'Ghi chú cho "{word}"',
     edit: "Sửa ghi chú",
     add: "Thêm ghi chú",

@@ -453,6 +453,7 @@
             >
               {{ currentCard.word }}
             </h3>
+              <PartOfSpeechLabel :value="currentCard.partOfSpeech" />
             <p
               v-if="currentCard.pronunciation"
               class="relative mt-3 text-base text-primary-600 dark:text-gray-200"
@@ -691,6 +692,7 @@
 </template>
 
 <script setup lang="ts">
+import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
 import { resolveAssetUrl } from "@/utils/assetUrl";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { RouterLink } from "vue-router";

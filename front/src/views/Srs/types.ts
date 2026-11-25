@@ -3,6 +3,7 @@ export type SrsRating = "again" | "hard" | "good" | "easy";
 export interface SrsCard {
   id: string;
   word: string;
+  partOfSpeech?: import('../Vocabulary/utils/partOfSpeech').PartOfSpeech;
   pronunciation: string | null;
   meaning: string;
   example: string | null;
@@ -32,6 +33,7 @@ export interface SrsOverview {
 export interface SrsUpcoming {
   vocabularyId: string;
   word: string;
+  partOfSpeech?: import('../Vocabulary/utils/partOfSpeech').PartOfSpeech;
   meaning: string;
   nextReviewAt: string;
   intervalDays: number;
@@ -42,6 +44,7 @@ export interface SrsHistory {
   id: string;
   vocabularyId: string;
   word: string;
+  partOfSpeech?: import('../Vocabulary/utils/partOfSpeech').PartOfSpeech;
   rating: SrsRating;
   isPracticeOnly: boolean;
   reviewedAt: string;

@@ -7,6 +7,7 @@ export class VocabularyService {
   private store = useVocabularyStore()
   private lastParams: {
     search?: string;
+    partOfSpeech?: import('../utils/partOfSpeech').PartOfSpeech | 'all';
     difficulty?: 'easy' | 'medium' | 'hard' | 'all';
     tabId?: string | null;
     categoryIds?: string[];
@@ -17,6 +18,7 @@ export class VocabularyService {
     page?: number;
     limit?: number;
     search?: string;
+    partOfSpeech?: import('../utils/partOfSpeech').PartOfSpeech | 'all';
     difficulty?: 'easy' | 'medium' | 'hard' | 'all';
     tabId?: string | null;
     categoryIds?: string[];
@@ -26,6 +28,7 @@ export class VocabularyService {
 
     // Update last used filters if explicit values (even null/empty) are provided
     if (params) {
+      if (params.partOfSpeech !== undefined) this.lastParams.partOfSpeech = params.partOfSpeech;
       if (params.search !== undefined) this.lastParams.search = params.search;
       if (params.difficulty !== undefined) this.lastParams.difficulty = params.difficulty;
       if (params.tabId !== undefined) this.lastParams.tabId = params.tabId;
@@ -40,6 +43,7 @@ export class VocabularyService {
         page: params?.page ?? this.store.page,
         limit: params?.limit ?? this.store.limit,
         search: this.lastParams.search || undefined,
+        partOfSpeech: this.lastParams.partOfSpeech === 'all' ? undefined : this.lastParams.partOfSpeech,
         difficulty: difficulty,
         tabId: this.lastParams.tabId || undefined,
         categoryIds: this.lastParams.categoryIds?.length ? this.lastParams.categoryIds : undefined,
@@ -78,6 +82,7 @@ export class VocabularyService {
     } catch (error: any) {
       return {
         success: false,
+        code: error.response?.data?.code,
         error: error.response?.data?.message || 'Failed to create vocabulary',
       }
     }
@@ -107,6 +112,7 @@ export class VocabularyService {
     } catch (error: any) {
       return {
         success: false,
+        code: error.response?.data?.code,
         error: error.response?.data?.message || 'Failed to update vocabulary',
       }
     }

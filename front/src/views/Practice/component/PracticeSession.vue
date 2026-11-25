@@ -102,6 +102,7 @@
           <h3 class="text-3xl sm:text-5xl font-bold text-black dark:text-white mb-4">
             {{ currentQuestion.word }}
           </h3>
+              <PartOfSpeechLabel :value="currentQuestion.partOfSpeech" />
           <p class="text-xl text-black/50 dark:text-white/50">
             {{ currentQuestion.pronunciation }}
           </p>
@@ -364,6 +365,7 @@
 </template>
 
 <script setup lang="ts">
+import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
 import { ref, watch, computed, defineAsyncComponent, onMounted, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { resolveAssetUrl } from "@/utils/assetUrl";

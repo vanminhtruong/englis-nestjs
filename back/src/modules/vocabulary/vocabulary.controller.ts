@@ -24,6 +24,9 @@ import { VocabularyWebSocketGateway } from '../websocket/websocket.gateway';
 import { UpdateCategoryTopicDto } from './dto/update-category-topic.dto';
 import { VocabularyTabService } from '../vocabulary-tab/vocabulary-tab.service';
 
+import { PartOfSpeech } from '../../entities/vocabulary.entity';
+import { CheckDuplicateDto } from './dto/check-duplicate.dto';
+
 @Controller('vocabulary')
 @UseGuards(JwtAuthGuard)
 export class VocabularyController {
@@ -44,6 +47,7 @@ export class VocabularyController {
     @Query('tabId') tabId?: string,
     @Query('categoryIds') categoryIds?: string,
     @Query('tags') tags?: string,
+    @Query('partOfSpeech') partOfSpeech?: PartOfSpeech,
   ) {
     const p = page ? parseInt(page.toString(), 10) : 1;
     const l = limit ? parseInt(limit.toString(), 10) : 6;
@@ -60,6 +64,7 @@ export class VocabularyController {
       tabId,
       categoryIdArray,
       tagArray,
+      partOfSpeech,
     );
     return {
       data: result.items,
@@ -164,6 +169,11 @@ export class VocabularyController {
     return this.vocabularyService.getSettings(req.user.id);
   }
 
+  @Get('check-duplicate')
+  async checkDuplicate(@Request() req, @Query() query: CheckDuplicateDto) {
+    return this.vocabularyService.checkDuplicate(req.user.id, query);
+  }
+
   @Get(':id')
   async findById(@Param('id') id: string, @Request() req) {
     return this.vocabularyService.findById(id, req.user.id);
@@ -171,14 +181,22 @@ export class VocabularyController {
 
   @Post()
   async create(@Body() createDto: CreateVocabularyDto, @Request() req) {
+    let uploadedImage: string | undefined;
     // Handle base64 image if provided
     if (createDto.image && createDto.image.startsWith('data:image')) {
       const imagePath = await this.uploadService.saveBase64Image(
         createDto.image,
       );
       createDto.image = imagePath;
+      uploadedImage = imagePath;
     }
-    return this.vocabularyService.create(req.user.id, createDto);
+    try {
+      return await this.vocabularyService.create(req.user.id, createDto);
+    } catch (error) {
+      if (uploadedImage && error?.getStatus?.() === 409)
+        await this.uploadService.deleteFile(uploadedImage);
+      throw error;
+    }
   }
 
   @Post('upload')
@@ -209,19 +227,30 @@ export class VocabularyController {
     @Body() updateDto: UpdateVocabularyDto,
     @Request() req,
   ) {
+    let uploadedImage: string | undefined;
     // Handle base64 image if provided
     if (updateDto.image && updateDto.image.startsWith('data:image')) {
-      // Delete old image if exists
-      const oldVocab = await this.vocabularyService.findById(id, req.user.id);
-      if (oldVocab?.image) {
-        await this.uploadService.deleteFile(oldVocab.image);
-      }
+      // Preserve existing images, including copies referenced by shared vocabulary.
       const imagePath = await this.uploadService.saveBase64Image(
         updateDto.image,
       );
       updateDto.image = imagePath;
+      uploadedImage = imagePath;
     }
-    return this.vocabularyService.update(id, req.user.id, updateDto);
+    try {
+      const result = await this.vocabularyService.update(
+        id,
+        req.user.id,
+        updateDto,
+      );
+      if (!result && uploadedImage)
+        await this.uploadService.deleteFile(uploadedImage);
+      return result;
+    } catch (error) {
+      if (uploadedImage && error?.getStatus?.() === 409)
+        await this.uploadService.deleteFile(uploadedImage);
+      throw error;
+    }
   }
 
   @Delete(':id')

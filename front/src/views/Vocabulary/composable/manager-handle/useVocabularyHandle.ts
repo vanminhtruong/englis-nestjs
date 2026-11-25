@@ -1,3 +1,4 @@
+import { ref } from 'vue'
 import { vocabularyService } from '../../service/vocabulary.service'
 import type { VocabularyForm } from '../../interface/vocabulary.interface'
 import { useToast } from '../../../../composables/useToast'
@@ -13,9 +14,11 @@ export function useVocabularyHandle(
 ) {
   const { showSuccess, showError, confirm } = useToast()
   const { t } = useI18n()
+  const saving = ref(false)
   async function handleSubmit() {
+    if (saving.value) return
     // ... (same as before)
-    if (!form.word || !form.pronunciation || !form.meaning) {
+    if (!form.word.trim() || !form.pronunciation.trim() || !form.meaning.trim()) {
       showError('Please fill in required fields')
       return
     }
@@ -34,6 +37,8 @@ export function useVocabularyHandle(
       tags: normalizedTags,
     }
 
+    saving.value = true
+    try {
     let result
     if (isEditing.value && editingId.value) {
       result = await vocabularyService.updateVocabulary(editingId.value, data)
@@ -46,10 +51,12 @@ export function useVocabularyHandle(
         // Old search/advanced filters must not hide a newly created word.
         const activeFilter = filter as typeof filter & {
           search?: string
+          partOfSpeech?: import('../../utils/partOfSpeech').PartOfSpeech | 'all'
           difficulty?: 'all' | 'easy' | 'medium' | 'hard'
           categoryIds?: string[]
           tags?: string[]
         }
+        if (activeFilter.partOfSpeech !== undefined) activeFilter.partOfSpeech = 'all'
         if (activeFilter.search !== undefined) activeFilter.search = ''
         if (activeFilter.difficulty !== undefined) activeFilter.difficulty = 'all'
         if (activeFilter.categoryIds !== undefined) activeFilter.categoryIds = []
@@ -58,8 +65,9 @@ export function useVocabularyHandle(
       showSuccess('Vocabulary saved successfully')
       closeModal()
     } else {
-      showError(result.error || 'Failed to save vocabulary')
+      showError(result.code === 'VOCABULARY_DUPLICATE' ? t('vocabulary.duplicateBlocked') : result.error || 'Failed to save vocabulary')
     }
+    } finally { saving.value = false }
   }
 
   function handleDelete(id: string) {
@@ -105,6 +113,7 @@ export function useVocabularyHandle(
   }
 
   return {
+    saving,
     handleSubmit,
     handleDelete,
     handleToggleFavorite,

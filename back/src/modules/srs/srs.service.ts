@@ -331,6 +331,7 @@ export class SrsService {
       data: progress.map((p) => ({
         vocabularyId: p.vocabularyId,
         word: p.vocabulary.word,
+        partOfSpeech: p.vocabulary.partOfSpeech,
         meaning: p.vocabulary.meaning,
         nextReviewAt: p.nextReviewAt,
         intervalDays: p.intervalDays,
@@ -373,6 +374,7 @@ export class SrsService {
         id: r.id,
         vocabularyId: r.vocabularyId,
         word: r.vocabulary.word,
+        partOfSpeech: r.vocabulary.partOfSpeech,
         rating: r.rating,
         isPracticeOnly: r.isPracticeOnly,
         reviewedAt: r.createdAt,
@@ -430,6 +432,7 @@ export class SrsService {
     return {
       id: word.id,
       word: word.word,
+      partOfSpeech: word.partOfSpeech,
       pronunciation: word.pronunciation,
       meaning: word.meaning,
       example: word.example,

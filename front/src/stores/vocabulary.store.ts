@@ -1,7 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
+import type { PartOfSpeech } from '../views/Vocabulary/utils/partOfSpeech'
+
 export interface Vocabulary {
+  partOfSpeech?: PartOfSpeech
   id: string
   word: string
   pronunciation: string

@@ -138,6 +138,7 @@
                 >
                   {{ item.word }}
                 </p>
+                <PartOfSpeechLabel :value="item.partOfSpeech" />
                 <span
                   class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold"
                   :class="
@@ -352,6 +353,7 @@
 </template>
 
 <script setup lang="ts">
+import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import Pagination from "../../components/Pagination.vue";

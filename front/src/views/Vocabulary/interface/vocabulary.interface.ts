@@ -1,4 +1,7 @@
+import type { PartOfSpeech } from '../utils/partOfSpeech'
+
 export interface VocabularyForm {
+  partOfSpeech?: PartOfSpeech
   word: string
   pronunciation: string
   meaning: string
@@ -13,6 +16,7 @@ export interface VocabularyForm {
 }
 
 export interface VocabularyFilter {
+  partOfSpeech?: PartOfSpeech | 'all'
   search: string
   difficulty: 'all' | 'easy' | 'medium' | 'hard'
   categoryIds?: string[]

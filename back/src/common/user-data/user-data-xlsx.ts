@@ -87,9 +87,13 @@ export async function snapshotToXlsxBuffer(snapshot: UserDataSnapshot): Promise<
       { header: 'Pinned At', key: 'pinnedAt', width: 20, date: true },
       { header: 'Last Reviewed At', key: 'lastReviewedAt', width: 20, date: true },
       { header: 'Next Review At', key: 'nextReviewAt', width: 20, date: true },
+      { header: 'Part of Speech', key: 'partOfSpeech', width: 20 },
+      { header: 'Entry Key', key: 'entryKey', width: 38 },
     ],
     snapshot.vocabularies.map((v) => ({
       word: v.word,
+      partOfSpeech: v.partOfSpeech ?? '',
+      entryKey: v.entryKey ?? '',
       meaning: v.meaning,
       pronunciation: v.pronunciation,
       example: v.example,
@@ -122,9 +126,11 @@ export async function snapshotToXlsxBuffer(snapshot: UserDataSnapshot): Promise<
       { header: 'Score', key: 'score', width: 10 },
       { header: 'Time Spent (s)', key: 'timeSpent', width: 15 },
       { header: 'Date', key: 'createdAt', width: 20, date: true },
+      { header: 'Entry Key', key: 'entryKey', width: 38 },
     ],
     snapshot.histories.map((h) => ({
       word: h.word,
+      entryKey: h.entryKey ?? '',
       practiceType: h.practiceType,
       isCorrect: yesNo(h.isCorrect),
       userAnswer: h.userAnswer ?? '',
@@ -153,13 +159,18 @@ export async function snapshotToXlsxBuffer(snapshot: UserDataSnapshot): Promise<
       pinnedAt: asDate(c.pinnedAt),
     })),
   );
+  const spellingByKey = new Map(snapshot.vocabularies.map(v => [v.entryKey, v.word]));
+  const membershipRows = (record: SnapshotCategory | SnapshotTab) => record.entryKeys?.length
+    ? record.entryKeys.map(entryKey => ({ word: spellingByKey.get(entryKey) ?? '', entryKey }))
+    : record.words.map(word => ({ word, entryKey: '' }));
   addSheet(
     SHEETS.categoryWords,
     [
       { header: 'Category', key: 'category', width: 24 },
       { header: 'Word', key: 'word', width: 24 },
+      { header: 'Entry Key', key: 'entryKey', width: 38 },
     ],
-    snapshot.categories.flatMap((c) => c.words.map((word) => ({ category: c.name, word }))),
+    snapshot.categories.flatMap(c => membershipRows(c).map(row => ({ category: c.name, ...row }))),
   );
 
   addSheet(
@@ -212,8 +223,9 @@ export async function snapshotToXlsxBuffer(snapshot: UserDataSnapshot): Promise<
     [
       { header: 'Tab', key: 'tab', width: 24 },
       { header: 'Word', key: 'word', width: 24 },
+      { header: 'Entry Key', key: 'entryKey', width: 38 },
     ],
-    snapshot.tabs.flatMap((t) => t.words.map((word) => ({ tab: t.name, word }))),
+    snapshot.tabs.flatMap(t => membershipRows(t).map(row => ({ tab: t.name, ...row }))),
   );
 
   addSheet(
@@ -226,9 +238,11 @@ export async function snapshotToXlsxBuffer(snapshot: UserDataSnapshot): Promise<
       { header: 'Interval Days', key: 'intervalDays', width: 14 },
       { header: 'Next Review At', key: 'nextReviewAt', width: 20, date: true },
       { header: 'Last Reviewed At', key: 'lastReviewedAt', width: 20, date: true },
+      { header: 'Entry Key', key: 'entryKey', width: 38 },
     ],
     snapshot.srsProgress.map((p) => ({
       word: p.word,
+      entryKey: p.entryKey ?? '',
       repetitions: p.repetitions,
       lapses: p.lapses,
       easeFactor: p.easeFactor,
@@ -246,9 +260,11 @@ export async function snapshotToXlsxBuffer(snapshot: UserDataSnapshot): Promise<
       { header: 'Interval Days', key: 'intervalDays', width: 14 },
       { header: 'Next Review At', key: 'nextReviewAt', width: 20, date: true },
       { header: 'Date', key: 'createdAt', width: 20, date: true },
+      { header: 'Entry Key', key: 'entryKey', width: 38 },
     ],
     snapshot.srsReviews.map((r) => ({
       word: r.word,
+      entryKey: r.entryKey ?? '',
       rating: r.rating,
       previousIntervalDays: r.previousIntervalDays,
       intervalDays: r.intervalDays,
@@ -350,6 +366,8 @@ export async function xlsxBufferToSnapshot(buffer: Buffer): Promise<UserDataSnap
     const tags = row.text('Tags', 14);
     snapshot.vocabularies.push({
       word,
+      entryKey: row.text('Entry Key') || undefined,
+      partOfSpeech: row.text('Part of Speech') || undefined,
       meaning: row.text('Meaning', 2),
       pronunciation: row.text('Pronunciation', 3),
       example: row.text('Example', 4),
@@ -378,6 +396,7 @@ export async function xlsxBufferToSnapshot(buffer: Buffer): Promise<UserDataSnap
     if (!word) continue;
     snapshot.histories.push({
       word,
+      entryKey: row.text('Entry Key') || undefined,
       practiceType: row.text('Type', 2) || 'flashcard',
       isCorrect: row.yes('Is Correct', 3),
       userAnswer: row.text('User Answer', 4),
@@ -418,7 +437,12 @@ export async function xlsxBufferToSnapshot(buffer: Buffer): Promise<UserDataSnap
   for (const row of readRows(workbook.getWorksheet(SHEETS.categoryWords))) {
     const name = row.text('Category');
     const word = row.text('Word');
-    if (name && word) categoryOf(name).words.push(word);
+    if (name && word) {
+      const category = categoryOf(name);
+      if (!category.words.includes(word)) category.words.push(word);
+      const key = row.text('Entry Key');
+      if (key) (category.entryKeys ??= []).push(key);
+    }
   }
   snapshot.categories = Array.from(categories.values());
 
@@ -465,7 +489,12 @@ export async function xlsxBufferToSnapshot(buffer: Buffer): Promise<UserDataSnap
   for (const row of readRows(workbook.getWorksheet(SHEETS.tabWords))) {
     const name = row.text('Tab');
     const word = row.text('Word');
-    if (name && word) tabOf(name).words.push(word);
+    if (name && word) {
+      const tab = tabOf(name);
+      if (!tab.words.includes(word)) tab.words.push(word);
+      const key = row.text('Entry Key');
+      if (key) (tab.entryKeys ??= []).push(key);
+    }
   }
   snapshot.tabs = Array.from(tabs.values());
 
@@ -474,6 +503,7 @@ export async function xlsxBufferToSnapshot(buffer: Buffer): Promise<UserDataSnap
     if (!word) continue;
     snapshot.srsProgress.push({
       word,
+      entryKey: row.text('Entry Key') || undefined,
       repetitions: row.int('Repetitions'),
       lapses: row.int('Lapses'),
       easeFactor: Number(row.text('Ease Factor')) || 2.5,
@@ -487,6 +517,7 @@ export async function xlsxBufferToSnapshot(buffer: Buffer): Promise<UserDataSnap
     if (!word) continue;
     snapshot.srsReviews.push({
       word,
+      entryKey: row.text('Entry Key') || undefined,
       rating: row.text('Rating').toLowerCase(),
       previousIntervalDays: row.int('Previous Interval Days'),
       intervalDays: row.int('Interval Days'),

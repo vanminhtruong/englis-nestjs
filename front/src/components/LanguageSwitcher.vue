@@ -1,5 +1,5 @@
 <template>
-  <div ref="switcherRoot" class="relative z-[60]">
+  <div ref="switcherRoot" data-language-switcher class="relative z-[60]">
 
     <button
       @click="isOpen = !isOpen"
@@ -56,6 +56,8 @@
         <button
           v-for="lang in availableLocales"
           :key="lang.code"
+          :data-language-code="lang.code"
+          :aria-pressed="locale === lang.code"
           @click="selectLanguage(lang.code)"
           class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all group relative overflow-hidden"
           :class="[
@@ -134,7 +136,7 @@ onBeforeUnmount(() => document.removeEventListener("pointerdown", handleOutsideP
 
 const currentFlagClass = computed(() => {
   const current = availableLocales.find((l) => l.code === locale.value);
-  return current?.flagClass ?? "fi fi-vn";
+  return current?.flagClass ?? "fi fi-us";
 });
 
 function selectLanguage(code: string) {

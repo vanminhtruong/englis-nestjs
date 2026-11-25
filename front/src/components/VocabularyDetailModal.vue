@@ -13,6 +13,7 @@
         <h2 class="text-2xl font-bold text-black dark:text-white">
           {{ vocabulary?.word }}
         </h2>
+              <PartOfSpeechLabel :value="vocabulary?.partOfSpeech" />
         <button
           @click="$emit('close')"
           class="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg transition-all"
@@ -72,7 +73,7 @@
 
         <!-- Word & Pronunciation -->
         <div>
-          <div class="flex items-center gap-3 mb-2">
+          <div class="flex flex-wrap items-center gap-3 mb-2">
             <h3 class="text-3xl font-bold text-black dark:text-white">
               {{ vocabulary?.word }}
             </h3>
@@ -280,6 +281,7 @@
 </template>
 
 <script setup lang="ts">
+import PartOfSpeechLabel from "@/components/common/PartOfSpeechLabel.vue";
 import { resolveAssetUrl } from "@/utils/assetUrl";
 import { watch } from "vue";
 import { getIconComponent } from "../utils/iconRenderer";

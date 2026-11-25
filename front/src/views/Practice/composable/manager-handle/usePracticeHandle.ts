@@ -44,6 +44,7 @@ export function usePracticeHandle(
         const questions: PracticeQuestion[] = result.data.map((v: any) => ({
           vocabularyId: v.id,
           word: v.word,
+          partOfSpeech: v.partOfSpeech,
           pronunciation: v.pronunciation,
           meaning: v.meaning,
           example: v.example,
@@ -210,6 +211,7 @@ export function usePracticeHandle(
         const questions: PracticeQuestion[] = result.data.map((v: any) => ({
           vocabularyId: v.id,
           word: v.word,
+          partOfSpeech: v.partOfSpeech,
           pronunciation: v.pronunciation,
           meaning: v.meaning,
           example: v.example,

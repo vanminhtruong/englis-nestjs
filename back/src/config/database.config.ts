@@ -7,6 +7,8 @@ import { AddDataShareSummary1795500000001 } from '../migrations/1795500000001-Ad
 import { AddSrsLastRating1795600000000 } from '../migrations/1795600000000-AddSrsLastRating';
 import { AddSrsPracticeHistory1795700000000 } from '../migrations/1795700000000-AddSrsPracticeHistory';
 
+import { AddVocabularyPartOfSpeech1795800000000 } from '../migrations/1795800000000-AddVocabularyPartOfSpeech';
+
 export const databaseConfig: TypeOrmModuleOptions = {
   type: 'better-sqlite3',
   database: join(__dirname, '../../database/database.sqlite'),
@@ -22,6 +24,7 @@ export const databaseConfig: TypeOrmModuleOptions = {
     AddDataShareSummary1795500000001,
     AddSrsLastRating1795600000000,
     AddSrsPracticeHistory1795700000000,
+    AddVocabularyPartOfSpeech1795800000000,
   ],
   migrationsRun: process.env.NODE_ENV === 'production',
   logging: process.env.NODE_ENV !== 'production',

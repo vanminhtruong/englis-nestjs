@@ -37,6 +37,7 @@
 
       <!-- Content - Scrollable -->
       <form
+        :id="formId"
         @submit.prevent="onSubmit"
         class="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain p-4 sm:p-6 scrollbar-custom"
       >
@@ -117,6 +118,12 @@
             class="w-full px-4 py-3 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 text-black dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
         </div>
+
+        <ModalSelect data-vocabulary-pos
+          :model-value="form.partOfSpeech || 'unspecified'"
+          :label="t('vocabulary.partOfSpeech')" :options="posOptions"
+          @update:model-value="form.partOfSpeech = $event" />
+        <VocabularyDuplicateNotice :result="duplicate.result.value" :checking="duplicate.checking.value" :unavailable="duplicate.unavailable.value" />
 
         <div class="flex flex-wrap items-center gap-x-2 gap-y-1 pt-2">
           <h3 class="min-w-0 text-xs font-semibold uppercase tracking-wide text-black/50 dark:text-white/50">
@@ -505,8 +512,8 @@
       >
         <button
           type="submit"
-          @click="onSubmit"
-          class="min-w-0 flex-1 break-words py-3 px-3 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary-500/25 transition-all"
+          :form="formId" :disabled="busy || duplicate.result.value?.duplicate" data-vocabulary-save
+          class="disabled:cursor-not-allowed disabled:opacity-50 min-w-0 flex-1 break-words py-3 px-3 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary-500/25 transition-all"
         >
           {{ t("vocabulary.save") }}
         </button>
@@ -526,6 +533,7 @@
 import { resolveAssetUrl } from "@/utils/assetUrl";
 import {
   computed,
+  useId,
   ref,
   watch,
   onMounted,
@@ -538,6 +546,10 @@ import CollapsibleFormSection from "../../../components/common/CollapsibleFormSe
 import { useModalScrollLock } from "../../../composables/useModalScrollLock";
 import { websocketService } from "../../../services/websocket.service";
 
+import { partOfSpeechOptions } from '../utils/partOfSpeech';
+import { useVocabularyDuplicate } from '../composable/manager-state/useVocabularyDuplicate';
+import VocabularyDuplicateNotice from './VocabularyDuplicateNotice.vue';
+
 const IPAPronunciationModal = defineAsyncComponent(
   () => import("../../../components/common/IPAPronunciationModal.vue") as any
 );
@@ -549,6 +561,8 @@ const WordDrawingModal = defineAsyncComponent(
 const props = defineProps<{
   show: boolean;
   isEditing: boolean;
+  editingId?: string | null;
+  busy?: boolean;
   form: any;
   t: any;
 }>();
@@ -560,6 +574,9 @@ const emit = defineEmits<{
   close: [];
 }>();
 
+const formId = 'vocabulary-form-' + useId();
+const posOptions = computed(() => partOfSpeechOptions(props.t));
+const duplicate = useVocabularyDuplicate(() => props.form, () => props.show, () => props.editingId);
 const categories = ref<any[]>([]);
 const tags = ref<any[]>([]);
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -840,11 +857,11 @@ onUnmounted(() => {
 });
 
 function onSubmit() {
-  emit("submit");
+  if (!props.busy && !duplicate.result.value?.duplicate) emit("submit");
 }
 
 function onClose() {
-  emit("close");
+  if (!props.busy) emit("close");
 }
 
 function openIPAModal() {

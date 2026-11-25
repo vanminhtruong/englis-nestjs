@@ -12,6 +12,7 @@ import { VocabularyTab } from '../../entities/vocabulary-tab.entity';
 import {
   DifficultyLevel,
   MasteryLevel,
+  PartOfSpeech,
   Vocabulary,
 } from '../../entities/vocabulary.entity';
 
@@ -25,6 +26,8 @@ import {
  */
 export interface SnapshotVocabulary {
   word: string;
+  entryKey?: string;
+  partOfSpeech?: string;
   pronunciation: string;
   meaning: string;
   example: string;
@@ -49,6 +52,7 @@ export interface SnapshotVocabulary {
 
 export interface SnapshotHistory {
   word: string;
+  entryKey?: string;
   practiceType: string;
   isCorrect: boolean;
   userAnswer: string | null;
@@ -65,6 +69,7 @@ export interface SnapshotCategory {
   isPinned: boolean;
   pinnedAt: string | null;
   words: string[];
+  entryKeys?: string[];
 }
 
 export interface SnapshotTag {
@@ -86,10 +91,12 @@ export interface SnapshotTab {
   isDefault: boolean;
   sortOrder: number;
   words: string[];
+  entryKeys?: string[];
 }
 
 export interface SnapshotSrsProgress {
   word: string;
+  entryKey?: string;
   repetitions: number;
   lapses: number;
   easeFactor: number;
@@ -100,6 +107,7 @@ export interface SnapshotSrsProgress {
 
 export interface SnapshotSrsReview {
   word: string;
+  entryKey?: string;
   rating: string;
   previousIntervalDays: number;
   intervalDays: number;
@@ -316,16 +324,17 @@ export async function buildUserDataSnapshot(
   }
 
   const wordById = new Map<string, string>();
+  const entryById = new Map<string, string>();
   const vocabularies: SnapshotVocabulary[] = [];
-  const seenWords = new Set<string>();
   for (const v of vocabRows) {
     const word = clean(v.word);
     if (!word) continue;
     wordById.set(v.id, word);
-    if (seenWords.has(word)) continue;
-    seenWords.add(word);
+    entryById.set(v.id, v.id);
     vocabularies.push({
       word,
+      entryKey: v.id,
+      partOfSpeech: v.partOfSpeech,
       pronunciation: v.pronunciation || '',
       meaning: v.meaning || '',
       example: v.example || '',
@@ -356,6 +365,8 @@ export async function buildUserDataSnapshot(
       ),
     );
 
+  const entriesOf = (rows: Array<{id: string}> | undefined) => (rows ?? []).map(row => entryById.get(row.id)).filter((key): key is string => !!key);
+
   const historyRows = await manager.getRepository(PracticeHistory).find({
     where: { userId },
     order: { createdAt: options.historyOrder ?? 'ASC' },
@@ -367,6 +378,7 @@ export async function buildUserDataSnapshot(
     if (!word) continue;
     histories.push({
       word,
+      entryKey: entryById.get(h.vocabularyId),
       practiceType: h.practiceType,
       isCorrect: !!h.isCorrect,
       userAnswer: h.userAnswer ?? null,
@@ -394,6 +406,7 @@ export async function buildUserDataSnapshot(
       isPinned: !!c.isPinned,
       pinnedAt: iso(c.pinnedAt),
       words: wordsOf(c.vocabularies),
+      entryKeys: entriesOf(c.vocabularies),
     }));
 
   const tagRows = await manager.getRepository(Tag).find({
@@ -437,6 +450,7 @@ export async function buildUserDataSnapshot(
       isDefault: !!t.isDefault,
       sortOrder: t.sortOrder ?? 0,
       words: wordsOf(t.vocabularies),
+      entryKeys: entriesOf(t.vocabularies),
     }));
 
   const progressRows = await manager.getRepository(SrsProgress).find({
@@ -449,6 +463,7 @@ export async function buildUserDataSnapshot(
     if (!word) continue;
     srsProgress.push({
       word,
+      entryKey: entryById.get(p.vocabularyId),
       repetitions: p.repetitions,
       lapses: p.lapses,
       easeFactor: p.easeFactor,
@@ -469,6 +484,7 @@ export async function buildUserDataSnapshot(
     if (!word) continue;
     srsReviews.push({
       word,
+      entryKey: entryById.get(r.vocabularyId),
       rating: r.rating,
       previousIntervalDays: r.previousIntervalDays,
       intervalDays: r.intervalDays,
@@ -573,6 +589,7 @@ function vocabularyFields(shared: SnapshotVocabulary): Record<string, any> {
     createdAt: toDate(shared.createdAt),
   };
   // Only copy what the source really has, so an older file cannot reset them.
+  if (shared.partOfSpeech && Object.values(PartOfSpeech).includes(shared.partOfSpeech as PartOfSpeech)) fields.partOfSpeech = shared.partOfSpeech;
   if (shared.isPinned !== undefined) fields.isPinned = !!shared.isPinned;
   if (shared.pinnedAt !== undefined) fields.pinnedAt = toDateOrNull(shared.pinnedAt);
   if (shared.lastReviewedAt !== undefined) fields.lastReviewedAt = toDateOrNull(shared.lastReviewedAt);
@@ -603,6 +620,7 @@ function vocabularyChanged(existing: Vocabulary, fields: Record<string, any>): b
   ) {
     return true;
   }
+  if ('partOfSpeech' in fields && existing.partOfSpeech !== fields.partOfSpeech) return true;
   if ('isPinned' in fields && !!existing.isPinned !== fields.isPinned) return true;
   if ('pinnedAt' in fields && timeOf(existing.pinnedAt) !== timeOf(fields.pinnedAt)) return true;
   if ('lastReviewedAt' in fields && timeOf(existing.lastReviewedAt) !== timeOf(fields.lastReviewedAt)) return true;
@@ -621,58 +639,83 @@ export async function mergeUserDataSnapshot(
 
   // ----- Words ------------------------------------------------------------
   const vocabRepo = manager.getRepository(Vocabulary);
-  const existingWords = await vocabRepo.find(
-    mode === 'import'
-      ? { where: { userId } }
-      : { where: { userId }, select: { id: true, word: true } },
-  );
-  const byWord = new Map<string, Vocabulary>();
-  for (const row of existingWords) {
-    const key = clean(row.word);
-    if (key && !byWord.has(key)) byWord.set(key, row);
-  }
+  const existingWords = await vocabRepo.find({ where: { userId } });
+  const normalize = (value: unknown) => clean(value).normalize('NFKC').replace(/\s+/gu, ' ').toLowerCase();
+  const bySpelling = new Map<string, Vocabulary[]>();
+  const remember = (row: Vocabulary) => {
+    const key = normalize(row.word);
+    const entries = bySpelling.get(key) ?? [];
+    entries.push(row);
+    bySpelling.set(key, entries);
+  };
+  for (const row of existingWords) remember(row);
 
-  const created = new Set<string>();
+  const byEntry = new Map<string, Vocabulary>();
+  const byLegacyWord = new Map<string, Vocabulary>();
+  const ambiguousLegacy = new Set<string>();
+  const created = new Set<Vocabulary>();
   const toCreate: Vocabulary[] = [];
-  const seenWords = new Set<string>();
   for (const shared of snapshot.vocabularies) {
     const word = clean(shared?.word);
-    if (!word || seenWords.has(word)) continue;
-    seenWords.add(word);
-
+    if (!word) continue;
+    const entryKey = clean(shared.entryKey);
+    if (entryKey && byEntry.has(entryKey)) continue;
     const fields = vocabularyFields(shared);
-    const existing = byWord.get(word);
-    if (existing) {
-      if (mode === 'import' && vocabularyChanged(existing, fields)) {
-        await vocabRepo.update(existing.id, fields as any);
-        stats.updatedVocabularies++;
-      } else {
-        stats.skippedVocabularies++;
-      }
+    const part = fields.partOfSpeech ?? PartOfSpeech.UNSPECIFIED;
+    const candidates = bySpelling.get(normalize(word)) ?? [];
+    const exact = candidates.find(row => normalize(row.meaning) === normalize(fields.meaning) &&
+      (row.partOfSpeech === part || row.partOfSpeech === PartOfSpeech.UNSPECIFIED || part === PartOfSpeech.UNSPECIFIED));
+    let existing = exact;
+    // Legacy files did not distinguish senses. Do not guess when ambiguous.
+    if (!existing && part === PartOfSpeech.UNSPECIFIED && !entryKey && candidates.length === 1) existing = candidates[0];
+    // Preserve the existing share policy for unclassified words.
+    if (!existing && mode === 'share' && part === PartOfSpeech.UNSPECIFIED && candidates.length === 1 && !created.has(candidates[0]!) && candidates[0]!.partOfSpeech === PartOfSpeech.UNSPECIFIED) existing = candidates[0];
+    if (!existing && part === PartOfSpeech.UNSPECIFIED && !entryKey && candidates.length > 1) {
+      stats.skippedVocabularies++;
       continue;
     }
-    toCreate.push(vocabRepo.create({ userId, word, ...fields } as any) as unknown as Vocabulary);
+    if (existing && mode === 'import' && !created.has(existing)) {
+      if (part === PartOfSpeech.UNSPECIFIED && existing.partOfSpeech !== PartOfSpeech.UNSPECIFIED) delete fields.partOfSpeech;
+      if (vocabularyChanged(existing, fields)) {
+        await vocabRepo.update(existing.id, fields as any);
+        Object.assign(existing, fields);
+        stats.updatedVocabularies++;
+      } else stats.skippedVocabularies++;
+    } else if (existing) stats.skippedVocabularies++;
+    else {
+      existing = vocabRepo.create({ userId, word, ...fields } as any) as unknown as Vocabulary;
+      existing.partOfSpeech = existing.partOfSpeech ?? PartOfSpeech.UNSPECIFIED;
+      remember(existing);
+      created.add(existing);
+      toCreate.push(existing);
+    }
+    if (entryKey) byEntry.set(entryKey, existing);
+    const legacyKey = normalize(word);
+    if (byLegacyWord.has(legacyKey) && byLegacyWord.get(legacyKey) !== existing) ambiguousLegacy.add(legacyKey);
+    else byLegacyWord.set(legacyKey, existing);
   }
   if (toCreate.length > 0) {
     await vocabRepo.save(toCreate, { chunk: 200 });
-    for (const row of toCreate) {
-      byWord.set(row.word, row);
-      created.add(row.word);
-    }
     stats.newVocabularies = toCreate.length;
   }
 
-  /** The words this merge is allowed to attach other data to. */
-  const canAttach = (word: string) =>
-    mode === 'import' ? byWord.has(word) : created.has(word);
-  const idsOf = (words: unknown): string[] => {
-    const out: string[] = [];
-    for (const w of Array.isArray(words) ? words : []) {
-      const word = clean(w);
-      const row = word ? byWord.get(word) : undefined;
-      if (row && canAttach(word)) out.push(row.id);
-    }
-    return out;
+  const resolveWord = (word: unknown, key?: unknown): Vocabulary | undefined => {
+    const entryKey = clean(key);
+    if (entryKey) return byEntry.get(entryKey);
+    const legacyKey = normalize(word);
+    if (ambiguousLegacy.has(legacyKey)) return undefined;
+    const row = byLegacyWord.get(legacyKey);
+    if (row) return row;
+    const candidates = bySpelling.get(legacyKey) ?? [];
+    return candidates.length === 1 ? candidates[0] : undefined;
+  };
+  const canAttach = (row: Vocabulary | undefined): row is Vocabulary =>
+    !!row && (mode === 'import' || created.has(row));
+  const idsOf = (words: unknown, keys?: unknown): string[] => {
+    const rows = Array.isArray(keys) && keys.length
+      ? keys.map(key => resolveWord('', key))
+      : (Array.isArray(words) ? words : []).map(word => resolveWord(word));
+    return rows.filter(canAttach).map(row => row.id);
   };
 
   // ----- Practice history -------------------------------------------------
@@ -689,9 +732,8 @@ export async function mergeUserDataSnapshot(
   }
   const historyRows: PracticeHistory[] = [];
   for (const shared of snapshot.histories) {
-    const word = clean(shared?.word);
-    const row = word ? byWord.get(word) : undefined;
-    if (!row || !canAttach(word) || !PRACTICE_TYPES.has(shared.practiceType)) continue;
+    const row = resolveWord(shared?.word, shared?.entryKey);
+    if (!canAttach(row) || !PRACTICE_TYPES.has(shared.practiceType)) continue;
     const score = toCount(shared.score);
     const timeSpent = toCount(shared.timeSpent);
     const key = historyKey(row.id, shared.practiceType, score, timeSpent);
@@ -750,8 +792,7 @@ export async function mergeUserDataSnapshot(
   }
   // Tags written on words need a tag row too, or the Tags page would miss them.
   for (const shared of snapshot.vocabularies) {
-    const word = clean(shared?.word);
-    if (!word || !canAttach(word) || !Array.isArray(shared.tags)) continue;
+    if (!canAttach(resolveWord(shared?.word, shared?.entryKey)) || !Array.isArray(shared.tags)) continue;
     for (const name of shared.tags) addTag(clean(name), null, null);
   }
   if (newTags.length > 0) {
@@ -846,7 +887,7 @@ export async function mergeUserDataSnapshot(
       Category,
       'vocabularies',
       category.id,
-      idsOf(shared.words),
+      idsOf(shared.words, shared.entryKeys),
     );
   }
 
@@ -893,7 +934,7 @@ export async function mergeUserDataSnapshot(
       VocabularyTab,
       'vocabularies',
       tab.id,
-      idsOf(shared.words),
+      idsOf(shared.words, shared.entryKeys),
     );
   }
 
@@ -905,9 +946,8 @@ export async function mergeUserDataSnapshot(
   }
   const newProgress: SrsProgress[] = [];
   for (const shared of snapshot.srsProgress) {
-    const word = clean(shared?.word);
-    const row = word ? byWord.get(word) : undefined;
-    if (!row || !canAttach(word)) continue;
+    const row = resolveWord(shared?.word, shared?.entryKey);
+    if (!canAttach(row)) continue;
 
     const values = {
       repetitions: toCount(shared.repetitions),
@@ -956,9 +996,8 @@ export async function mergeUserDataSnapshot(
   }
   const newReviews: SrsReview[] = [];
   for (const shared of snapshot.srsReviews) {
-    const word = clean(shared?.word);
-    const row = word ? byWord.get(word) : undefined;
-    if (!row || !canAttach(word) || !SRS_RATINGS.has(shared.rating)) continue;
+    const row = resolveWord(shared?.word, shared?.entryKey);
+    if (!canAttach(row) || !SRS_RATINGS.has(shared.rating)) continue;
     const key = reviewKey(row.id, shared.rating, shared.createdAt);
     if (reviewKeys.has(key)) continue;
     reviewKeys.add(key);

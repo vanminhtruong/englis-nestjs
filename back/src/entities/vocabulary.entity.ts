@@ -14,6 +14,24 @@ import { User } from './user.entity';
 import { Category } from './category.entity';
 import { VocabularyTab } from './vocabulary-tab.entity';
 
+export enum PartOfSpeech {
+  UNSPECIFIED = 'unspecified',
+  NOUN = 'noun',
+  VERB = 'verb',
+  ADJECTIVE = 'adjective',
+  ADVERB = 'adverb',
+  PRONOUN = 'pronoun',
+  PREPOSITION = 'preposition',
+  CONJUNCTION = 'conjunction',
+  DETERMINER = 'determiner',
+  INTERJECTION = 'interjection',
+  NUMERAL = 'numeral',
+  AUXILIARY = 'auxiliary',
+  PHRASE = 'phrase',
+  PHRASAL_VERB = 'phrasal_verb',
+  IDIOM = 'idiom',
+}
+
 export enum DifficultyLevel {
   EASY = 'easy',
   MEDIUM = 'medium',
@@ -34,6 +52,9 @@ export class Vocabulary {
 
   @Column()
   word: string;
+
+  @Column({ type: 'text', default: PartOfSpeech.UNSPECIFIED })
+  partOfSpeech: PartOfSpeech;
 
   @Column()
   pronunciation: string;

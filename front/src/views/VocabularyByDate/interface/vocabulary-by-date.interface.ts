@@ -22,6 +22,7 @@ export interface CategoryInfo {
 export interface VocabularyItem {
   id: string
   word: string
+  partOfSpeech?: import('../../Vocabulary/utils/partOfSpeech').PartOfSpeech
   pronunciation: string
   meaning: string
   example?: string

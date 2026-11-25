@@ -1,4 +1,27 @@
 export default {
+  partOfSpeech: "\u8bcd\u6027",
+  pos_unspecified: "\u672a\u5206\u7c7b",
+  pos_noun: "\u540d\u8bcd",
+  pos_verb: "\u52a8\u8bcd",
+  pos_adjective: "\u5f62\u5bb9\u8bcd",
+  pos_adverb: "\u526f\u8bcd",
+  pos_pronoun: "\u4ee3\u8bcd",
+  pos_preposition: "\u4ecb\u8bcd",
+  pos_conjunction: "\u8fde\u8bcd",
+  pos_determiner: "\u9650\u5b9a\u8bcd",
+  pos_interjection: "\u611f\u53f9\u8bcd",
+  pos_numeral: "\u6570\u8bcd",
+  pos_auxiliary: "\u52a9\u52a8\u8bcd",
+  pos_phrase: "\u77ed\u8bed",
+  pos_phrasal_verb: "\u77ed\u8bed\u52a8\u8bcd",
+  pos_idiom: "\u4e60\u8bed",
+  duplicateChecking: "\u6b63\u5728\u68c0\u67e5\u91cd\u590d\u2026",
+  duplicateUnavailable: "\u6682\u65e0\u6cd5\u5b9e\u65f6\u68c0\u67e5\uff0c\u4fdd\u5b58\u65f6\u5c06\u518d\u6b21\u68c0\u67e5\u3002",
+  duplicateBlocked: "\u76f8\u540c\u5355\u8bcd\u3001\u542b\u4e49\u548c\u8bcd\u6027\u5df2\u5b58\u5728\u3002",
+  duplicateRelated: "\u6709 {count} \u6761\u540c\u62fc\u5199\u8bb0\u5f55\u3002\u4e0d\u540c\u8bcd\u4e49\u6216\u8bcd\u6027\u4ecd\u53ef\u4fdd\u5b58\u3002",
+  duplicateShow: "\u67e5\u770b\u5339\u914d\u8bb0\u5f55",
+  duplicateHide: "\u6536\u8d77",
+
   chooseCategoriesFilter: "\u9009\u62e9\u5206\u7c7b",
   chooseTagsFilter: "\u9009\u62e9\u6807\u7b7e",
   searchCategoriesFilter: "\u641c\u7d22\u5206\u7c7b\u2026",
@@ -126,6 +149,8 @@ export default {
 
   // Note
   note: {
+    saved: "\u7b14\u8bb0\u5df2\u4fdd\u5b58\u3002",
+    saveError: "\u65e0\u6cd5\u4fdd\u5b58\u7b14\u8bb0\uff0c\u8bf7\u91cd\u8bd5\u3002",
     title: '"{word}"的笔记',
     edit: "编辑笔记",
     add: "添加笔记",
