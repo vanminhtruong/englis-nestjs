@@ -1,0 +1,452 @@
+/* Shared brand and tab layout: also works with seasonal themes disabled. */
+.app-brand-link, .app-brand-link:hover, .app-brand-link:active, .app-brand-link.router-link-active {
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+.app-brand-footer { width: fit-content; max-width: 100%; }
+.app-brand-footer .char-animate { animation: none; }
+.app-choice-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .15rem;
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+  text-align: center;
+}
+.app-choice-tab > svg { flex-shrink: 0; }
+.app-choice-tab-compact { min-height: 0; padding: .3rem .75rem; }
+.app-choice-tab-compact > span:first-child { position: absolute; top: .55rem; left: .45rem; }
+.app-choice-tab-compact > span:last-child:not(:first-child) { max-width: 100%; }
+.app-choice-tab-compact > span:last-child:not(:first-child):not(.truncate) { position: absolute; right: .3rem; top: .3rem; }
+.vocab-tabs-wrapper .app-choice-tab {
+  max-width: min(75vw, 22rem);
+  flex-direction: row;
+  gap: .5rem;
+  line-height: 1.25;
+}
+.vocab-tabs-wrapper .app-choice-tab-compact > span:first-child,
+.vocab-tabs-wrapper .app-choice-tab-compact > span:last-child:not(:first-child):not(.truncate) {
+  position: static;
+}
+.vocab-tabs-wrapper .app-choice-tab > span:first-of-type:not(.truncate) { flex-shrink: 0; }
+.vocab-tabs-wrapper .app-choice-tab > span.truncate { max-width: min(100%, 12rem); }
+
+/* Full-bleed artwork: overlap the original vector garlands, not a colored fill.
+   The second repeat is staggered half a tile and pushed toward the outer edge. */
+.app-shell[data-seasonal-event] {
+  --frame-thickness: 18px;
+  --frame-side: 14px;
+}
+.seasonal-frame {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 51;
+  overflow: clip;
+}
+.seasonal-frame-edge {
+  position: absolute;
+  pointer-events: none;
+  background-image: var(--seasonal-frame-art), var(--seasonal-frame-art);
+  background-repeat: repeat-x;
+  background-size: auto 145%, auto 145%;
+  background-position: 0 85%, calc(var(--rail-depth) * 5.4375) 100%;
+  background-color: transparent;
+}
+.seasonal-frame-top, .seasonal-frame-bottom {
+  left: 0;
+  right: 0;
+  height: var(--frame-thickness);
+  --rail-depth: var(--frame-thickness);
+  z-index: 2;
+}
+.seasonal-frame-top { top: 0; }
+.seasonal-frame-bottom { bottom: 0; transform: rotate(180deg); }
+.seasonal-frame-left, .seasonal-frame-right {
+  top: 0;
+  width: 100vh;
+  width: 100dvh;
+  height: var(--frame-side);
+  --rail-depth: var(--frame-side);
+  transform: rotate(90deg);
+  transform-origin: top left;
+  z-index: 1;
+}
+.seasonal-frame-left { left: 0; top: 100%; transform: rotate(-90deg); }
+.seasonal-frame-right { left: 100%; }
+/* Keep the header/footer surfaces flush to the viewport. Reserve space only
+   INSIDE their existing backgrounds, not on the app shell or around the page.
+   The extra top clearance also protects the brand's protruding holiday hat. */
+.app-shell[data-seasonal-event] .seasonal-header {
+  padding-top: var(--frame-thickness);
+  padding-inline: var(--frame-side);
+}
+.app-shell[data-seasonal-event] .seasonal-footer {
+  padding-inline: var(--frame-side);
+  padding-bottom: calc(var(--frame-thickness) + 2px);
+}
+@media(min-width: 1100px) {
+  .app-shell[data-seasonal-event] { --frame-thickness: 22px; --frame-side: 18px; }
+}
+@media(max-width: 639px) {
+  .app-shell[data-seasonal-event] { --frame-thickness: 9px; --frame-side: 7px; }
+  .vocab-tabs-wrapper .app-choice-tab > span.truncate { max-width: min(100%, 7.5rem); }
+}
+
+/* Seasonal interaction tokens derive from existing palette and keep functional
+   colors (danger, warning, success, answer grading) intact. */
+[data-seasonal-event] {
+  --event-hover: color-mix(in srgb, var(--seasonal-accent) 13%, transparent);
+  --event-line: color-mix(in srgb, var(--seasonal-accent) 48%, transparent);
+  --event-solid: color-mix(in srgb, var(--seasonal-accent) 73%, theme('colors.gray.900'));
+  --event-solid-hover: color-mix(in srgb, var(--seasonal-accent) 85%, theme('colors.gray.900'));
+  --event-glow: color-mix(in srgb, var(--seasonal-highlight) 18%, transparent);
+}
+.dark [data-seasonal-event] {
+  --event-hover: color-mix(in srgb, var(--seasonal-accent) 23%, transparent);
+  --event-line: color-mix(in srgb, var(--seasonal-accent) 65%, transparent);
+  --event-fill-gradient: linear-gradient(135deg,
+    var(--event-solid),
+    color-mix(in srgb, var(--event-solid) 82%, var(--seasonal-highlight)));
+  --event-surface-gradient: linear-gradient(145deg,
+    var(--event-hover),
+    color-mix(in srgb, var(--seasonal-highlight) 8%, transparent));
+  --event-title-gradient: linear-gradient(115deg,
+    var(--seasonal-ink),
+    color-mix(in srgb, var(--seasonal-highlight) 30%, theme('colors.white')));
+}
+[data-seasonal-event] :is(.seasonal-content,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog'],[data-seasonal-dropdown]) :is(button,a):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='text-red'],[class*='bg-red'],[class*='text-green'],[class*='bg-green'],[class*='text-emerald'],[class*='bg-emerald'],[class*='text-amber'],[class*='bg-amber'],[class*='text-yellow'],[class*='bg-yellow']):is([class*='hover:bg-'],[class*='hover:border-'],[class*='hover:text-'],[role='option'],.app-choice-tab):hover {
+  background-color: var(--event-hover);
+  border-color: var(--event-line);
+}
+[data-seasonal-event] :is(.seasonal-content,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog']) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='bg-clip-text'],[class*='text-transparent']) {
+  background-image: linear-gradient(125deg,var(--event-solid),color-mix(in srgb,var(--seasonal-accent) 82%,theme('colors.gray.900')));
+  border-color: var(--event-line);
+}
+[data-seasonal-event] :is(.seasonal-content,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog']) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='bg-clip-text'],[class*='text-transparent']):hover {
+  background-image: linear-gradient(125deg,var(--event-solid-hover),color-mix(in srgb,var(--seasonal-accent) 72%,theme('colors.gray.900')));
+  box-shadow: 0 3px 12px var(--event-glow);
+}
+[data-seasonal-event] .app-choice-tab:is([aria-selected='true'],[aria-pressed='true']) {
+  outline: 1px solid var(--event-line);
+  outline-offset: -1px;
+  box-shadow: inset 0 -2px var(--seasonal-accent);
+}
+/* Accessories sit ON the upper corner, outside the control's content box.
+   Keep the user's original tab icon and label clear. */
+[data-seasonal-event] .app-choice-tab {
+  overflow: visible;
+}
+[data-seasonal-event] .app-choice-tab:is([aria-selected='true'],[aria-pressed='true'])::after {
+  content: var(--seasonal-action-mark) / '';
+  position: absolute;
+  inset: auto 0 auto auto;
+  top: 0;
+  width: 1.45rem;
+  height: 1.45rem;
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  line-height: 1;
+  z-index: 2;
+  transform: translate(22%, -49%) rotate(12deg);
+  pointer-events: none;
+}
+[data-seasonal-event='christmas'] .app-choice-tab:is([aria-selected='true'],[aria-pressed='true'])::after {
+  content: '';
+  width: 1.85rem;
+  height: 1.55rem;
+  background: var(--seasonal-hat) center / contain no-repeat;
+}
+[data-seasonal-event] .app-choice-tab:focus-visible { z-index: 3; }
+/* Leave a little room INSIDE the existing scrolling tab menu so its outer
+   corner accessories do not get cut off by the scroll viewport. */
+[data-seasonal-event] .more-tabs-dropdown .dropdown-body { padding-top: .85rem; }
+[data-seasonal-event] .seasonal-content :is([data-seasonal-card],article,section):is([class*='hover:'],[data-seasonal-card]):hover {
+  border-color: var(--event-line);
+  box-shadow: 0 5px 17px var(--event-glow);
+}
+[data-seasonal-event] .seasonal-content :is([data-seasonal-card],article,section):is([class*='hover:'],[data-seasonal-card]):focus-within { border-color: var(--event-line); }
+[data-seasonal-event] :is([data-seasonal-dropdown],.more-tabs-dropdown) { border-color: var(--event-line); }
+[data-seasonal-event] :is([data-seasonal-dropdown],.more-tabs-dropdown) :is([role='option'],button):not([aria-disabled='true'],[disabled],[class*='text-red']):hover { background-color: var(--event-hover); }
+[data-seasonal-event] [role='option'][aria-selected='true'] { background-color: var(--event-hover); }
+[data-seasonal-event] [data-seasonal-toast] {
+  background-image: linear-gradient(130deg,var(--event-hover),transparent 45%);
+  border-color: var(--event-line);
+}
+[data-seasonal-event] [data-seasonal-toast]::after {
+  content: var(--seasonal-action-mark) / '';
+  position: absolute;
+  top: .2rem;
+  right: 1.8rem;
+  font-size: .8rem;
+  pointer-events: none;
+}
+[data-seasonal-event] .seasonal-content :is(tr,[role='row']):hover { background-color: var(--event-hover); }
+[data-seasonal-event] .seasonal-content :is(h1,h2):not(#seasonal-event-title) { text-decoration-color: var(--seasonal-accent); }
+[data-seasonal-event] :is([data-seasonal-dialog],[role='dialog']) :is(header,[data-seasonal-dialog-header]) {
+  background-image: linear-gradient(110deg,var(--event-hover),transparent 70%),var(--seasonal-pattern);
+  background-size: auto,180px 180px;
+}
+[data-seasonal-event] .seasonal-footer-scene { border-color: var(--event-line); }
+[data-seasonal-event] .seasonal-garland { background-image: linear-gradient(90deg,var(--event-hover),transparent,var(--event-hover)); }
+/* Match the original Codex corner placement across main actions and submit
+   buttons, including teleported dialogs and footer. */
+[data-seasonal-event] :is(.seasonal-content,.seasonal-footer,[role='dialog'],[data-seasonal-dialog]) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600,button[type='submit']):not(.app-choice-tab,.app-brand-link,[role],[aria-pressed],[disabled],[data-seasonal-preview-action],.absolute,.fixed,.sticky,[class*='text-transparent']) {
+  position: relative;
+  overflow: visible;
+}
+[data-seasonal-event] :is(.seasonal-content,.seasonal-footer,[role='dialog'],[data-seasonal-dialog]) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600,button[type='submit']):not(.app-choice-tab,.app-brand-link,[role],[aria-pressed],[disabled],[data-seasonal-preview-action],.absolute,.fixed,.sticky,[class*='text-transparent'])::before {
+  content: var(--seasonal-action-mark) / '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1.45rem;
+  height: 1.45rem;
+  display: grid;
+  place-items: center;
+  font-size: 1.12rem;
+  line-height: 1;
+  z-index: 2;
+  transform: translate(22%, -49%) rotate(12deg);
+  pointer-events: none;
+}
+[data-seasonal-event='christmas'] :is(.seasonal-content,.seasonal-footer,[role='dialog'],[data-seasonal-dialog]) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600,button[type='submit']):not(.app-choice-tab,.app-brand-link,[role],[aria-pressed],[disabled],[data-seasonal-preview-action],.absolute,.fixed,.sticky,[class*='text-transparent'])::before {
+  content: '';
+  width: 1.85rem;
+  height: 1.55rem;
+  background: var(--seasonal-hat) center / contain no-repeat;
+}
+/* Dark event accents for decorative gradients and the controls that use them. */
+.dark [data-seasonal-event] :is(.bg-clip-text.text-transparent, .text-gradient):not(.app-brand-link *) {
+  background-image: var(--event-title-gradient);
+}
+
+.dark [data-seasonal-event] [class*='bg-gradient-to-']:is(
+  .from-primary-500, .from-primary-600, .from-primary-700,
+  .from-secondary-500, .from-secondary-600
+):not(.bg-clip-text, .app-brand-link, .app-brand-link *) {
+  background-image: var(--event-fill-gradient);
+}
+
+.dark [data-seasonal-event] .seasonal-content [class*='bg-gradient-to-']:is(
+  .from-primary-50, .from-primary-100, .from-secondary-50, .from-secondary-100,
+  [class*='from-primary-500/'], [class*='from-secondary-500/']
+):not(.bg-clip-text, .min-h-screen, [class~='dark:from-black'], [style*='background']),
+.dark [data-seasonal-event] .seasonal-content :is(
+  [data-seasonal-metrics] > div,
+  .filter-panel,
+  .filters-toggle,
+  .voice-settings-container .settings-header,
+  .achievement-item.unlocked
+) {
+  background-image: var(--event-surface-gradient);
+  border-color: var(--event-line);
+}
+
+.dark [data-seasonal-event] .seasonal-content [data-seasonal-metrics] :is(
+  [class*='dark:text-blue-'], [class*='dark:text-purple-'],
+  [class*='dark:text-green-'], [class*='dark:text-orange-']
+) {
+  color: var(--seasonal-ink);
+}
+
+.dark [data-seasonal-event] .seasonal-content :is(
+  .add-button__bg, .filters-toggle__badge,
+  .difficulty-chip--all:is(:hover, .difficulty-chip--active),
+  .stats-icon, .practice-icon,
+  .mastery-progress-fill, .weekly-chart .bar.active, .weekly-legend .legend-dot.active,
+  .achievement-progress .progress-fill,
+  .voice-settings-page .header-badge, .voice-settings-container :is(.header-icon, .btn-save),
+  [data-seasonal-home] .bg-gradient-to-br:is(.text-white, .shadow-xl, .shadow-2xl):not([data-seasonal-home-stats])
+) {
+  background-image: var(--event-fill-gradient);
+}
+
+.dark [data-seasonal-event] .seasonal-content :is(
+  .modes-title, .voice-settings-page .page-title
+) {
+  background-image: var(--event-title-gradient);
+}
+
+.dark [data-seasonal-event] .seasonal-content :is(
+  [data-seasonal-ambient] > div, .stats-glow
+) {
+  background-color: var(--event-glow);
+}
+
+.dark [data-seasonal-event] .seasonal-content :is(
+  [data-seasonal-home] :is(.cube-glow, .cube-shadow),
+  .voice-settings-page :is(.bg-gradient-1, .bg-gradient-2)
+) {
+  background-image: radial-gradient(ellipse, var(--event-glow), transparent 70%);
+}
+
+.dark [data-seasonal-event] .seasonal-content [data-seasonal-home] .cube-face {
+  border-color: var(--event-line);
+  background-image: var(--event-surface-gradient);
+}
+
+.dark [data-seasonal-event] .seasonal-content .voice-settings-page .header-badge {
+  --voice-badge-glow: var(--event-glow);
+}
+
+.dark [data-seasonal-event] :is(
+  .app-choice-tab:is([aria-selected='true'], [aria-pressed='true']),
+  .voice-settings-container :is(.dropdown-option.is-active, .voice-card.is-selected),
+  .seasonal-content .filters-toggle--active
+) {
+  background-color: transparent;
+  background-image: var(--event-surface-gradient);
+  border-color: var(--event-line);
+  color: var(--seasonal-ink);
+}
+
+.dark [data-seasonal-event] :is(input, textarea, select):not([aria-invalid='true'], [class*='ring-red-'], [class*='ring-rose-']):focus-visible {
+  --tw-ring-color: var(--event-line);
+}
+
+[data-seasonal-event] [data-seasonal-profile-icon] {
+  color: var(--seasonal-ink);
+  background-color: var(--event-hover);
+}
+
+[data-seasonal-event] [data-seasonal-profile-action] > svg {
+  color: var(--seasonal-ink);
+}
+
+[data-seasonal-event] [data-seasonal-profile-action]:is(:hover, :focus-visible) {
+  border-color: var(--event-line);
+}
+
+[data-seasonal-event] .seasonal-content [data-seasonal-home-stats] {
+  background-image: linear-gradient(120deg,
+    color-mix(in srgb, var(--seasonal-accent) 42%, theme('colors.gray.950')),
+    color-mix(in srgb, var(--seasonal-highlight) 21%, theme('colors.gray.950')));
+}
+
+[data-seasonal-event] [data-seasonal-home-stats] p {
+  color: theme('colors.gray.100');
+}
+
+/* Four shades per holiday, paired by mode so colors are stable across sorting. */
+[data-seasonal-event='newYear'] {
+  --practice-one: theme('colors.indigo.600');
+  --practice-two: theme('colors.amber.700');
+  --practice-three: theme('colors.violet.700');
+  --practice-four: theme('colors.sky.700');
+}
+[data-seasonal-event='tet'] {
+  --practice-one: theme('colors.red.700');
+  --practice-two: theme('colors.amber.700');
+  --practice-three: theme('colors.lime.700');
+  --practice-four: theme('colors.rose.700');
+}
+[data-seasonal-event='womensDay'] {
+  --practice-one: theme('colors.rose.700');
+  --practice-two: theme('colors.fuchsia.700');
+  --practice-three: theme('colors.violet.700');
+  --practice-four: theme('colors.teal.700');
+}
+[data-seasonal-event='hungKings'] {
+  --practice-one: theme('colors.amber.800');
+  --practice-two: theme('colors.emerald.800');
+  --practice-three: theme('colors.stone.700');
+  --practice-four: theme('colors.red.800');
+}
+[data-seasonal-event='aprilMay'] {
+  --practice-one: theme('colors.red.700');
+  --practice-two: theme('colors.amber.700');
+  --practice-three: theme('colors.teal.700');
+  --practice-four: theme('colors.pink.700');
+}
+[data-seasonal-event='nationalDay'] {
+  --practice-one: theme('colors.red.700');
+  --practice-two: theme('colors.yellow.700');
+  --practice-three: theme('colors.orange.700');
+  --practice-four: theme('colors.indigo.800');
+}
+[data-seasonal-event='midAutumn'] {
+  --practice-one: theme('colors.amber.700');
+  --practice-two: theme('colors.indigo.700');
+  --practice-three: theme('colors.rose.700');
+  --practice-four: theme('colors.violet.700');
+}
+[data-seasonal-event='vietnamWomensDay'] {
+  --practice-one: theme('colors.pink.700');
+  --practice-two: theme('colors.teal.700');
+  --practice-three: theme('colors.purple.700');
+  --practice-four: theme('colors.amber.700');
+}
+[data-seasonal-event='halloween'] {
+  --practice-one: theme('colors.orange.700');
+  --practice-two: theme('colors.purple.800');
+  --practice-three: theme('colors.amber.800');
+  --practice-four: theme('colors.indigo.800');
+}
+[data-seasonal-event='teachersDay'] {
+  --practice-one: theme('colors.sky.700');
+  --practice-two: theme('colors.indigo.700');
+  --practice-three: theme('colors.stone.700');
+  --practice-four: theme('colors.rose.700');
+}
+[data-seasonal-event='christmas'] {
+  --practice-one: theme('colors.emerald.700');
+  --practice-two: theme('colors.red.700');
+  --practice-three: theme('colors.amber.700');
+  --practice-four: theme('colors.sky.700');
+}
+
+[data-seasonal-event] [data-practice-mode] {
+  --practice-card-start: var(--practice-one, var(--seasonal-accent));
+  --practice-card-end: var(--practice-two, var(--seasonal-highlight));
+  --glow-color: color-mix(in srgb, var(--practice-card-start) 38%, transparent);
+}
+[data-seasonal-event] [data-practice-mode='flashcard'] {
+  --practice-card-start: var(--practice-one, var(--seasonal-accent));
+  --practice-card-end: var(--practice-three, var(--seasonal-highlight));
+}
+[data-seasonal-event] [data-practice-mode='typing'] {
+  --practice-card-start: var(--practice-two, var(--seasonal-accent));
+  --practice-card-end: var(--practice-three, var(--seasonal-highlight));
+}
+[data-seasonal-event] [data-practice-mode='practice_by_date'] {
+  --practice-card-start: var(--practice-three, var(--seasonal-accent));
+  --practice-card-end: var(--practice-one, var(--seasonal-highlight));
+}
+[data-seasonal-event] [data-practice-mode='image_guess'] {
+  --practice-card-start: var(--practice-four, var(--seasonal-accent));
+  --practice-card-end: var(--practice-two, var(--seasonal-highlight));
+}
+[data-seasonal-event] [data-practice-mode='ball_shooting'] {
+  --practice-card-start: var(--practice-two, var(--seasonal-accent));
+  --practice-card-end: var(--practice-four, var(--seasonal-highlight));
+}
+[data-seasonal-event] [data-practice-mode='snake'] {
+  --practice-card-start: var(--practice-one, var(--seasonal-accent));
+  --practice-card-end: var(--practice-four, var(--seasonal-highlight));
+}
+[data-seasonal-event] [data-practice-mode='multiple_choice'] {
+  --practice-card-start: var(--practice-four, var(--seasonal-accent));
+  --practice-card-end: var(--practice-one, var(--seasonal-highlight));
+}
+[data-seasonal-event] [data-practice-mode='listening'] {
+  --practice-card-start: var(--practice-three, var(--seasonal-accent));
+  --practice-card-end: var(--practice-two, var(--seasonal-highlight));
+}
+
+[data-seasonal-event] .seasonal-content :is(
+  .mode-card[data-practice-mode] .bg-gradient,
+  [data-seasonal-practice-options] > [data-practice-mode]
+) {
+  background-image: linear-gradient(135deg,
+    color-mix(in srgb, var(--practice-card-start) 83%, theme('colors.gray.950')),
+    color-mix(in srgb, var(--practice-card-end) 48%, theme('colors.gray.950')));
+}
+
+@media(prefers-reduced-motion: reduce) {
+  .app-brand-link .char-animate { animation: none; }
+}

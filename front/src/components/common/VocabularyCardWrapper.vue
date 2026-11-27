@@ -1,5 +1,6 @@
 <template>
   <div
+    data-seasonal-card
     class="rounded-2xl border p-6 transition-all duration-500 relative hover:shadow-xl group"
     :class="[
       hasBackground || hasAnimatedBg

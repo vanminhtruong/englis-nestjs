@@ -6,7 +6,7 @@
         class="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-[9999] p-3 sm:p-4"
       >
         <div
-          class="bg-white dark:bg-black rounded-3xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-white/10 overflow-hidden"
+          data-seasonal-dialog class="bg-white dark:bg-black rounded-3xl shadow-2xl max-w-md w-full border border-gray-200 dark:border-white/10 overflow-hidden"
           role="dialog"
           aria-modal="true"
           :aria-label="t('dataShare.modal.title')"

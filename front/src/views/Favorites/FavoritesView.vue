@@ -116,6 +116,9 @@
                 </div>
               </button>
             </div>
+            <div v-else class="mb-4 h-40 w-full">
+              <VocabularyMediaPlaceholder :has-background="hasBackground" />
+            </div>
             <div class="flex items-start justify-between gap-2 mb-4">
               <div class="min-w-0 flex-1">
                 <VocabularyWordSwitcher :source="vocab" :on-image="hasBackground" word-class="text-lg sm:text-2xl font-bold" />
@@ -260,6 +263,7 @@
 <script setup lang="ts">
 import { displayedMeaning } from '@/views/Vocabulary/utils/synonyms';
 import VocabularyWordSwitcher from "@/components/common/VocabularyWordSwitcher.vue";
+import VocabularyMediaPlaceholder from "@/views/Vocabulary/component/VocabularyMediaPlaceholder.vue";
 import { resolveAssetUrl } from "@/utils/assetUrl";
 import { ref, defineAsyncComponent } from "vue";
 import { RouterLink } from "vue-router";

@@ -12,6 +12,7 @@
         class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-3"
       >
         <span
+          data-seasonal-profile-icon
           class="p-2 bg-purple-50 dark:bg-purple-500/10 rounded-xl text-purple-600 dark:text-purple-400"
         >
           <svg

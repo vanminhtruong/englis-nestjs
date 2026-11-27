@@ -16,6 +16,20 @@
   --app-scroll-hover-end: theme('colors.secondary.400');
 }
 
+:root[data-seasonal-tone] {
+  --app-scroll-track: color-mix(in srgb, var(--seasonal-accent) 11%, theme('colors.gray.100'));
+  --app-scroll-start: var(--seasonal-accent);
+  --app-scroll-end: color-mix(in srgb, var(--seasonal-highlight) 65%, var(--seasonal-accent));
+  --app-scroll-hover-start: color-mix(in srgb, var(--app-scroll-start) 84%, theme('colors.black'));
+  --app-scroll-hover-end: color-mix(in srgb, var(--app-scroll-end) 84%, theme('colors.black'));
+}
+
+:root.dark[data-seasonal-tone] {
+  --app-scroll-track: color-mix(in srgb, var(--seasonal-accent) 16%, theme('colors.black'));
+  --app-scroll-hover-start: color-mix(in srgb, var(--app-scroll-start) 77%, theme('colors.white'));
+  --app-scroll-hover-end: color-mix(in srgb, var(--app-scroll-end) 77%, theme('colors.white'));
+}
+
 /* Local scroll areas can opt into the smaller shared size.
    Do not inherit the root's wider scrollbar into nested scroll areas. */
 body {

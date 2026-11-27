@@ -29,6 +29,8 @@
         :key="mode.id"
         @click="handleModeClick(mode)"
         :disabled="loadingPracticeData"
+        data-seasonal-card
+        :data-practice-mode="mode.key"
         class="mode-card"
         :class="[
           `mode-${mode.key}`,

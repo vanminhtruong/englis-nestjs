@@ -1,6 +1,9 @@
 
 import { nextTick } from "vue";
-import { createWorker } from "tesseract.js";
+import { adaptDrawingInk, defaultInk, readableInk } from '../manager-state/drawingColors';
+import { recognizeDrawing } from './drawingRecognition';
+import { continuousW, latinCandidates, isLatinLanguage, type RecognitionUnit } from './latinRecognition';
+import { recognizeHanziStrokes, type Stroke } from './hanziRecognition';
 import {
     pinyinToHanzi,
     pinyinTones,
@@ -21,15 +24,23 @@ export function useWordDrawingHandle(
         ctx,
         inputMode,
         isDrawing,
+        touchpadMode,
+        touchpadArmed,
         hasDrawn,
         brushSize,
         brushColor,
+        darkDrawing,
+        surfaceColor,
         currentTool,
         canvasBackground,
         previewDataUrl,
         wordText,
         isRecognizing,
+        recognitionStatus,
+        strokeCandidates,
+        chosenCharacters,
         ocrLanguage,
+        recognitionUnit,
         history,
         historyIndex,
         keyboardLanguage,
@@ -43,6 +54,46 @@ export function useWordDrawingHandle(
     } = state;
 
     let previewTimeout: number | undefined;
+    let strokes: Stroke[] = [];
+    let strokeHistory: { strokes: Stroke[]; valid: boolean }[] = [];
+    let strokesValid = true;
+    let activeStroke: Stroke | null = null;
+    let activePointerId: number | null = null;
+    let hoverStroke = false;
+    let lastPoint: {x: number; y: number} | null = null;
+    let previewFrame: number | null = null;
+    let recognitionVersion = 0;
+    let drawText = '';
+    let drawStatus = 'idle';
+    const invalidateRecognition = (clearText = true) => {
+        recognitionVersion++;
+        isRecognizing.value = false;
+        recognitionStatus.value = 'idle';
+        strokeCandidates.value = [];
+        chosenCharacters.value = [];
+        if (clearText) wordText.value = '';
+    };
+    const resetRecognition = () => { touchpadArmed.value=false; touchpadMode.value=false; hoverStroke=false; releasePointer(); isDrawing.value=false; lastPoint=null; if(previewFrame!==null){cancelAnimationFrame(previewFrame);previewFrame=null;} strokes=[]; strokeHistory=[]; strokesValid=true; activeStroke=null; invalidateRecognition(); drawText = ''; drawStatus = 'idle'; if (previewTimeout) clearTimeout(previewTimeout); };
+    const setWordText = (value: string) => {
+        invalidateRecognition(false);
+        wordText.value = value;
+        if(inputMode.value==='keyboard') { keyboardInputText.value=value; clearPinyinBuffer(); }
+    };
+    const chooseCharacter = (index: number, character: string) => {
+        if (!strokeCandidates.value[index]?.some((candidate: {hanzi:string})=>candidate.hanzi===character)) return;
+        chosenCharacters.value[index] = character;
+        wordText.value = chosenCharacters.value.join('');
+    };
+    const setRecognitionUnit = (unit: RecognitionUnit) => { if(unit!==recognitionUnit.value){recognitionUnit.value=unit;invalidateRecognition();} };
+    const setRecognitionLanguage = (language: string) => { if(language!==ocrLanguage.value){ocrLanguage.value=language;invalidateRecognition();} };
+    const setMode = (mode: 'draw' | 'keyboard') => {
+        if(mode===inputMode.value)return;
+        pauseTouchpad();
+        if(isDrawing.value)stopDrawing();
+        if(mode==='keyboard') { drawText=wordText.value; drawStatus=recognitionStatus.value; invalidateRecognition(); wordText.value=keyboardInputText.value; }
+        else { invalidateRecognition(); wordText.value=drawText; recognitionStatus.value=drawStatus; }
+        inputMode.value=mode;
+    };
 
     const triggerKeyPreview = (key: string) => {
         activeKeyPreview.value = key;
@@ -244,7 +295,7 @@ export function useWordDrawingHandle(
     };
 
     const handlePhysicalKeyDown = (e: KeyboardEvent) => {
-        if (inputMode.value !== "keyboard") return;
+        if (inputMode.value !== "keyboard" || e.defaultPrevented || e.isComposing || e.ctrlKey || e.metaKey || e.altKey || (e.target instanceof HTMLElement && (e.target.matches('input,textarea,select') || e.target.isContentEditable))) return;
 
         const keyObj: KeyboardKey = {
             value: e.key.toLowerCase(),
@@ -288,7 +339,9 @@ export function useWordDrawingHandle(
                 return;
             }
 
-            handleKeyPress(keyObj);
+            e.preventDefault();
+            if (e.key.length === 1 && e.key !== ' ') keyboardInputText.value += e.key;
+            else handleKeyPress(keyObj);
         } else {
             // Chinese
             // Custom Tone Mapping (Unikey-style as requested)
@@ -332,24 +385,22 @@ export function useWordDrawingHandle(
                 keyObj.type = "consonant";
             }
 
+            e.preventDefault();
             handlePinyinKeyPress(keyObj);
         }
     };
 
     const useKeyboardText = () => {
         if (pinyinBuffer.value) {
-            keyboardInputText.value += pinyinBuffer.value;
-            pinyinBuffer.value = "";
-            hanziCandidates.value = [];
-            selectedTone.value = 0;
+            if (hanziCandidates.value.length) selectHanzi(hanziCandidates.value[0]);
+            else { keyboardInputText.value += pinyinBuffer.value; clearPinyinBuffer(); }
         }
-        if (keyboardInputText.value.trim()) {
-            wordText.value = keyboardInputText.value.trim();
-        }
+        wordText.value = keyboardInputText.value.trim();
     };
 
     const clearKeyboardInput = () => {
         keyboardInputText.value = "";
+        wordText.value = "";
         clearPinyinBuffer();
     };
 
@@ -358,17 +409,54 @@ export function useWordDrawingHandle(
     const fillBackground = () => {
         if (!ctx.value || !canvasRef.value) return;
 
-        if (canvasBackground.value === "white") {
-            ctx.value.fillStyle = "#FFFFFF";
-            ctx.value.fillRect(0, 0, canvasRef.value.width, canvasRef.value.height);
-        } else {
-            ctx.value.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height);
+        ctx.value.globalCompositeOperation = "source-over";
+        // Keep only ink in the drawing bitmap. The background is a separate
+        // display/export layer so erasing never exposes a dark patch on white.
+        ctx.value.clearRect(0, 0, canvasRef.value.width, canvasRef.value.height);
+    };
+
+    const exportDrawing = (): string => {
+        const canvas = canvasRef.value as HTMLCanvasElement | null;
+        if (!canvas) return '';
+        if (canvasBackground.value === 'transparent') return canvas.toDataURL('image/png');
+        const output = document.createElement('canvas');
+        output.width = canvas.width;
+        output.height = canvas.height;
+        const outputCtx = output.getContext('2d');
+        if (!outputCtx) return '';
+        outputCtx.fillStyle = surfaceColor.value;
+        outputCtx.fillRect(0, 0, output.width, output.height);
+        outputCtx.drawImage(canvas, 0, 0);
+        return output.toDataURL('image/png');
+    };
+
+    const hasInk = () => {
+        if (!ctx.value || !canvasRef.value) return false;
+        const pixels = ctx.value.getImageData(0, 0, canvasRef.value.width, canvasRef.value.height).data;
+        // Count visible alpha, independent of the brush color or theme.
+        for (let i=3; i<pixels.length; i+=4) {
+            if (pixels[i]! > 8) return true;
         }
+        return false;
     };
 
     const updatePreview = () => {
         if (!canvasRef.value) return;
-        previewDataUrl.value = canvasRef.value.toDataURL("image/png");
+        previewDataUrl.value = hasDrawn.value ? exportDrawing() : '';
+    };
+
+    // Avoid encoding a PNG for every high-frequency pointer sample.
+    const schedulePreview = () => {
+        if (previewFrame !== null) return;
+        previewFrame = requestAnimationFrame(() => {
+            previewFrame = null;
+            updatePreview();
+        });
+    };
+    const flushPreview = () => {
+        if (previewFrame !== null) cancelAnimationFrame(previewFrame);
+        previewFrame = null;
+        updatePreview();
     };
 
     const saveToHistory = () => {
@@ -376,6 +464,7 @@ export function useWordDrawingHandle(
 
         if (historyIndex.value < history.value.length - 1) {
             history.value = history.value.slice(0, historyIndex.value + 1);
+            strokeHistory = strokeHistory.slice(0, historyIndex.value + 1);
         }
 
         const imageData = ctx.value.getImageData(
@@ -385,10 +474,12 @@ export function useWordDrawingHandle(
             canvasRef.value.height
         );
         history.value.push(imageData);
+        strokeHistory.push({strokes: [...strokes],valid:strokesValid});
         historyIndex.value = history.value.length - 1;
 
         if (history.value.length > 50) {
             history.value.shift();
+            strokeHistory.shift();
             historyIndex.value--;
         }
     };
@@ -404,8 +495,9 @@ export function useWordDrawingHandle(
         if (!container) return;
 
         const rect = container.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
+        if (!rect.width || !rect.height) return;
+        canvas.width = Math.max(1, Math.round(rect.width));
+        canvas.height = Math.max(1, Math.round(rect.height));
 
         ctx.value = canvas.getContext("2d");
         if (!ctx.value) return;
@@ -415,165 +507,297 @@ export function useWordDrawingHandle(
     };
 
 
-    const getPointerPos = (e: MouseEvent | Touch) => {
-        if (!canvasRef.value) return { x: 0, y: 0 };
-
-        const rect = canvasRef.value.getBoundingClientRect();
-        const scaleX = canvasRef.value.width / rect.width;
-        const scaleY = canvasRef.value.height / rect.height;
-
+    const getPointerPos = (e: PointerEvent) => {
+        const canvas = canvasRef.value as HTMLCanvasElement | null;
+        if (!canvas) return { x: 0, y: 0 };
+        const rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return { x: 0, y: 0 };
         return {
-            x: (e.clientX - rect.left) * scaleX,
-            y: (e.clientY - rect.top) * scaleY,
+            x: Math.max(0, Math.min(canvas.width, (e.clientX - rect.left) * canvas.width / rect.width)),
+            y: Math.max(0, Math.min(canvas.height, (e.clientY - rect.top) * canvas.height / rect.height)),
         };
     };
 
-    const startDrawing = (e: MouseEvent) => {
+    const releasePointer = () => {
+        const id = activePointerId;
+        activePointerId = null;
+        const canvas = canvasRef.value as HTMLCanvasElement | null;
+        if (canvas && id !== null && canvas.hasPointerCapture(id)) canvas.releasePointerCapture(id);
+    };
+
+    const beginStroke = (e: PointerEvent, hover = false) => {
+        if (!ctx.value || inputMode.value !== 'draw' || isRecognizing.value ||
+            activePointerId !== null || !e.isPrimary) return;
+        hoverStroke = hover;
+        e.preventDefault();
+        activePointerId = e.pointerId;
+        const canvas = canvasRef.value as HTMLCanvasElement | null;
+        // Capture keeps the stroke active even when the finger crosses the edge.
+        // Synthetic events in tests may not have a browser-managed pointer.
+        try { if (!hover) canvas?.setPointerCapture(e.pointerId); } catch { /* Ignore unavailable capture. */ }
+        invalidateRecognition();
         isDrawing.value = true;
         const pos = getPointerPos(e);
-
-        if (!ctx.value) return;
+        lastPoint = pos;
+        activeStroke = currentTool.value === 'brush' ? [[pos.x, pos.y]] : null;
+        if (!activeStroke) strokesValid = false;
 
         ctx.value.beginPath();
         ctx.value.moveTo(pos.x, pos.y);
         ctx.value.lineWidth = brushSize.value;
-        ctx.value.lineCap = "round";
-        ctx.value.lineJoin = "round";
-
-        if (currentTool.value === "eraser") {
-            ctx.value.globalCompositeOperation = "destination-out";
-            ctx.value.strokeStyle = "rgba(0,0,0,1)";
-        } else {
-            ctx.value.globalCompositeOperation = "source-over";
-            ctx.value.strokeStyle = brushColor.value;
-        }
+        ctx.value.lineCap = 'round';
+        ctx.value.lineJoin = 'round';
+        ctx.value.globalCompositeOperation = currentTool.value === 'eraser' ? 'destination-out' : 'source-over';
+        ctx.value.strokeStyle = currentTool.value === 'eraser' ? 'rgba(0,0,0,1)' : brushColor.value;
+        ctx.value.lineTo(pos.x + 0.01, pos.y + 0.01);
+        ctx.value.stroke();
+        ctx.value.beginPath();
+        ctx.value.moveTo(pos.x, pos.y);
+        if (activeStroke) hasDrawn.value = true;
+        schedulePreview();
     };
 
-    const draw = (e: MouseEvent) => {
-        if (!isDrawing.value || !ctx.value) return;
+    const pauseTouchpad = () => {
+        touchpadArmed.value = false;
+        if (hoverStroke) stopDrawing(undefined, false);
+    };
 
+    const toggleTouchpadMode = () => {
+        pauseTouchpad();
+        if (isDrawing.value) stopDrawing();
+        touchpadMode.value = !touchpadMode.value;
+    };
+
+    const toggleTouchpadStroke = () => {
+        if (!touchpadMode.value || inputMode.value !== 'draw' || isRecognizing.value) return;
+        if (touchpadArmed.value) pauseTouchpad();
+        else if (!isDrawing.value) touchpadArmed.value = true;
+    };
+
+    const startDrawing = (e: PointerEvent) => {
+        if (!e.isPrimary || e.button !== 0) return;
+        if (touchpadMode.value && e.pointerType === 'mouse') {
+            e.preventDefault();
+            toggleTouchpadStroke();
+            return;
+        }
+        pauseTouchpad();
+        beginStroke(e);
+    };
+
+    const handlePointerLeave = () => pauseTouchpad();
+
+    const appendPoint = (e: PointerEvent) => {
+        if (!ctx.value) return;
         const pos = getPointerPos(e);
+        if (lastPoint && pos.x === lastPoint.x && pos.y === lastPoint.y) return;
+        if (activeStroke && activeStroke.length < 2048) activeStroke.push([pos.x, pos.y]);
         ctx.value.lineTo(pos.x, pos.y);
         ctx.value.stroke();
-        hasDrawn.value = true;
-        updatePreview();
+        ctx.value.beginPath();
+        ctx.value.moveTo(pos.x, pos.y);
+        lastPoint = pos;
+        if (activeStroke) hasDrawn.value = true;
     };
 
-    const stopDrawing = () => {
+    const draw = (e: PointerEvent) => {
+        if (touchpadMode.value && touchpadArmed.value && e.pointerType === 'mouse' && e.buttons === 0 && !isDrawing.value) beginStroke(e, true);
+        if (!isDrawing.value || activePointerId !== e.pointerId || !ctx.value) return;
+        e.preventDefault();
+        // A missing mouse/pen release must not leave the brush stuck on.
+        if (!hoverStroke && e.pointerType !== 'touch' && (e.buttons & 1) === 0) {
+            stopDrawing(e, false);
+            return;
+        }
+        const samples = e.getCoalescedEvents?.() ?? [];
+        for (const sample of samples) appendPoint(sample);
+        appendPoint(e);
+        schedulePreview();
+    };
+
+    const stopDrawing = (e?: PointerEvent, includeEnd = true) => {
+        if (e && activePointerId !== e.pointerId) return;
+        if (hoverStroke && e?.type === 'pointerup') return;
         if (isDrawing.value && ctx.value) {
-            ctx.value.closePath();
+            if (e && includeEnd && e.type === 'pointerup') appendPoint(e);
+            ctx.value.beginPath();
+            ctx.value.globalCompositeOperation = 'source-over';
+            if (activeStroke) {
+                if (activeStroke.length === 1) activeStroke.push([activeStroke[0]![0]!+0.01, activeStroke[0]![1]!+0.01]);
+                strokes.push(activeStroke);
+                activeStroke = null;
+            }
+            hasDrawn.value = hasInk();
+            // If all ink was erased, a new character can use stroke matching again.
+            if (!hasDrawn.value) { strokes = []; strokesValid = true; }
             saveToHistory();
         }
         isDrawing.value = false;
+        if (hoverStroke) touchpadArmed.value = false;
+        hoverStroke = false;
+        lastPoint = null;
+        releasePointer();
+        flushPreview();
     };
 
-    const handleTouchStart = (e: TouchEvent) => {
-        const touch = e.touches[0];
-        if (!touch) return;
-        const mouseEvent = new MouseEvent("mousedown", {
-            clientX: touch.clientX,
-            clientY: touch.clientY,
-        });
-        startDrawing(mouseEvent);
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-        const touch = e.touches[0];
-        if (!touch) return;
-        const mouseEvent = new MouseEvent("mousemove", {
-            clientX: touch.clientX,
-            clientY: touch.clientY,
-        });
-        draw(mouseEvent);
-    };
+    const cancelDrawing = (e: PointerEvent) => stopDrawing(e, false);
 
     const undoLast = () => {
-        if (historyIndex.value <= 0 || !ctx.value) return;
+        if (isDrawing.value || historyIndex.value <= 0 || !ctx.value) return;
 
+        invalidateRecognition();
         historyIndex.value--;
         ctx.value.putImageData(history.value[historyIndex.value], 0, 0);
+        const saved = strokeHistory[historyIndex.value];
+        strokes = saved ? [...saved.strokes] : [];
+        strokesValid = saved?.valid ?? false;
+        hasDrawn.value = hasInk();
         updatePreview();
-        hasDrawn.value = historyIndex.value > 0;
     };
 
     const redoLast = () => {
-        if (historyIndex.value >= history.value.length - 1 || !ctx.value) return;
+        if (isDrawing.value || historyIndex.value >= history.value.length - 1 || !ctx.value) return;
 
+        invalidateRecognition();
         historyIndex.value++;
         ctx.value.putImageData(history.value[historyIndex.value], 0, 0);
+        const saved = strokeHistory[historyIndex.value];
+        strokes = saved ? [...saved.strokes] : [];
+        strokesValid = saved?.valid ?? false;
+        hasDrawn.value = hasInk();
         updatePreview();
-        hasDrawn.value = true;
     };
 
     const clearCanvas = () => {
         if (!ctx.value || !canvasRef.value) return;
 
+        if (isDrawing.value) stopDrawing();
+        invalidateRecognition();
+        strokes=[]; strokesValid=true; activeStroke=null;
+        ctx.value.globalCompositeOperation = 'source-over';
         fillBackground();
         hasDrawn.value = false;
         saveToHistory();
         updatePreview();
     };
 
-    const handleBackgroundChange = () => {
-        if (!ctx.value || !canvasRef.value || !hasDrawn.value) {
-            fillBackground();
-            saveToHistory();
+    const chooseBrushColor = (color: string) => {
+        if (isDrawing.value) stopDrawing();
+        brushColor.value = readableInk(color, darkDrawing.value);
+    };
+
+    const syncDrawingTheme = (dark: boolean, fresh = false) => {
+        if (fresh) {
+            darkDrawing.value = dark;
+            brushColor.value = defaultInk(dark);
+            canvasBackground.value = 'theme';
             return;
         }
+        if (dark === darkDrawing.value) return;
+        if (isDrawing.value) stopDrawing();
+        brushColor.value = readableInk(brushColor.value, dark);
+        darkDrawing.value = dark;
+        const cache = new Map<number, number>();
+        for (const image of history.value as ImageData[]) adaptDrawingInk(image, dark, cache);
+        if (ctx.value && canvasRef.value && hasDrawn.value) {
+            const current = ctx.value.getImageData(0, 0, canvasRef.value.width, canvasRef.value.height);
+            adaptDrawingInk(current, dark, cache);
+            ctx.value.putImageData(current, 0, 0);
+        }
+        updatePreview();
+    };
 
-        const currentImage = ctx.value.getImageData(
-            0,
-            0,
-            canvasRef.value.width,
-            canvasRef.value.height
-        );
-
-        fillBackground();
-
-        ctx.value.putImageData(currentImage, 0, 0);
+    const handleBackgroundChange = () => {
+        // Changing the background does not alter ink or undo history.
         updatePreview();
     };
 
     const recognizeText = async () => {
-        if (!canvasRef.value || !hasDrawn.value || isRecognizing.value) return;
-
+        if (!canvasRef.value || !hasDrawn.value || isRecognizing.value || isDrawing.value) return;
+        const version = ++recognitionVersion;
         isRecognizing.value = true;
-
+        recognitionStatus.value = 'idle';
+        wordText.value = '';
         try {
-            const dataUrl = canvasRef.value.toDataURL("image/png");
-
-            const worker = await createWorker(ocrLanguage.value);
-            const { data } = await worker.recognize(dataUrl);
-            await worker.terminate();
-
-            if (data.text && data.text.trim()) {
-                wordText.value = data.text.trim().replace(/\s+/g, " ");
+            let word = '';
+            const language = ocrLanguage.value;
+            const unit = recognitionUnit.value;
+            if (isLatinLanguage(language) && strokesValid && strokes.length && unit !== 'word') {
+                const isW = language==='eng' && continuousW(strokes);
+                const options = isW || unit==='character' || (language==='eng' && strokes.length<=3) ? latinCandidates(strokes) : [];
+                const top=options[0];
+                const next=options.find(item=>item.hanzi.toLowerCase()!==top?.hanzi.toLowerCase());
+                // Auto only accepts an unusually close, distinct match; longer words stay with OCR.
+                const clearLetter=language==='eng' && !!top && !!next && top.hanzi.toLowerCase()!=='w' && top.score<.004 && next.score-top.score>.003;
+                if (isW || (unit==='character' && language==='eng' && top && top.score<.025) || (unit==='auto' && clearLetter)) {
+                    const preferred = isW ? [{hanzi:'w',score:0},{hanzi:'W',score:0}] : [];
+                    const merged = [...preferred,...options].filter((item,i,all)=>all.findIndex(other=>other.hanzi===item.hanzi)===i).slice(0,8);
+                    strokeCandidates.value=[merged];
+                    chosenCharacters.value=[merged[0]!.hanzi];
+                    word=chosenCharacters.value[0]!;
+                }
             }
+            if(!word && ocrLanguage.value.startsWith('chi_') && strokesValid && strokes.length){
+                try{
+                    const candidates = await recognizeHanziStrokes(strokes);
+                    if(version !== recognitionVersion || inputMode.value !== 'draw')return;
+                    if(candidates.length && (unit!=='character'||candidates.length===1)){
+                        strokeCandidates.value=candidates;
+                        chosenCharacters.value=candidates.map(group=>group[0]!.hanzi);
+                        word=chosenCharacters.value.join('');
+                    }
+                }catch{ /* Fall back to local OCR when stroke matching is unavailable. */ }
+            }
+            if(!word) word = await recognizeDrawing(canvasRef.value, language, unit);
+            if(version !== recognitionVersion || inputMode.value !== 'draw') return;
+            if(isLatinLanguage(language) && unit==='character' && !strokeCandidates.value.length && strokesValid){
+                const candidates=latinCandidates(strokes);
+                if(word) candidates.unshift({hanzi:word,score:0});
+                const unique=candidates.filter((item,i,all)=>all.findIndex(other=>other.hanzi===item.hanzi)===i).slice(0,8);
+                if(unique.length){strokeCandidates.value=[unique];chosenCharacters.value=[unique[0]!.hanzi];word=unique[0]!.hanzi;}
+            }
+            if (version !== recognitionVersion || inputMode.value !== 'draw') return;
+            wordText.value = word;
+            recognitionStatus.value = word ? 'ready' : 'empty';
         } catch (error) {
-            console.error("OCR recognition failed:", error);
+            if (version !== recognitionVersion) return;
+            recognitionStatus.value = 'error';
+            console.warn('Drawing recognition unavailable', error);
         } finally {
-            isRecognizing.value = false;
+            if (version === recognitionVersion) isRecognizing.value = false;
         }
     };
 
-    const confirm = () => {
+    const confirm = async () => {
         if (!canConfirm.value) return;
-
         if (inputMode.value === "draw") {
             if (!canvasRef.value) return;
-            const dataUrl = canvasRef.value.toDataURL("image/png");
-            emit("confirm", { imageDataUrl: dataUrl, word: wordText.value.trim() });
+            if (!wordText.value.trim()) { await recognizeText(); return; }
+            emit("confirm", { imageDataUrl: exportDrawing(), word: wordText.value.trim() });
         } else {
-            emit("confirm", { imageDataUrl: "", word: wordText.value.trim() });
+            if (pinyinBuffer.value) {
+                if (hanziCandidates.value.length) selectHanzi(hanziCandidates.value[0]);
+                else { keyboardInputText.value += pinyinBuffer.value; clearPinyinBuffer(); }
+            }
+            const word = (keyboardInputText.value || wordText.value).trim();
+            if (!word) return;
+            emit("confirm", { imageDataUrl: "", word });
         }
         emit("close");
     };
 
     const close = () => {
+        resetRecognition();
         emit("close");
     };
 
     return {
+        resetRecognition,
+        setWordText,
+        chooseCharacter,
+        setRecognitionLanguage,
+        setRecognitionUnit,
+        setMode,
         handleKeyPress,
         handlePinyinKeyPress,
         selectHanzi,
@@ -587,14 +811,19 @@ export function useWordDrawingHandle(
         saveToHistory,
         initCanvas,
         startDrawing,
+        toggleTouchpadMode,
+        toggleTouchpadStroke,
+        pauseTouchpad,
+        handlePointerLeave,
         draw,
         stopDrawing,
-        handleTouchStart,
-        handleTouchMove,
+        cancelDrawing,
         undoLast,
         redoLast,
         clearCanvas,
         handleBackgroundChange,
+        chooseBrushColor,
+        syncDrawingTheme,
         recognizeText,
         confirm,
         close,

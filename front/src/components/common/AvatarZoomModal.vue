@@ -13,7 +13,7 @@
         class="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-1.5 sm:p-4"
       >
         <div
-          class="w-full h-[96dvh] sm:h-[90dvh] max-w-6xl bg-white dark:bg-neutral-900 rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+          data-seasonal-dialog class="w-full h-[96dvh] sm:h-[90dvh] max-w-6xl bg-white dark:bg-neutral-900 rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col"
         >
           <div
             class="flex items-center justify-between px-4 py-3 border-b border-black/5 dark:border-white/10"

@@ -2,10 +2,10 @@
   <div class="min-w-0 shrink-0">
     <RouterLink
       to="/"
-      class="group flex min-w-0 items-center gap-2 transition-transform hover:scale-[1.02] sm:gap-3"
+      class="app-brand-link group flex min-w-0 items-center gap-2 transition-transform hover:scale-[1.02] sm:gap-3" :class="{ 'app-brand-footer': footer }"
     >
       <div
-        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 text-white sm:h-10 sm:w-10"
+        class="seasonal-brand-mark flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 text-white sm:h-10 sm:w-10"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -21,13 +21,13 @@
           />
         </svg>
       </div>
-      <span class="bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-base font-bold text-transparent min-[340px]:hidden">VM</span>
-      <div class="hidden min-w-0 min-[340px]:flex">
+      <span v-if="!footer" class="seasonal-brand-name bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-base font-bold text-transparent min-[340px]:hidden">VM</span>
+      <div class="min-w-0" :class="footer ? 'flex flex-wrap' : 'hidden min-[340px]:flex'">
         <span
           v-for="(char, index) in appNameArray"
           :key="index"
           v-html="char === ' ' ? '&nbsp;' : char"
-          class="char-animate inline-block text-lg font-bold min-[420px]:text-2xl bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent"
+          class="seasonal-brand-name char-animate inline-block text-lg font-bold min-[420px]:text-2xl bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent"
           :style="{ animationDelay: `${index * 0.1}s` }"
         >
         </span>
@@ -41,6 +41,7 @@ import { computed } from "vue";
 import { RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
 
+defineProps<{ footer?: boolean }>();
 const { t } = useI18n();
 const appNameArray = computed(() => t("common.appName").split(""));
 </script>

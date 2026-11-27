@@ -79,12 +79,13 @@
       </p>
     </div>
 
-    <div v-if="selectedDate" class="space-y-4 pt-6 border-t border-black/10 dark:border-white/10">
+    <div v-if="selectedDate" data-seasonal-practice-options class="space-y-4 pt-6 border-t border-black/10 dark:border-white/10">
       <h3 class="text-xl font-bold text-black dark:text-white mb-4">
         {{ t("practice.selectModeForDate") || "Select practice mode" }}
       </h3>
 
       <button
+        data-practice-mode="flashcard"
         @click="emit('start-practice-by-date', 'flashcard')"
         :disabled="loadingPracticeData"
         :class="`w-full p-4 bg-gradient-to-r from-primary-500 to-secondary-500 text-white rounded-xl hover:shadow-lg transition-all text-left ${loadingPracticeData ? 'opacity-50 cursor-not-allowed' : ''}`"
@@ -101,6 +102,7 @@
       </button>
 
       <button
+        data-practice-mode="typing"
         @click="emit('start-practice-by-date', 'typing')"
         :disabled="loadingPracticeData"
         :class="`w-full p-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all text-left ${loadingPracticeData ? 'opacity-50 cursor-not-allowed' : ''}`"
@@ -117,6 +119,7 @@
       </button>
 
       <button
+        data-practice-mode="image_guess"
         @click="emit('start-practice-by-date', 'image_guess')"
         :disabled="loadingPracticeData"
         :class="`w-full p-4 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl hover:shadow-lg transition-all text-left ${loadingPracticeData ? 'opacity-50 cursor-not-allowed' : ''}`"

@@ -1,4 +1,4 @@
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { IsBoolean, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -13,4 +13,8 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsString()
   theme?: string;
+
+  @ValidateIf((_, value) => value !== undefined)
+  @IsBoolean()
+  seasonalThemesEnabled?: boolean;
 }

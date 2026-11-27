@@ -22,8 +22,10 @@ const defaultLocaleAudit = process.argv.includes('--default-locale')
 const posAudit = process.argv.includes('--pos-only')
 const noteAudit = process.argv.includes('--note-only')
 const layoutAudit = process.argv.includes('--layout-only')
+const seasonalAudit = process.argv.includes('--seasonal-only')
 const uploadAudit = process.argv.includes('--upload-only')
 const synonymAudit = process.argv.includes('--synonym-only')
+const drawerAudit = process.argv.includes('--drawer-only')
 const longContent = process.argv.includes('--long-content')
 const themes = themeFlag === 'both' ? ['light', 'dark'] : [themeFlag]
 const base = 'http://127.0.0.1:5199'
@@ -301,6 +303,14 @@ try {
         await evaluate(`localStorage.setItem('theme',${JSON.stringify(theme)});${defaultLocaleAudit?"localStorage.removeItem('locale')":"localStorage.setItem('locale',"+JSON.stringify(locale)+")"};localStorage.${guestRoutes.has(route)?'removeItem':'setItem'}('token'${guestRoutes.has(route)?'':",'mobile-audit-only'"});`)
         await send('Page.navigate',{url:base+route},30000)
         await pause(900)
+        if (seasonalAudit && route === '/profile') {
+          for (let attempt=0;attempt<2;attempt++) {
+            const ready=await evaluate(`(async()=>{for(let i=0;i<300;i++){if(document.querySelector('[data-seasonal-preview-action]'))return true;await new Promise(r=>setTimeout(r,100))}return false})()`,35000);
+            if(ready===true) break;
+            await evaluate(`localStorage.setItem('token','mobile-audit-only');localStorage.setItem('theme',${JSON.stringify(theme)});localStorage.setItem('locale',${JSON.stringify(locale)})`);
+            await send('Page.navigate',{url:base+route},30000);
+          }
+        }
         let m
         for (let attempt = 0; attempt < 12; attempt++) {
           m = await evaluate(measurement.replace('const viewport = window.innerWidth', 'const viewport = '+width))
@@ -318,6 +328,88 @@ try {
         }
         if((m?.scrollWidth||0)>width+2 || (m?.overflowing?.length||0)>0)
           console.log('OVERFLOW '+theme+' '+width+' '+route+' scroll='+m.scrollWidth+' off='+m.overflowing.map(x=>x.node).slice(0,3).join('|'))
+        if (seasonalAudit && route === '/profile') {
+          const checks = await evaluate(`(async () => {
+            const wait = async f => { for(let i=0;i<150;i++){if(f())return true;await new Promise(r=>setTimeout(r,100))}return false };
+            const preview=()=>document.querySelector('[data-seasonal-preview-action]');
+            const trigger=()=>document.querySelector('[aria-labelledby="seasonal-preferences-title"] button[aria-haspopup="listbox"]');
+            const list=()=>[...document.querySelectorAll('[role="listbox"] [role="option"]')];
+            const results=[];
+            if(!await wait(()=>preview()&&trigger()))return {ready:false,results};
+            for(let index=0;index<11;index++){
+              document.querySelector('[data-seasonal-preview-exit]')?.click();
+              await wait(()=>!document.body.dataset.seasonalEvent);
+              let opened=false;
+              for(let retry=0;retry<5&&!opened;retry++){
+                trigger().scrollIntoView({block:'center',behavior:'instant'});
+                await new Promise(r=>setTimeout(r,500));
+                if(trigger().getAttribute('aria-expanded')!=='true')trigger().click();
+                for(let i=0;i<10;i++){await new Promise(r=>setTimeout(r,80));if(list().length===11&&trigger().getAttribute('aria-expanded')==='true'){opened=true;break}}
+              }
+              if(!opened)return {ready:false,results,options:list().length,rect:trigger().getBoundingClientRect().toJSON()};
+              list()[index].click();
+              await wait(()=>!document.querySelector('[role="listbox"]'));
+              preview().click();
+              await wait(()=>document.body.dataset.seasonalEvent && document.querySelector('.seasonal-footer-scene img')?.complete && document.querySelector('.seasonal-hero-secondary')?.complete && document.querySelector('.seasonal-particle'));
+              window.scrollTo({top:0,behavior:'instant'});
+              await wait(()=>Math.abs(document.querySelector('.seasonal-header').getBoundingClientRect().top)<1);
+              await wait(()=>document.querySelector('.seasonal-hero-art')?.naturalWidth>0);
+              const footer=document.querySelector('.seasonal-footer');
+              const orig=document.querySelector('.seasonal-hero-art');
+              const scene=document.querySelector('.seasonal-hero-secondary');
+              const footerArt=document.querySelector('.seasonal-footer-scene img');
+              const particles=[...document.querySelectorAll('.seasonal-particle')].filter(p=>getComputedStyle(p).display!=='none');
+              await new Promise(r=>setTimeout(r,350));
+              const frame=document.querySelector('.seasonal-frame');
+              const edges=[...document.querySelectorAll('.seasonal-frame-edge')];
+              const logos=[...document.querySelectorAll('.seasonal-header .app-brand-link,.seasonal-footer .app-brand-link')];
+              const frameOk=!!frame&&getComputedStyle(frame).pointerEvents==='none'&&edges.length===4&&edges.every(e=>getComputedStyle(e).backgroundImage!=='none'&&e.getBoundingClientRect().width>0&&e.getBoundingClientRect().height>0);
+              const shell=document.querySelector('.app-shell');
+              const header=document.querySelector('.seasonal-header');
+              const shellStyle=getComputedStyle(shell);
+              const frameRect=frame?.getBoundingClientRect();
+              const near=(a,b)=>Math.abs(a-b)<1.1;
+              const edgeRects=edges.map(e=>e.getBoundingClientRect());
+              const flush=!!frameRect&&[shellStyle.paddingTop,shellStyle.paddingRight,shellStyle.paddingBottom,shellStyle.paddingLeft,getComputedStyle(header).top].every(v=>v==='0px')&&near(frameRect.left,0)&&near(frameRect.top,0)&&near(frameRect.right,innerWidth)&&near(frameRect.bottom,innerHeight)&&near(edgeRects[0]?.top,0)&&near(edgeRects[0]?.left,0)&&near(edgeRects[0]?.right,innerWidth)&&near(edgeRects[1]?.right,innerWidth)&&near(edgeRects[2]?.bottom,innerHeight)&&near(edgeRects[3]?.left,0)&&near(header.getBoundingClientRect().left,0)&&near(footer.getBoundingClientRect().left,0)&&near(header.getBoundingClientRect().width,innerWidth)&&near(footer.getBoundingClientRect().width,innerWidth);
+              const artworkOnly=edges.every(e=>{const s=getComputedStyle(e);return s.backgroundColor==='rgba(0, 0, 0, 0)'&&s.backgroundImage.startsWith('url(')&&s.backgroundPosition.includes('85%')&&s.backgroundPosition.includes('100%')});
+              const headerInner=header.querySelector('.seasonal-header-inner');
+              const headBox=headerInner.getBoundingClientRect();
+              const brandBox=logos[0]?.getBoundingClientRect();
+              const headerSafe=headBox.top>=edgeRects[0].bottom-.5&&headBox.left>=edgeRects[3].right-.5&&headBox.right<=edgeRects[1].left+.5&&brandBox.top>=edgeRects[0].bottom+6;
+              footer.scrollIntoView({block:'end',behavior:'instant'});
+              await wait(()=>Math.abs(footer.getBoundingClientRect().bottom-innerHeight)<2);
+              const bottom=footer.querySelector('.seasonal-footer-bottom')?.getBoundingClientRect();
+              const footRect=footer.getBoundingClientRect();
+              const footerSafe=!!bottom&&footRect.bottom-bottom.bottom>=edgeRects[2].height-.5&&bottom.left>=edgeRects[3].right-.5&&bottom.right<=edgeRects[1].left+.5;
+              const footDebug=footerSafe?undefined:{bottom:bottom?.toJSON(),footer:footRect.toJSON(),edge:edgeRects[2].toJSON(),padding:getComputedStyle(footer).padding};
+              const logoOk=logos.length===2&&logos.every(e=>getComputedStyle(e).boxShadow==='none'&&getComputedStyle(e).textDecorationLine==='none')&&logos[0].querySelector('svg path')?.getAttribute('d')===logos[1].querySelector('svg path')?.getAttribute('d');
+              results.push({frameOk,flush,artworkOnly,headerSafe,footerSafe,footDebug,logoOk,id:document.body.dataset.seasonalEvent,footerBg:footer&&getComputedStyle(footer).backgroundColor,original:!!orig?.naturalWidth&&orig.src.includes('.webp'),supplement:!!scene?.naturalWidth&&!!footerArt?.naturalWidth,particles:particles.length,overflow:document.documentElement.scrollWidth>innerWidth+2});
+            }
+            // Real SPA navigation keeps the active preview and exercises vocabulary tabs.
+            const vocabLink=document.querySelector('.seasonal-header a[href="/vocabulary"], .seasonal-footer a[href="/vocabulary"]');
+            vocabLink?.click();
+            const tabsReady=await wait(()=>document.querySelector('.vocab-tabs-wrapper .app-choice-tab'));
+            const tabButtons=[...document.querySelectorAll('.vocab-tabs-wrapper .app-choice-tab')];
+            const checkTabs=()=>{const buttons=[...document.querySelectorAll('.vocab-tabs-wrapper .app-choice-tab')];return buttons.length>1&&buttons.filter(b=>b.getAttribute('aria-pressed')==='true').length===1&&buttons.every(b=>{
+              const s=getComputedStyle(b,'::after'), transform=new DOMMatrixReadOnly(s.transform);
+              const active=b.getAttribute('aria-pressed')==='true';
+              return (b.classList.contains('vocabulary-tab-main')?Math.abs(b.getBoundingClientRect().height-36)<.5&&getComputedStyle(b).flexDirection==='row':b.getBoundingClientRect().height<=54)&&(active?s.content!=='none'&&s.position==='absolute'&&s.top==='0px'&&transform.m42<0&&getComputedStyle(b).overflow==='visible'&&s.pointerEvents==='none':s.content==='none'||s.content==='normal');
+            });};
+            const initialTabs=!!tabsReady&&checkTabs();
+            const nextTab=tabButtons.find(b=>b.getAttribute('aria-pressed')==='false');
+            nextTab?.click();
+            await wait(()=>nextTab?.getAttribute('aria-pressed')==='true');
+            const tabsOutside=initialTabs&&nextTab?.getAttribute('aria-pressed')==='true'&&checkTabs();
+            document.querySelector('[data-seasonal-preview-exit]')?.click();
+            await wait(()=>!document.body.dataset.seasonalEvent);
+            return {ready:true,tabsOutside,cleared:!document.body.dataset.seasonalEvent&&!document.querySelector('.seasonal-frame'),results};
+          })()`,120000);
+          const expectedBg=theme==='dark'?'rgb(0, 0, 0)':'rgb(255, 255, 255)';
+          const activated=checks?.ready===true && checks.tabsOutside===true && checks.cleared===true && new Set(checks.results.map(r=>r.id)).size===11 && checks.results.every(r=>r.footerBg===expectedBg && r.original && r.supplement && r.particles>0 && r.frameOk && r.flush && r.artworkOnly && r.headerSafe && r.footerSafe && r.logoOk && !r.overflow);
+          scenarioResults.push({theme,width,route,scenario:'seasonal-all-previews',activated,visiblePanel:activated,...checks});
+          console.log('SEASONAL '+theme+' '+width+' '+JSON.stringify({activated,...checks}));
+          continue;
+        }
         if (defaultLocaleAudit && route === '/login') {
           const initial = await evaluate(`(async () => {
             const wait=async f=>{for(let i=0;i<50;i++){if(f())return true;await new Promise(r=>setTimeout(r,100))}return false};
@@ -522,6 +614,280 @@ try {
             return {started,question,hiddenBefore,ready,closed,opened,bounded,all,type,fit,recollapsed,scrolled,meanings};
           })()`,45000)
           scenarioResults.push({theme,width,route,scenario:'synonym-review-collapse',...check,activated:Object.values(check).every(v=>v===true),visiblePanel:check.fit===true});
+          continue;
+        }
+        if (drawerAudit && route === '/vocabulary') {
+          const check=await evaluate(`(async()=>{
+            const wait=async f=>{for(let i=0;i<100;i++){if(f())return true;await new Promise(r=>setTimeout(r,100))}return false};
+            const form=()=>document.querySelector('form[id^="vocabulary-form-"]');
+            const drawer=()=>document.querySelector('[data-word-drawer]');
+            const field=()=>drawer()?.querySelector('[data-drawer-word]');
+            const confirm=()=>drawer()?.querySelector('[data-drawer-confirm]');
+            const word=()=>form()?.querySelector('input[required]');
+            const set=(el,value)=>{el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}))};
+            const open=async()=>{form()?.querySelector('button[title="Open Word Drawing"]')?.click();return wait(()=>drawer()?.querySelector('canvas')?.getContext('2d'))};
+            if(!await wait(()=>document.querySelector('button.add-button')))return {ready:false};
+            document.querySelector('button.add-button').click();
+            const ready=await wait(()=>form());
+            if(!ready)return {ready};
+            set(word(),'original');
+            const opened=await open();
+            if(!opened)return {ready,opened};
+            const canvas=drawer().querySelector('canvas');await new Promise(r=>setTimeout(r,300));
+            const initiallyDisabled=confirm().disabled;
+            const rect=canvas.getBoundingClientRect(),x=rect.left+rect.width/3,y=rect.top+rect.height/3;
+            for(const [type,xx,yy] of [['pointerdown',x,y],['pointermove',x+30,y+30],['pointerup',x+30,y+30]])canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:1,pointerType:'mouse',isPrimary:true,button:0,buttons:type==='pointerup'?0:1,clientX:xx,clientY:yy}));
+            const enabled=await wait(()=>!confirm()?.disabled);
+            const staleCleared=field().value==='';
+            const ctx=canvas.getContext('2d');
+            const alphaCount=()=>{const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;let n=0;for(let i=3;i<pixels.length;i+=4)if(pixels[i]>8)n++;return n};
+            const trace=()=>{for(const [type,xx,yy] of [['pointerdown',x,y],['pointermove',x+30,y+30],['pointerup',x+30,y+30]])canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:1,pointerType:'mouse',isPrimary:true,button:0,buttons:type==='pointerup'?0:1,clientX:xx,clientY:yy}))};
+            const tool=name=>drawer().querySelector('[data-drawer-tool="'+name+'"]');
+            const background=name=>drawer().querySelector('[data-drawer-background="'+name+'"]');
+            const action=name=>[...drawer().querySelectorAll('button')].find(b=>b.textContent.trim()===name);
+            const size=drawer().querySelector('input[type="range"]');
+            const previewPixel=async()=>{
+              const img=drawer().querySelector('img[src^="data:image/png"]');
+              if(!img)return null;
+              await img.decode();const copy=document.createElement('canvas');copy.width=img.naturalWidth;copy.height=img.naturalHeight;
+              const c=copy.getContext('2d');c.drawImage(img,0,0);
+              return Array.from(c.getImageData(0,0,1,1).data).join(',');
+            };
+            const inkBefore=alphaCount();
+            const dark=document.documentElement.classList.contains('dark');
+            const backgroundPixel=dark?'0,0,0,255':'255,255,255,255';
+            const canvasColor=dark?'rgb(0, 0, 0)':'rgb(255, 255, 255)';
+            const themePreview=await previewPixel()===backgroundPixel;
+            const inkPixel=()=>Array.from(ctx.getImageData(Math.round((x-rect.left)*canvas.width/rect.width),Math.round((y-rect.top)*canvas.height/rect.height),1,1).data);
+            const defaultInkCorrect=inkPixel().slice(0,3).every(v=>v===(dark?255:0));
+            const colors=await import('/src/components/common/composables/word-drawing/manager-state/drawingColors.ts');
+            const palette=[...drawer().querySelectorAll('[data-drawer-color]')].map(b=>b.title);
+            const paletteContrast=palette.length>=7&&palette.every(c=>colors.drawingContrast(c,dark)>=4.5);
+            const ocr=await import('/src/components/common/composables/word-drawing/manager-handle/drawingRecognition.ts');
+            const normalized=ocr.prepareDrawing(canvas);
+            const pixels=normalized?.getContext('2d').getImageData(0,0,normalized.width,normalized.height).data;
+            const ocrMask=!!pixels&&pixels.some((v,i)=>i%4===0&&v===0)&&pixels.every((v,i)=>i%4!==3||v===255);
+            const custom=drawer().querySelector('[data-drawer-custom-color]');
+            custom.value=dark?'#000000':'#ffffff';
+            custom.dispatchEvent(new Event('change',{bubbles:true}));await new Promise(r=>setTimeout(r,100));
+            const customContrast=colors.drawingContrast(custom.value,dark)>=4.5;
+            document.documentElement.classList.toggle('dark',!dark);await new Promise(r=>setTimeout(r,150));
+            const liveTheme=getComputedStyle(canvas).backgroundColor===(dark?'rgb(255, 255, 255)':'rgb(0, 0, 0)')&&inkPixel().slice(0,3).every(v=>v===(dark?0:255))&&alphaCount()===inkBefore;
+            document.documentElement.classList.toggle('dark',dark);await new Promise(r=>setTimeout(r,150));
+            set(size,'30');await new Promise(r=>setTimeout(r,100));
+            tool('eraser').click();await new Promise(r=>setTimeout(r,100));
+            trace();await new Promise(r=>setTimeout(r,100));
+            const erasedTheme=inkBefore>0&&alphaCount()===0&&confirm().disabled&&getComputedStyle(canvas).backgroundColor===canvasColor;
+            action('Undo').click();await new Promise(r=>setTimeout(r,100));
+            const undoErase=alphaCount()===inkBefore&&!confirm().disabled;
+            background('transparent').click();await new Promise(r=>setTimeout(r,100));
+            const transparentPreview=await previewPixel()==='0,0,0,0'&&alphaCount()===inkBefore;
+            action('Redo').click();await new Promise(r=>setTimeout(r,100));
+            const redoErase=alphaCount()===0&&confirm().disabled;
+            tool('brush').click();set(size,'5');await new Promise(r=>setTimeout(r,100));
+            trace();await new Promise(r=>setTimeout(r,100));
+            const brushRestored=alphaCount()>0&&!confirm().disabled;
+            set(size,'30');tool('eraser').click();await new Promise(r=>setTimeout(r,100));
+            trace();await new Promise(r=>setTimeout(r,100));
+            const erasedTransparent=alphaCount()===0&&confirm().disabled&&getComputedStyle(canvas).backgroundColor==='rgba(0, 0, 0, 0)';
+            trace();await new Promise(r=>setTimeout(r,100));
+            const blankUnchanged=alphaCount()===0&&confirm().disabled;
+            background('theme').click();tool('brush').click();set(size,'5');await new Promise(r=>setTimeout(r,100));
+            const pen=(type,xx,yy,id=7,primary=true)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:id,pointerType:'pen',isPrimary:primary,button:0,buttons:type==='pointerup'||type==='pointercancel'?0:1,clientX:xx,clientY:yy}));
+            pen('pointerdown',x,y);
+            pen('pointermove',x+20,y+20);
+            const penInk=alphaCount();
+            pen('pointerdown',x+70,y+10,8,false);
+            pen('pointermove',x+70,y+50,8,false);
+            const secondIgnored=alphaCount()===penInk;
+            pen('pointercancel',x+20,y+20);
+            pen('pointermove',x+70,y+70);
+            await new Promise(r=>setTimeout(r,100));
+            const cancelClean=penInk>0&&alphaCount()===penInk&&!confirm().disabled;
+            const touchAction=getComputedStyle(canvas).touchAction==='none';
+            const latin=await import('/src/components/common/composables/word-drawing/manager-handle/latinRecognition.ts');
+            const selectOption=async(selector,label)=>{
+              const btn=drawer().querySelector(selector+' button');
+              btn.scrollIntoView({block:'center'});btn.click();
+              await wait(()=>[...document.querySelectorAll('[role="option"]')].some(b=>b.textContent.trim()===label));
+              [...document.querySelectorAll('[role="option"]')].find(b=>b.textContent.trim()===label)?.click();
+              await new Promise(r=>setTimeout(r,200));
+            };
+            await selectOption('[data-drawer-language]','English');
+            action('Clear Canvas').click();await new Promise(r=>setTimeout(r,100));
+            const wStroke=[[0,0],[24,65],[48,4],[72,64],[96,0]];
+            const drawLetter=paths=>{
+              const r=canvas.getBoundingClientRect(), scale=Math.min(r.width/160,r.height/100);
+              for(const path of paths){
+                const point=(p,type)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:9,pointerType:'touch',isPrimary:true,button:0,buttons:type==='pointerup'?0:1,clientX:r.left+15+p[0]*scale,clientY:r.top+12+p[1]*scale}));
+                point(path[0],'pointerdown');for(const p of path.slice(1))point(p,'pointermove');point(path[path.length-1],'pointerup');
+              }
+            };
+            drawLetter([wStroke]);await new Promise(r=>setTimeout(r,100));
+            drawer().querySelector('[data-drawer-recognize]').click();
+            const englishW=await wait(()=>field().value==='w');
+            const upper=[...drawer().querySelectorAll('[data-drawer-candidates] button')].find(b=>b.textContent.trim()==='W');
+            upper?.click();await new Promise(r=>setTimeout(r,100));
+            const upperW=field().value==='W';
+            const separateVs=!latin.continuousW([[[0,0],[20,60],[40,0]],[[48,0],[68,60],[88,0]]]);
+            const reversedW=latin.continuousW([[...wStroke].reverse()]);
+            await selectOption('[data-drawer-recognition-unit]','Single character');
+            action('Clear Canvas').click();await new Promise(r=>setTimeout(r,100));
+            drawLetter([[[0,65],[24,0],[48,65]],[[10,39],[38,39]]]);
+            await new Promise(r=>setTimeout(r,150));
+            drawer().querySelector('[data-drawer-recognize]').click();
+            const letterA=await wait(()=>field().value==='A');
+            const letterADebug={value:field().value,options:latin.latinCandidates([[[0,65],[24,0],[48,65]],[[10,39],[38,39]]]),ui:[...drawer().querySelectorAll('[data-drawer-candidates] button')].map(b=>b.textContent.trim())};
+            const alphabetSamples=[['V',[[[0,0],[25,65],[50,0]]]],['M',[[[0,65],[0,0],[30,42],[60,0],[60,65]]]],['B',[[[0,65],[0,0],[35,0],[50,16],[28,33],[0,33],[35,33],[52,49],[35,65],[0,65]]]]];
+            const alphabetMatches=alphabetSamples.every(([letter,paths])=>latin.latinCandidates(paths).slice(0,3).some(c=>c.hanzi===letter));
+            await selectOption('[data-drawer-recognition-unit]','Automatic');
+            await selectOption('[data-drawer-language]','\u4e2d\u6587 (\u7b80\u4f53)');
+            // Clear the initial test stroke; replay a two-character handwriting sample.
+            [...drawer().querySelectorAll('button')].find(b=>b.textContent.trim()==='Clear Canvas')?.click();
+            await new Promise(r=>setTimeout(r,100));
+            const sample=[
+              [[.12,.30],[.12,.49]],[[.12,.30],[.37,.30],[.37,.49]],[[.12,.49],[.37,.49]],[[.245,.17],[.245,.72]],
+              [[.70,.20],[.73,.27]],[[.54,.32],[.89,.32]],[[.79,.32],[.76,.45],[.68,.54],[.55,.68]],[[.59,.32],[.65,.46],[.75,.56],[.90,.68]]
+            ];
+            for(const stroke of sample){
+              const point=(p,type)=>canvas.dispatchEvent(new PointerEvent(type,{bubbles:true,cancelable:true,pointerId:2,pointerType:'touch',isPrimary:true,button:0,buttons:type==='pointerup'?0:1,clientX:rect.left+p[0]*Math.min(rect.width,rect.height*1.7),clientY:rect.top+p[1]*Math.min(rect.height,rect.width/1.7)}));
+              point(stroke[0],'pointerdown');for(const p of stroke.slice(1))point(p,'pointermove');point(stroke[stroke.length-1],'pointerup');
+            }
+            const autoEnabled=await wait(()=>!confirm()?.disabled&&field().value==='');
+            confirm().click();
+            const candidates=await wait(()=>drawer()?.querySelector('[data-hanzi-candidates]'));
+            const groups=[...drawer().querySelectorAll('[data-hanzi-candidates]>div')];
+            const candidateDebug=groups.map(g=>[...g.querySelectorAll("button")].map(b=>b.textContent.trim().codePointAt(0).toString(16)));
+            const hasChinese=groups.length===2&&groups[0].innerText.includes('\u4e2d')&&groups[1].innerText.includes('\u6587');
+            const first=groups[0]&&[...groups[0].querySelectorAll('button')].find(b=>b.textContent.trim()==='\u4e2d');
+            const second=groups[1]&&[...groups[1].querySelectorAll('button')].find(b=>b.textContent.trim()==='\u6587');
+            first?.click();second?.click();
+            const recognized=field().value==='\u4e2d\u6587';
+            if(!recognized)set(field(),'\u4e2d\u6587');
+            const image=canvas.toDataURL();
+            drawer().querySelector('[data-drawer-mode="keyboard"]').click();await new Promise(r=>setTimeout(r,100));
+            drawer().querySelector('[data-drawer-mode="draw"]').click();await new Promise(r=>setTimeout(r,100));
+            const preserved=canvas.toDataURL()===image&&field().value==='\u4e2d\u6587';
+            confirm().click();const applied=await wait(()=>!drawer()&&word().value==='\u4e2d\u6587');
+            await new Promise(r=>setTimeout(r,350)); const reopened=await open();
+            if(!reopened)return {ready,opened,initiallyDisabled,enabled,staleCleared,preserved,applied,reopened};
+            drawer().querySelector('[data-drawer-mode="keyboard"]').click();await new Promise(r=>setTimeout(r,150));
+            set(field(),'\u5b66\u4e60');await new Promise(r=>setTimeout(r,250));
+            confirm().click();
+            const keyboard=await wait(()=>!drawer()&&word().value==='\u5b66\u4e60');
+            return {ready,opened,initiallyDisabled,enabled,staleCleared,preserved,applied,reopened,keyboard,englishW,upperW,separateVs,reversedW,letterA,alphabetMatches,...(!letterA?{letterADebug}:{}),secondIgnored,cancelClean,touchAction,themePreview,defaultInkCorrect,paletteContrast,ocrMask,customContrast,liveTheme,erasedTheme,undoErase,transparentPreview,redoErase,brushRestored,erasedTransparent,blankUnchanged,autoEnabled,candidates,hasChinese,recognized,...(!hasChinese?{candidateDebug}:{}),canvasSized:canvas.width>100&&canvas.height>100};
+          })()`,45000)
+          // Browser-dispatched touch events exercise native pointer capture, not only synthetic DOM handlers.
+          const touchRect=await evaluate(`(async()=>{
+            const form=document.querySelector('form[id^="vocabulary-form-"]');
+            form?.querySelector('button[title="Open Word Drawing"]')?.click();
+            await new Promise(r=>setTimeout(r,450));
+            const canvas=document.querySelector('[data-word-drawer] canvas');
+            if(!canvas)return null;
+            canvas.scrollIntoView({block:'center'});await new Promise(r=>setTimeout(r,150));
+            const r=canvas.getBoundingClientRect();
+            const x=Math.round(r.left+r.width*.4),y=Math.round(r.top+r.height*.4);
+            window.__drawerTouchCheck={capture:false,touch:false};
+            canvas.addEventListener('pointerdown',e=>{if(e.pointerType==='touch')window.__drawerTouchCheck.touch=true});
+            canvas.addEventListener('gotpointercapture',()=>{window.__drawerTouchCheck.capture=true});
+            return {x,y,scrollY:scrollY};
+          })()`);
+          if(touchRect){
+            await send('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:2});
+            try{
+              const {x,y}=touchRect;
+              await send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:0}]});
+              await send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+25,y:y+25,id:0}]});
+              await send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+              await pause(180);
+              const touch=await evaluate(`(()=>{
+                const canvas=document.querySelector('[data-word-drawer] canvas');
+                const button=document.querySelector('[data-drawer-confirm]');
+                const data=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+                let ink=false;for(let i=3;i<data.length;i+=4)if(data[i]>8){ink=true;break}
+                return {nativeTouch:window.__drawerTouchCheck.touch&&ink&&!button.disabled,nativeCapture:window.__drawerTouchCheck.capture,scrollStable:scrollY===${touchRect.scrollY}};
+              })()`);
+              Object.assign(check,touch);
+            }finally{await send('Emulation.setTouchEmulationEnabled',{enabled:false});}
+          }else Object.assign(check,{nativeTouch:false,nativeCapture:false,scrollStable:false});
+          if(touchRect){
+            const pad=await evaluate(`(async()=>{
+              const d=document.querySelector('[data-word-drawer]');
+              [...d.querySelectorAll('button')].find(b=>b.textContent.trim()==='Clear Canvas')?.click();
+              d.querySelector('[data-drawer-touchpad]').click();
+              await new Promise(r=>setTimeout(r,150));
+              const c=d.querySelector('canvas');c.scrollIntoView({block:'center'});
+              await new Promise(r=>setTimeout(r,150));
+              const r=c.getBoundingClientRect();
+              window.__padInk=()=>{const p=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let n=0;for(let i=3;i<p.length;i+=4)if(p[i]>8)n++;return n};
+              return {x:Math.round(r.left+r.width*.35),y:Math.round(r.top+r.height*.35)};
+            })()`);
+            const move=(x,y)=>send('Input.dispatchMouseEvent',{type:'mouseMoved',x,y,button:'none',buttons:0});
+            const space=async()=>{await send('Input.dispatchKeyEvent',{type:'keyDown',code:'Space',key:' ',windowsVirtualKeyCode:32});await send('Input.dispatchKeyEvent',{type:'keyUp',code:'Space',key:' ',windowsVirtualKeyCode:32});};
+            await move(pad.x,pad.y);
+            await move(pad.x+5,pad.y+5);
+            const paused=await evaluate('window.__padInk()===0');
+            await space();
+            await move(pad.x+8,pad.y+8);
+            await move(pad.x+35,pad.y+30);
+            await space();
+            await pause(100);
+            const count=await evaluate('window.__padInk()');
+            const padDrawn=count>0&&await evaluate("!document.querySelector('[data-drawer-confirm]').disabled");
+            await move(pad.x+45,pad.y+45);
+            const padPaused=await evaluate('window.__padInk()==='+count);
+            await space();
+            await move(pad.x+50,pad.y+10);
+            await move(pad.x+70,pad.y+30);
+            await space();
+            const twoStrokes=await evaluate('window.__padInk()>'+count);
+            await evaluate("document.querySelector('[data-drawer-touchpad]').click()");
+            await move(pad.x+20,pad.y+60);
+            const padOff=await evaluate("document.querySelector('[data-drawer-touchpad]').getAttribute('aria-pressed')==='false'");
+            Object.assign(check,{padInitiallyPaused:paused,padDrawn,padPaused,twoStrokes,padOff});
+          }
+          const themeAndIpa=await evaluate(`(async()=>{
+            const wait=async f=>{for(let i=0;i<60;i++){if(f())return true;await new Promise(r=>setTimeout(r,100))}return false};
+            const dark=document.documentElement.classList.contains('dark');
+            const expected=dark?'rgb(0, 0, 0)':'rgb(255, 255, 255)';
+            const drawer=document.querySelector('[data-word-drawer]');
+            const drawerTheme=getComputedStyle(drawer.querySelector('[data-learning-modal-shell]')).backgroundColor===expected;
+            const toolbar=drawer.querySelector('[data-drawer-toolbar]');
+            const canvas=drawer.querySelector('canvas');
+            const toolsAbove=toolbar.getBoundingClientRect().bottom<=canvas.getBoundingClientRect().top+1;
+            const drawerFit=drawer.querySelector('[data-learning-modal-shell]').scrollWidth<=drawer.querySelector('[data-learning-modal-shell]').clientWidth+1;
+            drawer.querySelector('[data-drawer-mode="keyboard"]').click();
+            await new Promise(r=>setTimeout(r,200));
+            const keyboard=drawer.querySelector('.keyboard-container');
+            const keyboardFit=keyboard&&keyboard.scrollWidth<=keyboard.clientWidth+1;
+            [...drawer.querySelectorAll('button')].find(b=>b.textContent.trim()==='Cancel')?.click();
+            await wait(()=>!document.querySelector('[data-word-drawer]'));
+            const form=document.querySelector('form[id^="vocabulary-form-"]');
+            form.querySelector('button[title="Open IPA Pronunciation Builder"]').click();
+            const ipa=()=>document.querySelector('[data-ipa-modal]');
+            const opened=await wait(()=>ipa()?.querySelector('[data-ipa-symbol]'));
+            if(!opened)return {drawerTheme,toolsAbove,drawerFit,keyboardFit,ipaOpened:false};
+            const shell=ipa().querySelector('[data-learning-modal-shell]');
+            const ipaTheme=getComputedStyle(shell).backgroundColor===expected;
+            const fit=shell.scrollWidth<=shell.clientWidth+1;
+            const input=ipa().querySelector('[data-ipa-input]');
+            const scroll=ipa().querySelector('[data-ipa-scroll]');
+            ipa().querySelector('[data-ipa-clear]').click();
+            const symbols=[...ipa().querySelectorAll('[data-ipa-symbol]')];
+            const first=symbols[0].textContent.trim();
+            symbols[0].click();symbols[1].click();await new Promise(r=>setTimeout(r,100));
+            ipa().querySelector('[data-ipa-backspace]').click();await new Promise(r=>setTimeout(r,100));
+            const insert=input.value===first;
+            const top=input.getBoundingClientRect().top;
+            scroll.scrollTop=scroll.scrollHeight;await new Promise(r=>setTimeout(r,100));
+            const fixedInput=input.getBoundingClientRect().top===top;
+            input.value='/test/';input.dispatchEvent(new Event('input',{bubbles:true}));await new Promise(r=>setTimeout(r,100));
+            ipa().querySelector('[data-ipa-confirm]').click();
+            const applied=await wait(()=>!ipa()&&form.querySelectorAll('input[required]')[1].value==='/test/');
+            return {drawerTheme,toolsAbove,drawerFit,keyboardFit,ipaOpened:opened,ipaTheme,ipaFit:fit,ipaInsert:insert,ipaFixed:fixedInput,ipaApplied:applied};
+          })()`,30000);
+          Object.assign(check,themeAndIpa);
+          scenarioResults.push({theme,width,route,scenario:'word-drawer-flow',...check,activated:Object.values(check).every(v=>v===true),visiblePanel:check.opened===true});
           continue;
         }
         if (layoutAudit && route === '/vocabulary') {

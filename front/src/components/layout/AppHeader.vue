@@ -3,7 +3,7 @@
     class="sticky top-0 z-50 bg-white/80 dark:bg-black/90 backdrop-blur-xl border-b border-gray-200 dark:border-white/10 transition-all"
   >
     <div
-      class="mx-auto flex w-full max-w-[1400px] min-w-0 items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-6 lg:gap-8 lg:px-8"
+      class="seasonal-header-inner mx-auto flex w-full max-w-[1400px] min-w-0 items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-6 lg:gap-8 lg:px-8"
     >
       <AppHeaderLogo />
       <AppHeaderDesktopNav />
@@ -30,7 +30,7 @@
     <!-- Scroll Progress Bar -->
     <div class="w-full h-0.5 bg-transparent">
       <div
-        class="h-full bg-gradient-to-r from-primary-500 to-secondary-500 transition-[width] duration-150 ease-out"
+        class="seasonal-progress h-full bg-gradient-to-r from-primary-500 to-secondary-500 transition-[width] duration-150 ease-out"
         :style="{ width: scrollProgress + '%' }"
       />
     </div>
@@ -56,7 +56,7 @@
 
 <script setup lang="ts">
 import { resolveAssetUrl } from "@/utils/assetUrl";
-import { ref, onMounted, defineAsyncComponent, computed } from "vue";
+import { ref, onMounted, defineAsyncComponent, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "../../stores/auth.store";
@@ -211,6 +211,15 @@ function applyTheme(theme: string) {
     // Ignore storage errors
   }
 }
+
+watch(
+  () => authStore.user?.theme,
+  (theme) => {
+    if (theme !== "light" && theme !== "dark") return;
+    isDark.value = theme === "dark";
+    applyTheme(theme);
+  },
+);
 
 const toggleTheme = async () => {
   isDark.value = !isDark.value;

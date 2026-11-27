@@ -1,5 +1,5 @@
 import { profileService } from '../../service/profile.service'
-import type { Ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import type { UserProfile } from '../../interface/profile.interface'
 import { useToast } from '../../../../composables/useToast'
 import { useAuthStore } from '../../../../stores/auth.store'
@@ -16,6 +16,7 @@ export function useProfileHandle(
   const { showSuccess, showError } = useToast()
   const authStore = useAuthStore()
   const { t } = useI18n()
+  const savingSeasonalThemes = ref(false)
 
   const loadProfile = async () => {
     setLoading(true)
@@ -51,6 +52,24 @@ export function useProfileHandle(
 
     setSaving(false)
     return success
+  }
+
+  const handleSeasonalThemes = async (enabled: boolean) => {
+    if (!profile.value || savingSeasonalThemes.value) return
+    savingSeasonalThemes.value = true
+    try {
+      const result = await profileService.updateProfile({ seasonalThemesEnabled: enabled })
+      if (!result.success || result.data?.seasonalThemesEnabled !== enabled) {
+        showError(t('seasonalThemes.saveError'))
+        return
+      }
+
+      setProfile(result.data)
+      authStore.updateUser(result.data)
+      showSuccess(t('seasonalThemes.saved'))
+    } finally {
+      savingSeasonalThemes.value = false
+    }
   }
 
   const handleProfileUpdatedFromWS = (updated: UserProfile) => {
@@ -101,5 +120,7 @@ export function useProfileHandle(
     handleProfileUpdatedFromWS,
     handleExport,
     handleImport,
+    savingSeasonalThemes,
+    handleSeasonalThemes,
   }
 }

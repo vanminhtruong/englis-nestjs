@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-white dark:bg-black">
+  <div data-seasonal-home class="min-h-screen bg-white dark:bg-black">
     <!-- Hero Section -->
     <section
       class="relative min-h-[90dvh] flex items-center justify-center overflow-hidden"
@@ -10,7 +10,7 @@
       ></div>
 
       <!-- Animated Background Elements -->
-      <div class="absolute inset-0 overflow-hidden">
+      <div data-seasonal-ambient class="absolute inset-0 overflow-hidden">
         <div
           class="absolute top-10 left-0 sm:top-20 sm:left-20 w-48 h-48 sm:w-72 sm:h-72 bg-primary-200/20 rounded-full blur-3xl animate-pulse"
         ></div>
@@ -325,7 +325,7 @@
     </section>
 
     <!-- Stats Section -->
-    <section
+    <section data-seasonal-home-stats
       class="py-12 sm:py-20 bg-gradient-to-br from-gray-900 to-black dark:from-black dark:to-black text-white"
     >
       <div class="max-w-[1400px] mx-auto px-4 sm:px-8">

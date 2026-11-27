@@ -33,7 +33,7 @@
 
     <Teleport to="body">
       <Transition enter-active-class="transition-opacity duration-150" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition-opacity duration-100" leave-from-class="opacity-100" leave-to-class="opacity-0">
-        <div v-if="open" ref="panel" :style="position" class="fixed z-[100000] flex flex-col overflow-hidden rounded-xl border border-black/10 bg-white p-1.5 shadow-2xl shadow-black/10 dark:border-white/15 dark:shadow-black/50" :class="accent === 'emerald' ? 'dark:bg-neutral-800' : 'dark:bg-black'">
+        <div v-if="open" ref="panel" data-seasonal-dropdown :style="position" class="fixed z-[100000] flex flex-col overflow-hidden rounded-xl border border-black/10 bg-white p-1.5 shadow-2xl shadow-black/10 dark:border-white/15 dark:shadow-black/50" :class="accent === 'emerald' ? 'dark:bg-neutral-800' : 'dark:bg-black'">
           <div v-if="searchable" class="shrink-0 space-y-1.5 px-1 pb-1.5 pt-1">
             <div class="flex min-h-10 min-w-0 items-center gap-2 rounded-lg border border-black/10 px-2.5 focus-within:border-primary-500 dark:border-white/10">
               <svg class="h-4 w-4 shrink-0 text-black/40 dark:text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 4 4"/></svg>

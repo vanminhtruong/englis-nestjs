@@ -1,0 +1,1 @@
+﻿Unmodified upstream distribution: https://github.com/gugray/hanzi_lookup/tree/01f90c3ab99a8fadf0696c28e5eb097223c500db ; LGPL-3.0, stroke data Arphic Public License. The standalone worker can be replaced independently.

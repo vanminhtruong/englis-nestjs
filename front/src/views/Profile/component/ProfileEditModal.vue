@@ -8,11 +8,11 @@
         <Transition name="modal-scale" appear>
           <div
             v-if="show"
-            class="bg-white/90 dark:bg-zinc-900/95 rounded-3xl shadow-2xl max-w-xl w-full max-h-[92dvh] flex flex-col backdrop-blur-xl border border-white/20 dark:border-white/10 overflow-hidden transform"
+            data-seasonal-dialog class="bg-white/90 dark:bg-zinc-900/95 rounded-3xl shadow-2xl max-w-xl w-full max-h-[92dvh] flex flex-col backdrop-blur-xl border border-white/20 dark:border-white/10 overflow-hidden transform"
           >
             <!-- Header -->
             <div
-              class="p-4 sm:p-6 border-b border-black/5 dark:border-white/10 flex items-center justify-between flex-shrink-0 bg-white/50 dark:bg-black/20"
+              data-seasonal-dialog-header class="p-4 sm:p-6 border-b border-black/5 dark:border-white/10 flex items-center justify-between flex-shrink-0 bg-white/50 dark:bg-black/20"
             >
               <h2
                 class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent dark:from-primary-400 dark:to-purple-400"
@@ -43,7 +43,7 @@
 
             <div class="px-4 sm:px-6 pt-3 pb-3 border-b border-gray-100 dark:border-white/10 shrink-0">
               <div class="grid grid-cols-2 gap-1 p-1 rounded-2xl bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-white/10" role="group">
-                <button v-for="tab in tabs" :key="tab.key" type="button" :aria-pressed="activeTab === tab.key" :disabled="saving || passwordSaving" @click="activeTab = tab.key" class="min-w-0 min-h-11 px-2 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-60" :class="activeTab === tab.key ? 'bg-white dark:bg-white/10 text-primary-600 dark:text-primary-400 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'">
+                <button v-for="tab in tabs" :key="tab.key" type="button" :aria-pressed="activeTab === tab.key" :disabled="saving || passwordSaving" @click="activeTab = tab.key" class="app-choice-tab min-w-0 min-h-11 px-2 sm:px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-60" :class="activeTab === tab.key ? 'bg-white dark:bg-white/10 text-primary-600 dark:text-primary-400 shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'">
                   <svg v-if="tab.key === 'profile'" class="shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>
                   <svg v-else class="shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                   <span class="break-words">{{ t(tab.label) }}</span>

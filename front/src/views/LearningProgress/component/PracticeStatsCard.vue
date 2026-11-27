@@ -1,5 +1,5 @@
 <template>
-  <div class="practice-stats-card">
+  <div class="practice-stats-card" data-seasonal-card>
     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
       {{ t("learningProgress.practice.title") }}
     </h3>

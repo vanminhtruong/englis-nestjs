@@ -1,5 +1,7 @@
 import type { Cell, CellValue, Worksheet } from 'exceljs';
+import type { HistoryAction } from '../../entities/history.entity';
 import {
+  SnapshotActivity,
   SnapshotCategory,
   SnapshotTab,
   UserDataSnapshot,
@@ -17,6 +19,8 @@ import {
 const SHEETS = {
   vocabularies: 'Vocabularies',
   history: 'Practice History',
+  activity: 'Activity History',
+  preferences: 'Preferences',
   categories: 'Categories',
   categoryWords: 'Category Words',
   tags: 'Tags',
@@ -91,6 +95,8 @@ export async function snapshotToXlsxBuffer(snapshot: UserDataSnapshot): Promise<
       { header: 'Synonyms', key: 'synonyms', width: 45 },
       { header: 'Selected Synonym', key: 'selectedSynonym', width: 24 },
       { header: 'Entry Key', key: 'entryKey', width: 38 },
+      { header: 'Card Background', key: 'backgroundUrl', width: 45 },
+      { header: 'Animated Background', key: 'animatedBackground', width: 30 },
     ],
     snapshot.vocabularies.map((v) => ({
       word: v.word,
@@ -106,6 +112,8 @@ export async function snapshotToXlsxBuffer(snapshot: UserDataSnapshot): Promise<
       image: cap(v.image) || '',
       video: cap(v.video) || '',
       audio: cap(v.audio) || '',
+      backgroundUrl: cap(v.backgroundUrl) || '',
+      animatedBackground: cap(v.animatedBackground) || '',
       difficulty: v.difficulty,
       masteryLevel: v.masteryLevel,
       correctCount: v.correctCount,
@@ -277,6 +285,34 @@ export async function snapshotToXlsxBuffer(snapshot: UserDataSnapshot): Promise<
     })),
   );
 
+  addSheet(
+    SHEETS.activity,
+    [
+      { header: 'Action', key: 'action', width: 28 },
+      { header: 'Word', key: 'word', width: 24 },
+      { header: 'Description', key: 'description', width: 36 },
+      { header: 'Metadata', key: 'metadata', width: 48 },
+      { header: 'Date', key: 'createdAt', width: 26 },
+      { header: 'Entry Key', key: 'entryKey', width: 38 },
+    ],
+    snapshot.activities.map((entry) => ({
+      ...entry,
+      metadata: cap(entry.metadata ? JSON.stringify(entry.metadata) : ''),
+    })),
+  );
+  if (snapshot.preferences) {
+    addSheet(
+      SHEETS.preferences,
+      [
+        { header: 'Theme', key: 'theme', width: 14 },
+        { header: 'Vocabulary Layout', key: 'vocabularyLayout', width: 20 },
+        { header: 'Preferred Voice', key: 'preferredVoiceKey', width: 38 },
+        { header: 'Seasonal Themes', key: 'seasonalThemesEnabled', width: 18 },
+      ],
+      [{ ...snapshot.preferences }],
+    );
+  }
+
   return (await workbook.xlsx.writeBuffer()) as unknown as Buffer;
 }
 
@@ -302,6 +338,7 @@ interface Row {
   /** True when the sheet has a column with this header. */
   has(header: string): boolean;
   text(header: string, fallbackColumn?: number): string;
+  plain(header: string, fallbackColumn?: number): string;
   /** Date cells come back as ISO text; empty cells as null. */
   date(header: string, fallbackColumn?: number): string | null;
   yes(header: string, fallbackColumn?: number): boolean;
@@ -329,7 +366,8 @@ function readRows(sheet: Worksheet | undefined): Row[] {
     const text = (header: string, fallback?: number) => cellText(raw(header, fallback)).trim();
     rows.push({
       has: (header) => headers.has(header.toLowerCase()),
-      text: (header, fallback) => cellText(raw(header, fallback)).trim(),
+      text,
+      plain: (header, fallback) => cellText(raw(header, fallback)),
       date: (header, fallback) => {
         const value = raw(header, fallback);
         if (value === null || value === undefined || value === '') return null;
@@ -382,6 +420,8 @@ export async function xlsxBufferToSnapshot(buffer: Buffer): Promise<UserDataSnap
       image: orNull(row.text('Image', 7)),
       video: orNull(row.text('Video', 8)),
       audio: orNull(row.text('Audio', 9)),
+      backgroundUrl: row.has('Card Background') ? orNull(row.text('Card Background')) : undefined,
+      animatedBackground: row.has('Animated Background') ? orNull(row.text('Animated Background')) : undefined,
       difficulty: row.text('Difficulty', 10).toLowerCase() || 'easy',
       masteryLevel: row.text('Mastery Level', 11).toLowerCase() || 'new',
       correctCount: row.int('Correct Count', 12),
@@ -405,11 +445,36 @@ export async function xlsxBufferToSnapshot(buffer: Buffer): Promise<UserDataSnap
       entryKey: row.text('Entry Key') || undefined,
       practiceType: row.text('Type', 2) || 'flashcard',
       isCorrect: row.yes('Is Correct', 3),
-      userAnswer: row.text('User Answer', 4),
+      userAnswer: row.plain('User Answer', 4),
       score: row.int('Score', 5),
       timeSpent: row.int('Time Spent (s)', 6),
       createdAt: row.date('Date', 7) ?? new Date().toISOString(),
     });
+  }
+
+  for (const row of readRows(workbook.getWorksheet(SHEETS.activity))) {
+    const action = row.text('Action');
+    const createdAt = row.date('Date');
+    if (!action || !createdAt) continue;
+    snapshot.activities.push({
+      action: action as HistoryAction,
+      createdAt,
+      word: row.text('Word') || undefined,
+      entryKey: row.text('Entry Key') || undefined,
+      description: orNull(row.plain('Description')),
+      metadata: JSON.parse(row.text('Metadata') || 'null') as SnapshotActivity['metadata'],
+    });
+  }
+
+  const [preferences] = readRows(workbook.getWorksheet(SHEETS.preferences));
+  if (preferences) {
+    const layout = preferences.text('Vocabulary Layout');
+    snapshot.preferences = {
+      theme: preferences.text('Theme'),
+      vocabularyLayout: layout === 'grid' || layout === 'list' ? layout : undefined,
+      preferredVoiceKey: preferences.has('Preferred Voice') ? orNull(preferences.text('Preferred Voice')) : undefined,
+      seasonalThemesEnabled: preferences.text('Seasonal Themes') ? preferences.yes('Seasonal Themes') : undefined,
+    };
   }
 
   const categories = new Map<string, SnapshotCategory>();

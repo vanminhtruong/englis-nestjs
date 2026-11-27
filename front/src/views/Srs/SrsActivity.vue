@@ -56,7 +56,7 @@
           role="tab"
           :aria-selected="view === tab.id"
           :aria-controls="'srs-activity-panel-' + tab.id"
-          class="flex min-w-0 items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-xs font-bold leading-snug transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-500 sm:gap-2 sm:px-3 sm:text-sm"
+          class="app-choice-tab flex min-w-0 items-center justify-center gap-1.5 rounded-xl px-2 py-2.5 text-xs font-bold leading-snug transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-500 sm:gap-2 sm:px-3 sm:text-sm"
           :class="
             view === tab.id
               ? 'bg-white text-primary-700 shadow-sm dark:bg-black dark:text-white'
@@ -64,6 +64,7 @@
           "
           @click="view = tab.id"
         >
+          <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><template v-if="tab.id === 'upcoming'"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4m10-4v4M3 10h18m-9 3v4m-2-2h4"/></template><template v-else><path d="M3 12a9 9 0 1 1 3 6.7M3 5v7h7m2-5v5l3 2"/></template></svg>
           <span class="min-w-0 break-words text-center">{{ t(tab.title) }}</span>
           <span
             class="shrink-0 rounded-full px-2 py-0.5 text-[11px] tabular-nums"

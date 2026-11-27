@@ -4,7 +4,7 @@
     class="fixed inset-0 z-40 flex items-center justify-center bg-black/40 p-3 dark:bg-black/60 sm:p-4"
   >
     <div
-      class="bg-white dark:bg-black rounded-2xl shadow-xl border border-black/10 dark:border-white/10 w-full max-w-md max-h-[calc(100dvh-1.5rem)] overflow-y-auto p-4 sm:p-6 scrollbar-custom"
+      data-seasonal-dialog class="bg-white dark:bg-black rounded-2xl shadow-xl border border-black/10 dark:border-white/10 w-full max-w-md max-h-[calc(100dvh-1.5rem)] overflow-y-auto p-4 sm:p-6 scrollbar-custom"
     >
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-xl font-semibold text-black dark:text-white">

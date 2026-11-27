@@ -1,234 +1,52 @@
 <template>
   <Teleport to="body">
-    <Transition
-      enter-active-class="transition-opacity duration-200"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="transition-opacity duration-200"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="visible"
-        class="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-1.5 sm:p-4"
-      >
-        <div class="w-full h-[96dvh] sm:h-[90dvh] max-w-5xl bg-white dark:bg-neutral-900 rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-          <!-- Header -->
-          <div class="flex items-center justify-between px-6 py-4 border-b border-black/5 dark:border-white/10 flex-shrink-0">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 text-white flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                  <line x1="12" y1="19" x2="12" y2="23" />
-                  <line x1="8" y1="23" x2="16" y2="23" />
-                </svg>
+    <Transition enter-active-class="transition-opacity duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100" leave-active-class="transition-opacity duration-150" leave-from-class="opacity-100" leave-to-class="opacity-0">
+      <div v-if="visible" data-ipa-modal class="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 p-2 backdrop-blur-sm sm:p-4">
+        <div role="dialog" aria-modal="true" :aria-label="t('vocabulary.ipaBuilder')" data-learning-modal-shell class="flex h-[94dvh] max-h-[calc(100dvh-1rem)] w-full min-w-0 max-w-4xl flex-col overflow-hidden rounded-2xl border border-black/10 bg-white shadow-2xl dark:border-white/10 dark:bg-black sm:h-[88dvh] sm:rounded-3xl">
+          <header class="flex shrink-0 items-center gap-3 border-b border-black/10 p-3 dark:border-white/10 sm:px-6 sm:py-4">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/></svg>
+            </div>
+            <div class="min-w-0 flex-1">
+              <h2 class="text-base font-bold leading-tight text-black dark:text-white sm:text-xl">{{ t('vocabulary.ipaBuilder') }}</h2>
+              <p class="mt-1 text-xs text-black/50 dark:text-white/50">{{ t('vocabulary.buildPronunciation') }}</p>
+            </div>
+            <button type="button" :aria-label="t('vocabulary.cancel')" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-black/50 transition hover:bg-black/5 dark:text-white/50 dark:hover:bg-white/10" @click.stop="close">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"/></svg>
+            </button>
+          </header>
+          <div class="shrink-0 border-b border-black/10 px-3 py-3 dark:border-white/10 sm:px-6">
+            <div class="rounded-2xl border border-primary-500/20 bg-gradient-to-br from-primary-50 to-secondary-50 p-3 dark:from-primary-500/10 dark:to-secondary-500/5 sm:p-4">
+              <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+                <label for="ipa-builder-input" class="text-xs font-semibold text-primary-700 dark:text-primary-300">{{ t('vocabulary.preview') }} · {{ t('vocabulary.manualInput') }}</label>
+                <button type="button" :disabled="!currentPronunciation || isPlaying" @click="playPreview" class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary-500 text-white transition hover:bg-primary-600 disabled:opacity-40" :aria-label="t('vocabulary.preview')">
+                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 5 6 9H3v6h3l5 4V5Zm4 3a5 5 0 0 1 0 8m3-11a9 9 0 0 1 0 14"/></svg>
+                </button>
               </div>
-              <div>
-                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ t('vocabulary.ipaBuilder') }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('vocabulary.buildPronunciation') }}</p>
+              <input id="ipa-builder-input" data-ipa-input v-model="currentPronunciation" type="text" autocomplete="off" spellcheck="false" placeholder="/.../" class="w-full min-w-0 rounded-xl border border-black/10 bg-white px-3 py-2.5 font-mono text-xl font-semibold text-black outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 dark:border-white/10 dark:bg-black dark:text-white sm:text-3xl"/>
+              <div class="mt-2 flex flex-wrap items-center gap-2">
+                <button type="button" data-ipa-backspace :disabled="!currentPronunciation" @click="removeLastSymbol" class="inline-flex min-h-[36px] items-center gap-1.5 rounded-lg border border-black/10 bg-white px-3 py-1.5 text-xs font-semibold text-black/70 hover:border-primary-500 disabled:opacity-40 dark:border-white/10 dark:bg-white/5 dark:text-white/80"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 5H9l-7 7 7 7h12zM12 9l6 6m0-6-6 6"/></svg>{{ t('vocabulary.backspace') }}</button>
+                <button type="button" data-ipa-clear :disabled="!currentPronunciation" @click="clearPronunciation" class="inline-flex min-h-[36px] items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-black/60 hover:bg-black/5 disabled:opacity-40 dark:text-white/60 dark:hover:bg-white/10">{{ t('vocabulary.clear') }}</button>
               </div>
             </div>
-            <button
-              class="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white flex items-center justify-center hover:bg-gray-200 dark:hover:bg-white/20"
-              @click.stop="close"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
           </div>
-
-          <!-- Preview Section (Fixed) -->
-          <div class="px-6 py-4 border-b border-black/5 dark:border-white/10 flex-shrink-0 bg-gradient-to-br from-primary-50 to-secondary-50 dark:from-primary-900/20 dark:to-secondary-900/20">
-            <p class="text-xs font-semibold text-primary-600 dark:text-primary-300 mb-2 uppercase tracking-wide">
-              {{ t('vocabulary.preview') }}
-            </p>
-            <div class="flex items-center gap-3">
-              <div class="text-3xl font-bold text-gray-900 dark:text-white font-mono tracking-wider">
-                {{ currentPronunciation || '/' }}
-              </div>
-              <button
-                v-if="currentPronunciation"
-                @click="playPreview"
-                class="p-2 rounded-lg bg-primary-500 text-white hover:bg-primary-600 transition-all"
-                :disabled="isPlaying"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                  <polygon points="5 3 19 12 5 21 5 3" />
-                </svg>
-              </button>
+          <div data-ipa-scroll class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 scrollbar-custom sm:p-6">
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-2 sm:gap-4">
+              <section v-for="group in symbolGroups" :key="group.key" :class="group.key==='otherSymbols'?'md:col-span-2':''" class="min-w-0 rounded-2xl border border-black/10 bg-black/[0.02] p-3 dark:border-white/10 dark:bg-white/[0.035] sm:p-4">
+                <div class="mb-3 flex items-center justify-between gap-2">
+                  <h3 class="flex min-w-0 items-center gap-2 text-sm font-semibold text-black dark:text-white"><span class="h-2 w-2 shrink-0 rounded-full bg-primary-500"></span>{{ t('vocabulary.'+group.key) }}</h3>
+                  <span class="rounded-md bg-black/5 px-2 py-0.5 text-xs tabular-nums text-black/50 dark:bg-white/10 dark:text-white/50">{{ group.symbols.length }}</span>
+                </div>
+                <div class="grid grid-cols-4 gap-1.5 xs:grid-cols-5 sm:grid-cols-6 sm:gap-2">
+                  <button v-for="(symbol,index) in group.symbols" :key="index" type="button" data-ipa-symbol @click="addSymbol(symbol)" class="min-h-[44px] min-w-0 rounded-xl border border-black/10 bg-white px-1 py-2 text-center font-mono text-lg font-medium text-black transition hover:border-primary-400 hover:bg-primary-50 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:border-primary-400/60 dark:hover:bg-primary-500/10 sm:text-xl">{{ symbol }}</button>
+                </div>
+              </section>
             </div>
           </div>
-
-          <!-- Content with Scrollable IPA Symbols -->
-          <div class="flex-1 overflow-y-auto p-6 scrollbar-custom">
-            <!-- Grid Layout for IPA Categories -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-              <!-- IPA Consonants -->
-              <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg border border-gray-200 dark:border-white/10">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-primary-500"></span>
-                  {{ t('vocabulary.consonants') }}
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                  <button
-                    v-for="consonant in consonants"
-                    :key="consonant"
-                    @click="addSymbol(consonant)"
-                    :class="[
-                      'px-3 py-2 rounded-lg text-sm font-medium transition-all border',
-                      currentPronunciation.includes(consonant)
-                        ? 'bg-primary-500 text-white border-primary-600 dark:border-primary-400'
-                        : 'bg-white dark:bg-white/5 text-gray-900 dark:text-white border-gray-200 dark:border-white/10 hover:border-primary-500 dark:hover:border-primary-400'
-                    ]"
-                  >
-                    {{ consonant }}
-                  </button>
-                </div>
-              </div>
-
-              <!-- IPA Vowels -->
-              <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg border border-gray-200 dark:border-white/10">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-secondary-500"></span>
-                  {{ t('vocabulary.vowels') }}
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                  <button
-                    v-for="vowel in vowels"
-                    :key="vowel"
-                    @click="addSymbol(vowel)"
-                    :class="[
-                      'px-3 py-2 rounded-lg text-sm font-medium transition-all border',
-                      currentPronunciation.includes(vowel)
-                        ? 'bg-secondary-500 text-white border-secondary-600 dark:border-secondary-400'
-                        : 'bg-white dark:bg-white/5 text-gray-900 dark:text-white border-gray-200 dark:border-white/10 hover:border-secondary-500 dark:hover:border-secondary-400'
-                    ]"
-                  >
-                    {{ vowel }}
-                  </button>
-                </div>
-              </div>
-
-              <!-- Diacritics -->
-              <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg border border-gray-200 dark:border-white/10">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                  {{ t('vocabulary.diacritics') }}
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                  <button
-                    v-for="diacritic in diacritics"
-                    :key="diacritic"
-                    @click="addSymbol(diacritic)"
-                    :class="[
-                      'px-3 py-2 rounded-lg text-sm font-medium transition-all border',
-                      currentPronunciation.includes(diacritic)
-                        ? 'bg-amber-500 text-white border-amber-600 dark:border-amber-400'
-                        : 'bg-white dark:bg-white/5 text-gray-900 dark:text-white border-gray-200 dark:border-white/10 hover:border-amber-500 dark:hover:border-amber-400'
-                    ]"
-                  >
-                    {{ diacritic }}
-                  </button>
-                </div>
-              </div>
-
-              <!-- Stress Marks -->
-              <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg border border-gray-200 dark:border-white/10">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-                  {{ t('vocabulary.stressMarks') }}
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                  <button
-                    v-for="stress in stressMarks"
-                    :key="stress"
-                    @click="addSymbol(stress)"
-                    :class="[
-                      'px-3 py-2 rounded-lg text-sm font-medium transition-all border',
-                      currentPronunciation.includes(stress)
-                        ? 'bg-rose-500 text-white border-rose-600 dark:border-rose-400'
-                        : 'bg-white dark:bg-white/5 text-gray-900 dark:text-white border-gray-200 dark:border-white/10 hover:border-rose-500 dark:hover:border-rose-400'
-                    ]"
-                  >
-                    {{ stress }}
-                  </button>
-                </div>
-              </div>
-
-              <!-- Other Symbols -->
-              <div class="bg-white dark:bg-neutral-900 p-4 rounded-lg border border-gray-200 dark:border-white/10">
-                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
-                  {{ t('vocabulary.otherSymbols') }}
-                </h3>
-                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                  <button
-                    v-for="symbol in otherSymbols"
-                    :key="symbol"
-                    @click="addSymbol(symbol)"
-                    :class="[
-                      'px-3 py-2 rounded-lg text-sm font-medium transition-all border',
-                      currentPronunciation.includes(symbol)
-                        ? 'bg-cyan-500 text-white border-cyan-600 dark:border-cyan-400'
-                        : 'bg-white dark:bg-white/5 text-gray-900 dark:text-white border-gray-200 dark:border-white/10 hover:border-cyan-500 dark:hover:border-cyan-400'
-                    ]"
-                  >
-                    {{ symbol }}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Manual Input -->
-            <div class="mt-6">
-              <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                {{ t('vocabulary.manualInput') }}
-              </label>
-              <input
-                v-model="currentPronunciation"
-                type="text"
-                class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-primary-500 font-mono text-lg"
-                :placeholder="`/ˈeksəmpəl/`"
-              />
-            </div>
-          </div>
-
-          <!-- Footer -->
-          <div class="p-6 border-t border-black/5 dark:border-white/10 flex gap-3 flex-shrink-0 bg-gray-50 dark:bg-white/5">
-            <button
-              type="button"
-              @click="clearPronunciation"
-              class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
-            >
-              {{ t('vocabulary.clear') }}
-            </button>
-            <button
-              type="button"
-              @click="removeLastSymbol"
-              class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
-            >
-              {{ t('vocabulary.backspace') }}
-            </button>
-            <div class="flex-1"></div>
-            <button
-              type="button"
-              @click="close"
-              class="px-4 py-2 rounded-lg text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 bg-white dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10 transition-all"
-            >
-              {{ t('vocabulary.cancel') }}
-            </button>
-            <button
-              type="button"
-              @click="confirm"
-              class="px-6 py-2 rounded-lg text-sm font-semibold bg-gradient-to-r from-primary-500 to-secondary-500 text-white hover:shadow-lg hover:shadow-primary-500/30 transition-all"
-            >
-              {{ t('vocabulary.confirm') }}
-            </button>
-          </div>
+          <footer class="grid shrink-0 grid-cols-2 gap-2.5 border-t border-black/10 bg-white p-3 dark:border-white/10 dark:bg-black sm:px-6 sm:py-4">
+            <button type="button" @click="close" class="min-h-11 min-w-0 break-words rounded-xl bg-black/5 px-3 py-2 text-sm font-semibold text-black transition hover:bg-black/10 dark:bg-white/10 dark:text-white dark:hover:bg-white/20">{{ t('vocabulary.cancel') }}</button>
+            <button type="button" data-ipa-confirm @click="confirm" class="min-h-11 min-w-0 break-words rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 px-3 py-2 text-sm font-semibold text-white transition hover:shadow-lg hover:shadow-primary-500/25">{{ t('vocabulary.confirm') }}</button>
+          </footer>
         </div>
       </div>
     </Transition>
@@ -236,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onBeforeUnmount } from 'vue'
+import { ref, watch, onBeforeUnmount } from 'vue'
 import { speakPreferred, stopSpeech } from '../../composables/usePreferredVoice'
 import { useI18n } from 'vue-i18n'
 
@@ -280,6 +98,14 @@ const stressMarks = [
 
 const otherSymbols = [
   '/', '.', '-', 'ʰ', 'ʷ', 'ʲ'
+]
+
+const symbolGroups = [
+  { key: 'consonants', symbols: consonants },
+  { key: 'vowels', symbols: vowels },
+  { key: 'diacritics', symbols: diacritics },
+  { key: 'stressMarks', symbols: stressMarks },
+  { key: 'otherSymbols', symbols: otherSymbols },
 ]
 
 watch(

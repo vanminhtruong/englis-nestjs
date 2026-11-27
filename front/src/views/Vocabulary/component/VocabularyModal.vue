@@ -4,7 +4,7 @@
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 backdrop-blur-sm sm:p-4"
   >
     <div
-      class="flex max-h-[calc(100dvh-1rem)] w-full min-w-0 max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl backdrop-blur-lg dark:bg-black sm:max-h-[90dvh] sm:rounded-3xl"
+      data-seasonal-dialog class="flex max-h-[calc(100dvh-1rem)] w-full min-w-0 max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl backdrop-blur-lg dark:bg-black sm:max-h-[90dvh] sm:rounded-3xl"
     >
       <!-- Header - Fixed -->
       <div
@@ -220,6 +220,8 @@
                 <button
                   type="button"
                   @click="activeMediaTab = 'image'"
+                  class="app-choice-tab"
+                  :aria-pressed="activeMediaTab === 'image'"
                   :class="[
                     'min-w-0 break-words rounded-lg px-2 py-2 text-sm font-medium transition-colors',
                     activeMediaTab === 'image'
@@ -227,11 +229,14 @@
                       : 'text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white',
                   ]"
                 >
-                  {{ t("vocabulary.image") }}
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="2"/><path d="m3 18 6-6 4 4 3-3 5 5"/></svg>
+                  <span>{{ t("vocabulary.image") }}</span>
                 </button>
                 <button
                   type="button"
                   @click="activeMediaTab = 'video'"
+                  class="app-choice-tab"
+                  :aria-pressed="activeMediaTab === 'video'"
                   :class="[
                     'min-w-0 break-words rounded-lg px-2 py-2 text-sm font-medium transition-colors',
                     activeMediaTab === 'video'
@@ -239,7 +244,8 @@
                       : 'text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white',
                   ]"
                 >
-                  {{ t("vocabulary.video") }}
+                  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/></svg>
+                  <span>{{ t("vocabulary.video") }}</span>
                 </button>
               </div>
 
@@ -898,10 +904,12 @@ function closeWordDrawingModal() {
 }
 
 function confirmWordDrawing(payload: { imageDataUrl: string; word: string }) {
-  imagePreview.value = payload.imageDataUrl;
-  props.form.image = payload.imageDataUrl;
-  if (payload.word) {
-    props.form.word = payload.word;
+  const word = payload.word.trim();
+  if (!word) return;
+  props.form.word = word;
+  if (payload.imageDataUrl) {
+    imagePreview.value = payload.imageDataUrl;
+    props.form.image = payload.imageDataUrl;
   }
   closeWordDrawingModal();
 }

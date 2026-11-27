@@ -75,7 +75,7 @@ export class DataShareService {
       },
     );
     if (overLimit) throw new BadRequestException('TOO_MUCH_DATA');
-    if (snapshot.vocabularies.length === 0) {
+    if (!snapshot.vocabularies.length && !Object.values(summarizeSnapshot(snapshot)).some(Boolean)) {
       throw new BadRequestException('NO_DATA_TO_SHARE');
     }
     return snapshot;
@@ -234,8 +234,7 @@ export class DataShareService {
       } catch {
         throw new BadRequestException('SHARE_CORRUPTED');
       }
-      // Words, history, categories, tags, topics, tabs and Smart review are
-      // added; nothing the recipient already has is changed or removed.
+      // Apply the additive merge policy for data received from another account.
       const merged = await mergeUserDataSnapshot(manager, userId, payload, 'share');
       await manager
         .getRepository(DataShare)

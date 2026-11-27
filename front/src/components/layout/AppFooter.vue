@@ -1,34 +1,16 @@
 <template>
   <footer
-    class="bg-white dark:bg-gradient-to-br dark:from-black dark:to-black text-gray-600 dark:text-gray-200 mt-auto border-t border-gray-100 dark:border-none"
+    class="bg-white dark:bg-black text-gray-600 dark:text-gray-200 mt-auto border-t border-gray-100 dark:border-none"
   >
+    <slot name="seasonal-decoration" />
     <!-- Main Footer Content -->
     <div
       class="mx-auto grid w-full max-w-[1400px] min-w-0 grid-cols-1 gap-5 sm:gap-8 px-4 py-10 sm:gap-10 sm:px-6 md:grid-cols-2 lg:grid-cols-5 lg:gap-12 lg:px-8 lg:py-16"
     >
       <!-- Brand Section -->
       <div class="lg:col-span-2">
-        <div class="flex items-center gap-3 mb-4">
-          <div
-            class="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center text-white"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-              ></path>
-            </svg>
-          </div>
-          <span class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">{{
-            t("footer.brandTitle")
-          }}</span>
+        <div class="mb-4">
+          <AppHeaderLogo footer />
         </div>
         <p
           class="text-gray-500 dark:text-gray-500 leading-relaxed mb-6 max-w-sm"
@@ -324,7 +306,7 @@
     </div>
 
     <!-- Bottom Bar -->
-    <div class="border-t border-gray-100 dark:border-white/5">
+    <div class="seasonal-footer-bottom border-t border-gray-100 dark:border-white/5">
       <div
         class="max-w-[1400px] mx-auto px-4 py-5 sm:px-6 sm:py-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 text-center md:text-left"
       >
@@ -359,6 +341,7 @@
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { RouterLink } from "vue-router";
+import AppHeaderLogo from "./app-header/AppHeaderLogo.vue";
 
 const email = ref("");
 const currentYear = computed(() => new Date().getFullYear());

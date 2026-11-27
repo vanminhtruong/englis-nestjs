@@ -2,10 +2,11 @@
   <div class="min-w-0 space-y-3">
     <div class="grid grid-cols-2 gap-1 rounded-xl bg-black/5 p-1 dark:bg-white/5">
       <button v-for="mode in modes" :key="mode" type="button"
-        class="min-w-0 rounded-lg px-2 py-2.5 text-sm font-semibold transition-colors"
+        class="app-choice-tab min-w-0 rounded-lg px-2 py-2.5 text-sm font-semibold transition-colors"
         :class="tab === mode ? 'bg-white text-black shadow-sm dark:bg-black dark:text-white' : 'text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white'"
         :aria-pressed="tab === mode" :disabled="busy" @click="tab = mode">
-        {{ t(mode === 'preset' ? 'categories.presetIcons' : 'categories.localIcon') }}
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><template v-if="mode === 'preset'"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></template><template v-else><path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5"/></template></svg>
+        <span>{{ t(mode === 'preset' ? 'categories.presetIcons' : 'categories.localIcon') }}</span>
       </button>
     </div>
     <div v-if="tab === 'preset'" class="space-y-2.5">

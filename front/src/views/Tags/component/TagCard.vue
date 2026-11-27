@@ -1,5 +1,5 @@
 <template>
-  <article data-tag-card :style="style" class="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition-[box-shadow,border-color,transform] hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-lg dark:border-white/10 dark:bg-black dark:hover:border-primary-500/50 motion-reduce:transform-none">
+  <article data-tag-card data-seasonal-card :style="style" class="group flex min-w-0 flex-col overflow-hidden rounded-2xl border border-black/10 bg-white transition-[box-shadow,border-color,transform] hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-lg dark:border-white/10 dark:bg-black dark:hover:border-primary-500/50 motion-reduce:transform-none">
     <div class="tag-card-hero flex min-w-0 items-center justify-between gap-2 border-b border-black/5 p-3.5 dark:border-white/10 sm:p-4">
       <TagBadge :color="tag.color" data-tag-icon />
       <div class="flex shrink-0 items-center gap-1 rounded-xl border border-black/5 bg-white/90 p-1 dark:border-white/10 dark:bg-black/80">

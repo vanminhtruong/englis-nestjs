@@ -116,10 +116,14 @@ try{
     await waitForTabBar()
     await pause(450)
     const before=await evalJs(visibleTabNames)
+    const tabHeights=await evalJs("[...document.querySelectorAll('.vocabulary-tab-main')].map(b=>({name:b.textContent.trim(),height:b.getBoundingClientRect().height, horizontal:getComputedStyle(b).flexDirection==='row'&&Math.abs((b.firstElementChild.getBoundingClientRect().top+b.firstElementChild.getBoundingClientRect().height/2)-(b.lastElementChild.getBoundingClientRect().top+b.lastElementChild.getBoundingClientRect().height/2))<1}))")
+    const heightsEqual=tabHeights.length>=2&&tabHeights.every(b=>Math.abs(b.height-36)<.5&&b.horizontal)
     // Click an ordinary visible tab; there must be no promotion request.
     const normal=await evalJs("(()=>{let b=[...document.querySelectorAll('.vocab-tabs-wrapper button')].find(x=>x.textContent.trim()==='Tab 1');if(!b)return false;b.click();return true})()")
     await pause(260)
     const noReorder=promotions.length===0
+    const heightsAfterSelect=await evalJs("[...document.querySelectorAll('.vocabulary-tab-main')].map(b=>b.getBoundingClientRect().height)")
+    const heightsStable=heightsAfterSelect.length>=2&&heightsAfterSelect.every(h=>Math.abs(h-36)<.5)
     // The menu must keep edit/delete controls visible and inside the screen.
     const opened=await evalJs(`(()=>{const b=document.querySelector('${moreButton}');if(!b)return false;b.click();return true})()`)
     await pause(240)
@@ -157,12 +161,12 @@ try{
     await pause(250)
     const deleteConfirmation=await evalJs("document.body.innerText.includes('Delete tab \"Tab 5\"?')")
     const expected=['Tab 6','Tab 1']
-    const passed=opened&&normal&&noReorder&&clicked&&correctPromotion&&deleteClicked&&deleteConfirmation&&
+    const passed=heightsEqual&&heightsStable&&opened&&normal&&noReorder&&clicked&&correctPromotion&&deleteClicked&&deleteConfirmation&&
       menu?.panelFits&&!menu?.bodyOverflow&&menu?.shown&&
       menu.buttons.every(b=>b&&b.visible&&b.fits&&b.size[0]>=30&&b.size[1]>=30)&&
       JSON.stringify(after.slice(0,2))===JSON.stringify(expected)&&
       JSON.stringify(afterReload.slice(0,2))===JSON.stringify(expected)
-    samples.push({theme,width,passed,before,after,afterReload,menu,promotions:[...promotions]})
+    samples.push({theme,width,passed,tabHeights,heightsAfterSelect,before,after,afterReload,menu,promotions:[...promotions]})
     if(!passed)failures.push(label+' '+JSON.stringify(samples.at(-1)))
     console.log((passed?'PASS ':'FAIL ')+label)
   }

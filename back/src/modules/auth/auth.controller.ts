@@ -91,6 +91,7 @@ export class AuthController {
       totalScore: req.user.totalScore,
       totalWords: req.user.totalWords,
       theme: req.user.theme || 'light',
+      seasonalThemesEnabled: req.user.seasonalThemesEnabled,
       vocabularyLayout: req.user.vocabularyLayout || 'grid',
       preferredVoiceKey: req.user.preferredVoiceKey || null,
       hasPassword: Boolean(req.user.password),

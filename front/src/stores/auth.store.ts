@@ -9,6 +9,7 @@ export interface User {
   totalScore: number
   totalWords: number
   theme?: string
+  seasonalThemesEnabled?: boolean
   vocabularyLayout?: 'grid' | 'list'
   categoriesLayout?: 'grid' | 'list'
   preferredVoiceKey?: string | null

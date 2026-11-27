@@ -21,6 +21,7 @@
     </button>
 
     <div
+      data-seasonal-card
       class="overflow-visible rounded-[28px] border border-gray-200 bg-white shadow-lg shadow-primary-500/5 dark:border-white/10 dark:bg-black dark:shadow-none sm:rounded-[32px]"
     >
       <header

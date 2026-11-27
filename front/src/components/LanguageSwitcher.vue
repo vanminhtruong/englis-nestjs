@@ -5,7 +5,8 @@
       @click="isOpen = !isOpen"
       class="relative z-50 flex items-center gap-2 px-3 py-2 rounded-xl border border-transparent hover:border-gray-200 dark:hover:border-white/10 hover:bg-white/50 dark:hover:bg-white/5 transition-all duration-200 group"
     >
-      <div
+      <span
+        :data-header-flag="seasonalHeader || undefined"
         class="relative inline-flex h-6 w-8 items-center justify-center overflow-hidden rounded-lg shadow-sm border border-black/5 dark:border-white/10 group-hover:scale-105 transition-transform duration-200"
       >
         <span
@@ -16,22 +17,23 @@
           ]"
           class="fi"
         ></span>
-      </div>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        class="text-gray-400 group-hover:text-gray-600 dark:group-hover:text-white transition-colors duration-200"
-        :class="{ 'rotate-180': isOpen }"
-      >
-        <polyline points="6 9 12 15 18 9"></polyline>
-      </svg>
+      </span>
+      <SeasonalHeaderIcon kind="chevron" :size="16" :plain="!seasonalHeader" :expanded="isOpen">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="text-gray-400 group-hover:text-gray-600 dark:group-hover:text-white transition-colors duration-200"
+        >
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </SeasonalHeaderIcon>
     </button>
 
     <Transition
@@ -68,6 +70,7 @@
         >
           <div class="flex items-center gap-3 relative z-10">
             <span
+              :data-header-flag="seasonalHeader || undefined"
               class="inline-flex h-5 w-7 items-center justify-center overflow-hidden rounded shadow-sm border border-black/10 dark:border-white/10"
             >
               <span
@@ -85,6 +88,7 @@
 
           <div v-if="locale === lang.code" class="relative z-10">
             <span
+              :data-header-language-check="seasonalHeader || undefined"
               class="flex items-center justify-center w-5 h-5 bg-primary-500 dark:bg-primary-400 text-white rounded-full shadow-lg shadow-primary-500/30"
             >
               <svg
@@ -111,9 +115,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useLanguage } from "../composables/useLanguage";
+import SeasonalHeaderIcon from "./layout/app-header/SeasonalHeaderIcon.vue";
 
 const { locale, availableLocales, setLocale } = useLanguage();
-const props = defineProps<{ open?: boolean }>();
+const props = withDefaults(defineProps<{ open?: boolean; seasonalHeader?: boolean }>(), {
+  open: undefined,
+});
 const emit = defineEmits<{ (e: "update:open", value: boolean): void }>();
 const localOpen = ref(false);
 const switcherRoot = ref<HTMLElement | null>(null);

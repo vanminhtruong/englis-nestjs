@@ -9,7 +9,7 @@
       <div
         v-for="toast in toasts"
         :key="toast.id"
-        class="pointer-events-auto relative overflow-hidden rounded-2xl shadow-xl border"
+        data-seasonal-toast class="pointer-events-auto relative overflow-hidden rounded-2xl shadow-xl border"
         :class="[
           'bg-white dark:bg-black',
           'border-black/8 dark:border-white/10',

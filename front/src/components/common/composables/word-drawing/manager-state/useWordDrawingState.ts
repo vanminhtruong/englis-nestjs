@@ -1,5 +1,6 @@
 
 import { ref, computed } from "vue";
+import { drawingBackground, defaultInk, drawingPalette } from './drawingColors';
 import type { KeyboardKey } from "./wordDrawingData";
 
 export function useWordDrawingState() {
@@ -12,17 +13,26 @@ export function useWordDrawingState() {
 
     // Drawing state
     const isDrawing = ref(false);
+    const touchpadMode = ref(false);
+    const touchpadArmed = ref(false);
     const hasDrawn = ref(false);
     const brushSize = ref(5);
-    const brushColor = ref("#000000");
+    const darkDrawing = ref(document.documentElement.classList.contains("dark"));
+    const surfaceColor = computed(()=>drawingBackground(darkDrawing.value));
+    const palette = computed(()=>drawingPalette(darkDrawing.value));
+    const brushColor = ref(defaultInk(darkDrawing.value));
     const currentTool = ref<"brush" | "eraser">("brush");
-    const canvasBackground = ref<"white" | "transparent">("white");
+    const canvasBackground = ref<"theme" | "transparent">("theme");
     const previewDataUrl = ref("");
     const wordText = ref("");
 
     // OCR state
     const isRecognizing = ref(false);
+    const strokeCandidates = ref<import('../manager-handle/hanziRecognition').HanziCandidate[][]>([]);
+    const chosenCharacters = ref<string[]>([]);
+    const recognitionStatus = ref<'idle' | 'ready' | 'empty' | 'error'>('idle');
     const ocrLanguage = ref("chi_sim");
+    const recognitionUnit = ref<import('../manager-handle/latinRecognition').RecognitionUnit>('auto');
 
     // History for undo/redo
     const history = ref<ImageData[]>([]);
@@ -40,10 +50,11 @@ export function useWordDrawingState() {
 
     // Computed to check if can confirm
     const canConfirm = computed(() => {
+        if (isRecognizing.value || isDrawing.value) return false;
         if (inputMode.value === "draw") {
-            return hasDrawn.value && wordText.value.trim().length > 0;
+            return hasDrawn.value;
         } else {
-            return wordText.value.trim().length > 0;
+            return !!(wordText.value.trim() || keyboardInputText.value.trim() || pinyinBuffer.value.trim());
         }
     });
 
@@ -55,15 +66,24 @@ export function useWordDrawingState() {
         ctx,
         inputMode,
         isDrawing,
+        touchpadMode,
+        touchpadArmed,
         hasDrawn,
         brushSize,
         brushColor,
+        darkDrawing,
+        surfaceColor,
+        palette,
         currentTool,
         canvasBackground,
         previewDataUrl,
         wordText,
         isRecognizing,
+        recognitionStatus,
+        strokeCandidates,
+        chosenCharacters,
         ocrLanguage,
+        recognitionUnit,
         history,
         historyIndex,
         keyboardLanguage,

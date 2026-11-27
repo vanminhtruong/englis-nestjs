@@ -8,6 +8,8 @@
       <div class="relative flex items-center group" v-if="selectionOnly || !isAllTabHidden">
         <button
           @click="handleTabClick(null)"
+          class="app-choice-tab vocabulary-tab-main"
+          :aria-pressed="!activeTabId"
           :class="[
             selectionOnly
               ? 'px-4 py-2 rounded-xl font-medium transition-all whitespace-nowrap text-sm'
@@ -17,7 +19,8 @@
               : 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-white/60 hover:bg-gray-200 dark:hover:bg-white/10',
           ]"
         >
-          {{ t("vocabularyTabs.allVocabularies") }}
+          <TabIcon icon="book" :active="!activeTabId" size="xs" />
+          <span class="min-w-0 truncate">{{ t("vocabularyTabs.allVocabularies") }}</span>
         </button>
         <!-- Toggle Hide Button -->
         <button
@@ -78,6 +81,8 @@
       <div v-for="tab in visibleTabs" :key="tab.id" class="group relative flex items-center">
         <button
           @click="handleTabClick(tab.id)"
+          class="app-choice-tab vocabulary-tab-main"
+          :aria-pressed="activeTabId === tab.id"
           :class="[
             selectionOnly
               ? 'max-w-[min(75vw,22rem)] px-4 py-2 rounded-xl font-medium transition-all text-sm flex items-center gap-2'
@@ -272,6 +277,8 @@
               >
                 <button
                   @click.stop="selectHiddenTab(tab.id)"
+                  class="app-choice-tab app-choice-tab-compact"
+                  :aria-pressed="activeTabId === tab.id"
                   :class="[
                     'min-w-0 flex-1 text-left px-2.5 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2',
                     activeTabId === tab.id
@@ -497,6 +504,31 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* Equal border-box height for All and custom tabs, regardless of active state,
+   uploaded artwork, responsive utility classes or language. */
+.vocab-tabs-wrapper .vocabulary-tab-main {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  height: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  padding-block: 0;
+  gap: 8px;
+  line-height: 20px;
+}
+.vocabulary-tab-main > span:first-child {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+}
+.vocabulary-tab-main > span:last-child {
+  line-height: 20px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
 
 /* More Tabs Dropdown */
 .more-tabs-dropdown {

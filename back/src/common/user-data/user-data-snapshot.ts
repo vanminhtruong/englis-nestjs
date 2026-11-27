@@ -2,6 +2,8 @@ import { normalizeSynonyms } from '../vocabulary-synonyms';
 import { EntityManager } from 'typeorm';
 import { Category } from '../../entities/category.entity';
 import { CategoryDateTopic } from '../../entities/category-date-topic.entity';
+import { History, HistoryAction } from '../../entities/history.entity';
+import { User } from '../../entities/user.entity';
 import {
   PracticeHistory,
   PracticeType,
@@ -39,6 +41,8 @@ export interface SnapshotVocabulary {
   image: string | null;
   video: string | null;
   audio: string | null;
+  backgroundUrl?: string | null;
+  animatedBackground?: string | null;
   difficulty: string;
   masteryLevel: string;
   correctCount: number;
@@ -62,6 +66,22 @@ export interface SnapshotHistory {
   score: number;
   timeSpent: number;
   createdAt: string;
+}
+
+export interface SnapshotActivity {
+  word?: string;
+  entryKey?: string;
+  action: HistoryAction;
+  metadata: History['metadata'] | null;
+  description: string | null;
+  createdAt: string;
+}
+
+export interface SnapshotPreferences {
+  theme?: string;
+  vocabularyLayout?: User['vocabularyLayout'];
+  preferredVoiceKey?: string | null;
+  seasonalThemesEnabled?: boolean;
 }
 
 export interface SnapshotCategory {
@@ -121,6 +141,8 @@ export interface SnapshotSrsReview {
 export interface UserDataSnapshot {
   vocabularies: SnapshotVocabulary[];
   histories: SnapshotHistory[];
+  activities: SnapshotActivity[];
+  preferences?: SnapshotPreferences;
   categories: SnapshotCategory[];
   tags: SnapshotTag[];
   dateTopics: SnapshotDateTopic[];
@@ -136,11 +158,14 @@ export interface SnapshotSummary {
   dateTopics: number;
   tabs: number;
   srs: number;
+  srsReviews: number;
+  activities: number;
 }
 
 export const emptySnapshot = (): UserDataSnapshot => ({
   vocabularies: [],
   histories: [],
+  activities: [],
   categories: [],
   tags: [],
   dateTopics: [],
@@ -155,6 +180,8 @@ export const summarizeSnapshot = (s: UserDataSnapshot): SnapshotSummary => ({
   dateTopics: s.dateTopics.length,
   tabs: s.tabs.length,
   srs: s.srsProgress.length,
+  srsReviews: s.srsReviews.length,
+  activities: s.activities.length,
 });
 
 /** Accepts older or hand-made payloads: every list may be missing. */
@@ -164,6 +191,10 @@ export const normalizeSnapshot = (raw: unknown): UserDataSnapshot => {
   return {
     vocabularies: list(source.vocabularies),
     histories: list(source.histories),
+    activities: list(source.activities),
+    preferences: source.preferences && typeof source.preferences === 'object'
+      ? source.preferences as SnapshotPreferences
+      : undefined,
     categories: list(source.categories),
     tags: list(source.tags),
     dateTopics: list(source.dateTopics),
@@ -180,6 +211,7 @@ export const normalizeSnapshot = (raw: unknown): UserDataSnapshot => {
 const DIFFICULTIES = new Set<string>(Object.values(DifficultyLevel));
 const MASTERIES = new Set<string>(Object.values(MasteryLevel));
 const PRACTICE_TYPES = new Set<string>(Object.values(PracticeType));
+const HISTORY_ACTIONS = new Set<string>(Object.values(HistoryAction));
 const SRS_RATINGS = new Set<string>(['again', 'hard', 'good', 'easy']);
 
 const MEDIA_MAX_ON_MERGE = 32000;
@@ -235,12 +267,31 @@ const chunked = <T>(items: T[], size: number): T[][] => {
   return out;
 };
 
-const historyKey = (
-  vocabularyId: string,
-  practiceType: string,
-  score: number,
-  timeSpent: number,
-) => `${vocabularyId}|${practiceType}|${score}|${timeSpent}`;
+const practiceKey = (row: PracticeHistory) => JSON.stringify([
+  row.vocabularyId, row.practiceType, timeOf(row.createdAt), row.score,
+  row.timeSpent, row.isCorrect, row.userAnswer ?? '',
+]);
+
+const activityKey = (row: History) => JSON.stringify([
+  row.vocabularyId ?? null, row.action, timeOf(row.createdAt),
+  row.description ?? '', row.metadata ?? null,
+]);
+
+// Matching a count preserves legitimate repeated events with the same fields.
+function existingOccurrences<T>(rows: T[], keyOf: (row: T) => string) {
+  const counts = new Map<string, number>();
+  for (const row of rows) {
+    const key = keyOf(row);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  return (row: T) => {
+    const key = keyOf(row);
+    const count = counts.get(key) ?? 0;
+    if (!count) return false;
+    counts.set(key, count - 1);
+    return true;
+  };
+}
 
 /** Table and column names of a many-to-many link, read from TypeORM itself. */
 function junctionOf(manager: EntityManager, entity: Function, property: string) {
@@ -297,6 +348,7 @@ export interface BuildOptions {
   maxVocabularies?: number;
   maxHistories?: number;
   maxReviews?: number;
+  preferences?: SnapshotPreferences;
   /** Longer media values (e.g. base64 images) are left out of the copy. */
   mediaMaxLength?: number;
   historyOrder?: 'ASC' | 'DESC';
@@ -348,6 +400,8 @@ export async function buildUserDataSnapshot(
       image: media(v.image, mediaMax),
       video: media(v.video, mediaMax),
       audio: media(v.audio, mediaMax),
+      backgroundUrl: media(v.backgroundUrl, mediaMax),
+      animatedBackground: media(v.animatedBackground, mediaMax),
       difficulty: v.difficulty,
       masteryLevel: v.masteryLevel,
       correctCount: v.correctCount,
@@ -392,6 +446,20 @@ export async function buildUserDataSnapshot(
       createdAt: iso(h.createdAt) ?? new Date().toISOString(),
     });
   }
+
+  const activityRows = await manager.getRepository(History).find({
+    where: { userId },
+    order: { createdAt: options.historyOrder ?? 'ASC', id: 'ASC' },
+    take: options.maxHistories,
+  });
+  const activities: SnapshotActivity[] = activityRows.map((entry) => ({
+    word: wordById.get(entry.vocabularyId),
+    entryKey: entryById.get(entry.vocabularyId),
+    action: entry.action,
+    metadata: entry.metadata ?? null,
+    description: entry.description ?? null,
+    createdAt: entry.createdAt.toISOString(),
+  }));
 
   const categoryRows = await manager
     .getRepository(Category)
@@ -502,6 +570,8 @@ export async function buildUserDataSnapshot(
     snapshot: {
       vocabularies,
       histories,
+      activities,
+      preferences: options.preferences,
       categories,
       tags,
       dateTopics,
@@ -531,6 +601,8 @@ export interface MergeStats {
   updatedVocabularies: number;
   skippedVocabularies: number;
   newHistories: number;
+  newActivities: number;
+  updatedPreferences: number;
   newCategories: number;
   newTags: number;
   newDateTopics: number;
@@ -548,6 +620,8 @@ export const emptyMergeStats = (): MergeStats => ({
   updatedVocabularies: 0,
   skippedVocabularies: 0,
   newHistories: 0,
+  newActivities: 0,
+  updatedPreferences: 0,
   newCategories: 0,
   newTags: 0,
   newDateTopics: 0,
@@ -563,6 +637,8 @@ export const mergeChangeCount = (s: MergeStats): number =>
   s.newVocabularies +
   s.updatedVocabularies +
   s.newHistories +
+  s.newActivities +
+  s.updatedPreferences +
   s.newCategories +
   s.newTags +
   s.newDateTopics +
@@ -593,6 +669,8 @@ function vocabularyFields(shared: SnapshotVocabulary): Record<string, any> {
     isFavorite: !!shared.isFavorite,
     createdAt: toDate(shared.createdAt),
   };
+  if (shared.backgroundUrl !== undefined) fields.backgroundUrl = media(shared.backgroundUrl, MEDIA_MAX_ON_MERGE);
+  if (shared.animatedBackground !== undefined) fields.animatedBackground = media(shared.animatedBackground, MEDIA_MAX_ON_MERGE);
   if (shared.synonyms !== undefined) fields.synonyms = normalizeSynonyms(shared.synonyms, shared.word);
   // Only copy what the source really has, so an older file cannot reset them.
   if (shared.partOfSpeech && Object.values(PartOfSpeech).includes(shared.partOfSpeech as PartOfSpeech)) fields.partOfSpeech = shared.partOfSpeech;
@@ -626,6 +704,8 @@ function vocabularyChanged(existing: Vocabulary, fields: Record<string, any>): b
   ) {
     return true;
   }
+  if ('backgroundUrl' in fields && !same(existing.backgroundUrl, fields.backgroundUrl)) return true;
+  if ('animatedBackground' in fields && !same(existing.animatedBackground, fields.animatedBackground)) return true;
   if ('selectedSynonym' in fields && (existing.selectedSynonym ?? null) !== fields.selectedSynonym) return true;
   if ('synonyms' in fields && JSON.stringify(existing.synonyms ?? []) !== JSON.stringify(fields.synonyms)) return true;
   if ('partOfSpeech' in fields && existing.partOfSpeech !== fields.partOfSpeech) return true;
@@ -691,7 +771,7 @@ export async function mergeUserDataSnapshot(
     if (existing && mode === 'import' && !created.has(existing)) {
       if (part === PartOfSpeech.UNSPECIFIED && existing.partOfSpeech !== PartOfSpeech.UNSPECIFIED) delete fields.partOfSpeech;
       if (vocabularyChanged(existing, fields)) {
-        for (const field of ['image', 'video', 'audio'] as const) {
+        for (const field of ['image', 'video', 'audio', 'backgroundUrl', 'animatedBackground'] as const) {
           if (fields[field] !== undefined && fields[field] !== existing[field]) replacedUploads.push(existing[field]);
         }
         await vocabRepo.update(existing.id, fields as any);
@@ -737,41 +817,77 @@ export async function mergeUserDataSnapshot(
 
   // ----- Practice history -------------------------------------------------
   const historyRepo = manager.getRepository(PracticeHistory);
-  const historyKeys = new Set<string>();
-  if (mode === 'import' && snapshot.histories.length > 0) {
-    const known = await historyRepo.find({
-      where: { userId },
-      select: { vocabularyId: true, practiceType: true, score: true, timeSpent: true },
-    });
-    for (const h of known) {
-      historyKeys.add(historyKey(h.vocabularyId, h.practiceType, h.score, h.timeSpent));
-    }
-  }
+  const knownPractice = snapshot.histories.length
+    ? await historyRepo.find({ where: { userId } })
+    : [];
+  const alreadyPracticed = existingOccurrences(knownPractice, practiceKey);
   const historyRows: PracticeHistory[] = [];
   for (const shared of snapshot.histories) {
     const row = resolveWord(shared?.word, shared?.entryKey);
     if (!canAttach(row) || !PRACTICE_TYPES.has(shared.practiceType)) continue;
-    const score = toCount(shared.score);
-    const timeSpent = toCount(shared.timeSpent);
-    const key = historyKey(row.id, shared.practiceType, score, timeSpent);
-    if (historyKeys.has(key)) continue;
-    historyKeys.add(key);
-    historyRows.push(
-      historyRepo.create({
-        userId,
-        vocabularyId: row.id,
-        practiceType: shared.practiceType as PracticeType,
-        isCorrect: !!shared.isCorrect,
-        userAnswer: (shared.userAnswer == null ? null : String(shared.userAnswer)) as any,
-        score,
-        timeSpent,
-        createdAt: toDate(shared.createdAt),
-      }),
-    );
+    const history = historyRepo.create({
+      userId,
+      vocabularyId: row.id,
+      practiceType: shared.practiceType as PracticeType,
+      isCorrect: !!shared.isCorrect,
+      userAnswer: str(shared.userAnswer),
+      score: toCount(shared.score),
+      timeSpent: toCount(shared.timeSpent),
+      createdAt: toDate(shared.createdAt),
+    });
+    if (!alreadyPracticed(history)) historyRows.push(history);
   }
   if (historyRows.length > 0) {
     await historyRepo.save(historyRows, { chunk: 500 });
     stats.newHistories = historyRows.length;
+  }
+
+  if (snapshot.activities.length > 0) {
+    const activityRepo = manager.getRepository(History);
+    const knownActivities = await activityRepo.find({ where: { userId } });
+    const alreadyLogged = existingOccurrences(knownActivities, activityKey);
+    const activityRows: History[] = [];
+    for (const entry of snapshot.activities) {
+      if (!HISTORY_ACTIONS.has(entry?.action)) continue;
+      const createdAt = toDateOrNull(entry.createdAt);
+      if (!createdAt) continue;
+      const linked = !!(entry.word || entry.entryKey);
+      const word = linked ? resolveWord(entry.word, entry.entryKey) : undefined;
+      if (linked && !canAttach(word)) continue;
+      const history = Object.assign(activityRepo.create(), {
+        userId,
+        vocabularyId: word?.id ?? null,
+        action: entry.action,
+        metadata: entry.metadata && typeof entry.metadata === 'object' && !Array.isArray(entry.metadata)
+          ? entry.metadata
+          : null,
+        description: typeof entry.description === 'string' ? entry.description : null,
+        createdAt,
+      });
+      if (!alreadyLogged(history)) activityRows.push(history);
+    }
+    if (activityRows.length) await activityRepo.save(activityRows, { chunk: 500 });
+    stats.newActivities = activityRows.length;
+  }
+
+  if (mode === 'import' && snapshot.preferences) {
+    const { theme, vocabularyLayout, preferredVoiceKey, seasonalThemesEnabled } = snapshot.preferences;
+    const userRepo = manager.getRepository(User);
+    const current = await userRepo.findOneByOrFail({ id: userId });
+    const changes: SnapshotPreferences = {};
+    if ((theme === 'light' || theme === 'dark') && theme !== current.theme) changes.theme = theme;
+    if ((vocabularyLayout === 'grid' || vocabularyLayout === 'list') && vocabularyLayout !== current.vocabularyLayout) {
+      changes.vocabularyLayout = vocabularyLayout;
+    }
+    if ((preferredVoiceKey === null || (typeof preferredVoiceKey === 'string' && preferredVoiceKey.length <= 512))
+      && preferredVoiceKey !== current.preferredVoiceKey) {
+      changes.preferredVoiceKey = preferredVoiceKey;
+    }
+    if (typeof seasonalThemesEnabled === 'boolean' && seasonalThemesEnabled !== current.seasonalThemesEnabled) {
+      changes.seasonalThemesEnabled = seasonalThemesEnabled;
+    }
+    stats.updatedPreferences = Object.keys(changes).length;
+    if (stats.updatedPreferences) await userRepo.update(userId, changes);
   }
 
   // ----- Tags -------------------------------------------------------------

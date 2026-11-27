@@ -5,6 +5,7 @@
     <div class="mx-auto w-full max-w-7xl space-y-4 sm:space-y-6">
       <!-- Hero: compact page header, same palette and dark-mode strategy as VocabMaster. -->
       <section
+        data-seasonal-card
         class="relative isolate overflow-hidden rounded-3xl border border-primary-100 bg-white shadow-xl shadow-primary-500/5 dark:border-white/10 dark:bg-black dark:shadow-none"
       >
         <div

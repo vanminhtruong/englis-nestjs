@@ -12,7 +12,7 @@
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-2 sm:p-4"
     >
       <div
-        class="bg-gradient-to-br from-white to-white/50 dark:from-white/5 dark:to-black border border-black/10 dark:border-white/10 rounded-3xl p-5 sm:p-8 text-center max-w-md w-full shadow-2xl"
+        data-seasonal-dialog class="bg-gradient-to-br from-white to-white/50 dark:from-white/5 dark:to-black border border-black/10 dark:border-white/10 rounded-3xl p-5 sm:p-8 text-center max-w-md w-full shadow-2xl"
       >
         <div class="text-5xl sm:text-6xl mb-4">⚠️</div>
         <h2 class="text-2xl font-bold text-black dark:text-white mb-3">

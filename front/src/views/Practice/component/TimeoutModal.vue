@@ -21,7 +21,7 @@
       >
         <div
           v-if="show"
-          class="bg-white dark:bg-black/90 border border-black/10 dark:border-white/10 rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl"
+          data-seasonal-dialog class="bg-white dark:bg-black/90 border border-black/10 dark:border-white/10 rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl"
         >
           <div class="text-center">
             <div class="text-5xl sm:text-6xl mb-4">⏰</div>

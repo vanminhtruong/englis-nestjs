@@ -28,6 +28,7 @@
           @change="onFileChange"
         />
         <button
+          data-seasonal-profile-action
           @click="triggerFileInput"
           class="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-primary-500 dark:hover:border-primary-400 text-gray-700 dark:text-gray-200 rounded-xl transition-all duration-200 font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5"
         >
@@ -48,6 +49,7 @@
           {{ t("profile.importData") }}
         </button>
         <button
+          data-seasonal-profile-action
           @click="$emit('share')"
           class="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-primary-500 dark:hover:border-primary-400 text-gray-700 dark:text-gray-200 rounded-xl transition-all duration-200 font-semibold shadow-sm hover:shadow-md hover:-translate-y-0.5"
         >

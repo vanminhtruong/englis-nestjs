@@ -1,4 +1,3 @@
-
 import { watch, onMounted, onUnmounted, nextTick } from "vue";
 
 export function useWordDrawingMount(
@@ -6,96 +5,85 @@ export function useWordDrawingMount(
     handlers: any,
     props: { visible: boolean; word: string }
 ) {
-    const {
-        hasDrawn,
-        history,
-        historyIndex,
-        previewDataUrl,
-        wordText,
-        inputMode,
-        keyboardInputText,
-        isShift,
-        selectedTone,
-        pinyinBuffer,
-        hanziCandidates,
-        canvasBackground,
-        canvasRef,
-        ctx,
-    } = state;
+    const { hasDrawn, history, historyIndex, previewDataUrl, wordText, inputMode,
+        keyboardInputText, isShift, selectedTone, pinyinBuffer, hanziCandidates,
+        canvasBackground, canvasRef, ctx, isDrawing, currentTool, touchpadMode } = state;
+    let observer: ResizeObserver | null = null;
+    let session = 0;
+    let themeObserver: MutationObserver | null = null;
 
-    const { initCanvas, handleBackgroundChange } = handlers;
-    let resizeObserver: ResizeObserver | null = null;
+    watch(() => props.visible, async visible => {
+        const current = ++session;
+        observer?.disconnect();
+        observer = null;
+        handlers.resetRecognition();
+        isDrawing.value = false;
+        if (!visible) return;
+        hasDrawn.value = false;
+        history.value = [];
+        historyIndex.value = -1;
+        previewDataUrl.value = "";
+        wordText.value = props.word || "";
+        ctx.value = null;
+        inputMode.value = "draw";
+        currentTool.value = "brush";
+        handlers.syncDrawingTheme(document.documentElement.classList.contains("dark"), true);
+        keyboardInputText.value = "";
+        isShift.value = false;
+        selectedTone.value = 0;
+        pinyinBuffer.value = "";
+        hanziCandidates.value = [];
 
-    // Reset state when modal opens
-    watch(
-        () => props.visible,
-        async (visible) => {
-            if (visible) {
-                // Reset drawing state
-                hasDrawn.value = false;
-                history.value = [];
-                historyIndex.value = -1;
-                previewDataUrl.value = "";
-                wordText.value = props.word || "";
-
-                // Reset keyboard state
-                inputMode.value = "draw";
-                keyboardInputText.value = "";
-                isShift.value = false;
-                selectedTone.value = 0;
-                pinyinBuffer.value = "";
-                hanziCandidates.value = [];
-
-                await nextTick();
-                initCanvas();
-            }
-        }
-    );
-
-    // Watch background changes
-    watch(canvasBackground, () => {
-        handleBackgroundChange();
-    });
-
-    onMounted(() => {
-        if (typeof ResizeObserver === 'undefined') return;
-
-        resizeObserver = new ResizeObserver(() => {
-            // Logic for resize
-            if (props.visible && canvasRef.value) {
-                let currentState: ImageData | undefined;
-
-                if (ctx.value) {
-                    try {
-                        currentState = ctx.value.getImageData(
-                            0,
-                            0,
-                            canvasRef.value.width,
-                            canvasRef.value.height
-                        );
-                    } catch (e) {
-                        console.warn("Could not get image data on resize", e);
-                    }
-                }
-
-                initCanvas();
-
-                if (currentState && ctx.value) {
-                    ctx.value.putImageData(currentState, 0, 0);
-                }
-            }
+        await nextTick();
+        if (current !== session || !props.visible) return;
+        const canvas = canvasRef.value as HTMLCanvasElement | null;
+        if (!canvas) return;
+        await handlers.initCanvas();
+        if (current !== session || !props.visible) return;
+        // Keep the bitmap and undo history intact as CSS layout changes.
+        // Only initialize if the canvas was initially hidden or zero-sized.
+        observer = new ResizeObserver(() => {
+            if (props.visible && inputMode.value === 'draw' && !ctx.value) void handlers.initCanvas();
         });
+        observer.observe(canvas);
+    }, { immediate: true });
 
-        // Observe body for layout changes
-        resizeObserver.observe(document.body);
-
-        window.addEventListener("keydown", handlers.handlePhysicalKeyDown);
+    watch(keyboardInputText, (value) => {
+        if (props.visible && inputMode.value === 'keyboard') wordText.value = value;
+    });
+    watch(canvasBackground, () => {
+        if (props.visible) handlers.handleBackgroundChange();
     });
 
-    onUnmounted(() => {
-        if (resizeObserver) {
-            resizeObserver.disconnect();
+    const keydown = (event: KeyboardEvent) => {
+        if (!props.visible) return;
+        if (touchpadMode.value && inputMode.value === 'draw' &&
+            !event.isComposing && !event.ctrlKey && !event.altKey && !event.metaKey &&
+            !(event.target instanceof HTMLElement && (event.target.matches('input,textarea,select,[role="textbox"]') || event.target.isContentEditable))) {
+            if (event.code === 'Space') {
+                event.preventDefault();
+                if (!event.repeat) handlers.toggleTouchpadStroke();
+                return;
+            }
+            if (event.key === 'Escape') { handlers.pauseTouchpad(); return; }
         }
-        window.removeEventListener("keydown", handlers.handlePhysicalKeyDown);
+        handlers.handlePhysicalKeyDown(event);
+    };
+    const blur = () => { handlers.pauseTouchpad(); if (isDrawing.value) handlers.stopDrawing(); };
+    onMounted(() => {
+        themeObserver = new MutationObserver(() => {
+            if (props.visible) handlers.syncDrawingTheme(document.documentElement.classList.contains('dark'));
+        });
+        themeObserver.observe(document.documentElement, {attributes:true, attributeFilter:['class']});
+        window.addEventListener('keydown', keydown);
+        window.addEventListener('blur', blur);
+    });
+    onUnmounted(() => {
+        ++session;
+        observer?.disconnect();
+        themeObserver?.disconnect();
+        handlers.resetRecognition();
+        window.removeEventListener('keydown', keydown);
+        window.removeEventListener('blur', blur);
     });
 }

@@ -8,6 +8,8 @@ export interface ShareSummary {
   dateTopics: number;
   tabs: number;
   srs: number;
+  srsReviews?: number;
+  activities?: number;
 }
 
 export interface IncomingShare {
@@ -26,6 +28,8 @@ export interface ShareMergeStats {
   updatedVocabularies?: number;
   skippedVocabularies: number;
   newHistories: number;
+  newActivities?: number;
+  updatedPreferences?: number;
   newCategories?: number;
   newTags?: number;
   newDateTopics?: number;
@@ -48,6 +52,8 @@ export function describeSummary(
   if (summary.dateTopics > 0) parts.push(t("dataShare.parts.dateTopics", { count: summary.dateTopics }));
   if (summary.tabs > 0) parts.push(t("dataShare.parts.tabs", { count: summary.tabs }));
   if (summary.srs > 0) parts.push(t("dataShare.parts.srs", { count: summary.srs }));
+  if (summary.srsReviews) parts.push(t("dataShare.parts.srsReviews", { count: summary.srsReviews }));
+  if (summary.activities) parts.push(t("dataShare.parts.activities", { count: summary.activities }));
   return parts.join(", ");
 }
 
@@ -64,6 +70,9 @@ export function describeMergeExtras(
   if ((stats.newDateTopics ?? 0) > 0) parts.push(t("dataShare.parts.dateTopics", { count: stats.newDateTopics }));
   if ((stats.newTabs ?? 0) > 0) parts.push(t("dataShare.parts.tabs", { count: stats.newTabs }));
   if ((stats.newSrsProgress ?? 0) > 0) parts.push(t("dataShare.parts.srs", { count: stats.newSrsProgress }));
+  if (stats.newSrsReviews) parts.push(t("dataShare.parts.srsReviews", { count: stats.newSrsReviews }));
+  if (stats.newActivities) parts.push(t("dataShare.parts.activities", { count: stats.newActivities }));
+  if (stats.updatedPreferences) parts.push(t("dataShare.parts.preferences", { count: stats.updatedPreferences }));
   return parts.join(", ");
 }
 

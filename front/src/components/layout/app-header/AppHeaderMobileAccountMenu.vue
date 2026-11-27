@@ -15,6 +15,7 @@
         <img
           :src="userAvatarSrc"
           alt="Avatar"
+          data-header-avatar
           class="w-12 h-12 rounded-full border-2 border-primary-500"
         />
         <div class="flex min-w-0 flex-1 flex-col">
@@ -34,21 +35,23 @@
             <div
               class="w-10 h-10 rounded-lg bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center text-primary-500 dark:text-primary-300"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <path d="M2 12h20" />
-                <path
-                  d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
-                />
-              </svg>
+              <SeasonalHeaderIcon kind="language" compact>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M2 12h20" />
+                  <path
+                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                  />
+                </svg>
+              </SeasonalHeaderIcon>
             </div>
             <div class="flex min-w-0 flex-1 flex-col">
               <span
@@ -61,7 +64,7 @@
               >
             </div>
           </div>
-          <LanguageSwitcher class="shrink-0" />
+          <LanguageSwitcher seasonal-header class="shrink-0" />
         </div>
       </div>
       <nav class="flex flex-col gap-1">
@@ -70,18 +73,20 @@
           to="/profile"
           class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/5 hover:text-primary-500 dark:hover:text-primary-400 transition-all font-medium"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <circle cx="12" cy="8" r="4" />
-            <path d="M6 20c0-3.314 2.686-6 6-6s6 2.686 6 6" />
-          </svg>
+          <SeasonalHeaderIcon kind="profile" compact>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="8" r="4" />
+              <path d="M6 20c0-3.314 2.686-6 6-6s6 2.686 6 6" />
+            </svg>
+          </SeasonalHeaderIcon>
           <span>{{ t("header.profile") }}</span>
         </RouterLink>
         <RouterLink
@@ -89,21 +94,23 @@
           to="/voice-settings"
           class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/5 hover:text-primary-500 dark:hover:text-primary-400 transition-all font-medium"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M5 3v18" />
-            <path d="M19 3v18" />
-            <rect x="8" y="5" width="8" height="4" rx="1" />
-            <rect x="8" y="11" width="8" height="4" rx="1" />
-            <rect x="8" y="17" width="3" height="4" rx="1" />
-          </svg>
+          <SeasonalHeaderIcon kind="voice" compact>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M5 3v18" />
+              <path d="M19 3v18" />
+              <rect x="8" y="5" width="8" height="4" rx="1" />
+              <rect x="8" y="11" width="8" height="4" rx="1" />
+              <rect x="8" y="17" width="3" height="4" rx="1" />
+            </svg>
+          </SeasonalHeaderIcon>
           <span>{{ t("header.voiceSettings") }}</span>
         </RouterLink>
         <RouterLink
@@ -111,19 +118,21 @@
           to="/favorites"
           class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/5 hover:text-primary-500 dark:hover:text-primary-400 transition-all font-medium"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polygon
-              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-            />
-          </svg>
+          <SeasonalHeaderIcon kind="favorite" compact>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+              />
+            </svg>
+          </SeasonalHeaderIcon>
           <span>{{ t("header.favorites") }}</span>
         </RouterLink>
         <RouterLink
@@ -131,17 +140,19 @@
           to="/history"
           class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/5 hover:text-primary-500 dark:hover:text-primary-400 transition-all font-medium"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
-          </svg>
+          <SeasonalHeaderIcon kind="history" compact>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+            </svg>
+          </SeasonalHeaderIcon>
           <span>{{ t("header.history") }}</span>
         </RouterLink>
         <RouterLink
@@ -149,36 +160,40 @@
           to="/learning-progress"
           class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/5 hover:text-primary-500 dark:hover:text-primary-400 transition-all font-medium"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-          </svg>
+          <SeasonalHeaderIcon kind="progress" compact>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+          </SeasonalHeaderIcon>
           <span>{{ t("header.learningProgress") }}</span>
         </RouterLink>
         <button
           @click="$emit('logout')"
           class="flex items-center gap-3 px-4 py-3 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-all font-medium"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <polyline points="16 17 21 12 16 7" />
-            <line x1="21" y1="12" x2="9" y2="12" />
-          </svg>
+          <SeasonalHeaderIcon kind="logout" compact>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </SeasonalHeaderIcon>
           <span>{{ t("header.logout") }}</span>
         </button>
       </nav>
@@ -191,6 +206,7 @@ import { computed } from "vue";
 import { defineAsyncComponent } from "vue";
 import { RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
+import SeasonalHeaderIcon from "./SeasonalHeaderIcon.vue";
 import { useAuthStore } from "../../../stores/auth.store";
 import { useLanguage } from "../../../composables/useLanguage";
 

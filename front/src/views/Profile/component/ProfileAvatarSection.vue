@@ -70,7 +70,7 @@
       </p>
     </div>
 
-    <div class="w-full grid grid-cols-2 gap-4 mt-auto">
+    <div data-seasonal-metrics class="w-full grid grid-cols-2 gap-4 mt-auto">
       <div
         class="group relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-500/10 dark:to-blue-500/5 border border-blue-100 dark:border-blue-500/20 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1"
       >

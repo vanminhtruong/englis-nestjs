@@ -13,6 +13,8 @@ import { AddVocabularySynonyms1795900000000 } from '../migrations/1795900000000-
 
 import { AddVocabularySelectedSynonym1796000000000 } from '../migrations/1796000000000-AddVocabularySelectedSynonym';
 
+import { AddSeasonalThemesPreference1796100000000 } from '../migrations/1796100000000-AddSeasonalThemesPreference';
+
 export const databaseConfig: TypeOrmModuleOptions = {
   type: 'better-sqlite3',
   database: join(__dirname, '../../database/database.sqlite'),
@@ -31,6 +33,7 @@ export const databaseConfig: TypeOrmModuleOptions = {
     AddVocabularyPartOfSpeech1795800000000,
     AddVocabularySynonyms1795900000000,
     AddVocabularySelectedSynonym1796000000000,
+    AddSeasonalThemesPreference1796100000000,
   ],
   migrationsRun: process.env.NODE_ENV === 'production',
   logging: process.env.NODE_ENV !== 'production',

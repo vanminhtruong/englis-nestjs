@@ -38,6 +38,9 @@ export class User {
     @Column({ default: 'light' })
     theme: string;
 
+    @Column({ default: false })
+    seasonalThemesEnabled: boolean;
+
     @Column({ default: 'grid' })
     vocabularyLayout: 'grid' | 'list';
 

@@ -3,7 +3,7 @@
     class="min-h-screen bg-gray-50/50 dark:bg-black/80 px-3 py-4 sm:p-4 md:p-8 relative overflow-hidden transition-colors duration-300"
   >
     <!-- Background Splashes -->
-    <div
+    <div data-seasonal-ambient
       class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none"
     >
       <div
@@ -58,6 +58,13 @@
         </div>
       </Transition>
 
+      <ProfileSeasonalThemes
+        v-if="profile && !loading"
+        :enabled="profile.seasonalThemesEnabled === true"
+        :saving="savingSeasonalThemes"
+        @change="handleSeasonalThemes"
+      />
+
       <ShareDataModal :show="showShareModal" @close="showShareModal = false" />
 
       <ProfileEditModal
@@ -76,6 +83,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import ProfileSeasonalThemes from "./component/ProfileSeasonalThemes.vue";
 import { useProfileState } from "./composable/manager-state/useProfileState";
 import { useProfileHandle } from "./composable/manager-handle/useProfileHandle";
 import { useProfileMount } from "./composable/manager-mount/useProfileMount";
@@ -119,6 +127,8 @@ const {
   handleProfileUpdatedFromWS,
   handleExport,
   handleImport,
+  savingSeasonalThemes,
+  handleSeasonalThemes,
 } = useProfileHandle(profile, form, setProfile, setLoading, setSaving);
 
 useProfileMount(loadProfile, handleProfileUpdatedFromWS);

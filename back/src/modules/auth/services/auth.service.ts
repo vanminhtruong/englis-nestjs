@@ -84,6 +84,7 @@ export class AuthService {
         totalScore: user.totalScore,
         totalWords: user.totalWords,
         theme: user.theme || 'light',
+        seasonalThemesEnabled: user.seasonalThemesEnabled,
         vocabularyLayout: user.vocabularyLayout || 'grid',
       },
       token,
@@ -118,6 +119,7 @@ export class AuthService {
       fullName: payload.fullName,
       avatar: payload.avatar,
       theme: payload.theme,
+      seasonalThemesEnabled: payload.seasonalThemesEnabled,
     });
 
     if (!updatedUser) {
@@ -133,6 +135,7 @@ export class AuthService {
       totalScore: updatedUser.totalScore,
       totalWords: updatedUser.totalWords,
       theme: updatedUser.theme || 'light',
+      seasonalThemesEnabled: updatedUser.seasonalThemesEnabled,
       vocabularyLayout: updatedUser.vocabularyLayout || 'grid',
     };
   }
@@ -171,6 +174,7 @@ export class AuthService {
         totalScore: user.totalScore,
         totalWords: user.totalWords,
         theme: user.theme || 'light',
+        seasonalThemesEnabled: user.seasonalThemesEnabled,
         vocabularyLayout: user.vocabularyLayout || 'grid',
       },
       token,
@@ -216,6 +220,14 @@ export class AuthService {
     const { snapshot } = await buildUserDataSnapshot(
       this.vocabularyRepository.manager,
       userId,
+      {
+        preferences: {
+          theme: user.theme,
+          vocabularyLayout: user.vocabularyLayout,
+          preferredVoiceKey: user.preferredVoiceKey,
+          seasonalThemesEnabled: user.seasonalThemesEnabled,
+        },
+      },
     );
     return snapshotToXlsxBuffer(snapshot);
   }

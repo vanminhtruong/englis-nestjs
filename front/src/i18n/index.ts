@@ -1,5 +1,6 @@
 import { createI18n } from 'vue-i18n'
 import { watch } from 'vue'
+import { seasonalThemesEn, seasonalThemesVi, seasonalThemesKo, seasonalThemesZhCN } from './seasonalThemes'
 
 // Layout & Common
 import layoutEn from './locales/en'
@@ -72,6 +73,7 @@ const i18n = createI18n({
   messages: {
     en: {
       ...layoutEn,
+      seasonalThemes: seasonalThemesEn,
       login: loginEn,
       forgotPassword: forgotPasswordEn,
       register: registerEn,
@@ -85,6 +87,7 @@ const i18n = createI18n({
     },
     vi: {
       ...layoutVi,
+      seasonalThemes: seasonalThemesVi,
       login: loginVi,
       forgotPassword: forgotPasswordVi,
       register: registerVi,
@@ -98,6 +101,7 @@ const i18n = createI18n({
     },
     ko: {
       ...layoutKo,
+      seasonalThemes: seasonalThemesKo,
       login: loginKo,
       forgotPassword: forgotPasswordKo,
       register: registerKo,
@@ -111,6 +115,7 @@ const i18n = createI18n({
     },
     'zh-CN': {
       ...layoutZhCN,
+      seasonalThemes: seasonalThemesZhCN,
       login: loginZhCN,
       forgotPassword: forgotPasswordZhCN,
       register: registerZhCN,

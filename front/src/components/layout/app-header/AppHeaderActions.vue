@@ -1,6 +1,7 @@
 <template>
-  <div class="flex shrink-0 items-center gap-1 sm:gap-2">
+  <div class="flex shrink-0 items-center gap-1 sm:gap-2" data-seasonal-header-utilities>
     <LanguageSwitcher
+      seasonal-header
       :class="isAuthenticated ? 'hidden md:block' : ''"
       :open="isLanguageMenuOpen"
       @update:open="emit('update-language-menu', $event)"
@@ -10,33 +11,35 @@
       @click="$emit('toggle-theme')"
       class="w-10 h-10 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
     >
-      <svg
-        v-if="!isDark"
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-      </svg>
-      <svg
-        v-else
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <circle cx="12" cy="12" r="4" />
-        <path
-          d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
-        />
-      </svg>
+      <SeasonalHeaderIcon :kind="!isDark ? 'moon' : 'sun'">
+        <svg
+          v-if="!isDark"
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+        <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <circle cx="12" cy="12" r="4" />
+          <path
+            d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"
+          />
+        </svg>
+      </SeasonalHeaderIcon>
     </button>
 
     <template v-if="isAuthenticated">
@@ -48,6 +51,7 @@
           <img
             :src="userAvatarSrc"
             alt="Avatar"
+            data-header-avatar
             class="w-8 h-8 rounded-full border-2 border-primary-500 cursor-pointer hover:border-primary-600 transition-all"
             @click.stop="openAvatarZoom"
           />
@@ -59,18 +63,20 @@
               >{{ userWordsCount }} {{ t("header.words") }}</span
             >
           </div>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            class="text-gray-500"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
+          <SeasonalHeaderIcon kind="chevron" :size="16" :expanded="isUserMenuOpen">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              class="text-gray-500"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </SeasonalHeaderIcon>
         </button>
 
         <AvatarZoomModal
@@ -97,18 +103,20 @@
                 to="/profile"
                 class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/10 hover:text-primary-500 dark:hover:text-primary-400 transition-all"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M6 20c0-3.314 2.686-6 6-6s6 2.686 6 6" />
-                </svg>
+                <SeasonalHeaderIcon kind="profile" compact>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M6 20c0-3.314 2.686-6 6-6s6 2.686 6 6" />
+                  </svg>
+                </SeasonalHeaderIcon>
                 <span class="font-medium">{{ t("header.profile") }}</span>
               </RouterLink>
               <RouterLink
@@ -116,21 +124,23 @@
                 to="/voice-settings"
                 class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/10 hover:text-primary-500 dark:hover:text-primary-400 transition-all"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M5 3v18" />
-                  <path d="M19 3v18" />
-                  <rect x="8" y="5" width="8" height="4" rx="1" />
-                  <rect x="8" y="11" width="8" height="4" rx="1" />
-                  <rect x="8" y="17" width="3" height="4" rx="1" />
-                </svg>
+                <SeasonalHeaderIcon kind="voice" compact>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M5 3v18" />
+                    <path d="M19 3v18" />
+                    <rect x="8" y="5" width="8" height="4" rx="1" />
+                    <rect x="8" y="11" width="8" height="4" rx="1" />
+                    <rect x="8" y="17" width="3" height="4" rx="1" />
+                  </svg>
+                </SeasonalHeaderIcon>
                 <span class="font-medium">{{ t("header.voiceSettings") }}</span>
               </RouterLink>
               <RouterLink
@@ -138,19 +148,21 @@
                 to="/favorites"
                 class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/10 hover:text-primary-500 dark:hover:text-primary-400 transition-all"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <polygon
-                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
-                  />
-                </svg>
+                <SeasonalHeaderIcon kind="favorite" compact>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polygon
+                      points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                    />
+                  </svg>
+                </SeasonalHeaderIcon>
                 <span class="font-medium">{{ t("header.favorites") }}</span>
               </RouterLink>
               <RouterLink
@@ -158,17 +170,19 @@
                 to="/history"
                 class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/10 hover:text-primary-500 dark:hover:text-primary-400 transition-all"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
-                </svg>
+                <SeasonalHeaderIcon kind="history" compact>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+                  </svg>
+                </SeasonalHeaderIcon>
                 <span class="font-medium">{{ t("header.history") }}</span>
               </RouterLink>
               <RouterLink
@@ -176,36 +190,40 @@
                 to="/learning-progress"
                 class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/10 hover:text-primary-500 dark:hover:text-primary-400 transition-all"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                </svg>
+                <SeasonalHeaderIcon kind="progress" compact>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                  </svg>
+                </SeasonalHeaderIcon>
                 <span class="font-medium">{{ t("header.learningProgress") }}</span>
               </RouterLink>
               <button
                 @click="$emit('logout')"
                 class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                  <polyline points="16 17 21 12 16 7" />
-                  <line x1="21" y1="12" x2="9" y2="12" />
-                </svg>
+                <SeasonalHeaderIcon kind="logout" compact>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                </SeasonalHeaderIcon>
                 <span class="font-medium">{{ t("header.logout") }}</span>
               </button>
             </div>
@@ -273,6 +291,7 @@
       <img
         :src="userAvatarSrc"
         alt="Avatar"
+        data-header-avatar
         class="w-9 h-9 rounded-full border border-primary-500 pointer-events-none"
       />
     </button>
@@ -280,33 +299,35 @@
       @click="$emit('toggle-mobile-menu')"
       class="xl:hidden w-10 h-10 flex items-center justify-center rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
     >
-      <svg
-        v-if="!isMobileMenuOpen"
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <line x1="3" y1="12" x2="21" y2="12" />
-        <line x1="3" y1="6" x2="21" y2="6" />
-        <line x1="3" y1="18" x2="21" y2="18" />
-      </svg>
-      <svg
-        v-else
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <line x1="18" y1="6" x2="6" y2="18" />
-        <line x1="6" y1="6" x2="18" y2="18" />
-      </svg>
+      <SeasonalHeaderIcon :kind="!isMobileMenuOpen ? 'menu' : 'close'" :size="24">
+        <svg
+          v-if="!isMobileMenuOpen"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+        <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </SeasonalHeaderIcon>
     </button>
   </div>
 </template>
@@ -315,6 +336,7 @@
 import { defineAsyncComponent, ref } from "vue";
 import { RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
+import SeasonalHeaderIcon from "./SeasonalHeaderIcon.vue";
 
 const LanguageSwitcher = defineAsyncComponent(() => import("../../LanguageSwitcher.vue") as any);
 const AvatarZoomModal = defineAsyncComponent(

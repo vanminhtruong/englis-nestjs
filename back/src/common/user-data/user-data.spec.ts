@@ -2,6 +2,7 @@ import { join } from 'path';
 import { DataSource } from 'typeorm';
 import { Category } from '../../entities/category.entity';
 import { CategoryDateTopic } from '../../entities/category-date-topic.entity';
+import { History, HistoryAction } from '../../entities/history.entity';
 import { PracticeHistory, PracticeType } from '../../entities/practice-history.entity';
 import { SrsProgress } from '../../entities/srs-progress.entity';
 import { SrsReview } from '../../entities/srs-review.entity';
@@ -250,6 +251,57 @@ describe('Export, import and sharing carry every page of the app', () => {
     expect(await db.getRepository(SrsReview).count({ where: { userId: bob.id } })).toBe(1);
   });
 
+  it('copies activity for deleted words, repeated practice and card backgrounds', async () => {
+    const users = db.getRepository(User);
+    const source = await users.save(users.create({ fullName: 'Source' }));
+    const recipient = await users.save(users.create({ fullName: 'Recipient' }));
+    const importRecipient = await users.save(users.create({ fullName: 'Import recipient' }));
+    const word = await vocab().save(vocab().create({
+      userId: source.id, word: 'snow', meaning: 'frozen precipitation', pronunciation: '/snoʊ/',
+      backgroundUrl: '/uploads/snow.webp', animatedBackground: 'snow',
+    }));
+    const history = db.getRepository(History);
+    await history.save([
+      history.create({ userId: source.id, action: HistoryAction.VOCABULARY_DELETED, metadata: { word: 'winter' } }),
+      history.create({ userId: source.id, vocabularyId: word.id, action: HistoryAction.PRACTICE_FLASHCARD, metadata: { isCorrect: true, score: 10 } }),
+    ]);
+    const practice = db.getRepository(PracticeHistory);
+    const attempt = {
+      userId: source.id, vocabularyId: word.id, practiceType: PracticeType.FLASHCARD,
+      isCorrect: true, score: 10, timeSpent: 3, userAnswer: '  hello  ',
+      createdAt: new Date('2026-11-01T00:00:00.000Z'),
+    };
+    await practice.save([practice.create(attempt), practice.create(attempt)]);
+    const { snapshot } = await buildUserDataSnapshot(db.manager, source.id, {
+      preferences: {
+        theme: 'dark', vocabularyLayout: 'list', preferredVoiceKey: 'test-voice', seasonalThemesEnabled: true,
+      },
+    });
+    const backup = await xlsxBufferToSnapshot(await snapshotToXlsxBuffer(snapshot));
+    expect(backup.vocabularies[0]).toMatchObject({ backgroundUrl: '/uploads/snow.webp', animatedBackground: 'snow' });
+
+    const imported = await db.transaction((m) => mergeUserDataSnapshot(m, importRecipient.id, backup, 'import'));
+    expect(imported).toMatchObject({ newHistories: 2, newActivities: 2, updatedPreferences: 4 });
+    const again = await db.transaction((m) => mergeUserDataSnapshot(m, importRecipient.id, backup, 'import'));
+    expect(mergeChangeCount(again)).toBe(0);
+    expect(await users.findOneByOrFail({ id: importRecipient.id })).toMatchObject({
+      theme: 'dark', vocabularyLayout: 'list', preferredVoiceKey: 'test-voice', seasonalThemesEnabled: true,
+    });
+    expect((await practice.findOneByOrFail({ userId: importRecipient.id })).userAnswer).toBe('  hello  ');
+
+    const shared = await db.transaction((m) => mergeUserDataSnapshot(m, recipient.id, snapshot, 'share'));
+    expect(shared).toMatchObject({ newHistories: 2, newActivities: 2, updatedPreferences: 0 });
+    const copied = await vocab().findOneByOrFail({ userId: recipient.id, word: 'snow' });
+    expect(copied).toMatchObject({ backgroundUrl: '/uploads/snow.webp', animatedBackground: 'snow' });
+    expect(await history.findOneByOrFail({ userId: recipient.id, action: HistoryAction.PRACTICE_FLASHCARD }))
+      .toMatchObject({ vocabularyId: copied.id, metadata: { isCorrect: true, score: 10 } });
+    expect(await history.findOneByOrFail({ userId: recipient.id, action: HistoryAction.VOCABULARY_DELETED }))
+      .toMatchObject({ vocabularyId: null, metadata: { word: 'winter' } });
+    expect(await users.findOneByOrFail({ id: recipient.id })).toMatchObject({
+      theme: 'light', seasonalThemesEnabled: false,
+    });
+  });
+
   it('does not reset pinned words when importing a file from before those columns existed', async () => {
     const ExcelJS = require('exceljs') as typeof import('exceljs');
     const workbook = new ExcelJS.Workbook();
@@ -265,6 +317,7 @@ describe('Export, import and sharing carry every page of the app', () => {
     ]);
     const legacy = await xlsxBufferToSnapshot(Buffer.from(await workbook.xlsx.writeBuffer()));
     expect(legacy.vocabularies[0].isPinned).toBeUndefined();
+    expect(legacy.vocabularies[0].backgroundUrl).toBeUndefined();
 
     const stats = await db.transaction((m) => mergeUserDataSnapshot(m, bob.id, legacy, 'import'));
     expect(stats.updatedVocabularies).toBeLessThanOrEqual(1);
