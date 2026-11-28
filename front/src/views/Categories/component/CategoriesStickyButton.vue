@@ -9,7 +9,8 @@
   >
     <button
       v-if="showStickyAddButton"
-      @click="$emit('open-create-modal')"
+      data-seasonal-primary
+    @click="$emit('open-create-modal')"
       class="fixed bottom-6 left-6 md:bottom-8 md:left-8 z-40 px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-bold rounded-full shadow-2xl hover:shadow-primary-500/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 backdrop-blur-sm"
     >
       <svg

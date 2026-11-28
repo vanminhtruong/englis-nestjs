@@ -214,7 +214,7 @@
           <span>{{ t("voiceSettings.preview") }}</span>
         </button>
 
-        <button type="button" @click="handleSave" class="btn btn-save">
+        <button type="button" data-seasonal-primary @click="handleSave" class="btn btn-save">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"

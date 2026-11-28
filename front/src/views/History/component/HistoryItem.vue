@@ -82,7 +82,7 @@
                 :class="[
                   'px-3 py-1 rounded-full text-xs font-bold uppercase',
                   history.action.startsWith('vocabulary_')
-                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                    ? 'seasonal-history-vocabulary bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
                     : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
                 ]"
               >

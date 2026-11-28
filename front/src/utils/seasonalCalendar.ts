@@ -14,7 +14,7 @@ const events = [
   { id: 'vietnamWomensDay', month: 10, day: 20, tone: 'bloom', symbol: '✿' },
   { id: 'halloween', month: 10, day: 31, tone: 'autumn', symbol: '🎃' },
   { id: 'teachersDay', month: 11, day: 20, tone: 'ink', symbol: '✎' },
-  { id: 'christmas', month: 12, day: 25, before: 1, tone: 'evergreen', symbol: '❄' },
+  { id: 'christmas', month: 12, day: 25, before: 1, tone: 'christmas', symbol: '❄' },
 ] as const
 
 type EventDefinition = (typeof events)[number]

@@ -25,8 +25,8 @@
     <AppFooter class="seasonal-footer">
       <template v-if="activeEvent" #seasonal-decoration>
         <div class="seasonal-footer-scene" aria-hidden="true">
-          <img v-if="eventArt" :src="eventArt" alt="" loading="lazy" decoding="async" width="900" height="375" />
-          <SeasonalMotifStrip :event-id="activeEvent.id" />
+          <img v-if="eventArt" :src="eventArt" class="seasonal-footer-art" alt="" loading="lazy" decoding="async" width="900" height="375" />
+          <SeasonalMotifStrip :event-id="activeEvent.id" lazy />
         </div>
       </template>
     </AppFooter>
@@ -44,8 +44,8 @@ import {
   seasonalIllustration,
   seasonalScene,
   seasonalFrame,
-  seasonalHeaderIcons,
-  seasonalHeaderIconsKey,
+  seasonalUiArtwork,
+  seasonalUiArtworkKey,
 } from "../utils/seasonalDecor";
 import { seasonalCalendarKey, useSeasonalCalendar } from "../composables/useSeasonalCalendar";
 import { useAuthStore } from "../stores/auth.store";
@@ -66,8 +66,8 @@ const activeEvent = computed(() => {
 });
 
 provide(
-  seasonalHeaderIconsKey,
-  computed(() => activeEvent.value ? seasonalHeaderIcons(activeEvent.value.id) : undefined)
+  seasonalUiArtworkKey,
+  computed(() => activeEvent.value ? seasonalUiArtwork(activeEvent.value.id) : undefined)
 );
 
 const eventArt = computed(() => activeEvent.value ? seasonalScene(activeEvent.value.id) ?? seasonalIllustration(activeEvent.value.id) : undefined);

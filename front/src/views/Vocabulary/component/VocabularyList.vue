@@ -7,7 +7,7 @@
       :vocab-id="vocab.id"
       :initial-background-url="vocab.backgroundUrl"
       :initial-animated-background="vocab.animatedBackground"
-      class="group"
+      class="group vocabulary-scroll-card"
     >
       <template #default="{ hasBackground }">
         <!-- Selection Checkbox -->

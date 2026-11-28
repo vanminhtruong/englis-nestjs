@@ -118,7 +118,7 @@
           <div class="flex border-b border-black/10 dark:border-white/10">
             <button
               type="button"
-              @click="pickerMode = 'preset'"
+              data-seasonal-tab :aria-pressed="pickerMode === 'preset'" @click="pickerMode = 'preset'"
               class="flex-1 py-2.5 text-xs font-semibold transition-colors"
               :class="
                 pickerMode === 'preset'
@@ -130,7 +130,7 @@
             </button>
             <button
               type="button"
-              @click="pickerMode = 'custom'"
+              data-seasonal-tab :aria-pressed="pickerMode === 'custom'" @click="pickerMode = 'custom'"
               class="flex-1 py-2.5 text-xs font-semibold transition-colors"
               :class="
                 pickerMode === 'custom'

@@ -102,7 +102,7 @@
       </button>
 
       <button
-        data-practice-mode="typing"
+        data-practice-mode="typing" data-seasonal-primary
         @click="emit('start-practice-by-date', 'typing')"
         :disabled="loadingPracticeData"
         :class="`w-full p-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all text-left ${loadingPracticeData ? 'opacity-50 cursor-not-allowed' : ''}`"
@@ -119,7 +119,7 @@
       </button>
 
       <button
-        data-practice-mode="image_guess"
+        data-practice-mode="image_guess" data-seasonal-primary
         @click="emit('start-practice-by-date', 'image_guess')"
         :disabled="loadingPracticeData"
         :class="`w-full p-4 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-xl hover:shadow-lg transition-all text-left ${loadingPracticeData ? 'opacity-50 cursor-not-allowed' : ''}`"

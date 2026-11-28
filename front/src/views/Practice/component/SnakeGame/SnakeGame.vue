@@ -58,6 +58,7 @@
         </p>
 
         <button
+          data-seasonal-primary
           @click="startGame"
           class="relative px-4 sm:px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg hover:shadow-emerald-500/50 transform hover:scale-105 transition-all duration-200 overflow-hidden group"
         >

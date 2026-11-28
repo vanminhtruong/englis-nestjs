@@ -30,6 +30,30 @@
   --app-scroll-hover-end: color-mix(in srgb, var(--app-scroll-end) 77%, theme('colors.white'));
 }
 
+/* Christmas ornament colors on both vertical and horizontal scrollbars. */
+:root[data-seasonal-tone='christmas'] {
+  --app-scroll-start: theme('colors.red.700');
+  --app-scroll-end: theme('colors.emerald.700');
+  --app-scroll-middle: theme('colors.amber.500');
+}
+:root.dark[data-seasonal-tone='christmas'] {
+  --app-scroll-start: theme('colors.red.500');
+  --app-scroll-end: theme('colors.emerald.400');
+  --app-scroll-middle: theme('colors.amber.400');
+}
+:root[data-seasonal-tone='christmas'] *::-webkit-scrollbar-thumb {
+  background-image: linear-gradient(180deg, var(--app-scroll-start), var(--app-scroll-middle) 48%, var(--app-scroll-end));
+}
+:root[data-seasonal-tone='christmas'] *::-webkit-scrollbar-thumb:horizontal {
+  background-image: linear-gradient(90deg, var(--app-scroll-start), var(--app-scroll-middle) 48%, var(--app-scroll-end));
+}
+:root[data-seasonal-tone='christmas'] *::-webkit-scrollbar-thumb:is(:hover,:active) {
+  background-image: linear-gradient(180deg, var(--app-scroll-hover-start), var(--app-scroll-middle) 48%, var(--app-scroll-hover-end));
+}
+:root[data-seasonal-tone='christmas'] *::-webkit-scrollbar-thumb:horizontal:is(:hover,:active) {
+  background-image: linear-gradient(90deg, var(--app-scroll-hover-start), var(--app-scroll-middle) 48%, var(--app-scroll-hover-end));
+}
+
 /* Local scroll areas can opt into the smaller shared size.
    Do not inherit the root's wider scrollbar into nested scroll areas. */
 body {

@@ -53,7 +53,7 @@
             <div class="order-last w-full sm:order-none sm:w-auto flex items-center justify-center gap-2 sm:mr-4">
               <div class="flex bg-gray-100 dark:bg-white/10 rounded-xl p-1">
                 <button
-                  type="button" data-drawer-mode="draw" @click="handlers.setMode('draw')"
+                  type="button" data-drawer-mode="draw" data-seasonal-tab :aria-pressed="state.inputMode === 'draw'" @click="handlers.setMode('draw')"
                   :class="[
                     'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
                     state.inputMode === 'draw'
@@ -75,7 +75,7 @@
                   {{ t("wordDrawing.drawMode") }}
                 </button>
                 <button
-                  type="button" data-drawer-mode="keyboard" @click="handlers.setMode('keyboard')"
+                  type="button" data-drawer-mode="keyboard" data-seasonal-tab :aria-pressed="state.inputMode === 'keyboard'" @click="handlers.setMode('keyboard')"
                   :class="[
                     'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
                     state.inputMode === 'keyboard'
@@ -308,7 +308,7 @@
               <div class="mb-3 flex items-center gap-3 flex-wrap">
                 <div class="flex bg-gray-100 dark:bg-white/10 rounded-lg p-0.5">
                   <button
-                    @click="state.keyboardLanguage = 'english'"
+                    data-seasonal-tab :aria-pressed="state.keyboardLanguage === 'english'" @click="state.keyboardLanguage = 'english'"
                     :class="[
                       'flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200',
                       state.keyboardLanguage === 'english'
@@ -320,7 +320,7 @@
                     English
                   </button>
                   <button
-                    @click="state.keyboardLanguage = 'chinese'"
+                    data-seasonal-tab :aria-pressed="state.keyboardLanguage === 'chinese'" @click="state.keyboardLanguage = 'chinese'"
                     :class="[
                       'flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200',
                       state.keyboardLanguage === 'chinese'

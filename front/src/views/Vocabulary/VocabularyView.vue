@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-white dark:bg-black px-3 py-4 sm:p-4 md:p-8">
+  <div class="vocabulary-page min-h-screen bg-white dark:bg-black px-3 py-4 sm:p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
       <div class="mb-8">
         <VocabularyHeader
@@ -25,7 +25,11 @@
           />
         </div>
 
-        <div ref="controlsRef">
+        <div
+          ref="controlsRef"
+          class="vocabulary-controls"
+          :data-controls-above="stickyButton.showStickyAddButton.value || undefined"
+        >
           <VocabularyControls
             :search="vocabularyState.filter.search"
             :labels="{
@@ -165,8 +169,9 @@
     >
       <button
         v-if="stickyButton.showStickyAddButton.value"
+        data-seasonal-primary
         @click="vocabularyState.openCreateModal"
-        class="fixed bottom-6 left-6 md:bottom-8 md:left-8 z-40 px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-bold rounded-full shadow-2xl hover:shadow-primary-500/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 backdrop-blur-sm"
+        class="fixed bottom-6 left-6 md:bottom-8 md:left-8 z-40 px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-bold rounded-full shadow-2xl hover:shadow-primary-500/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -258,10 +263,9 @@
 </template>
 
 <script setup lang="ts">
-import { proxyRefs, ref } from "vue";
+import { defineAsyncComponent, proxyRefs, ref } from "vue";
 import { useToast } from "../../composables/useToast";
 import { vocabularyService } from "./service/vocabulary.service";
-import { defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVocabularyState } from "./composable/manager-state/useVocabularyState";
 import { useVocabularyHandle } from "./composable/manager-handle/useVocabularyHandle";
@@ -415,3 +419,24 @@ useVocabularyMount({
   onMounted: () => tabHandle.loadTabs(),
 });
 </script>
+
+<style scoped>
+/* Bound the glass effect to the filter panel's own surface. Its blur needn't
+   sample the animated backdrop behind the entire page while scrolling. */
+:global([data-seasonal-event] .vocabulary-controls:not([data-controls-above]) .filter-panel) {
+  will-change: opacity;
+}
+
+/* The sticky action already tracks when the filter row is behind the header. */
+:global([data-seasonal-event] .vocabulary-page [data-controls-above] :is(.filter-panel__bg, .filters-content)) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* Preserve the hover states and motion without interpolating shadows or colors
+   on each frame as cards and their buttons pass under a stationary pointer. */
+:global([data-seasonal-event] .vocabulary-page .vocabulary-scroll-card),
+:global([data-seasonal-event] .vocabulary-page .vocabulary-scroll-card :is(button, a, img, svg)) {
+  transition-property: opacity, transform, translate, rotate, scale;
+}
+</style>

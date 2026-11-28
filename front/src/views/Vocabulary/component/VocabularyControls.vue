@@ -50,7 +50,7 @@
 
         <!-- Add Button Section -->
         <div class="filter-section filter-section--action">
-          <button class="add-button" @click="emit('create')">
+          <button data-seasonal-primary class="add-button" @click="emit('create')">
             <span class="add-button__bg"></span>
             <span class="add-button__content">
               <svg

@@ -30,6 +30,7 @@
         {{ session.mode === "flashcard" ? t("practice.whatIsMeaning") : t("practice.typeTheWord") }}
       </p>
       <button
+        data-seasonal-primary
         @click="emit('start-session')"
         class="px-12 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-bold text-xl rounded-2xl hover:shadow-xl transition-all"
       >

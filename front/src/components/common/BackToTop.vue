@@ -12,6 +12,8 @@
       type="button"
       class="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-40 inline-flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-500 text-white shadow-xl shadow-primary-500/20 hover:shadow-2xl hover:shadow-primary-500/40 hover:-translate-y-1 hover:scale-110 active:scale-95 transition-all duration-300 focus:outline-none group"
       @click="scrollToTop"
+      @mouseenter="showProgress"
+      @mouseleave="hideProgress"
     >
       <!-- Pulse Effect Ring -->
       <span
@@ -61,14 +63,28 @@ import { ref, onMounted, onUnmounted } from "vue";
 
 const isVisible = ref(false);
 const scrollPercentage = ref(0);
+let isProgressHovered = false;
 
-const handleScroll = () => {
-  isVisible.value = window.scrollY > 300;
+function updateProgress(scrollTop: number) {
+  const scrollRange = document.documentElement.scrollHeight - window.innerHeight;
+  scrollPercentage.value = scrollRange > 0 ? Math.round((scrollTop / scrollRange) * 100) : 0;
+}
 
+function showProgress() {
+  isProgressHovered = true;
+  updateProgress(window.scrollY);
+}
+
+function hideProgress() {
+  isProgressHovered = false;
+}
+
+function handleScroll() {
   const scrollTop = window.scrollY;
-  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-  scrollPercentage.value = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
-};
+  isVisible.value = scrollTop > 300;
+  if (!isVisible.value) hideProgress();
+  if (isProgressHovered) updateProgress(scrollTop);
+}
 
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });

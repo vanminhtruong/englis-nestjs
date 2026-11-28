@@ -292,6 +292,7 @@
         </button>
         <button
           v-else
+          data-seasonal-primary
           @click="emit('restart')"
           class="w-full py-4 px-6 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
         >

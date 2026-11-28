@@ -21,7 +21,7 @@
               ? 'bg-white text-black shadow-sm dark:border-white/15 dark:bg-black dark:text-white dark:shadow-none'
               : 'text-gray-500 hover:bg-white/70 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-200'
           "
-          :aria-pressed="mode === method.id"
+          data-seasonal-tab :aria-pressed="mode === method.id"
           @click="switchMode(method.id)"
         >
           <span class="mr-0.5" aria-hidden="true">{{ method.icon }}</span>
@@ -166,7 +166,7 @@
           type="button"
           :disabled="busy || !urlDraft.trim()"
           class="inline-flex min-h-9 w-full items-center justify-center rounded-xl bg-black px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-black/85 disabled:cursor-not-allowed disabled:opacity-45 dark:border dark:border-white/20 dark:bg-white/15 dark:text-white dark:hover:bg-white/25"
-          @click="importUrl"
+          data-seasonal-primary @click="importUrl"
         >
           {{ uploading ? t("background.uploading") : t("background.importUrlButton") }}
         </button>
@@ -187,7 +187,7 @@
               type="button"
               :disabled="busy"
               class="rounded-lg bg-black px-3 py-1.5 text-xs font-bold text-white hover:bg-black/85 disabled:opacity-50 dark:bg-white/20 dark:hover:bg-white/30"
-              @click="uploadSelected"
+              data-seasonal-primary @click="uploadSelected"
             >
               {{ uploading ? t("background.uploading") : t("background.uploadAndApply") }}
             </button>

@@ -55,6 +55,8 @@
   background-size: auto 145%, auto 145%;
   background-position: 0 85%, calc(var(--rail-depth) * 5.4375) 100%;
   background-color: transparent;
+  /* Cache each narrow vector rail, not an entire transparent viewport. */
+  will-change: transform;
 }
 .seasonal-frame-top, .seasonal-frame-bottom {
   left: 0;
@@ -105,6 +107,13 @@
   --event-solid-hover: color-mix(in srgb, var(--seasonal-accent) 85%, theme('colors.gray.900'));
   --event-glow: color-mix(in srgb, var(--seasonal-highlight) 18%, transparent);
 }
+/* Vocabulary history badges use the active event palette, while correctness
+   and other semantic badges retain their original status colors. */
+[data-seasonal-event] .seasonal-history-vocabulary {
+  color: var(--seasonal-ink);
+  background-color: var(--event-hover);
+}
+
 .dark [data-seasonal-event] {
   --event-hover: color-mix(in srgb, var(--seasonal-accent) 23%, transparent);
   --event-line: color-mix(in srgb, var(--seasonal-accent) 65%, transparent);
@@ -140,7 +149,8 @@
 [data-seasonal-event] .app-choice-tab {
   overflow: visible;
 }
-[data-seasonal-event] .app-choice-tab:is([aria-selected='true'],[aria-pressed='true'])::after {
+[data-seasonal-event] .app-choice-tab:is([aria-selected='true'],[aria-pressed='true'])::after,
+[data-seasonal-event] [data-seasonal-tab]:is([aria-selected='true'],[aria-pressed='true'])::after {
   content: var(--seasonal-action-mark) / '';
   position: absolute;
   inset: auto 0 auto auto;
@@ -155,7 +165,8 @@
   transform: translate(22%, -49%) rotate(12deg);
   pointer-events: none;
 }
-[data-seasonal-event='christmas'] .app-choice-tab:is([aria-selected='true'],[aria-pressed='true'])::after {
+[data-seasonal-event='christmas'] .app-choice-tab:is([aria-selected='true'],[aria-pressed='true'])::after,
+[data-seasonal-event='christmas'] [data-seasonal-tab]:is([aria-selected='true'],[aria-pressed='true'])::after {
   content: '';
   width: 1.85rem;
   height: 1.55rem;
@@ -191,15 +202,18 @@
   background-image: linear-gradient(110deg,var(--event-hover),transparent 70%),var(--seasonal-pattern);
   background-size: auto,180px 180px;
 }
-[data-seasonal-event] .seasonal-footer-scene { border-color: var(--event-line); }
 [data-seasonal-event] .seasonal-garland { background-image: linear-gradient(90deg,var(--event-hover),transparent,var(--event-hover)); }
 /* Match the original Codex corner placement across main actions and submit
    buttons, including teleported dialogs and footer. */
-[data-seasonal-event] :is(.seasonal-content,.seasonal-footer,[role='dialog'],[data-seasonal-dialog]) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600,button[type='submit']):not(.app-choice-tab,.app-brand-link,[role],[aria-pressed],[disabled],[data-seasonal-preview-action],.absolute,.fixed,.sticky,[class*='text-transparent']) {
+[data-seasonal-event] :is(.seasonal-content,.seasonal-footer,[role='dialog'],[data-seasonal-dialog]) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600,button[type='submit']):not(.app-choice-tab,.app-brand-link,[role],[aria-pressed],[disabled],[data-seasonal-preview-action],.absolute,.fixed,.sticky,[class*='text-transparent']),
+[data-seasonal-event] :is(button,a)[data-seasonal-primary]:not([disabled],[aria-disabled='true'],[aria-pressed],[aria-selected]):not(.fixed,.absolute,.sticky),
+[data-seasonal-event] [data-seasonal-tab]:is([aria-selected='true'],[aria-pressed='true']) {
   position: relative;
   overflow: visible;
 }
-[data-seasonal-event] :is(.seasonal-content,.seasonal-footer,[role='dialog'],[data-seasonal-dialog]) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600,button[type='submit']):not(.app-choice-tab,.app-brand-link,[role],[aria-pressed],[disabled],[data-seasonal-preview-action],.absolute,.fixed,.sticky,[class*='text-transparent'])::before {
+[data-seasonal-event] :is(button,a)[data-seasonal-primary]:not([disabled],[aria-disabled='true'],[aria-pressed],[aria-selected]):is(.fixed,.absolute,.sticky) { overflow: visible; }
+[data-seasonal-event] :is(.seasonal-content,.seasonal-footer,[role='dialog'],[data-seasonal-dialog]) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600,button[type='submit']):not(.app-choice-tab,.app-brand-link,[role],[aria-pressed],[disabled],[data-seasonal-preview-action],.absolute,.fixed,.sticky,[class*='text-transparent'])::before,
+[data-seasonal-event] :is(button,a)[data-seasonal-primary]:not([disabled],[aria-disabled='true'],[aria-pressed],[aria-selected])::before {
   content: var(--seasonal-action-mark) / '';
   position: absolute;
   top: 0;
@@ -214,7 +228,8 @@
   transform: translate(22%, -49%) rotate(12deg);
   pointer-events: none;
 }
-[data-seasonal-event='christmas'] :is(.seasonal-content,.seasonal-footer,[role='dialog'],[data-seasonal-dialog]) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600,button[type='submit']):not(.app-choice-tab,.app-brand-link,[role],[aria-pressed],[disabled],[data-seasonal-preview-action],.absolute,.fixed,.sticky,[class*='text-transparent'])::before {
+[data-seasonal-event='christmas'] :is(.seasonal-content,.seasonal-footer,[role='dialog'],[data-seasonal-dialog]) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600,button[type='submit']):not(.app-choice-tab,.app-brand-link,[role],[aria-pressed],[disabled],[data-seasonal-preview-action],.absolute,.fixed,.sticky,[class*='text-transparent'])::before,
+[data-seasonal-event='christmas'] :is(button,a)[data-seasonal-primary]:not([disabled],[aria-disabled='true'],[aria-pressed],[aria-selected])::before {
   content: '';
   width: 1.85rem;
   height: 1.55rem;
@@ -394,10 +409,10 @@
   --practice-four: theme('colors.rose.700');
 }
 [data-seasonal-event='christmas'] {
-  --practice-one: theme('colors.emerald.700');
-  --practice-two: theme('colors.red.700');
+  --practice-one: theme('colors.red.700');
+  --practice-two: theme('colors.emerald.800');
   --practice-three: theme('colors.amber.700');
-  --practice-four: theme('colors.sky.700');
+  --practice-four: theme('colors.teal.800');
 }
 
 [data-seasonal-event] [data-practice-mode] {
@@ -446,6 +461,191 @@
     color-mix(in srgb, var(--practice-card-start) 83%, theme('colors.gray.950')),
     color-mix(in srgb, var(--practice-card-end) 48%, theme('colors.gray.950')));
 }
+
+/* Christmas-specific composition, shared by all routes and teleported UI.
+   A balanced palette: red velvet, fir, gold ribbon, teal ornaments and snow. */
+[data-seasonal-event='christmas'] {
+  --event-solid: theme('colors.red.800');
+  --event-solid-hover: theme('colors.red.700');
+  --event-fill-gradient: var(--christmas-red-fill);
+  --event-surface-gradient: linear-gradient(145deg, color-mix(in srgb, var(--seasonal-fir) 11%, transparent), color-mix(in srgb, var(--seasonal-highlight) 15%, transparent));
+  --event-title-gradient: linear-gradient(115deg, theme('colors.red.800') 0 40%, theme('colors.emerald.800') 70%, theme('colors.teal.800'));
+  --event-line: color-mix(in srgb, var(--seasonal-accent) 42%, transparent);
+  --event-glow: color-mix(in srgb, var(--seasonal-highlight) 22%, transparent);
+}
+.dark [data-seasonal-event='christmas'] {
+  --event-title-gradient: linear-gradient(115deg, theme('colors.red.200') 0 32%, theme('colors.amber.200') 54%, theme('colors.emerald.200') 82%, theme('colors.teal.200'));
+  --event-line: color-mix(in srgb, var(--seasonal-accent) 62%, transparent);
+}
+[data-seasonal-event='christmas'] :is(.seasonal-header,.seasonal-footer) {
+  background-image: radial-gradient(ellipse at 50% 0, color-mix(in srgb, var(--seasonal-highlight) 18%, transparent), transparent 55%),
+    linear-gradient(105deg, color-mix(in srgb, var(--seasonal-accent) 20%, transparent), transparent 40%, color-mix(in srgb, var(--seasonal-fir) 20%, transparent) 85%, color-mix(in srgb, var(--seasonal-teal) 17%, transparent));
+}
+[data-seasonal-event='christmas'] .seasonal-header {
+  border-bottom-color: color-mix(in srgb, var(--seasonal-highlight) 65%, var(--seasonal-accent));
+}
+[data-seasonal-event='christmas'] .seasonal-header::after,
+[data-seasonal-event='christmas'] .seasonal-progress {
+  background-image: repeating-linear-gradient(115deg, theme('colors.red.700') 0 1.1rem,
+    theme('colors.white') 1.1rem 1.35rem, theme('colors.red.600') 1.35rem 2.1rem,
+    theme('colors.amber.400') 2.1rem 2.35rem, theme('colors.emerald.700') 2.35rem 3.45rem,
+    theme('colors.white') 3.45rem 3.7rem, theme('colors.teal.700') 3.7rem 4.4rem);
+}
+[data-seasonal-event='christmas'] .seasonal-content {
+  background-image: radial-gradient(ellipse at 0 0, color-mix(in srgb, var(--seasonal-accent) 13%, transparent), transparent 45rem),
+    radial-gradient(ellipse at 100% 0, color-mix(in srgb, var(--seasonal-fir) 15%, transparent), transparent 38rem),
+    radial-gradient(ellipse at 90% 60%, color-mix(in srgb, var(--seasonal-teal) 8%, transparent), transparent 48rem),
+    radial-gradient(ellipse at 0 75%, color-mix(in srgb, var(--seasonal-highlight) 13%, transparent), transparent 42rem),
+    var(--seasonal-pattern);
+  background-size: auto, auto, auto, auto, 180px 180px;
+}
+[data-seasonal-event='christmas'] .seasonal-banner.seasonal-hero {
+  background: radial-gradient(ellipse at 50% 0, color-mix(in srgb, var(--seasonal-highlight) 24%, transparent), transparent 60%),
+    linear-gradient(120deg, color-mix(in srgb, var(--seasonal-accent) 22%, transparent), transparent 48%, color-mix(in srgb, var(--seasonal-fir) 21%, transparent) 80%, color-mix(in srgb, var(--seasonal-teal) 19%, transparent));
+  border-color: color-mix(in srgb, var(--seasonal-accent) 55%, var(--seasonal-highlight));
+}
+[data-seasonal-event='christmas'] .seasonal-garland {
+  background-image: linear-gradient(90deg, theme('colors.emerald.900'), theme('colors.emerald.700') 30%, theme('colors.teal.800') 60%, theme('colors.emerald.900'));
+  border-bottom: 2px solid var(--seasonal-highlight);
+}
+[data-seasonal-event='christmas'] :is(.seasonal-content,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog']) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='bg-clip-text'],[class*='text-transparent']) {
+  background-image: var(--event-fill-gradient);
+}
+[data-seasonal-event='christmas'] :is(.seasonal-content,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog']) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='bg-clip-text'],[class*='text-transparent']):hover {
+  background-image: linear-gradient(125deg, theme('colors.red.800'), theme('colors.red.500'));
+}
+[data-seasonal-event='christmas'] :is(.bg-clip-text.text-transparent,.text-gradient):not(.app-brand-link *),
+[data-seasonal-event='christmas'] .seasonal-content :is(.modes-title,.voice-settings-page .page-title) {
+  background-image: var(--event-title-gradient);
+}
+[data-seasonal-event='christmas'] [class*='bg-gradient-to-']:is(.from-primary-500,.from-primary-600,.from-primary-700):not(.bg-clip-text,.app-brand-link,.app-brand-link *) {
+  background-image: var(--event-fill-gradient);
+}
+[data-seasonal-event='christmas'] .seasonal-content :is(.add-button__bg,.filters-toggle__badge,.difficulty-chip--all:is(:hover,.difficulty-chip--active),.stats-icon,.practice-icon,.mastery-progress-fill,.weekly-chart .bar.active,.weekly-legend .legend-dot.active,.achievement-progress .progress-fill,.voice-settings-page .header-badge,.voice-settings-container :is(.header-icon,.btn-save)) {
+  background-image: var(--event-fill-gradient);
+}
+[data-seasonal-event='christmas'] .seasonal-content :is([data-seasonal-metrics] > div,.filter-panel,.filters-toggle,.voice-settings-container .settings-header,.achievement-item.unlocked) {
+  background-image: var(--event-surface-gradient);
+  border-color: var(--event-line);
+}
+[data-seasonal-event='christmas'] :is(.app-choice-tab:is([aria-selected='true'],[aria-pressed='true']),.voice-settings-container :is(.dropdown-option.is-active,.voice-card.is-selected),.seasonal-content .filters-toggle--active) {
+  background-image: var(--event-surface-gradient);
+  border-color: var(--event-line);
+  color: var(--seasonal-ink);
+}
+[data-seasonal-event='christmas'] .seasonal-content [data-seasonal-home-stats] {
+  background-image: linear-gradient(120deg, theme('colors.emerald.950'), theme('colors.emerald.800') 48%, theme('colors.teal.800'));
+  border-color: var(--seasonal-highlight);
+}
+[data-seasonal-event='christmas'] .footer-feature--seasonal {
+  border-color: color-mix(in srgb, var(--seasonal-accent) 50%, var(--seasonal-highlight));
+}
+
+/* Complementary Christmas colors are assigned to actual UI roles, not just decorations. */
+[data-seasonal-event='christmas'] :is(.seasonal-content,.seasonal-footer,.seasonal-header,[role='dialog'],[data-seasonal-dialog]) :is(button,a):is(.bg-secondary-500,.bg-secondary-600,.bg-secondary-700,.from-secondary-500,.from-secondary-600,.from-secondary-700):not([disabled],[aria-disabled='true'],.app-brand-link,.bg-clip-text,[class*='text-transparent']) {
+  background-image: var(--christmas-fir-fill);
+  border-color: var(--seasonal-fir);
+}
+[data-seasonal-event='christmas'] :is(.seasonal-header,.seasonal-footer) .seasonal-brand-name {
+  background-image: var(--event-title-gradient);
+}
+[data-seasonal-event='christmas'] .seasonal-header :is(a.router-link-active,a[aria-current='page']):not(.app-brand-link) {
+  box-shadow: inset 0 -2px var(--seasonal-fir);
+  color: var(--seasonal-fir);
+}
+[data-seasonal-event='christmas'] :is(.seasonal-header,[data-seasonal-dropdown],.more-tabs-dropdown) :is(button,a,[role='option']):not([disabled],[class*='text-red'],.app-brand-link):hover {
+  text-decoration-color: var(--seasonal-fir);
+}
+[data-seasonal-event='christmas'] :is([data-seasonal-dropdown],.more-tabs-dropdown) :is(button,[role='option']):not([disabled],[class*='text-red']):hover {
+  background-color: color-mix(in srgb, var(--seasonal-fir) 12%, transparent);
+}
+[data-seasonal-event='christmas'] [role='option'][aria-selected='true'] {
+  background-color: color-mix(in srgb, var(--seasonal-fir) 16%, transparent);
+  box-shadow: inset 2px 0 var(--seasonal-fir);
+}
+[data-seasonal-event='christmas'] .seasonal-content .app-choice-tab:is([aria-selected='true'],[aria-pressed='true']),
+[data-seasonal-event='christmas'] :is([role='dialog'],[data-seasonal-dialog]) .app-choice-tab:is([aria-selected='true'],[aria-pressed='true']) {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--seasonal-fir) 13%, theme('colors.white')), theme('colors.amber.50'));
+  color: var(--seasonal-fir);
+  outline-color: var(--seasonal-fir);
+  box-shadow: inset 0 -2px var(--seasonal-fir);
+}
+.dark [data-seasonal-event='christmas'] .seasonal-content .app-choice-tab:is([aria-selected='true'],[aria-pressed='true']),
+.dark [data-seasonal-event='christmas'] :is([role='dialog'],[data-seasonal-dialog]) .app-choice-tab:is([aria-selected='true'],[aria-pressed='true']) {
+  background: linear-gradient(135deg, theme('colors.emerald.950'), theme('colors.gray.950'));
+  color: var(--seasonal-fir);
+}
+[data-seasonal-event='christmas'] .seasonal-content [data-seasonal-card]:not([data-practice-mode],[style*='background']) {
+  --christmas-card-accent: var(--seasonal-accent);
+  border-color: color-mix(in srgb, var(--christmas-card-accent) 36%, transparent);
+  box-shadow: inset 0 2px color-mix(in srgb, var(--christmas-card-accent) 55%, transparent);
+}
+[data-seasonal-event='christmas'] .seasonal-content [data-seasonal-card]:nth-child(4n+2) { --christmas-card-accent: var(--seasonal-fir); }
+[data-seasonal-event='christmas'] .seasonal-content [data-seasonal-card]:nth-child(4n+3) { --christmas-card-accent: var(--seasonal-gold); }
+[data-seasonal-event='christmas'] .seasonal-content [data-seasonal-card]:nth-child(4n) { --christmas-card-accent: var(--seasonal-teal); }
+[data-seasonal-event='christmas'] .seasonal-content [data-seasonal-card]:not([data-practice-mode],[style*='background'])::after {
+  background: linear-gradient(230deg, color-mix(in srgb, var(--christmas-card-accent) 21%, transparent), transparent 85%);
+}
+[data-seasonal-event='christmas'] .seasonal-content [data-seasonal-card]:not([data-practice-mode],[style*='background']):hover {
+  border-color: var(--christmas-card-accent);
+}
+[data-seasonal-event='christmas'] [data-seasonal-metrics] > div {
+  --christmas-metric: var(--seasonal-gold);
+  background-image: linear-gradient(140deg, color-mix(in srgb, var(--christmas-metric) 14%, transparent), color-mix(in srgb, var(--christmas-metric) 5%, transparent));
+  border-color: color-mix(in srgb, var(--christmas-metric) 48%, transparent);
+}
+[data-seasonal-event='christmas'] [data-seasonal-metrics] > div:nth-child(4n+2) { --christmas-metric: var(--seasonal-fir); }
+[data-seasonal-event='christmas'] [data-seasonal-metrics] > div:nth-child(4n+3) { --christmas-metric: var(--seasonal-ink); }
+[data-seasonal-event='christmas'] [data-seasonal-metrics] > div:nth-child(4n) { --christmas-metric: var(--seasonal-teal); }
+[data-seasonal-event='christmas'] .seasonal-content [data-seasonal-metrics] > div :is([class*='text-blue-'],[class*='text-purple-'],[class*='text-green-'],[class*='text-orange-']),
+.dark [data-seasonal-event='christmas'] .seasonal-content [data-seasonal-metrics] > div :is([class*='text-blue-'],[class*='text-purple-'],[class*='text-green-'],[class*='text-orange-']) {
+  color: var(--christmas-metric);
+}
+.dark [data-seasonal-event='christmas'] .seasonal-content [data-seasonal-metrics] > div {
+  background-image: linear-gradient(140deg, color-mix(in srgb, var(--christmas-metric) 14%, transparent), color-mix(in srgb, var(--christmas-metric) 5%, transparent));
+  border-color: color-mix(in srgb, var(--christmas-metric) 48%, transparent);
+}
+[data-seasonal-event='christmas'] [data-seasonal-profile-icon] {
+  color: var(--seasonal-teal);
+  background-color: color-mix(in srgb, var(--seasonal-teal) 12%, transparent);
+}
+[data-seasonal-event='christmas'] [data-seasonal-profile-action] > svg { color: var(--seasonal-fir); }
+[data-seasonal-event='christmas'] .seasonal-content :is(.stats-icon,.practice-icon,.voice-settings-container .header-icon,.filters-toggle__badge) {
+  background-image: var(--christmas-teal-fill);
+}
+[data-seasonal-event='christmas'] .seasonal-content :is(.mastery-progress-fill,.weekly-chart .bar.active,.weekly-legend .legend-dot.active) {
+  background-image: var(--christmas-fir-fill);
+}
+[data-seasonal-event='christmas'] .seasonal-content :is(.achievement-progress .progress-fill,.voice-settings-page .header-badge) {
+  background-image: var(--christmas-gold-fill);
+}
+[data-seasonal-event='christmas'] :is([role='dialog'],[data-seasonal-dialog]) :is(header,[data-seasonal-dialog-header]) {
+  background-image: linear-gradient(110deg, color-mix(in srgb, var(--seasonal-fir) 17%, transparent), color-mix(in srgb, var(--seasonal-highlight) 14%, transparent), transparent),var(--seasonal-pattern);
+}
+[data-seasonal-event='christmas'] .footer-feature--seasonal {
+  background-image: linear-gradient(120deg, color-mix(in srgb, var(--seasonal-fir) 17%, transparent), color-mix(in srgb, var(--seasonal-highlight) 13%, transparent), color-mix(in srgb, var(--seasonal-teal) 16%, transparent));
+}
+[data-seasonal-event='christmas'] .seasonal-emblem {
+  color: var(--seasonal-fir);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--seasonal-fir) 16%, transparent), color-mix(in srgb, var(--seasonal-highlight) 22%, transparent));
+}
+[data-seasonal-event='christmas'] .seasonal-date { color: var(--seasonal-gold); background-color: color-mix(in srgb, var(--seasonal-highlight) 19%, transparent); }
+[data-seasonal-tone='christmas'].seasonal-preview-sample {
+  background: linear-gradient(120deg, color-mix(in srgb, var(--seasonal-accent) 16%, transparent), color-mix(in srgb, var(--seasonal-highlight) 12%, transparent), color-mix(in srgb, var(--seasonal-fir) 19%, transparent));
+}
+[data-seasonal-event='christmas'] [data-seasonal-preview-exit] {
+  color: theme('colors.emerald.800');
+  background: var(--christmas-snow-fill);
+  border-color: var(--seasonal-fir);
+}
+.dark [data-seasonal-event='christmas'] [data-seasonal-preview-exit] { color: var(--seasonal-fir); }
+[data-seasonal-event='christmas'] .seasonal-stage-spark { color: var(--seasonal-gold); }
+[data-seasonal-event='christmas'] .seasonal-stage-spark-third { color: var(--seasonal-teal); }
+[data-seasonal-event='christmas'] .seasonal-motif:nth-child(4n+1) { border-color: color-mix(in srgb, var(--seasonal-accent) 32%, transparent); }
+[data-seasonal-event='christmas'] .seasonal-motif:nth-child(4n+2) { background-color: color-mix(in srgb, var(--seasonal-fir) 13%, transparent); border-color: color-mix(in srgb, var(--seasonal-fir) 30%, transparent); }
+[data-seasonal-event='christmas'] .seasonal-motif:nth-child(4n+3) { background-color: color-mix(in srgb, var(--seasonal-highlight) 15%, transparent); border-color: color-mix(in srgb, var(--seasonal-gold) 30%, transparent); }
+[data-seasonal-event='christmas'] .seasonal-motif:nth-child(4n) { background-color: color-mix(in srgb, var(--seasonal-teal) 13%, transparent); border-color: color-mix(in srgb, var(--seasonal-teal) 30%, transparent); }
+[data-seasonal-event='christmas'] .seasonal-garland .seasonal-motif:nth-child(n) { background: none; border: 0; }
 
 @media(prefers-reduced-motion: reduce) {
   .app-brand-link .char-animate { animation: none; }

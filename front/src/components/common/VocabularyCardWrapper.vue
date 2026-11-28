@@ -10,7 +10,10 @@
     :style="hasBackground && !hasAnimatedBg ? backgroundStyle : {}"
   >
     <!-- Background Wrapper (Clip background effects but not popup) -->
-    <div class="absolute inset-0 rounded-2xl overflow-hidden z-0 pointer-events-none">
+    <div
+      v-if="hasBackground || hasAnimatedBg"
+      class="vocabulary-card-background absolute inset-0 rounded-2xl overflow-hidden z-0 pointer-events-none"
+    >
       <!-- Animated Background -->
       <FlowerGrowAnimation v-if="hasAnimatedBg" />
 
@@ -113,7 +116,7 @@
         <!-- Tab Switcher: Static / Animated -->
         <div class="flex border-b border-gray-200 dark:border-white/10">
           <button
-            @click="bgType = 'static'"
+            data-seasonal-tab :aria-pressed="bgType === 'static'" @click="bgType = 'static'"
             class="flex-1 py-2.5 text-xs font-medium transition-all"
             :class="
               bgType === 'static'
@@ -124,7 +127,7 @@
             🖼️ Nền tĩnh
           </button>
           <button
-            @click="bgType = 'animated'"
+            data-seasonal-tab :aria-pressed="bgType === 'animated'" @click="bgType = 'animated'"
             class="flex-1 py-2.5 text-xs font-medium transition-all"
             :class="
               bgType === 'animated'
@@ -136,7 +139,7 @@
           </button>
           <button
             type="button"
-            @click="bgType = 'custom'"
+            data-seasonal-tab :aria-pressed="bgType === 'custom'" @click="bgType = 'custom'"
             class="flex-1 py-2.5 text-xs font-medium transition-all"
             :class="
               bgType === 'custom'
@@ -515,9 +518,11 @@ const clearBackground = () => {
 </script>
 
 <style scoped>
-
-
-
+/* The decorative layer has fixed bounds, so the browser can skip its rendering
+   off screen without affecting card size or clipping its interactive controls. */
+.vocabulary-card-background {
+  content-visibility: auto;
+}
 
 .optimized-list {
   content-visibility: auto;

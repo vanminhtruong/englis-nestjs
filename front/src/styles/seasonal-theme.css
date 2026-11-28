@@ -32,10 +32,43 @@
   --seasonal-ink: theme('colors.sky.800');
 }
 
-[data-seasonal-tone='evergreen'] {
-  --seasonal-accent: theme('colors.emerald.600');
-  --seasonal-highlight: theme('colors.red.500');
-  --seasonal-ink: theme('colors.emerald.800');
+/* Christmas: Santa red first, warm gold, snowy white and fir green.
+   Use the existing Tailwind red/emerald ramps for the app's shared brand utilities.
+   Semantic red/green/amber utilities are not remapped. */
+[data-seasonal-tone='christmas'] {
+  --seasonal-accent: theme('colors.red.700');
+  --seasonal-highlight: theme('colors.amber.400');
+  --seasonal-ink: theme('colors.red.800');
+  --seasonal-fir: theme('colors.emerald.800');
+  --seasonal-gold: theme('colors.amber.800');
+  --seasonal-teal: theme('colors.teal.800');
+  --seasonal-snow: theme('colors.white');
+  --christmas-red-fill: linear-gradient(135deg, theme('colors.red.900'), theme('colors.red.700'));
+  --christmas-fir-fill: linear-gradient(135deg, theme('colors.emerald.950'), theme('colors.emerald.700'));
+  --christmas-gold-fill: linear-gradient(135deg, theme('colors.amber.950'), theme('colors.amber.700'));
+  --christmas-teal-fill: linear-gradient(135deg, theme('colors.teal.950'), theme('colors.teal.700'));
+  --christmas-snow-fill: linear-gradient(135deg, theme('colors.white'), theme('colors.amber.50'));
+  --seasonal-wash: 13%;
+  --app-primary-50: 254 242 242;
+  --app-primary-100: 254 226 226;
+  --app-primary-200: 254 202 202;
+  --app-primary-300: 252 165 165;
+  --app-primary-400: 248 113 113;
+  --app-primary-500: 220 38 38;
+  --app-primary-600: 185 28 28;
+  --app-primary-700: 153 27 27;
+  --app-primary-800: 127 29 29;
+  --app-primary-900: 69 10 10;
+  --app-secondary-50: 236 253 245;
+  --app-secondary-100: 209 250 229;
+  --app-secondary-200: 167 243 208;
+  --app-secondary-300: 110 231 183;
+  --app-secondary-400: 52 211 153;
+  --app-secondary-500: 5 150 105;
+  --app-secondary-600: 4 120 87;
+  --app-secondary-700: 6 95 70;
+  --app-secondary-800: 6 78 59;
+  --app-secondary-900: 2 44 34;
 }
 
 .dark [data-seasonal-tone] {
@@ -50,7 +83,18 @@
 .dark [data-seasonal-tone='bloom'] { --seasonal-ink: theme('colors.rose.200'); }
 .dark :is([data-seasonal-tone='moon'], [data-seasonal-tone='autumn']) { --seasonal-ink: theme('colors.amber.200'); }
 .dark [data-seasonal-tone='ink'] { --seasonal-ink: theme('colors.sky.200'); }
-.dark [data-seasonal-tone='evergreen'] { --seasonal-ink: theme('colors.emerald.200'); }
+:root.dark[data-seasonal-tone='christmas'],
+.dark [data-seasonal-tone='christmas'] {
+  --seasonal-accent: theme('colors.red.500');
+  --seasonal-highlight: theme('colors.amber.300');
+  --seasonal-ink: theme('colors.red.200');
+  --seasonal-fir: theme('colors.emerald.300');
+  --seasonal-gold: theme('colors.amber.300');
+  --seasonal-teal: theme('colors.teal.300');
+  --seasonal-snow: theme('colors.slate.100');
+  --christmas-snow-fill: linear-gradient(135deg, theme('colors.slate.900'), theme('colors.gray.950'));
+  --seasonal-wash: 19%;
+}
 
 [data-seasonal-event] .seasonal-header,
 [data-seasonal-event] .seasonal-footer {
@@ -147,6 +191,9 @@
   inset: 68px 0 0;
   overflow: clip;
   pointer-events: none;
+  /* The overlay already clips its artwork to the viewport. Bound damage
+     tracking here so moving flakes cannot invalidate the scrolling page. */
+  contain: layout paint;
 }
 
 .seasonal-particle {
@@ -212,7 +259,7 @@
   mask-image: linear-gradient(90deg, black, transparent 46% 54%, black);
 }
 
-[data-seasonal-event] .seasonal-brand-mark {
+[data-seasonal-event] .seasonal-brand-mark:not([data-seasonal-brand-loaded]) {
   position: relative;
   background-image: var(--event-fill-gradient, linear-gradient(135deg,
     var(--event-solid),
@@ -228,18 +275,6 @@
 [data-seasonal-event] .app-brand-link:is(:hover, :focus-visible) .seasonal-brand-name {
   background-image: none;
   color: var(--seasonal-ink);
-}
-
-[data-seasonal-event] .seasonal-brand-mark::after {
-  position: absolute;
-  top: -0.48rem;
-  right: -0.38rem;
-  pointer-events: none;
-  content: var(--seasonal-action-mark) / '';
-  color: var(--seasonal-ink);
-  font-size: 1rem;
-  line-height: 1;
-  transform: rotate(12deg);
 }
 
 [data-seasonal-event] .seasonal-footer {
@@ -385,7 +420,6 @@
   --seasonal-hat: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 26'%3E%3Cpath d='M4 19C6 11 10 4 19 3c7 0 10 5 11 9l-6 2c-2-4-4-4-5-3l-1 7z' fill='%23dc2626' stroke='%23991b1b' stroke-width='1.15'/%3E%3Cpath d='M4 17c4-2 12-2 17 0 2 1 2 5 0 6-5 2-13 2-18 0-2-1-1-5 1-6z' fill='%23fff' stroke='%23cbd5e1' stroke-width='1.2'/%3E%3Ccircle cx='27.5' cy='14' r='3.7' fill='%23fff' stroke='%23cbd5e1' stroke-width='1.2'/%3E%3C/svg%3E");
 }
 
-[data-seasonal-event='christmas'] .seasonal-brand-mark::after,
 [data-seasonal-event='christmas'] .seasonal-content :is(button, a):is([class~='from-primary-500'], [class~='from-primary-600'], [class~='bg-primary-600'], [class~='bg-primary-700']):not([role], [aria-pressed], [disabled], [data-seasonal-preview-action], .absolute, .fixed, .sticky)::before {
   width: 1.6rem;
   height: 1.35rem;
@@ -415,40 +449,55 @@
 [data-seasonal-event] .seasonal-footer { background-color: theme('colors.white'); }
 .dark [data-seasonal-event] .seasonal-footer { background-color: theme('colors.black'); }
 [data-seasonal-event] .seasonal-footer::after { display: none; }
-[data-seasonal-event] .seasonal-footer-scene {
+.seasonal-footer-scene {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  align-items: center;
-  gap: clamp(.5rem, 2vw, 2rem);
-  width: min(100% - 2rem, 1320px);
-  margin: 1.5rem auto 0;
-  padding: .75rem 1rem;
-  border-radius: 1.25rem;
-  border: 1px solid color-mix(in srgb, var(--seasonal-accent) 28%, transparent);
-  background-image: linear-gradient(125deg, color-mix(in srgb, var(--seasonal-accent) var(--seasonal-wash), transparent), color-mix(in srgb, var(--seasonal-highlight) 8%, transparent));
+  justify-items: center;
+  gap: .6rem;
+  min-width: 0;
 }
-.seasonal-footer-scene img { display: block; width: 100%; height: auto; max-height: 10rem; object-fit: contain; }
+
+.seasonal-footer-art {
+  display: block;
+  width: min(100%, 35rem);
+  height: auto;
+  max-height: 15rem;
+  object-fit: contain;
+  border-radius: .85rem;
+}
+
 .seasonal-motif-strip {
+  --seasonal-motif-size: clamp(1.95rem, 3.4vw, 3rem);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: .35rem;
+  gap: clamp(.23rem, .5vw, .42rem);
   width: 100%;
-  padding: .35rem 0;
+  padding: .3rem 0;
 }
+
 .seasonal-motif {
   display: grid;
   place-items: center;
-  width: clamp(1.65rem, 4vw, 2.5rem);
-  height: clamp(1.65rem, 4vw, 2.5rem);
-  border-radius: .65rem;
+  flex: 0 0 auto;
+  width: var(--seasonal-motif-size);
+  height: var(--seasonal-motif-size);
+  border-radius: .72rem;
   border: 1px solid color-mix(in srgb, var(--seasonal-accent) 22%, transparent);
-  background-color: color-mix(in srgb, var(--seasonal-accent) 10%, transparent);
+  background: linear-gradient(150deg,
+    color-mix(in srgb, var(--seasonal-highlight) 12%, transparent),
+    color-mix(in srgb, var(--seasonal-accent) 6%, transparent));
   font-size: clamp(.95rem, 2.3vw, 1.45rem);
   line-height: 1;
-  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
 }
+
+.seasonal-motif-art {
+  display: block;
+  width: 86%;
+  height: 86%;
+  object-fit: cover;
+}
+
 .seasonal-hero-stage { grid-template-rows: minmax(0, 1fr) auto; }
 .seasonal-hero-secondary {
   display: block;
@@ -472,6 +521,7 @@
 .seasonal-stage-spark { pointer-events: none; z-index: 2; }
 .seasonal-hero-stage .seasonal-motif:nth-child(2) { animation: seasonal-motif-sway 4.5s ease-in-out infinite; }
 .seasonal-hero-stage .seasonal-motif:nth-child(5) { animation: seasonal-motif-sway 5.8s ease-in-out infinite reverse; }
+.seasonal-hero-stage[data-motion-paused='true'] .seasonal-motif { animation-play-state: paused; }
 @keyframes seasonal-motif-sway {
   0%, 100% { transform: translateY(0) rotate(-5deg); }
   50% { transform: translateY(-3px) rotate(5deg); }
@@ -529,9 +579,6 @@
 [data-seasonal-event] .seasonal-header [data-seasonal-header-utilities] button > img + div + svg {
   color: var(--seasonal-ink);
 }
-[data-seasonal-event] .seasonal-header .seasonal-brand-mark::after {
-  content: none;
-}
 [data-seasonal-event] .seasonal-header :is([data-header-avatar], [data-header-flag]) {
   border-color: color-mix(in srgb, var(--seasonal-accent) 65%, transparent);
 }
@@ -573,16 +620,20 @@
   background-size: 91px 113px, 137px 151px;
   background-position: 9px 20px, 50px 73px;
   opacity: .42;
+  /* Cache the unchanged distant snow tile independently of falling flakes. */
+  transform: translateZ(0);
 }
 .seasonal-particles[data-effect='snow'] .seasonal-particle { color: theme('colors.white'); text-shadow: 0 0 1px theme('colors.sky.500'); }
-.seasonal-particle { will-change: auto; }
+/* Animate the small existing glyph textures on the compositor rather than
+   rasterizing the page on every tick. Hidden particles allocate no layers. */
+.seasonal-particle { will-change: transform; }
+.seasonal-particles[data-paused='true'] .seasonal-particle { will-change: auto; }
 @media (min-width: 640px) {
   .seasonal-particle:nth-child(even) { display: block; }
   .seasonal-particle:nth-child(4n) { display: none; }
 }
 @media (max-width: 639px) {
   .seasonal-particle:nth-child(even) { display: none; }
-  .seasonal-footer-scene { grid-template-columns: 1fr; padding: .5rem; }
   .seasonal-hero-stage { padding: .5rem .65rem; }
   .seasonal-hero-art { max-height: 13rem; }
   [data-seasonal-event='christmas'] .seasonal-hero-art { max-height: 15rem; }
@@ -593,9 +644,15 @@
   border-bottom: 1px solid color-mix(in srgb, var(--seasonal-accent) 25%, transparent);
   background: linear-gradient(90deg, color-mix(in srgb, var(--seasonal-accent) var(--seasonal-wash), transparent), color-mix(in srgb, var(--seasonal-highlight) 8%, transparent), color-mix(in srgb, var(--seasonal-accent) var(--seasonal-wash), transparent));
 }
-.seasonal-garland .seasonal-motif-strip { gap: clamp(.3rem, 2vw, 1.25rem); padding: .2rem .5rem; }
+.seasonal-garland .seasonal-motif-strip {
+  --seasonal-motif-size: 1.55rem;
+  gap: clamp(.3rem, 2vw, 1.25rem);
+  padding: .2rem .5rem;
+}
 .seasonal-garland .seasonal-motif {
-  width: 1.55rem; height: 1.55rem; background: none; border: 0; font-size: 1.05rem;
+  background: none;
+  border: 0;
+  font-size: 1.05rem;
 }
 /* Static, event-specific vector wallpaper: one repeating tile, no animation. */
 [data-seasonal-event='newYear'] { --seasonal-pattern: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22180%22%20height%3D%22180%22%20viewBox%3D%220%200%20180%20180%22%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%22.13%22%3E%3Cg%20transform%3D%22translate(16%2016)%22%3E%3Cpath%20d%3D%22M16%203v26M3%2016h26M7%207l18%2018M7%2025%2025%207%22%2F%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%225%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(118%20107)%20rotate(14%2016%2016)%20scale(.72)%22%3E%3Cpath%20d%3D%22M16%203v26M3%2016h26M7%207l18%2018M7%2025%2025%207%22%2F%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%225%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E"); }
@@ -652,8 +709,6 @@
   background-image: linear-gradient(115deg, color-mix(in srgb, var(--seasonal-accent) 72%, theme('colors.gray.950')), color-mix(in srgb, var(--seasonal-accent) 86%, theme('colors.gray.950')));
 }
 /* No inline submit ornaments: they belong on the outside corner. */
-[data-seasonal-event] .seasonal-footer-scene img { max-height: 15rem; border-radius: .8rem; }
-[data-seasonal-event='christmas'] .seasonal-footer-scene img { max-height: 19rem; }
 [data-seasonal-event] .seasonal-content :is(table,[role='table']) thead {
   background-image: linear-gradient(90deg, color-mix(in srgb, var(--seasonal-accent) 13%, transparent), transparent);
 }
@@ -683,9 +738,13 @@
   100% { transform: translate3d(0,110vh,0) rotate(360deg); }
 }
 @media (max-width: 639px) {
-  .seasonal-garland .seasonal-motif-strip { gap: .15rem; }
-  .seasonal-garland .seasonal-motif { width: 1.35rem; height: 1.35rem; font-size: .9rem; }
-  .seasonal-footer-scene img { max-height: 12rem; }
+  .seasonal-garland .seasonal-motif-strip { --seasonal-motif-size: 1.35rem; gap: .15rem; }
+  .seasonal-garland .seasonal-motif { font-size: .9rem; }
+  :is(.seasonal-hero-stage, .seasonal-footer-scene) .seasonal-motif-strip[data-motif-count='10'] {
+    display: grid;
+    grid-template-columns: repeat(5, max-content);
+  }
+  .seasonal-footer-art { max-height: 12rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .seasonal-particles { display: none; }

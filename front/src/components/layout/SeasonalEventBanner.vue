@@ -24,7 +24,7 @@
         </button>
         <img v-if="scene" :src="scene" class="seasonal-hero-secondary" alt="" aria-hidden="true" width="900" height="375" decoding="async" />
       </div>
-      <div class="seasonal-hero-stage" aria-hidden="true">
+      <div ref="stage" class="seasonal-hero-stage" :data-motion-paused="motionPaused || undefined" aria-hidden="true">
         <span class="seasonal-stage-spark seasonal-stage-spark-first">✦</span>
         <span class="seasonal-stage-spark seasonal-stage-spark-second">✧</span>
         <span class="seasonal-stage-spark seasonal-stage-spark-third">{{ event.symbol }}</span>
@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import SeasonalMotifStrip from './SeasonalMotifStrip.vue'
 import { useI18n } from 'vue-i18n'
 import { formatSeasonalDates, type SeasonalEvent } from '../../utils/seasonalCalendar'
@@ -50,4 +50,29 @@ const { t, locale } = useI18n()
 const art = computed(() => seasonalIllustration(props.event.id))
 const scene = computed(() => seasonalScene(props.event.id))
 const dateLabel = computed(() => formatSeasonalDates(props.event, locale.value))
+
+// Keep every motif and its original animation; suspend only when the stage
+// cannot be seen, or the browser tab is hidden. Resume the same phase.
+const stage = ref<HTMLElement | null>(null)
+const motionPaused = ref(false)
+let inView = true
+let observer: IntersectionObserver | undefined
+function syncMotion() {
+  motionPaused.value = !inView || document.hidden
+}
+onMounted(() => {
+  if (stage.value && typeof IntersectionObserver !== 'undefined') {
+    observer = new IntersectionObserver(([entry]) => {
+      inView = entry?.isIntersecting ?? true
+      syncMotion()
+    }, { rootMargin: '80px' })
+    observer.observe(stage.value)
+  }
+  document.addEventListener('visibilitychange', syncMotion)
+  syncMotion()
+})
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  document.removeEventListener('visibilitychange', syncMotion)
+})
 </script>

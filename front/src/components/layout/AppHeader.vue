@@ -28,10 +28,11 @@
     </div>
 
     <!-- Scroll Progress Bar -->
-    <div class="w-full h-0.5 bg-transparent">
+    <div class="w-full h-0.5 bg-transparent" style="contain: layout paint">
       <div
-        class="seasonal-progress h-full bg-gradient-to-r from-primary-500 to-secondary-500 transition-[width] duration-150 ease-out"
-        :style="{ width: scrollProgress + '%' }"
+        class="seasonal-progress h-full bg-gradient-to-r from-primary-500 to-secondary-500"
+        ref="progressBar"
+        aria-hidden="true"
       />
     </div>
 
@@ -56,7 +57,7 @@
 
 <script setup lang="ts">
 import { resolveAssetUrl } from "@/utils/assetUrl";
-import { ref, onMounted, defineAsyncComponent, computed, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, defineAsyncComponent, computed, watch } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useAuthStore } from "../../stores/auth.store";
@@ -109,20 +110,54 @@ const userInitials = computed(() => {
   return initials;
 });
 
-const scrollProgress = ref(0);
+const progressBar = ref<HTMLElement | null>(null);
+const hasNativeScrollProgress =
+  typeof CSS !== "undefined" && CSS.supports("animation-timeline", "scroll(root block)");
+let progressFrame = 0;
+let progressObserver: ResizeObserver | undefined;
+let scrollRange = 0;
+let rangeDirty = true;
+let lastProgress = -1;
 
 function updateScrollProgress() {
-  if (typeof window === "undefined" || typeof document === "undefined") return;
-  const scrollTop =
-    window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0;
-  const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-  const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-  scrollProgress.value = Math.min(100, Math.max(0, progress));
+  progressFrame = 0;
+  if (rangeDirty) {
+    scrollRange = Math.max(0, document.documentElement.scrollHeight - document.documentElement.clientHeight);
+    rangeDirty = false;
+  }
+  const progress = scrollRange > 0 ? window.scrollY / scrollRange : 0;
+  const next = Math.min(1, Math.max(0, progress));
+  if (next !== lastProgress && progressBar.value) {
+    progressBar.value.style.setProperty("--scroll-progress", String(next));
+    lastProgress = next;
+  }
+}
+
+function queueScrollProgress() {
+  if (!progressFrame) progressFrame = requestAnimationFrame(updateScrollProgress);
+}
+function invalidateScrollRange() {
+  rangeDirty = true;
+  queueScrollProgress();
 }
 
 onMounted(() => {
-  updateScrollProgress();
-  window.addEventListener("scroll", updateScrollProgress, { passive: true });
+  if (hasNativeScrollProgress) return;
+  invalidateScrollRange();
+  window.addEventListener("scroll", queueScrollProgress, { passive: true });
+  window.addEventListener("resize", invalidateScrollRange, { passive: true });
+  if (typeof ResizeObserver !== "undefined") {
+    progressObserver = new ResizeObserver(invalidateScrollRange);
+    progressObserver.observe(document.body);
+    progressObserver.observe(document.documentElement);
+  }
+});
+onBeforeUnmount(() => {
+  if (hasNativeScrollProgress) return;
+  window.removeEventListener("scroll", queueScrollProgress);
+  window.removeEventListener("resize", invalidateScrollRange);
+  progressObserver?.disconnect();
+  if (progressFrame) cancelAnimationFrame(progressFrame);
 });
 
 onMounted(async () => {
@@ -319,3 +354,41 @@ export default {
   name: "AppHeader",
 };
 </script>
+
+<style>
+.seasonal-progress {
+  transform: scaleX(var(--scroll-progress, 0));
+  transform-origin: left;
+  transition: transform 150ms ease-out;
+}
+
+/* Reveal the stripes at their original width so their pattern doesn't stretch. */
+[data-seasonal-event="christmas"] .seasonal-progress {
+  transform: none;
+  clip-path: inset(0 calc((1 - var(--scroll-progress, 0)) * 100%) 0 0);
+  transition-property: clip-path;
+}
+
+@supports (animation-timeline: scroll(root block)) {
+  .seasonal-progress {
+    transition: none;
+    animation: header-progress-fill auto linear both;
+    animation-timeline: scroll(root block);
+  }
+
+  [data-seasonal-event="christmas"] .seasonal-progress {
+    transition: none;
+    animation-name: header-progress-reveal;
+  }
+}
+
+@keyframes header-progress-fill {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes header-progress-reveal {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0); }
+}
+</style>

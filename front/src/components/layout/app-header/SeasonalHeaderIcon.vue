@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { computed, inject, ref } from 'vue'
-import { seasonalHeaderIconsKey } from '../../../utils/seasonalDecor'
+import { seasonalUiArtworkKey } from '../../../utils/seasonalDecor'
 
 const navigationIcons = ['home', 'vocabulary', 'practice', 'about'] as const
 const menuIcons = [
@@ -40,7 +40,7 @@ const props = defineProps<{
   expanded?: boolean
 }>()
 
-const theme = inject(seasonalHeaderIconsKey)
+const theme = inject(seasonalUiArtworkKey)
 const navigationIndex = computed(() => navigationIcons.findIndex(kind => kind === props.kind))
 const artwork = computed(() => {
   if (props.plain) return undefined

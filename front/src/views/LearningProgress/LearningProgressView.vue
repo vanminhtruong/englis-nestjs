@@ -111,7 +111,7 @@
           <p class="empty-description">
             {{ t("learningProgress.empty.description") }}
           </p>
-          <RouterLink to="/vocabulary" class="empty-cta">
+          <RouterLink data-seasonal-primary to="/vocabulary" class="empty-cta">
             {{ t("learningProgress.empty.startLearning") }}
           </RouterLink>
         </div>

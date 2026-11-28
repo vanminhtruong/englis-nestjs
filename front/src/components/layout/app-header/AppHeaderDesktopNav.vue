@@ -12,7 +12,7 @@
       <span class="whitespace-nowrap">{{ t('header.home') }}</span>
     </RouterLink>
 
-    <div v-if="authStore.isAuthenticated" class="relative" @mouseenter="isVocabMenuOpen = true" @mouseleave="isVocabMenuOpen = false">
+    <div v-if="authStore.isAuthenticated" ref="vocabMenu" class="relative" @keydown.esc="closeVocabMenu">
       <button
         type="button"
         :aria-expanded="isVocabMenuOpen"
@@ -44,13 +44,13 @@
       >
         <div
           v-if="isVocabMenuOpen"
-          @mouseenter="isVocabMenuOpen = true"
-          @mouseleave="isVocabMenuOpen = false"
-          class="absolute top-full left-0 w-60 bg-white dark:bg-black/95 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden"
+
+
+          class="absolute top-full left-0 mt-2 w-60 bg-white dark:bg-black/95 backdrop-blur-xl border border-gray-200 dark:border-white/10 rounded-xl shadow-xl overflow-hidden"
         >
           <div class="p-2">
             <RouterLink
-              to="/vocabulary"
+              to="/vocabulary" @click="closeVocabMenu"
               class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/10 hover:text-primary-500 dark:hover:text-primary-400 transition-all"
             >
               <SeasonalHeaderIcon kind="vocabulary" compact>
@@ -62,7 +62,7 @@
               <span class="font-medium">{{ t('header.allVocabularies') }}</span>
             </RouterLink>
             <RouterLink
-              to="/vocabulary/by-date"
+              to="/vocabulary/by-date" @click="closeVocabMenu"
               class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/10 hover:text-primary-500 dark:hover:text-primary-400 transition-all"
             >
               <SeasonalHeaderIcon kind="calendar" compact>
@@ -76,7 +76,7 @@
               <span class="font-medium">{{ t('header.byLearningDate') }}</span>
             </RouterLink>
             <RouterLink
-              to="/categories"
+              to="/categories" @click="closeVocabMenu"
               class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/10 hover:text-primary-500 dark:hover:text-primary-400 transition-all"
             >
               <SeasonalHeaderIcon kind="categories" compact>
@@ -100,7 +100,7 @@
               <span class="font-medium">{{ t('header.srs') }}</span>
             </RouterLink>
             <RouterLink
-              to="/tags"
+              to="/tags" @click="closeVocabMenu"
               class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-primary-50 dark:hover:bg-white/10 hover:text-primary-500 dark:hover:text-primary-400 transition-all"
             >
               <SeasonalHeaderIcon kind="tag" compact>
@@ -148,8 +148,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { onMounted, onBeforeUnmount, ref, watch } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SeasonalHeaderIcon from './SeasonalHeaderIcon.vue'
 import { useAuthStore } from '../../../stores/auth.store'
@@ -157,4 +157,20 @@ import { useAuthStore } from '../../../stores/auth.store'
 const { t } = useI18n()
 const authStore = useAuthStore()
 const isVocabMenuOpen = ref(false)
+const vocabMenu = ref<HTMLElement | null>(null)
+const route = useRoute()
+
+function closeVocabMenu() {
+  isVocabMenuOpen.value = false
+}
+
+function handleOutsideClick(event: MouseEvent) {
+  if (isVocabMenuOpen.value && event.target instanceof Node && !vocabMenu.value?.contains(event.target)) {
+    closeVocabMenu()
+  }
+}
+
+watch(() => route.fullPath, closeVocabMenu)
+onMounted(() => document.addEventListener('click', handleOutsideClick, true))
+onBeforeUnmount(() => document.removeEventListener('click', handleOutsideClick, true))
 </script>

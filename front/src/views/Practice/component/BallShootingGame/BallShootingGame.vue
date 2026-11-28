@@ -110,7 +110,7 @@
           </div>
 
           <div class="modal-actions">
-            <button @click="restartGame" class="action-button restart">
+            <button data-seasonal-primary @click="restartGame" class="action-button restart">
               <span>🔄</span> {{ t("practice.tryAgain") }}
             </button>
             <button @click="handleBack" class="action-button back">
@@ -152,7 +152,7 @@
             </div>
           </div>
 
-          <button @click="startGame" class="start-button">
+          <button data-seasonal-primary @click="startGame" class="start-button">
             <span class="button-icon">🚀</span>
             {{ t("practice.startPractice") }}
           </button>

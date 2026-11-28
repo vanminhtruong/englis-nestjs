@@ -35,13 +35,14 @@ export function seasonalIllustration(id: SeasonalEvent['id']): string | undefine
   return illustrations[`../assets/seasonal/${id}.webp`]
 }
 
-interface SeasonalHeaderArtwork {
+interface SeasonalUiArtwork {
   navigation?: string
   menu?: string
+  brand?: string
 }
 
-export const seasonalHeaderIconsKey: InjectionKey<ComputedRef<SeasonalHeaderArtwork | undefined>> =
-  Symbol('seasonal header icons')
+export const seasonalUiArtworkKey: InjectionKey<ComputedRef<SeasonalUiArtwork | undefined>> =
+  Symbol('seasonal UI artwork')
 
 const headerIcons = import.meta.glob('../assets/seasonal/header/*.webp', {
   eager: true,
@@ -49,11 +50,28 @@ const headerIcons = import.meta.glob('../assets/seasonal/header/*.webp', {
   query: '?url',
 }) as Record<string, string>
 
-export function seasonalHeaderIcons(id: SeasonalEvent['id']): SeasonalHeaderArtwork {
+const brandArtwork = import.meta.glob('../assets/seasonal/brand/*-brand.webp', {
+  eager: true,
+  import: 'default',
+  query: '?url',
+}) as Record<string, string>
+
+export function seasonalUiArtwork(id: SeasonalEvent['id']): SeasonalUiArtwork {
   return {
     navigation: headerIcons[`../assets/seasonal/header/${id}-header.webp`],
     menu: headerIcons[`../assets/seasonal/header/${id}-menu.webp`],
+    brand: brandArtwork[`../assets/seasonal/brand/${id}-brand.webp`],
   }
+}
+
+const motifArtwork = import.meta.glob('../assets/seasonal/motifs/*-motifs.webp', {
+  eager: true,
+  import: 'default',
+  query: '?url',
+}) as Record<string, string>
+
+export function seasonalMotifArtwork(id: SeasonalEvent['id']): string | undefined {
+  return motifArtwork[`../assets/seasonal/motifs/${id}-motifs.webp`]
 }
 
 const frames = import.meta.glob('../assets/seasonal/*-frame.svg', {
