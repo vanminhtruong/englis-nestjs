@@ -7,26 +7,28 @@
     :data-seasonal-preview="previewing ? 'true' : undefined"
   >
     <SeasonalFrame v-if="activeEvent" />
-    <AppHeader class="seasonal-header" />
+    <AppHeader class="seasonal-header" :seasonal-event-id="activeEvent?.id" />
     <div v-if="activeEvent" class="seasonal-garland" aria-hidden="true"><SeasonalMotifStrip :event-id="activeEvent.id" /></div>
     <SeasonalParticles v-if="activeEvent" :event-id="activeEvent.id" />
+    <div id="app-floating-actions" class="app-floating-actions contents"></div>
     <main class="seasonal-content flex-1">
       <SeasonalEventBanner
-        v-if="activeEvent"
+        v-if="activeEvent && !isAuthPage"
         :event="activeEvent"
         :previewing="previewing"
         @stop-preview="calendar.stopPreview"
       />
       <RouterView />
-      <BackToTop />
+
     </main>
+    <BackToTop />
     <AppToastContainer />
     <DataShareIncomingModal />
     <AppFooter class="seasonal-footer">
       <template v-if="activeEvent" #seasonal-decoration>
         <div class="seasonal-footer-scene" aria-hidden="true">
           <img v-if="eventArt" :src="eventArt" class="seasonal-footer-art" alt="" loading="lazy" decoding="async" width="900" height="375" />
-          <SeasonalMotifStrip :event-id="activeEvent.id" lazy />
+          <SeasonalFooterAnimation :key="activeEvent.id" :event-id="activeEvent.id" />
         </div>
       </template>
     </AppFooter>
@@ -34,11 +36,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent, onBeforeUnmount, provide, watch, watchEffect } from "vue";
-import { RouterView } from "vue-router";
+import { computed, defineAsyncComponent, onBeforeUnmount, provide, watchEffect } from "vue";
+import { RouterView, useRoute } from "vue-router";
 import SeasonalFrame from "../components/layout/SeasonalFrame.vue";
 import SeasonalMotifStrip from "../components/layout/SeasonalMotifStrip.vue";
 import SeasonalEventBanner from "../components/layout/SeasonalEventBanner.vue";
+import SeasonalFooterAnimation from "../components/layout/SeasonalFooterAnimation.vue";
 import {
   seasonalDecor,
   seasonalIllustration,
@@ -56,13 +59,15 @@ const authStore = useAuthStore();
 const calendar = useSeasonalCalendar();
 provide(seasonalCalendarKey, calendar);
 
-watch(() => authStore.user?.id, calendar.stopPreview);
+// Browser-local previews intentionally survive account hydration and sign-in/out.
 
-const previewing = computed(() => authStore.isAuthenticated && !!calendar.previewEvent.value);
+const route = useRoute();
+const isAuthPage = computed(() => ['login', 'register', 'forgot-password', 'login-callback'].includes(String(route.name)));
+const previewing = computed(() => !!calendar.previewEvent.value);
+
 const activeEvent = computed(() => {
-  if (!authStore.isAuthenticated) return undefined;
   return calendar.previewEvent.value
-    ?? (authStore.user?.seasonalThemesEnabled ? calendar.schedule.value.active : undefined);
+    ?? (authStore.isAuthenticated && authStore.user?.seasonalThemesEnabled ? calendar.realEvent.value : undefined);
 });
 
 provide(

@@ -8,10 +8,10 @@
       :aria-labelledby="labelId + ' ' + valueId"
       aria-haspopup="listbox" :disabled="disabled" :aria-expanded="open" :aria-controls="open ? listId : undefined"
       class="flex w-full min-w-0 items-center rounded-xl border text-left text-black outline-none transition-colors focus-visible:ring-2 dark:text-white"
-      :class="[pillTrigger ? 'min-h-[30px] gap-1.5 px-2.5 py-1 text-xs font-semibold !rounded-full' : compactTrigger ? 'min-h-[32px] gap-1.5 px-2 py-1 text-xs' : 'min-h-12 gap-3 px-3.5 py-2.5 text-sm', accent === 'emerald' ? [ 'bg-white dark:bg-neutral-800 hover:border-emerald-500 focus-visible:ring-emerald-500/30', open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-emerald-300 dark:border-emerald-600/50' ] : [ 'bg-white dark:bg-white/5 hover:border-primary-300 dark:hover:border-primary-400/50 focus-visible:ring-primary-500/30', open ? 'border-primary-500 ring-2 ring-primary-500/15 dark:border-primary-400' : 'border-black/10 dark:border-white/10' ], pillTrigger ? (onImage ? '!bg-black/40 !text-white !border-white/20' : '!bg-primary-50 !text-primary-700 !border-primary-200 dark:!bg-primary-500/10 dark:!text-primary-300 dark:!border-primary-500/25') : '', disabled ? 'cursor-not-allowed opacity-50' : '']"
+      :class="[iconTrigger ? '!h-10 !w-10 !min-h-0 !gap-0 !border-transparent !bg-transparent !p-0 justify-center !rounded-lg hover:!bg-gray-100 dark:hover:!bg-white/5' : pillTrigger ? 'min-h-[30px] gap-1.5 px-2.5 py-1 text-xs font-semibold !rounded-full' : compactTrigger ? 'min-h-[32px] gap-1.5 px-2 py-1 text-xs' : 'min-h-12 gap-3 px-3.5 py-2.5 text-sm', accent === 'emerald' ? [ 'bg-white dark:bg-neutral-800 hover:border-emerald-500 focus-visible:ring-emerald-500/30', open ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-emerald-300 dark:border-emerald-600/50' ] : [ 'bg-white dark:bg-white/5 hover:border-primary-300 dark:hover:border-primary-400/50 focus-visible:ring-primary-500/30', open ? 'border-primary-500 ring-2 ring-primary-500/15 dark:border-primary-400' : 'border-black/10 dark:border-white/10' ], pillTrigger ? (onImage ? '!bg-black/40 !text-white !border-white/20' : '!bg-primary-50 !text-primary-700 !border-primary-200 dark:!bg-primary-500/10 dark:!text-primary-300 dark:!border-primary-500/25') : '', disabled ? 'cursor-not-allowed opacity-50' : '']"
       @click="open ? close() : show()" @keydown.down.prevent="show()" @keydown.up.prevent="show(true)"
     >
-      <span :id="valueId" class="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+      <span :id="valueId" class="flex min-w-0 flex-1 flex-wrap items-center gap-1.5" :class="iconTrigger ? 'justify-center' : undefined">
         <template v-if="compactTrigger"><slot name="trigger-content"><span class="truncate font-medium">{{ label }}</span></slot></template>
         <template v-else-if="multiple && selectedValues.length && compactSelection">
           <span class="min-w-0 flex-1 truncate font-medium" :title="selectionText">{{ selectionText }}</span>
@@ -28,7 +28,7 @@
         <span v-else class="min-w-0 flex-1 truncate text-black/50 dark:text-white/50">{{ placeholder || label }}</span>
       </span>
       <span v-if="multiple && maxSelections" class="shrink-0 text-xs tabular-nums text-black/50 dark:text-white/50">{{ selectedValues.length }}/{{ maxSelections }}</span>
-      <svg class="h-4 w-4 shrink-0 text-black/50 transition-transform duration-150 dark:text-white/50" :class="{ 'rotate-180': open }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+      <svg v-if="!iconTrigger" class="h-4 w-4 shrink-0 text-black/50 transition-transform duration-150 dark:text-white/50" :class="{ 'rotate-180': open }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
     </button>
 
     <Teleport to="body">
@@ -96,6 +96,7 @@ const props = defineProps<{
   searchable?: boolean;
   compactSelection?: boolean;
   compactTrigger?: boolean;
+  iconTrigger?: boolean;
   maxVisibleOptions?: number;
   pillTrigger?: boolean;
   onImage?: boolean;
@@ -172,7 +173,7 @@ function place() {
   }
   const upwards = below < Math.min(props.searchable ? 340 : 280, visibleOptions.value.length * 46 + (props.searchable ? 110 : 14)) && above > below;
   const height = Math.max(40, Math.min(props.searchable ? 340 : 288, upwards ? above : below));
-  const width = Math.min(props.compactTrigger ? Math.max(rect.width, 240) : rect.width, right - left - 16);
+  const width = Math.min(props.iconTrigger ? Math.max(rect.width, 280) : props.compactTrigger ? Math.max(rect.width, 240) : rect.width, right - left - 16);
   position.value = {
     left: Math.max(left + 8, Math.min(rect.left, right - width - 8)) + "px",
     width: width + "px",

@@ -1,6 +1,13 @@
 import axios from "axios";
 import { useAuthStore } from "../stores/auth.store";
 import type { UserBackground } from "../types/user-background";
+import type { SeasonalEvent } from "../utils/seasonalCalendar";
+
+export interface SeasonalStateResponse {
+  serverNow: number;
+  nextSyncAt: number;
+  active: { event: SeasonalEvent; eventId: string; startsAt: number; endsAt: number; status: "active"; activatedAt: number; endedAt: null } | null;
+}
 import { BACKEND_URL_STORAGE_KEY, DEFAULT_BACKEND_URL } from "../utils/backendUrl";
 
 // The server address is built in now. Drop any address saved by the old
@@ -52,6 +59,9 @@ apiClient.interceptors.response.use(
 );
 
 export default {
+  seasonal: {
+    getState: () => apiClient.get<SeasonalStateResponse>("/seasonal/state", { timeout: 8000 }),
+  },
   // Auth endpoints
   auth: {
     register: (data: any) => apiClient.post("/auth/register", data),

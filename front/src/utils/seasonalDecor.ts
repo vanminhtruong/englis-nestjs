@@ -39,6 +39,8 @@ interface SeasonalUiArtwork {
   navigation?: string
   menu?: string
   brand?: string
+  actions?: string
+  languageSelection?: { src: string; position: string }
 }
 
 export const seasonalUiArtworkKey: InjectionKey<ComputedRef<SeasonalUiArtwork | undefined>> =
@@ -56,11 +58,36 @@ const brandArtwork = import.meta.glob('../assets/seasonal/brand/*-brand.webp', {
   query: '?url',
 }) as Record<string, string>
 
+const actionArtwork = import.meta.glob('../assets/seasonal/actions/*-actions.webp', {
+  eager: true,
+  import: 'default',
+  query: '?url',
+}) as Record<string, string>
+
+// Choose a distinct silhouette from each event's existing motif strip.
+const languageSelectionMotif = {
+  newYear: 0, // Fireworks
+  tet: 0, // Red envelope
+  womensDay: 0, // Bouquet
+  hungKings: 0, // Drum
+  aprilMay: 1, // Dove
+  nationalDay: 0, // Flag
+  midAutumn: 0, // Lantern
+  vietnamWomensDay: 0, // Lotus
+  halloween: 0, // Pumpkin
+  teachersDay: 0, // Books
+  christmas: 1, // Fir tree
+} satisfies Record<SeasonalEvent['id'], number>
+
 export function seasonalUiArtwork(id: SeasonalEvent['id']): SeasonalUiArtwork {
+  const motif = seasonalMotifArtwork(id)
+  const position = languageSelectionMotif[id] * 100 / Math.max(1, seasonalDecor[id].motifs.length - 1)
   return {
     navigation: headerIcons[`../assets/seasonal/header/${id}-header.webp`],
     menu: headerIcons[`../assets/seasonal/header/${id}-menu.webp`],
     brand: brandArtwork[`../assets/seasonal/brand/${id}-brand.webp`],
+    actions: actionArtwork[`../assets/seasonal/actions/${id}-actions.webp`],
+    languageSelection: motif ? { src: motif, position: `${position}% center` } : undefined,
   }
 }
 
@@ -72,6 +99,16 @@ const motifArtwork = import.meta.glob('../assets/seasonal/motifs/*-motifs.webp',
 
 export function seasonalMotifArtwork(id: SeasonalEvent['id']): string | undefined {
   return motifArtwork[`../assets/seasonal/motifs/${id}-motifs.webp`]
+}
+
+const hangingArtwork = import.meta.glob('../assets/seasonal/hanging/*.webp', {
+  eager: true,
+  import: 'default',
+  query: '?url',
+}) as Record<string, string>
+
+export function seasonalHangingArtwork(id: SeasonalEvent['id']): string | undefined {
+  return hangingArtwork[`../assets/seasonal/hanging/${id}.webp`]
 }
 
 const frames = import.meta.glob('../assets/seasonal/*-frame.svg', {

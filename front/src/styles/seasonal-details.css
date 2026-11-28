@@ -127,15 +127,15 @@
     var(--seasonal-ink),
     color-mix(in srgb, var(--seasonal-highlight) 30%, theme('colors.white')));
 }
-[data-seasonal-event] :is(.seasonal-content,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog'],[data-seasonal-dropdown]) :is(button,a):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='text-red'],[class*='bg-red'],[class*='text-green'],[class*='bg-green'],[class*='text-emerald'],[class*='bg-emerald'],[class*='text-amber'],[class*='bg-amber'],[class*='text-yellow'],[class*='bg-yellow']):is([class*='hover:bg-'],[class*='hover:border-'],[class*='hover:text-'],[role='option'],.app-choice-tab):hover {
+[data-seasonal-event] :is(.seasonal-content,.app-floating-actions,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog'],[data-seasonal-dropdown]) :is(button,a):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='text-red'],[class*='bg-red'],[class*='text-green'],[class*='bg-green'],[class*='text-emerald'],[class*='bg-emerald'],[class*='text-amber'],[class*='bg-amber'],[class*='text-yellow'],[class*='bg-yellow']):is([class*='hover:bg-'],[class*='hover:border-'],[class*='hover:text-'],[role='option'],.app-choice-tab):hover {
   background-color: var(--event-hover);
   border-color: var(--event-line);
 }
-[data-seasonal-event] :is(.seasonal-content,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog']) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='bg-clip-text'],[class*='text-transparent']) {
+[data-seasonal-event] :is(.seasonal-content,.app-floating-actions,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog']) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='bg-clip-text'],[class*='text-transparent']) {
   background-image: linear-gradient(125deg,var(--event-solid),color-mix(in srgb,var(--seasonal-accent) 82%,theme('colors.gray.900')));
   border-color: var(--event-line);
 }
-[data-seasonal-event] :is(.seasonal-content,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog']) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='bg-clip-text'],[class*='text-transparent']):hover {
+[data-seasonal-event] :is(.seasonal-content,.app-floating-actions,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog']) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700,.bg-secondary-500,.bg-secondary-600):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='bg-clip-text'],[class*='text-transparent']):hover {
   background-image: linear-gradient(125deg,var(--event-solid-hover),color-mix(in srgb,var(--seasonal-accent) 72%,theme('colors.gray.900')));
   box-shadow: 0 3px 12px var(--event-glow);
 }
@@ -508,10 +508,10 @@
   background-image: linear-gradient(90deg, theme('colors.emerald.900'), theme('colors.emerald.700') 30%, theme('colors.teal.800') 60%, theme('colors.emerald.900'));
   border-bottom: 2px solid var(--seasonal-highlight);
 }
-[data-seasonal-event='christmas'] :is(.seasonal-content,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog']) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='bg-clip-text'],[class*='text-transparent']) {
+[data-seasonal-event='christmas'] :is(.seasonal-content,.app-floating-actions,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog']) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='bg-clip-text'],[class*='text-transparent']) {
   background-image: var(--event-fill-gradient);
 }
-[data-seasonal-event='christmas'] :is(.seasonal-content,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog']) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='bg-clip-text'],[class*='text-transparent']):hover {
+[data-seasonal-event='christmas'] :is(.seasonal-content,.app-floating-actions,.seasonal-footer,.seasonal-header,[data-seasonal-dialog],[role='dialog']) :is(button,a):is(.bg-primary-500,.bg-primary-600,.bg-primary-700,.from-primary-500,.from-primary-600,.from-primary-700):not(.app-brand-link,[disabled],[aria-disabled='true'],[role='switch'],[class*='bg-clip-text'],[class*='text-transparent']):hover {
   background-image: linear-gradient(125deg, theme('colors.red.800'), theme('colors.red.500'));
 }
 [data-seasonal-event='christmas'] :is(.bg-clip-text.text-transparent,.text-gradient):not(.app-brand-link *),
@@ -542,7 +542,7 @@
 }
 
 /* Complementary Christmas colors are assigned to actual UI roles, not just decorations. */
-[data-seasonal-event='christmas'] :is(.seasonal-content,.seasonal-footer,.seasonal-header,[role='dialog'],[data-seasonal-dialog]) :is(button,a):is(.bg-secondary-500,.bg-secondary-600,.bg-secondary-700,.from-secondary-500,.from-secondary-600,.from-secondary-700):not([disabled],[aria-disabled='true'],.app-brand-link,.bg-clip-text,[class*='text-transparent']) {
+[data-seasonal-event='christmas'] :is(.seasonal-content,.app-floating-actions,.seasonal-footer,.seasonal-header,[role='dialog'],[data-seasonal-dialog]) :is(button,a):is(.bg-secondary-500,.bg-secondary-600,.bg-secondary-700,.from-secondary-500,.from-secondary-600,.from-secondary-700):not([disabled],[aria-disabled='true'],.app-brand-link,.bg-clip-text,[class*='text-transparent']) {
   background-image: var(--christmas-fir-fill);
   border-color: var(--seasonal-fir);
 }
@@ -623,7 +623,9 @@
   background-image: linear-gradient(110deg, color-mix(in srgb, var(--seasonal-fir) 17%, transparent), color-mix(in srgb, var(--seasonal-highlight) 14%, transparent), transparent),var(--seasonal-pattern);
 }
 [data-seasonal-event='christmas'] .footer-feature--seasonal {
-  background-image: linear-gradient(120deg, color-mix(in srgb, var(--seasonal-fir) 17%, transparent), color-mix(in srgb, var(--seasonal-highlight) 13%, transparent), color-mix(in srgb, var(--seasonal-teal) 16%, transparent));
+  background-image: radial-gradient(ellipse at 85% 55%, color-mix(in srgb, var(--seasonal-highlight) 9%, transparent), transparent 65%),
+    linear-gradient(115deg, color-mix(in srgb, var(--seasonal-accent) 9%, transparent), color-mix(in srgb, var(--seasonal-fir) 16%, transparent));
+  border-color: color-mix(in srgb, var(--seasonal-highlight) 38%, var(--event-line));
 }
 [data-seasonal-event='christmas'] .seasonal-emblem {
   color: var(--seasonal-fir);

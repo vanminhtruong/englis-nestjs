@@ -38,8 +38,8 @@
           @load="markArtworkReady"
         />
       </div>
-      <span v-if="!footer" class="seasonal-brand-name bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-base font-bold text-transparent min-[340px]:hidden">VM</span>
-      <div class="min-w-0" :class="footer ? 'flex flex-wrap' : 'hidden min-[340px]:flex'">
+      <span v-if="!footer" class="seasonal-brand-short seasonal-brand-name bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-base font-bold text-transparent min-[340px]:hidden">VM</span>
+      <div class="min-w-0 seasonal-brand-full" :class="footer ? 'flex flex-wrap' : 'hidden min-[340px]:flex'">
         <span
           v-for="(part, index) in wordmarkParts"
           :key="index"

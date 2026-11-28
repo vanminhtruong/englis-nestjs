@@ -14,6 +14,7 @@ import { AddVocabularySynonyms1795900000000 } from '../migrations/1795900000000-
 import { AddVocabularySelectedSynonym1796000000000 } from '../migrations/1796000000000-AddVocabularySelectedSynonym';
 
 import { AddSeasonalThemesPreference1796100000000 } from '../migrations/1796100000000-AddSeasonalThemesPreference';
+import { CreateSeasonalEventStates1796200000000 } from '../migrations/1796200000000-CreateSeasonalEventStates';
 
 export const databaseConfig: TypeOrmModuleOptions = {
   type: 'better-sqlite3',
@@ -34,6 +35,7 @@ export const databaseConfig: TypeOrmModuleOptions = {
     AddVocabularySynonyms1795900000000,
     AddVocabularySelectedSynonym1796000000000,
     AddSeasonalThemesPreference1796100000000,
+    CreateSeasonalEventStates1796200000000,
   ],
   migrationsRun: process.env.NODE_ENV === 'production',
   logging: process.env.NODE_ENV !== 'production',

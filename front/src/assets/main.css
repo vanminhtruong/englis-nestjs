@@ -116,3 +116,35 @@ input:-webkit-autofill:active {
     @apply bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent;
   }
 }
+/* Floating actions stay inside the usable mobile viewport, clear of the
+   decorative frame and the system gesture/navigation area. */
+@media (max-width: 767px) {
+  .app-floating-action {
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    min-width: 48px;
+    min-height: 48px;
+  }
+  .app-floating-action--left {
+    left: calc(1rem + env(safe-area-inset-left, 0px));
+  }
+  .app-floating-action--right {
+    right: calc(1rem + env(safe-area-inset-right, 0px));
+  }
+}
+
+/* Do not let touch browsers retain a desktop hover translation after tapping. */
+@media (hover: none) {
+  .app-floating-action:hover { transform: none; }
+}
+
+/* Guest preview lives alongside the other header utilities, not on a second row. */
+@media (max-width: 639px) {
+  .guest-header-inner .seasonal-brand-full { display: none; }
+  .guest-header-inner .seasonal-brand-short { display: inline; }
+  .guest-header-actions [data-language-switcher] > button { padding-inline: .35rem; gap: .25rem; }
+}
+@media (max-width: 339px) {
+  .guest-header-inner .seasonal-brand-short { display: none; }
+  .guest-header-inner { gap: .25rem; }
+  .guest-header-actions { gap: .125rem; }
+}

@@ -451,18 +451,39 @@
 [data-seasonal-event] .seasonal-footer::after { display: none; }
 .seasonal-footer-scene {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
   justify-items: center;
-  gap: .6rem;
+  gap: .85rem;
   min-width: 0;
 }
-
 .seasonal-footer-art {
   display: block;
-  width: min(100%, 35rem);
+  width: 100%;
   height: auto;
-  max-height: 15rem;
+  aspect-ratio: 12 / 5;
   object-fit: contain;
-  border-radius: .85rem;
+  border-radius: .8rem;
+  border: 1px solid var(--event-line);
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--seasonal-accent) 9%, transparent);
+}
+.seasonal-footer-scene > .seasonal-footer-animation {
+  width: 100%;
+  max-width: 27rem;
+}
+@media (min-width: 640px) {
+  .seasonal-footer-scene {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: clamp(.75rem, 1.7vw, 1.5rem);
+  }
+}
+@media (min-width: 900px) and (max-width: 1099px) {
+  .seasonal-footer-scene {
+    grid-template-columns: minmax(0, 1fr);
+    gap: .25rem;
+  }
+  .seasonal-footer-art { max-width: 30rem; }
+  .seasonal-footer-scene > .seasonal-footer-animation { max-width: 22rem; }
 }
 
 .seasonal-motif-strip {
@@ -744,7 +765,7 @@
     display: grid;
     grid-template-columns: repeat(5, max-content);
   }
-  .seasonal-footer-art { max-height: 12rem; }
+  .seasonal-footer-art { max-width: 30rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .seasonal-particles { display: none; }

@@ -1,11 +1,14 @@
 <template>
-  <div class="flex shrink-0 items-center gap-1 sm:gap-2" data-seasonal-header-utilities>
+  <div class="flex shrink-0 items-center gap-1 sm:gap-2" data-seasonal-header-utilities
+    :class="{ 'guest-header-actions': !isAuthenticated }">
     <LanguageSwitcher
       seasonal-header
       :class="isAuthenticated ? 'hidden md:block' : ''"
       :open="isLanguageMenuOpen"
       @update:open="emit('update-language-menu', $event)"
     />
+
+    <GuestSeasonalPreview v-if="!isAuthenticated" />
 
     <button
       @click="$emit('toggle-theme')"
@@ -337,6 +340,7 @@ import { defineAsyncComponent, ref } from "vue";
 import { RouterLink } from "vue-router";
 import { useI18n } from "vue-i18n";
 import SeasonalHeaderIcon from "./SeasonalHeaderIcon.vue";
+import GuestSeasonalPreview from "./GuestSeasonalPreview.vue";
 
 const LanguageSwitcher = defineAsyncComponent(() => import("../../LanguageSwitcher.vue") as any);
 const AvatarZoomModal = defineAsyncComponent(

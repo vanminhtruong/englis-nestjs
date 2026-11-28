@@ -4,6 +4,7 @@
   >
     <div
       class="seasonal-header-inner mx-auto flex w-full max-w-[1400px] min-w-0 items-center justify-between gap-2 px-3 py-3 sm:gap-4 sm:px-6 lg:gap-8 lg:px-8"
+      :class="{ 'guest-header-inner': !authStore.isAuthenticated }"
     >
       <AppHeaderLogo />
       <AppHeaderDesktopNav />
@@ -36,6 +37,8 @@
       />
     </div>
 
+    <SeasonalHangingOrnaments v-if="seasonalEventId" :event-id="seasonalEventId" />
+
     <!-- Mobile Menu -->
     <AppHeaderMobileMenu
       :is-open="isMobileMenuOpen"
@@ -64,6 +67,10 @@ import { useAuthStore } from "../../stores/auth.store";
 import { websocketService } from "../../services/websocket.service";
 import apiService from "../../services/api.service";
 import { useToast } from "../../composables/useToast";
+import SeasonalHangingOrnaments from "./SeasonalHangingOrnaments.vue";
+import type { SeasonalEvent } from "../../utils/seasonalCalendar";
+
+defineProps<{ seasonalEventId?: SeasonalEvent['id'] }>();
 
 const AppHeaderLogo = defineAsyncComponent(() => import("./app-header/AppHeaderLogo.vue") as any);
 const AppHeaderDesktopNav = defineAsyncComponent(

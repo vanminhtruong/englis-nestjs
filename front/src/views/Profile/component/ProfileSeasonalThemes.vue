@@ -127,7 +127,7 @@ const selectedEventId = ref('')
 const sampleEvent = computed(() =>
   schedule.value?.previewOptions.find((event) => event.id === selectedEventId.value)
   ?? calendar?.previewEvent.value
-  ?? schedule.value?.active
+  ?? calendar?.realEvent.value
   ?? schedule.value?.next,
 )
 const eventOptions = computed(() => (schedule.value?.previewOptions ?? []).map((event) => ({
@@ -141,7 +141,7 @@ const previewingSample = computed(() => Boolean(
 ))
 const eventStatus = computed(() => {
   if (previewingSample.value) return 'seasonalThemes.previewing'
-  if (sampleEvent.value?.id === schedule.value?.active?.id) return 'seasonalThemes.active'
+  if (sampleEvent.value?.id === calendar?.realEvent.value?.id) return 'seasonalThemes.active'
   if (sampleEvent.value?.id === schedule.value?.next?.id) return 'seasonalThemes.next'
   return undefined
 })

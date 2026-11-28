@@ -36,6 +36,7 @@
     "@nestjs/platform-socket.io": "^11.1.8",
     "@nestjs/typeorm": "^11.0.0",
     "@nestjs/websockets": "^11.1.8",
+    "@tindoaneiu/vietnamese-lunar-calendar": "0.1.0",
     "@types/passport-google-oauth20": "^2.0.17",
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^12.4.1",

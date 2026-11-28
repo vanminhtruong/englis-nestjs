@@ -28,6 +28,7 @@ export default {
     avatarPreview: "Xem trước Avatar",
     sharpen: "Làm nét",
     appName: "VocabMaster",
+    backToTop: "Về đầu trang",
   },
 
   background: {

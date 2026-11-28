@@ -11,7 +11,7 @@
       </p>
     </div>
     <button
-      @click="$emit('open-create-modal')"
+      data-sticky-source @click="$emit('open-create-modal')"
       class="inline-flex min-h-11 w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-500 to-secondary-500 px-4 py-3 text-sm font-semibold text-white transition-all hover:shadow-lg hover:shadow-primary-500/25 min-[390px]:w-auto sm:px-6 sm:text-base"
     >
       <svg

@@ -28,7 +28,7 @@
         <div
           ref="controlsRef"
           class="vocabulary-controls"
-          :data-controls-above="stickyButton.showStickyAddButton.value || undefined"
+          :data-controls-above="stickyButton.controlsAbove.value || undefined"
         >
           <VocabularyControls
             :search="vocabularyState.filter.search"
@@ -159,9 +159,10 @@
     </div>
 
     <!-- Sticky Add Button -->
+  <Teleport to="#app-floating-actions">
     <Transition
-      enter-active-class="transition duration-300 ease-out"
-      enter-from-class="translate-y-20 opacity-0"
+      enter-active-class="transition duration-200 ease-out"
+      enter-from-class="translate-y-2 opacity-0"
       enter-to-class="translate-y-0 opacity-100"
       leave-active-class="transition duration-200 ease-in"
       leave-from-class="translate-y-0 opacity-100"
@@ -169,27 +170,32 @@
     >
       <button
         v-if="stickyButton.showStickyAddButton.value"
+        type="button"
         data-seasonal-primary
+        :aria-label="t('vocabulary.addNew')"
         @click="vocabularyState.openCreateModal"
-        class="fixed bottom-6 left-6 md:bottom-8 md:left-8 z-40 px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-bold rounded-full shadow-2xl hover:shadow-primary-500/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+        class="app-floating-action app-floating-action--left fixed bottom-6 left-6 md:bottom-8 md:left-8 z-[45] justify-center min-h-12 min-w-12 px-3 md:px-6 py-3 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-bold rounded-full shadow-2xl hover:shadow-primary-500/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
+        <SeasonalActionIcon kind="add">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+        </SeasonalActionIcon>
         <span class="hidden md:inline">{{ t("vocabulary.addNew") }}</span>
       </button>
     </Transition>
+  </Teleport>
 
     <VocabularyModal
       :show="vocabularyState.showModal"
@@ -264,6 +270,7 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, proxyRefs, ref } from "vue";
+import SeasonalActionIcon from "../../components/common/SeasonalActionIcon.vue";
 import { useToast } from "../../composables/useToast";
 import { vocabularyService } from "./service/vocabulary.service";
 import { useI18n } from "vue-i18n";

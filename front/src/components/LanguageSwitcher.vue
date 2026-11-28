@@ -86,7 +86,13 @@
             <span>{{ lang.name }}</span>
           </div>
 
-          <div v-if="locale === lang.code" class="relative z-10">
+          <SeasonalHeaderIcon
+            v-if="locale === lang.code"
+            kind="languageSelected"
+            :size="20"
+            :plain="!seasonalHeader"
+            class="z-10"
+          >
             <span
               :data-header-language-check="seasonalHeader || undefined"
               class="flex items-center justify-center w-5 h-5 bg-primary-500 dark:bg-primary-400 text-white rounded-full shadow-lg shadow-primary-500/30"
@@ -105,7 +111,7 @@
                 <polyline points="20 6 9 17 4 12"></polyline>
               </svg>
             </span>
-          </div>
+          </SeasonalHeaderIcon>
         </button>
       </div>
     </Transition>

@@ -26,6 +26,7 @@ export default {
     avatarPreview: "头像预览",
     sharpen: "锐化",
     appName: "VocabMaster",
+    backToTop: "返回顶部",
   },
 
   background: {

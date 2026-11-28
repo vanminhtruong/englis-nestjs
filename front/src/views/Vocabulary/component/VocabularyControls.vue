@@ -50,7 +50,7 @@
 
         <!-- Add Button Section -->
         <div class="filter-section filter-section--action">
-          <button data-seasonal-primary class="add-button" @click="emit('create')">
+          <button data-sticky-source data-seasonal-primary class="add-button" @click="emit('create')">
             <span class="add-button__bg"></span>
             <span class="add-button__content">
               <svg
@@ -64,7 +64,6 @@
               </svg>
               <span>{{ labels.addNew }}</span>
             </span>
-            <span class="add-button__shine"></span>
           </button>
         </div>
       </div>
@@ -280,7 +279,7 @@ function onSearch(event: Event) {
   border-radius: 14px;
   cursor: pointer;
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: box-shadow 0.2s ease;
 }
 
 .add-button__bg {
@@ -288,12 +287,27 @@ function onSearch(event: Event) {
   inset: 0;
   background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
   border-radius: 14px;
-  transition: all 0.3s ease;
+  pointer-events: none;
 }
 
-.add-button:hover .add-button__bg {
-  transform: scale(1.02);
-  filter: brightness(1.1);
+/* Keep the hover highlight inside the rounded background, independently
+   of the outer seasonal accessory. No moving hitbox or filter repaint. */
+.add-button__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.add-button:hover .add-button__bg::after {
+  opacity: 0.08;
+}
+
+.add-button:active .add-button__bg::after {
+  opacity: 0.16;
 }
 
 .add-button__content {
@@ -314,34 +328,9 @@ function onSearch(event: Event) {
   transform: rotate(90deg);
 }
 
-.add-button__shine {
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
-  z-index: 3;
-  transition: left 0.5s ease;
-}
-
-.add-button:hover .add-button__shine {
-  left: 100%;
-}
-
 .add-button:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4),
-    0 5px 15px rgba(168, 85, 247, 0.3);
-}
-
-.add-button:active {
-  transform: translateY(-1px);
+  box-shadow: 0 10px 30px var(--event-glow, rgba(99, 102, 241, 0.4)),
+    0 5px 15px var(--event-glow, rgba(168, 85, 247, 0.3));
 }
 
 /* Responsive adjustments */

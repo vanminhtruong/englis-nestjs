@@ -27,6 +27,7 @@ export default {
     avatarPreview: "Avatar Preview",
     sharpen: "Sharpen",
     appName: "VocabMaster",
+    backToTop: "Back to top",
   },
 
   background: {

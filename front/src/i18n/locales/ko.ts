@@ -28,6 +28,7 @@ export default {
     avatarPreview: "아바타 미리보기",
     sharpen: "선명하게",
     appName: "VocabMaster",
+    backToTop: "맨 위로 이동",
   },
 
   background: {

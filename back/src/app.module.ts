@@ -18,6 +18,7 @@ import { VocabularyTabModule } from './modules/vocabulary-tab/vocabulary-tab.mod
 import { BackgroundModule } from './modules/background/background.module';
 import { SrsModule } from './modules/srs/srs.module';
 import { DataShareModule } from './modules/data-share/data-share.module';
+import { SeasonalModule } from './modules/seasonal/seasonal.module';
 
 @Module({
     imports: [
@@ -39,6 +40,7 @@ import { DataShareModule } from './modules/data-share/data-share.module';
         VocabularyTabModule,
         SrsModule,
         DataShareModule,
+        SeasonalModule,
     ],
     controllers: [AppController],
     providers: [AppService],
