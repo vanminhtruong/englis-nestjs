@@ -255,7 +255,6 @@
   [data-seasonal-metrics] > div,
   .filter-panel,
   .filters-toggle,
-  .voice-settings-container .settings-header,
   .achievement-item.unlocked
 ) {
   background-image: var(--event-surface-gradient);
@@ -275,15 +274,12 @@
   .stats-icon, .practice-icon,
   .mastery-progress-fill, .weekly-chart .bar.active, .weekly-legend .legend-dot.active,
   .achievement-progress .progress-fill,
-  .voice-settings-page .header-badge, .voice-settings-container :is(.header-icon, .btn-save),
   [data-seasonal-home] .bg-gradient-to-br:is(.text-white, .shadow-xl, .shadow-2xl):not([data-seasonal-home-stats])
 ) {
   background-image: var(--event-fill-gradient);
 }
 
-.dark [data-seasonal-event] .seasonal-content :is(
-  .modes-title, .voice-settings-page .page-title
-) {
+.dark [data-seasonal-event] .seasonal-content .modes-title {
   background-image: var(--event-title-gradient);
 }
 
@@ -293,10 +289,7 @@
   background-color: var(--event-glow);
 }
 
-.dark [data-seasonal-event] .seasonal-content :is(
-  [data-seasonal-home] :is(.cube-glow, .cube-shadow),
-  .voice-settings-page :is(.bg-gradient-1, .bg-gradient-2)
-) {
+.dark [data-seasonal-event] .seasonal-content [data-seasonal-home] :is(.cube-glow, .cube-shadow) {
   background-image: radial-gradient(ellipse, var(--event-glow), transparent 70%);
 }
 
@@ -305,13 +298,8 @@
   background-image: var(--event-surface-gradient);
 }
 
-.dark [data-seasonal-event] .seasonal-content .voice-settings-page .header-badge {
-  --voice-badge-glow: var(--event-glow);
-}
-
 .dark [data-seasonal-event] :is(
   .app-choice-tab:is([aria-selected='true'], [aria-pressed='true']),
-  .voice-settings-container :is(.dropdown-option.is-active, .voice-card.is-selected),
   .seasonal-content .filters-toggle--active
 ) {
   background-color: transparent;
@@ -515,20 +503,20 @@
   background-image: linear-gradient(125deg, theme('colors.red.800'), theme('colors.red.500'));
 }
 [data-seasonal-event='christmas'] :is(.bg-clip-text.text-transparent,.text-gradient):not(.app-brand-link *),
-[data-seasonal-event='christmas'] .seasonal-content :is(.modes-title,.voice-settings-page .page-title) {
+[data-seasonal-event='christmas'] .seasonal-content .modes-title {
   background-image: var(--event-title-gradient);
 }
 [data-seasonal-event='christmas'] [class*='bg-gradient-to-']:is(.from-primary-500,.from-primary-600,.from-primary-700):not(.bg-clip-text,.app-brand-link,.app-brand-link *) {
   background-image: var(--event-fill-gradient);
 }
-[data-seasonal-event='christmas'] .seasonal-content :is(.add-button__bg,.filters-toggle__badge,.difficulty-chip--all:is(:hover,.difficulty-chip--active),.stats-icon,.practice-icon,.mastery-progress-fill,.weekly-chart .bar.active,.weekly-legend .legend-dot.active,.achievement-progress .progress-fill,.voice-settings-page .header-badge,.voice-settings-container :is(.header-icon,.btn-save)) {
+[data-seasonal-event='christmas'] .seasonal-content :is(.add-button__bg,.filters-toggle__badge,.difficulty-chip--all:is(:hover,.difficulty-chip--active),.stats-icon,.practice-icon,.mastery-progress-fill,.weekly-chart .bar.active,.weekly-legend .legend-dot.active,.achievement-progress .progress-fill) {
   background-image: var(--event-fill-gradient);
 }
-[data-seasonal-event='christmas'] .seasonal-content :is([data-seasonal-metrics] > div,.filter-panel,.filters-toggle,.voice-settings-container .settings-header,.achievement-item.unlocked) {
+[data-seasonal-event='christmas'] .seasonal-content :is([data-seasonal-metrics] > div,.filter-panel,.filters-toggle,.achievement-item.unlocked) {
   background-image: var(--event-surface-gradient);
   border-color: var(--event-line);
 }
-[data-seasonal-event='christmas'] :is(.app-choice-tab:is([aria-selected='true'],[aria-pressed='true']),.voice-settings-container :is(.dropdown-option.is-active,.voice-card.is-selected),.seasonal-content .filters-toggle--active) {
+[data-seasonal-event='christmas'] :is(.app-choice-tab:is([aria-selected='true'],[aria-pressed='true']),.seasonal-content .filters-toggle--active) {
   background-image: var(--event-surface-gradient);
   border-color: var(--event-line);
   color: var(--seasonal-ink);
@@ -610,13 +598,13 @@
   background-color: color-mix(in srgb, var(--seasonal-teal) 12%, transparent);
 }
 [data-seasonal-event='christmas'] [data-seasonal-profile-action] > svg { color: var(--seasonal-fir); }
-[data-seasonal-event='christmas'] .seasonal-content :is(.stats-icon,.practice-icon,.voice-settings-container .header-icon,.filters-toggle__badge) {
+[data-seasonal-event='christmas'] .seasonal-content :is(.stats-icon,.practice-icon,.filters-toggle__badge) {
   background-image: var(--christmas-teal-fill);
 }
 [data-seasonal-event='christmas'] .seasonal-content :is(.mastery-progress-fill,.weekly-chart .bar.active,.weekly-legend .legend-dot.active) {
   background-image: var(--christmas-fir-fill);
 }
-[data-seasonal-event='christmas'] .seasonal-content :is(.achievement-progress .progress-fill,.voice-settings-page .header-badge) {
+[data-seasonal-event='christmas'] .seasonal-content .achievement-progress .progress-fill {
   background-image: var(--christmas-gold-fill);
 }
 [data-seasonal-event='christmas'] :is([role='dialog'],[data-seasonal-dialog]) :is(header,[data-seasonal-dialog-header]) {

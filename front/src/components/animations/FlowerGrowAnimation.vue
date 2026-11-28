@@ -1,17 +1,9 @@
 <template>
-  <div class="animated-flower-bg">
+  <div ref="scene" class="animated-flower-bg" :data-motion-paused="paused || undefined">
     <!-- Background gradient - Night sky -->
     <div class="bg-layer"></div>
 
-    <!-- Twinkling Stars -->
-    <div class="stars-layer">
-      <div
-        v-for="i in 50"
-        :key="'star-' + i"
-        class="star"
-        :style="getStarStyle(i)"
-      ></div>
-    </div>
+    <FlowerStarfield :paused="paused" />
 
     <!-- Shooting stars -->
     <div class="shooting-stars">
@@ -412,27 +404,59 @@
     <!-- Floating particles -->
     <div class="particles">
       <div
-        v-for="i in 15"
-        :key="'particle-' + i"
+        v-for="(style, index) in particles"
+        :key="index"
         class="particle"
-        :style="getParticleStyle(i)"
+        :style="style"
       ></div>
     </div>
 
     <!-- Fireflies -->
     <div class="fireflies">
       <div
-        v-for="i in 8"
-        :key="'firefly-' + i"
+        v-for="(style, index) in fireflies"
+        :key="index"
         class="firefly"
-        :style="getFireflyStyle(i)"
+        :style="style"
       ></div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-const getParticleStyle = (index: number) => {
+import { onBeforeUnmount, onMounted, ref } from "vue";
+import FlowerStarfield from "./FlowerStarfield.vue";
+
+const scene = ref<HTMLElement | null>(null);
+const paused = ref(true);
+let observer: IntersectionObserver | undefined;
+let visible = false;
+
+function syncMotion() {
+  paused.value = !visible || document.hidden;
+}
+
+onMounted(() => {
+  if (scene.value && typeof IntersectionObserver !== "undefined") {
+    observer = new IntersectionObserver(([entry]) => {
+      visible = entry?.isIntersecting ?? false;
+      syncMotion();
+    });
+    observer.observe(scene.value);
+  } else {
+    visible = true;
+  }
+
+  document.addEventListener("visibilitychange", syncMotion);
+  syncMotion();
+});
+
+onBeforeUnmount(() => {
+  observer?.disconnect();
+  document.removeEventListener("visibilitychange", syncMotion);
+});
+
+const particles = Array.from({ length: 15 }, () => {
   const left = 10 + Math.random() * 80;
   const delay = Math.random() * 10;
   const duration = 12 + Math.random() * 8;
@@ -445,9 +469,9 @@ const getParticleStyle = (index: number) => {
     width: `${size}px`,
     height: `${size}px`,
   };
-};
+});
 
-const getFireflyStyle = (index: number) => {
+const fireflies = Array.from({ length: 8 }, () => {
   const left = 5 + Math.random() * 90;
   const top = 10 + Math.random() * 60;
   const delay = Math.random() * 5;
@@ -459,26 +483,7 @@ const getFireflyStyle = (index: number) => {
     animationDelay: `${delay}s`,
     animationDuration: `${duration}s`,
   };
-};
-
-const getStarStyle = (index: number) => {
-  const left = Math.random() * 100;
-  const top = Math.random() * 60; // Upper 60% of screen
-  const delay = Math.random() * 5;
-  const duration = 1.5 + Math.random() * 3;
-  const size = 1 + Math.random() * 3;
-  const brightness = 0.5 + Math.random() * 0.5;
-
-  return {
-    left: `${left}%`,
-    top: `${top}%`,
-    animationDelay: `${delay}s`,
-    animationDuration: `${duration}s`,
-    width: `${size}px`,
-    height: `${size}px`,
-    opacity: brightness,
-  };
-};
+});
 </script>
 
 <style scoped>
@@ -487,6 +492,7 @@ const getStarStyle = (index: number) => {
   inset: 0;
   overflow: hidden;
   border-radius: inherit;
+  contain: layout paint;
 }
 
 .bg-layer {
@@ -502,32 +508,9 @@ const getStarStyle = (index: number) => {
   );
 }
 
-/* Twinkling Stars */
-.stars-layer {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.star {
-  position: absolute;
-  background: #ffffff;
-  border-radius: 50%;
-  box-shadow: 0 0 6px 2px rgba(255, 255, 255, 0.6),
-    0 0 12px 4px rgba(200, 220, 255, 0.3);
-  animation: twinkle var(--duration, 2s) ease-in-out infinite;
-}
-
-@keyframes twinkle {
-  0%,
-  100% {
-    opacity: var(--base-opacity, 0.5);
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.3);
-  }
+/* Pause the current animation phase when the whole background is offscreen. */
+.animated-flower-bg[data-motion-paused] :deep(*) {
+  animation-play-state: paused;
 }
 
 /* Shooting Stars */

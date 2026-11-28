@@ -51,7 +51,7 @@
           :vocab-id="vocab.id"
           :initial-background-url="vocab.backgroundUrl"
           :initial-animated-background="vocab.animatedBackground"
-          class="group"
+          class="group favorites-card"
         >
           <template #default="{ hasBackground }">
             <!-- Media Display -->
@@ -80,6 +80,7 @@
                       : resolveAssetUrl(vocab.image)
                   "
                   :alt="vocab.word"
+                  decoding="async"
                   class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
                 />
               </button>
@@ -96,6 +97,7 @@
                   v-if="getVideoThumbnail(vocab.video)"
                   :src="getVideoThumbnail(vocab.video)"
                   :alt="vocab.word"
+                  decoding="async"
                   class="w-full h-full object-cover"
                 />
                 <div
@@ -235,7 +237,6 @@
         :page="page"
         :page-count="pageCount"
         @update:page="handlePageChange"
-        @page-change="handlePageChange"
       />
       <VocabularyDetailModal
         :show="showDetailModal"
@@ -397,3 +398,12 @@ function handlePageChange(p: number) {
   loadFavorites(p);
 }
 </script>
+
+<style scoped>
+/* Keep hover colors, shadows and image zoom, but avoid repainting the card
+   shadow and borders on every transitional frame as rows pass the pointer. */
+.favorites-card,
+.favorites-card :is(button, [class*='transition-all']) {
+  transition-property: opacity, transform, translate, scale, rotate;
+}
+</style>

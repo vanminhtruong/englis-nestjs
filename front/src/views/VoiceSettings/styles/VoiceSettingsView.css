@@ -139,6 +139,195 @@ html:not(.dark) .page-subtitle {
   color: #6b7280;
 }
 
+/* All seasonal voice colors live here so the route uses one palette in both modes. */
+[data-seasonal-event] .voice-settings-page {
+  --voice-page-base: theme('colors.gray.50');
+  --voice-panel-base: theme('colors.white');
+  --voice-text-base: theme('colors.gray.900');
+  --voice-muted-base: theme('colors.gray.600');
+  --voice-selection: var(--seasonal-fir, var(--seasonal-accent));
+  /* Reuse the complementary event shades already used by practice cards. */
+  --voice-support: var(--seasonal-teal, var(--practice-two, var(--seasonal-highlight)));
+  --voice-preview: var(--seasonal-gold, var(--practice-three, var(--seasonal-highlight)));
+  --voice-text: color-mix(in srgb, var(--voice-text-base) 91%, var(--seasonal-ink));
+  --voice-muted: color-mix(in srgb, var(--voice-muted-base) 85%, var(--seasonal-ink));
+  --voice-selection-ink: color-mix(in srgb, var(--voice-text-base) 56%, var(--voice-selection));
+  --voice-control-surface: color-mix(in srgb, var(--voice-panel-base) 95%, var(--voice-selection));
+  --voice-control-border: color-mix(in srgb, var(--voice-selection) 34%, var(--voice-panel-base));
+  --voice-hover-surface: color-mix(in srgb, var(--voice-selection) 12%, var(--voice-panel-base));
+  --voice-selected-surface: color-mix(in srgb, var(--voice-selection) 21%, var(--voice-panel-base));
+  --voice-badge-glow: var(--event-glow);
+  --voice-primary-fill: var(--christmas-red-fill, linear-gradient(135deg,
+    color-mix(in srgb, var(--event-solid) 70%, theme('colors.gray.900')),
+    var(--event-solid)));
+  background:
+    var(--seasonal-pattern) center top / 180px 180px repeat,
+    linear-gradient(165deg,
+      color-mix(in srgb, var(--seasonal-accent) 8%, var(--voice-page-base)),
+      var(--voice-page-base) 39rem);
+}
+
+.dark [data-seasonal-event] .voice-settings-page {
+  --voice-page-base: theme('colors.black');
+  --voice-panel-base: theme('colors.neutral.950');
+  --voice-text-base: theme('colors.gray.100');
+  --voice-muted-base: theme('colors.gray.400');
+}
+
+[data-seasonal-event] .voice-settings-page .bg-gradient-1 {
+  background-image: radial-gradient(circle,
+    color-mix(in srgb, var(--seasonal-accent) var(--seasonal-wash), transparent), transparent 70%);
+}
+
+[data-seasonal-event] .voice-settings-page .bg-gradient-2 {
+  background-image: radial-gradient(circle,
+    color-mix(in srgb, var(--voice-support) var(--seasonal-wash), transparent), transparent 70%);
+}
+
+[data-seasonal-event] .voice-settings-page .header-badge {
+  background-image: var(--christmas-gold-fill, var(--voice-primary-fill));
+}
+
+[data-seasonal-event] .voice-settings-page .page-title {
+  background-image: var(--event-title-gradient,
+    linear-gradient(115deg, var(--seasonal-ink), var(--voice-selection-ink)));
+}
+
+[data-seasonal-event] .voice-settings-page .page-subtitle {
+  color: var(--voice-muted);
+}
+
+/* The route and panel scopes take precedence over the panel's light-mode defaults. */
+[data-seasonal-event] .voice-settings-page .page-content .voice-settings-container
+  :is(.settings-header, .settings-card, .browser-voices-section) {
+  background: linear-gradient(145deg,
+    color-mix(in srgb, var(--voice-panel-tint, var(--seasonal-accent)) var(--seasonal-wash), var(--voice-panel-base)),
+    var(--voice-panel-base) 72%);
+  border-color: color-mix(in srgb, var(--voice-panel-tint, var(--seasonal-accent)) 34%, var(--voice-panel-base));
+}
+
+[data-seasonal-event] .voice-settings-page .browser-voices-section {
+  --voice-panel-tint: var(--voice-support);
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container .header-icon {
+  background-image: var(--christmas-teal-fill, var(--voice-primary-fill));
+}
+
+[data-seasonal-event] .voice-settings-page .page-content .voice-settings-container
+  :is(.header-text h2, .section-header h3, .form-label, .voice-name) {
+  color: var(--voice-text);
+}
+
+[data-seasonal-event] .voice-settings-page .page-content .voice-settings-container
+  :is(.header-text p, .section-header p, .voice-lang, .empty-state) {
+  color: var(--voice-muted);
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container :is(.section-icon, .empty-state svg) {
+  color: color-mix(in srgb, var(--voice-text-base) 55%, var(--voice-support));
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container .section-icon {
+  background-color: color-mix(in srgb, var(--voice-support) 17%, var(--voice-panel-base));
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container .empty-state svg {
+  opacity: 1;
+}
+
+[data-seasonal-event] .voice-settings-page .page-content .voice-settings-container
+  :is(.dropdown-trigger, .dropdown-menu, .voice-card) {
+  background-color: var(--voice-control-surface);
+  border-color: var(--voice-control-border);
+}
+
+[data-seasonal-event] .voice-settings-page .page-content .voice-settings-container
+  :is(.dropdown-trigger, .dropdown-selected-text, .dropdown-option) {
+  color: var(--voice-text);
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container .dropdown-trigger:hover {
+  background-color: var(--voice-hover-surface);
+  border-color: var(--voice-selection);
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container .custom-dropdown.is-open .dropdown-trigger {
+  border-color: var(--voice-selection);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--voice-selection) 18%, transparent);
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container .custom-dropdown .dropdown-menu {
+  border-color: var(--voice-selection);
+  box-shadow: 0 16px 40px color-mix(in srgb, theme('colors.black') 23%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--voice-selection) 18%, transparent);
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container
+  :is(.form-label svg, .dropdown-chevron, .option-check) {
+  color: var(--voice-selection-ink);
+}
+
+[data-seasonal-event] .voice-settings-page .page-content .voice-settings-container
+  :is(.dropdown-option:not(.is-active):hover, .voice-card:not(.is-selected):hover) {
+  background-color: var(--voice-hover-surface);
+  border-color: var(--voice-selection);
+  color: var(--voice-text);
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container
+  :is(.dropdown-option.is-active, .voice-card.is-selected) {
+  background-color: var(--voice-selected-surface);
+  border-color: var(--voice-selection);
+  color: var(--voice-selection-ink);
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container .dropdown-option.is-active {
+  box-shadow: inset 2px 0 var(--voice-selection);
+}
+
+[data-seasonal-event] .voice-settings-page .page-content .voice-settings-container
+  :is(.btn-preview, .voice-preview-btn) {
+  background-color: color-mix(in srgb, var(--voice-preview) 14%, var(--voice-panel-base));
+  color: color-mix(in srgb, var(--voice-text-base) 57%, var(--voice-preview));
+  border-color: color-mix(in srgb, var(--voice-preview) 42%, var(--voice-panel-base));
+}
+
+[data-seasonal-event] .voice-settings-page .page-content .voice-settings-container
+  :is(.btn-preview:hover, .btn-preview.is-playing, .voice-preview-btn:hover) {
+  background-color: color-mix(in srgb, var(--voice-preview) 27%, var(--voice-panel-base));
+  border-color: var(--voice-preview);
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container .btn-save {
+  background-image: var(--voice-primary-fill);
+  box-shadow: 0 4px 16px var(--event-glow);
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container .btn-save:hover {
+  background-image: linear-gradient(135deg, var(--event-solid), var(--event-solid-hover));
+  box-shadow: 0 6px 24px var(--event-glow);
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container
+  :is(.dropdown-trigger, .btn, .voice-preview-btn):focus-visible {
+  outline: 2px solid var(--voice-selection-ink);
+  outline-offset: 3px;
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container .voice-type {
+  background-color: color-mix(in srgb, var(--voice-type-accent) 19%, var(--voice-panel-base));
+  color: color-mix(in srgb, var(--voice-text-base) 60%, var(--voice-type-accent));
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container .voice-type.local {
+  --voice-type-accent: var(--voice-selection);
+}
+
+[data-seasonal-event] .voice-settings-page .voice-settings-container .voice-type.remote {
+  --voice-type-accent: var(--voice-support);
+}
+
 /* Responsive */
 @media (max-width: 640px) {
   .page-content {

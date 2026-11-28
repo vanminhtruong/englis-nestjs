@@ -23,24 +23,36 @@
       ></span>
 
       <!-- Tooltip -->
-      <div class="absolute -top-16 right-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none z-50 group-hover:scale-105">
-        <div class="relative bg-white/95 dark:bg-black/95 backdrop-blur-md border border-gray-200 dark:border-white/20 px-4 py-2 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-black/50">
-          <!-- Progress Bar -->
-          <div class="w-full h-1 bg-gray-200 dark:bg-white/20 rounded-full mb-1.5 overflow-hidden">
-            <div
-              class="h-full bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full transition-all duration-300"
-              :style="{ width: scrollPercentage + '%' }"
-            ></div>
+      <Transition
+        enter-active-class="transition duration-300 ease-out"
+        enter-from-class="opacity-0 scale-100"
+        enter-to-class="opacity-100 scale-105"
+        leave-active-class="transition duration-300 ease-in"
+        leave-from-class="opacity-100 scale-105"
+        leave-to-class="opacity-0 scale-100"
+      >
+        <div
+          v-show="isProgressHovered"
+          class="absolute -top-16 right-0 z-50 scale-105 pointer-events-none"
+        >
+          <div class="relative bg-white/95 dark:bg-black/95 backdrop-blur-md border border-gray-200 dark:border-white/20 px-4 py-2 rounded-xl shadow-lg shadow-gray-200/50 dark:shadow-black/50">
+            <!-- Progress Bar -->
+            <div class="w-full h-1 bg-gray-200 dark:bg-white/20 rounded-full mb-1.5 overflow-hidden">
+              <div
+                class="h-full origin-left bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full transition-transform duration-300"
+                :style="{ transform: `scaleX(${scrollPercentage / 100})` }"
+              ></div>
+            </div>
+            <!-- Percentage Text -->
+            <div class="flex items-center justify-between gap-3">
+              <span class="text-sm font-medium text-gray-800 dark:text-white tracking-wide">{{ scrollPercentage }}%</span>
+              <span class="text-xs text-gray-500 dark:text-gray-300">scrolled</span>
+            </div>
+            <!-- Arrow -->
+            <div class="absolute -bottom-2 right-4 w-4 h-4 bg-white/95 dark:bg-black/95 border-b border-r border-gray-200 dark:border-white/20 rotate-45"></div>
           </div>
-          <!-- Percentage Text -->
-          <div class="flex items-center justify-between gap-3">
-            <span class="text-sm font-medium text-gray-800 dark:text-white tracking-wide">{{ scrollPercentage }}%</span>
-            <span class="text-xs text-gray-500 dark:text-gray-300">scrolled</span>
-          </div>
-          <!-- Arrow -->
-          <div class="absolute -bottom-2 right-4 w-4 h-4 bg-white/95 dark:bg-black/95 border-b border-r border-gray-200 dark:border-white/20 rotate-45"></div>
         </div>
-      </div>
+      </Transition>
 
       <SeasonalActionIcon
         kind="backToTop"
@@ -75,20 +87,33 @@ const { t } = useI18n();
 
 const isVisible = ref(false);
 const scrollPercentage = ref(0);
-let isProgressHovered = false;
+const isProgressHovered = ref(false);
+let scrollRange = 0;
+let progressObserver: ResizeObserver | undefined;
 
 function updateProgress(scrollTop: number) {
-  const scrollRange = document.documentElement.scrollHeight - window.innerHeight;
-  scrollPercentage.value = scrollRange > 0 ? Math.round((scrollTop / scrollRange) * 100) : 0;
+  scrollPercentage.value = scrollRange > 0
+    ? Math.min(100, Math.max(0, Math.round((scrollTop / scrollRange) * 100)))
+    : 0;
 }
 
-function showProgress() {
-  isProgressHovered = true;
+function refreshScrollRange() {
+  scrollRange = document.documentElement.scrollHeight - window.innerHeight;
   updateProgress(window.scrollY);
 }
 
+function showProgress() {
+  isProgressHovered.value = true;
+  refreshScrollRange();
+  if (typeof ResizeObserver !== "undefined") {
+    progressObserver ??= new ResizeObserver(refreshScrollRange);
+    progressObserver.observe(document.body);
+  }
+}
+
 function hideProgress() {
-  isProgressHovered = false;
+  isProgressHovered.value = false;
+  progressObserver?.disconnect();
 }
 
 function handleScroll() {
@@ -96,24 +121,30 @@ function handleScroll() {
   // Short mobile pages may have less than 300px of available scroll.
   const threshold = window.innerWidth < 768 ? 32 : 300;
   isVisible.value = scrollTop > threshold;
-  if (!isVisible.value) hideProgress();
-  if (isProgressHovered) updateProgress(scrollTop);
+  if (!isVisible.value && isProgressHovered.value) hideProgress();
+  if (isProgressHovered.value) updateProgress(scrollTop);
 }
 
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
+function handleResize() {
+  if (isProgressHovered.value) refreshScrollRange();
+  handleScroll();
+}
+
 onMounted(() => {
   window.addEventListener("scroll", handleScroll, {
     passive: true,
   } as AddEventListenerOptions);
-  window.addEventListener("resize", handleScroll, { passive: true });
+  window.addEventListener("resize", handleResize, { passive: true });
   handleScroll();
 });
 
 onUnmounted(() => {
   window.removeEventListener("scroll", handleScroll);
-  window.removeEventListener("resize", handleScroll);
+  window.removeEventListener("resize", handleResize);
+  progressObserver?.disconnect();
 });
 </script>
