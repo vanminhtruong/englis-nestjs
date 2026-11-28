@@ -4,7 +4,7 @@
   >
     <div class="mx-auto w-full max-w-7xl space-y-4 sm:space-y-6">
       <!-- Hero: compact page header, same palette and dark-mode strategy as VocabMaster. -->
-      <section
+      <section v-scroll-reveal
         data-seasonal-card
         class="relative isolate overflow-hidden rounded-3xl border border-primary-100 bg-white shadow-xl shadow-primary-500/5 dark:border-white/10 dark:bg-black dark:shadow-none"
       >
@@ -101,7 +101,7 @@
         <div class="grid min-w-0 items-start gap-4 sm:gap-6 xl:grid-cols-12">
           <div class="min-w-0 space-y-4 sm:space-y-6 xl:col-span-8">
             <!-- Reuse the vocabulary module's tab selector in selection-only mode. -->
-            <section
+            <section v-scroll-reveal
               class="min-w-0 rounded-3xl border border-gray-200 bg-white px-4 pb-3 pt-5 shadow-sm dark:border-white/10 dark:bg-black sm:px-7 sm:pt-6"
               :aria-label="t('srs.tabSelection')"
             >
@@ -190,7 +190,7 @@
             </div>
 
             <!-- Study panel (primary action) -->
-            <section
+            <section v-scroll-reveal
               class="overflow-visible rounded-3xl border border-primary-100 bg-white shadow-lg shadow-primary-500/5 dark:border-white/10 dark:bg-black dark:shadow-none"
             >
               <div
@@ -301,7 +301,7 @@
             </section>
 
             <!-- Statistics -->
-            <section aria-label="Statistics" class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:gap-4">
+            <section v-scroll-reveal aria-label="Statistics" class="grid grid-cols-2 gap-3 md:grid-cols-3 lg:gap-4">
               <div
                 v-for="stat in stats"
                 :key="stat.key"
@@ -325,7 +325,7 @@
             </section>
 
             <!-- How it works -->
-            <section
+            <section v-scroll-reveal
               class="rounded-3xl border border-gray-200 bg-gray-50/70 p-6 dark:border-white/10 dark:bg-black sm:p-8"
             >
               <div class="flex flex-wrap items-center justify-between gap-3">
@@ -358,7 +358,7 @@
           </div>
 
           <!-- Activity sidebar -->
-          <aside class="min-w-0 xl:col-span-4">
+          <aside v-scroll-reveal class="min-w-0 xl:col-span-4">
             <SrsActivity :key="selectedTabId ?? 'all'" :tab-id="selectedTabId" />
           </aside>
         </div>

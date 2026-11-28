@@ -1,5 +1,5 @@
 <template>
-  <div
+  <div v-scroll-reveal
     class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black"
   >
     <div class="text-center">

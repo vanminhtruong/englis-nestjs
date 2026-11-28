@@ -1,5 +1,5 @@
 <template>
-  <div
+  <div v-scroll-reveal.paint
     data-seasonal-card
     class="bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10 rounded-2xl p-6 hover:shadow-lg transition-all"
   >

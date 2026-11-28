@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent="emit('submit')" class="space-y-5 sm:space-y-6" method="post" autocomplete="on" novalidate>
-    <div class="relative group/field">
+    <div v-scroll-reveal class="relative group/field">
       <label
         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
       >
@@ -39,7 +39,7 @@
       </div>
     </div>
 
-    <div class="relative group/field">
+    <div v-scroll-reveal class="relative group/field">
       <label
         class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
       >
@@ -191,7 +191,7 @@
       <p class="text-red-500 text-sm">{{ error }}</p>
     </div>
 
-    <button
+    <button v-scroll-reveal
       type="submit"
       :disabled="loading"
       class="w-full py-3 px-4 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"

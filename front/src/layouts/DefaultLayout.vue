@@ -10,7 +10,7 @@
     <AppHeader class="seasonal-header" :seasonal-event-id="activeEvent?.id" />
     <div v-if="activeEvent" class="seasonal-garland" aria-hidden="true"><SeasonalMotifStrip :event-id="activeEvent.id" /></div>
     <SeasonalParticles v-if="activeEvent" :event-id="activeEvent.id" />
-    <div id="app-floating-actions" class="app-floating-actions contents"></div>
+    <div id="app-floating-actions" class="app-floating-actions app-visible-viewport"></div>
     <main class="seasonal-content flex-1">
       <SeasonalEventBanner
         v-if="activeEvent && !isAuthPage"
@@ -27,8 +27,8 @@
     <AppFooter class="seasonal-footer">
       <template v-if="activeEvent" #seasonal-decoration>
         <div class="seasonal-footer-scene" aria-hidden="true">
-          <img v-if="eventArt" :src="eventArt" class="seasonal-footer-art" alt="" loading="lazy" decoding="async" width="900" height="375" />
-          <SeasonalFooterAnimation :key="activeEvent.id" :event-id="activeEvent.id" />
+          <img v-scroll-reveal v-if="eventArt" :src="eventArt" class="seasonal-footer-art" alt="" loading="lazy" decoding="async" width="900" height="375" />
+          <SeasonalFooterAnimation v-scroll-reveal :key="activeEvent.id" :event-id="activeEvent.id" />
         </div>
       </template>
     </AppFooter>

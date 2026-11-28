@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-8 relative z-10">
+  <div v-scroll-reveal class="mb-8 relative z-10">
     <div
       class="flex items-start md:items-center justify-between flex-col md:flex-row gap-4"
     >

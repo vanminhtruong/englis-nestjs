@@ -1,5 +1,5 @@
 <template>
-  <div class="rank-card">
+  <div v-scroll-reveal class="rank-card">
     <div class="rank-header">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
         {{ t('learningProgress.rank.title') }}

@@ -1,6 +1,6 @@
 <template>
   <AuthLayout>
-    <div class="mb-6 text-center">
+    <div v-scroll-reveal class="mb-6 text-center">
       <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 dark:bg-primary-500/15 dark:text-primary-400">
         <svg v-if="step !== 'success'" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
           <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -18,7 +18,7 @@
       </p>
     </div>
 
-    <form v-if="step === 'email'" class="space-y-5" @submit.prevent="requestCode">
+    <form v-scroll-reveal v-if="step === 'email'" class="space-y-5" @submit.prevent="requestCode">
       <label class="block min-w-0">
         <span class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('forgotPassword.email') }}</span>
         <input
@@ -43,7 +43,7 @@
       </button>
     </form>
 
-    <form v-else-if="step === 'code'" class="space-y-4" @submit.prevent="resetPassword">
+    <form v-scroll-reveal v-else-if="step === 'code'" class="space-y-4" @submit.prevent="resetPassword">
       <div class="rounded-xl border border-primary-200 bg-primary-50 p-3 text-sm leading-6 text-gray-700 dark:border-primary-500/30 dark:bg-primary-500/10 dark:text-gray-200" role="status">
         {{ notice }}
         <span class="mt-1 block break-all font-medium text-primary-700 dark:text-primary-300">{{ email }}</span>

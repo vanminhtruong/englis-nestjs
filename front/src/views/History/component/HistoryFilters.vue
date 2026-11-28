@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col md:flex-row gap-4 mb-6">
+  <div v-scroll-reveal class="flex flex-col md:flex-row gap-4 mb-6">
     <!-- Action Dropdown -->
     <div class="relative w-full md:w-64">
       <button

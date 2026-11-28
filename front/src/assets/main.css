@@ -116,6 +116,21 @@ input:-webkit-autofill:active {
     @apply bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent;
   }
 }
+/* Use native fixed anchoring so mobile browser chrome can move the bottom
+   edge and floating actions together on the compositor. Never animate insets. */
+.app-visible-viewport {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  transition: none;
+}
+.app-floating-actions { z-index: 45; }
+.app-floating-actions > .app-floating-action {
+  position: fixed;
+  pointer-events: auto;
+  transition-property: opacity, transform, box-shadow, background-color, color, border-color;
+}
+
 /* Floating actions stay inside the usable mobile viewport, clear of the
    decorative frame and the system gesture/navigation area. */
 @media (max-width: 767px) {
@@ -135,6 +150,7 @@ input:-webkit-autofill:active {
 /* Do not let touch browsers retain a desktop hover translation after tapping. */
 @media (hover: none) {
   .app-floating-action:hover { transform: none; }
+  .app-floating-action .group-hover\:-translate-y-0\.5 { transform: none; }
 }
 
 /* Guest preview lives alongside the other header utilities, not on a second row. */

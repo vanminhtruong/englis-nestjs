@@ -2,7 +2,7 @@
   <div class="vocabulary-page min-h-screen bg-white dark:bg-black px-3 py-4 sm:p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
       <div class="mb-8">
-        <VocabularyHeader
+        <VocabularyHeader v-scroll-reveal
           :title="t('vocabulary.title')"
           :grid-label="t('vocabulary.gridView')"
           :list-label="t('vocabulary.listView')"
@@ -11,7 +11,7 @@
           @change:layout="vocabularyLayoutHandle.handleLayoutModeChange"
         />
 
-        <div class="mb-6">
+        <div v-scroll-reveal class="mb-6">
           <VocabularyAppTabs
             :tabs="tabHandle.tabs.value"
             :active-tab-id="tabHandle.activeTabId.value"
@@ -25,7 +25,7 @@
           />
         </div>
 
-        <div
+        <div v-scroll-reveal
           ref="controlsRef"
           class="vocabulary-controls"
           :data-controls-above="stickyButton.controlsAbove.value || undefined"
@@ -89,7 +89,7 @@
         </div>
       </div>
 
-      <div v-else-if="vocabularyState.filteredVocabularies.length === 0" class="text-center py-12">
+      <div v-scroll-reveal v-else-if="vocabularyState.filteredVocabularies.length === 0" class="text-center py-12">
         <div class="text-5xl sm:text-6xl mb-4">📚</div>
         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           {{ t("vocabulary.noVocabulary") }}
@@ -162,11 +162,11 @@
   <Teleport to="#app-floating-actions">
     <Transition
       enter-active-class="transition duration-200 ease-out"
-      enter-from-class="translate-y-2 opacity-0"
-      enter-to-class="translate-y-0 opacity-100"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
       leave-active-class="transition duration-200 ease-in"
-      leave-from-class="translate-y-0 opacity-100"
-      leave-to-class="translate-y-20 opacity-0"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
     >
       <button
         v-if="stickyButton.showStickyAddButton.value"

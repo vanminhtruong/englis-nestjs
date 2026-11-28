@@ -41,22 +41,26 @@
   --frame-side: 14px;
 }
 .seasonal-frame {
-  position: fixed;
-  inset: 0;
   pointer-events: none;
   z-index: 51;
-  overflow: clip;
 }
+/* Each rail is independently anchored to the browser's native fixed viewport.
+   Only the artwork inside the rail is rotated; no rotated viewport-sized
+   box or JS-measured height can move the lower edge during mobile scrolling. */
 .seasonal-frame-edge {
+  position: fixed;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: transparent;
+}
+.seasonal-frame-edge::before {
+  content: '';
   position: absolute;
   pointer-events: none;
   background-image: var(--seasonal-frame-art), var(--seasonal-frame-art);
   background-repeat: repeat-x;
   background-size: auto 145%, auto 145%;
   background-position: 0 85%, calc(var(--rail-depth) * 5.4375) 100%;
-  background-color: transparent;
-  /* Cache each narrow vector rail, not an entire transparent viewport. */
-  will-change: transform;
 }
 .seasonal-frame-top, .seasonal-frame-bottom {
   left: 0;
@@ -66,19 +70,28 @@
   z-index: 2;
 }
 .seasonal-frame-top { top: 0; }
-.seasonal-frame-bottom { bottom: 0; transform: rotate(180deg); }
+.seasonal-frame-bottom { bottom: 0; }
+.seasonal-frame-top::before, .seasonal-frame-bottom::before { inset: 0; }
+.seasonal-frame-bottom::before { transform: rotate(180deg); }
 .seasonal-frame-left, .seasonal-frame-right {
   top: 0;
+  bottom: 0;
+  width: var(--frame-side);
+  --rail-depth: var(--frame-side);
+  z-index: 1;
+  container-type: size;
+}
+.seasonal-frame-left { left: 0; }
+.seasonal-frame-right { right: 0; }
+.seasonal-frame-left::before, .seasonal-frame-right::before {
   width: 100vh;
   width: 100dvh;
+  width: 100cqh;
   height: var(--frame-side);
-  --rail-depth: var(--frame-side);
-  transform: rotate(90deg);
   transform-origin: top left;
-  z-index: 1;
 }
-.seasonal-frame-left { left: 0; top: 100%; transform: rotate(-90deg); }
-.seasonal-frame-right { left: 100%; }
+.seasonal-frame-left::before { left: 0; top: 100%; transform: rotate(-90deg); }
+.seasonal-frame-right::before { left: 100%; top: 0; transform: rotate(90deg); }
 /* Keep the header/footer surfaces flush to the viewport. Reserve space only
    INSIDE their existing backgrounds, not on the app shell or around the page.
    The extra top clearance also protects the brand's protruding holiday hat. */

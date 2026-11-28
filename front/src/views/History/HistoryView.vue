@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-white dark:bg-black px-3 py-4 sm:p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
       <!-- Header -->
-      <div class="mb-8">
+      <div v-scroll-reveal class="mb-8">
         <h1
           class="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent mb-2"
         >
@@ -17,7 +17,7 @@
       <StatisticsCards :statistics="statistics" />
 
       <!-- Bulk Actions -->
-      <div
+      <div v-scroll-reveal
         v-if="filteredHistories.length > 0"
         class="bg-gradient-to-br from-white to-gray-50 dark:from-white/5 dark:to-white/[0.02] border border-gray-200 dark:border-white/10 rounded-2xl p-4 mb-6"
       >

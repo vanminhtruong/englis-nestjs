@@ -26,7 +26,7 @@
       <div class="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-8 py-10 sm:py-16">
         <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <!-- Text Content -->
-          <div class="text-center lg:text-left">
+          <div v-scroll-reveal class="text-center lg:text-left">
             <h1
               class="text-3xl xs:text-4xl sm:text-5xl lg:text-7xl font-bold text-gray-900 dark:text-white mb-6 leading-tight"
             >
@@ -96,7 +96,7 @@
 
           <!-- Hero Image -->
           <div class="relative">
-            <div class="relative w-full max-w-md mx-auto lg:max-w-none">
+            <div v-scroll-reveal class="relative w-full max-w-md mx-auto lg:max-w-none">
               <!-- Main Game Card -->
               <div
                 class="relative bg-gradient-to-br from-primary-500 to-secondary-500 rounded-3xl p-1 shadow-2xl transform hover:scale-105 transition-transform duration-300"
@@ -134,7 +134,7 @@
     <!-- Features Section -->
     <section class="py-12 sm:py-24 bg-white dark:bg-black">
       <div class="max-w-[1400px] mx-auto px-4 sm:px-8">
-        <div class="text-center mb-16">
+        <div v-scroll-reveal class="text-center mb-16">
           <h2
             class="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4"
           >
@@ -147,7 +147,7 @@
 
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
           <!-- Feature 1 -->
-          <div
+          <div v-scroll-reveal.paint.rise
             class="group p-5 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
           >
             <div
@@ -176,7 +176,7 @@
           </div>
 
           <!-- Feature 2 -->
-          <div
+          <div v-scroll-reveal.paint.rise
             class="group p-5 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
           >
             <div
@@ -206,7 +206,7 @@
           </div>
 
           <!-- Feature 3 -->
-          <div
+          <div v-scroll-reveal.paint.rise
             class="group p-5 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
           >
             <div
@@ -235,7 +235,7 @@
           </div>
 
           <!-- Feature 4 -->
-          <div
+          <div v-scroll-reveal.paint.rise
             class="group p-5 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
           >
             <div
@@ -264,7 +264,7 @@
           </div>
 
           <!-- Feature 5 -->
-          <div
+          <div v-scroll-reveal.paint.rise
             class="group p-5 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
           >
             <div
@@ -292,7 +292,7 @@
           </div>
 
           <!-- Feature 6 -->
-          <div
+          <div v-scroll-reveal.paint.rise
             class="group p-5 sm:p-8 bg-gray-50 dark:bg-white/5 rounded-2xl hover:bg-primary-50 dark:hover:bg-white/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary-500/10"
           >
             <div
@@ -325,7 +325,7 @@
     </section>
 
     <!-- Stats Section -->
-    <section data-seasonal-home-stats
+    <ScrollReveal as="section" data-seasonal-home-stats
       class="py-12 sm:py-20 bg-gradient-to-br from-gray-900 to-black dark:from-black dark:to-black text-white"
     >
       <div class="max-w-[1400px] mx-auto px-4 sm:px-8">
@@ -372,12 +372,13 @@
           </div>
         </div>
       </div>
-    </section>
+    </ScrollReveal>
   </div>
 </template>
 
 <script setup lang="ts">
 import { RouterLink } from "vue-router";
+import ScrollReveal from "../../components/common/ScrollReveal.vue";
 import { useI18n } from "vue-i18n";
 import {
   ref,

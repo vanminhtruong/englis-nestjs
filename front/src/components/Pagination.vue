@@ -1,5 +1,5 @@
 <template>
-  <div
+  <div v-scroll-reveal
     v-if="pageCount > 1"
     class="w-full flex items-center justify-center mt-8"
   >

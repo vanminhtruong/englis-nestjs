@@ -1,0 +1,23 @@
+/* Keep the original layout, focusability and component state.
+   The shared observer only starts the rise when the block meets the viewport. */
+[data-scroll-reveal='pending']:not(:focus-within),
+[data-scroll-reveal='outside']:not(:focus-within) {
+  opacity: 0 !important;
+}
+/* transition-all on existing cards must not override the reveal animation.
+   Restore the original transition immediately after the entrance finishes. */
+[data-scroll-reveal='pending'],
+[data-scroll-reveal='outside'],
+[data-scroll-reveal='entering'] {
+  transition-property: none !important;
+}
+[data-reveal-paint][data-scroll-reveal='outside']:not(:focus-within) {
+  content-visibility: auto;
+  contain-intrinsic-block-size: auto var(--reveal-intrinsic-block, 0px);
+}
+[data-scroll-reveal='outside'] :is(.scroll-reveal-decoration, .card-bg, .bg-glow, .bg-pattern) {
+  animation-play-state: paused !important;
+}
+@media print {
+  [data-scroll-reveal] { opacity: 1 !important; translate: none !important; content-visibility: visible !important; }
+}

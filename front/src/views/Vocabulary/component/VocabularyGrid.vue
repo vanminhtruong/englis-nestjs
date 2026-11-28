@@ -52,8 +52,8 @@
               })
             "
           >
-            <img
-              :src="resolveImageSrc(vocab.image)"
+            <img loading="lazy" decoding="async"
+                :src="resolveImageSrc(vocab.image)"
               :alt="vocab.word"
               class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
             />
@@ -66,8 +66,8 @@
             class="w-full h-40 rounded-xl overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary-400 relative bg-gradient-to-br from-gray-900 to-black flex items-center justify-center"
             @click="emit('open-video', { src: vocab.video, title: vocab.word })"
           >
-            <img
-              v-if="getVideoThumbnail(vocab.video)"
+            <img loading="lazy" decoding="async"
+                v-if="getVideoThumbnail(vocab.video)"
               :src="getVideoThumbnail(vocab.video)"
               :alt="vocab.word"
               class="w-full h-full object-cover"

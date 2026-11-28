@@ -8,7 +8,7 @@
 
     <div class="page-content">
       <!-- Page Header -->
-      <div class="page-header">
+      <div v-scroll-reveal class="page-header">
         <div class="header-badge">
           <svg
             xmlns="http://www.w3.org/2000/svg"

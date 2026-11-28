@@ -1,5 +1,5 @@
 <template>
-  <div
+  <div v-scroll-reveal
     ref="cardRef"
     data-seasonal-card
     class="rounded-2xl border shadow-lg transition-all duration-500 overflow-hidden relative"

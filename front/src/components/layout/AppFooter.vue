@@ -12,7 +12,7 @@
         class="footer-feature min-w-0 lg:col-span-2"
         :class="{ 'footer-feature--seasonal': $slots['seasonal-decoration'] }"
       >
-        <div class="footer-brand">
+        <div v-scroll-reveal class="footer-brand">
           <AppHeaderLogo footer />
           <p class="max-w-sm text-sm leading-relaxed text-gray-600 dark:text-gray-300">
             {{ t("footer.brandDescription") }}
@@ -109,7 +109,7 @@
       </div>
 
       <!-- Quick Links -->
-      <div>
+      <div v-scroll-reveal>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {{ t("footer.quickLinks") }}
         </h3>
@@ -153,7 +153,7 @@
       </div>
 
       <!-- Support -->
-      <div>
+      <div v-scroll-reveal>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {{ t("footer.support") }}
         </h3>
@@ -197,7 +197,7 @@
       </div>
 
       <!-- Legal -->
-      <div>
+      <div v-scroll-reveal>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           {{ t("footer.legal") }}
         </h3>
@@ -242,7 +242,7 @@
     </div>
 
     <!-- Newsletter Section -->
-    <div class="max-w-[1400px] mx-auto px-4 pb-8 sm:px-6 sm:pb-10 lg:px-8 lg:pb-12">
+    <div v-scroll-reveal class="max-w-[1400px] mx-auto px-4 pb-8 sm:px-6 sm:pb-10 lg:px-8 lg:pb-12">
       <div
         class="bg-gray-50 dark:bg-white/5 rounded-2xl p-4 sm:p-6 lg:p-8 backdrop-blur-sm border border-gray-100 dark:border-none"
       >
@@ -303,7 +303,7 @@
     </div>
 
     <!-- Bottom Bar -->
-    <div class="seasonal-footer-bottom border-t border-gray-100 dark:border-white/5">
+    <div v-scroll-reveal class="seasonal-footer-bottom border-t border-gray-100 dark:border-white/5">
       <div
         class="max-w-[1400px] mx-auto px-4 py-5 sm:px-6 sm:py-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-3 sm:gap-4 text-center md:text-left"
       >

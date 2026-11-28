@@ -46,12 +46,12 @@
 
         <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 lg:items-stretch">
           <!-- Left Column: Avatar & Stats -->
-          <div class="lg:col-span-5 xl:col-span-4 min-w-0 flex flex-col">
+          <div v-scroll-reveal class="lg:col-span-5 xl:col-span-4 min-w-0 flex flex-col">
             <ProfileAvatarSection :profile="profile" :avatar="form.avatar" />
           </div>
 
           <!-- Right Column: Info & Details -->
-          <div class="lg:col-span-7 xl:col-span-8 min-w-0 flex flex-col">
+          <div v-scroll-reveal class="lg:col-span-7 xl:col-span-8 min-w-0 flex flex-col">
             <ProfileInfo :profile="profile" :t="t" @edit="openEditModal" />
 
           </div>

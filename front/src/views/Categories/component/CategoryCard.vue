@@ -1,5 +1,5 @@
 <template>
-  <article data-seasonal-card class="category-card group flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-white transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-lg dark:bg-black motion-reduce:transform-none motion-reduce:transition-none"
+  <article v-scroll-reveal.paint data-seasonal-card class="category-card group flex min-w-0 flex-col overflow-hidden rounded-2xl border bg-white transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-lg dark:bg-black motion-reduce:transform-none motion-reduce:transition-none"
     :class="selected ? 'border-primary-500 ring-2 ring-primary-500/20 dark:border-primary-400' : 'border-black/10 hover:border-primary-300/70 dark:border-white/10 dark:hover:border-primary-500/50'"
     :style="style">
     <div class="category-card__hero relative flex min-w-0 items-start justify-between gap-2 border-b border-black/5 px-4 pb-4 pt-4 dark:border-white/10 sm:px-4">

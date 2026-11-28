@@ -1,5 +1,5 @@
 <template>
-  <section class="mx-auto w-full max-w-4xl space-y-5">
+  <section v-scroll-reveal class="mx-auto w-full max-w-4xl space-y-5">
     <button
       type="button"
       class="group inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-gray-600 transition-colors hover:bg-gray-100 hover:text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-500 dark:text-gray-300 dark:hover:bg-white/10 dark:hover:text-white"

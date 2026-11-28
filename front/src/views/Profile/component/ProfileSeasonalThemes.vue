@@ -1,5 +1,5 @@
 <template>
-  <section
+  <section v-scroll-reveal
     aria-labelledby="seasonal-preferences-title"
     class="mt-5 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/[0.04] sm:mt-8 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
   >

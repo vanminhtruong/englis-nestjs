@@ -23,7 +23,7 @@
             v-if="detailState.vocabulariesByDate.value.length > 0"
             class="min-w-0 space-y-4"
           >
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-3 dark:border-white/10">
+            <div v-scroll-reveal class="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 pb-3 dark:border-white/10">
               <h2 class="text-lg font-bold text-black dark:text-white sm:text-xl">{{ t('categories.detailVocabularyTitle') }}</h2>
               <span class="text-xs font-medium tabular-nums text-black/50 dark:text-white/50 sm:text-sm">{{ t('categories.detailWordCount', { count: detailState.vocabulariesByDate.value.length }) }}</span>
             </div>

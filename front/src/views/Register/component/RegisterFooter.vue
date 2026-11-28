@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-6 text-center">
+  <div v-scroll-reveal class="mt-6 text-center">
     <p class="text-gray-600 dark:text-gray-400">
       {{ t("register.haveAccount") }}
       <RouterLink

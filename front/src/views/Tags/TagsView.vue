@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-white dark:bg-black px-3 py-4 sm:p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
       <!-- Header -->
-      <div ref="controlsRef">
+      <div v-scroll-reveal ref="controlsRef">
         <TagsHeader
           :tags-count="tagsState.tagsCount.value"
           @open-create-modal="tagsState.openCreateModal"

@@ -1,6 +1,6 @@
 <template>
   <div class="achievements-card">
-    <div class="achievements-header">
+    <div v-scroll-reveal class="achievements-header">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
         {{ t("learningProgress.achievements.title") }}
       </h3>
@@ -11,7 +11,7 @@
     </div>
 
     <div class="achievements-grid">
-      <div
+      <div v-scroll-reveal
         v-for="achievement in achievements"
         :key="achievement.id"
         class="achievement-item"

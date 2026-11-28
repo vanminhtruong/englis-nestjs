@@ -1,5 +1,5 @@
 <template>
-  <div class="weekly-card">
+  <div v-scroll-reveal class="weekly-card">
     <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-6">
       {{ t("learningProgress.weekly.title") }}
     </h3>

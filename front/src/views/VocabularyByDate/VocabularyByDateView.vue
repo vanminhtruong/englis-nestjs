@@ -2,7 +2,7 @@
   <div class="min-h-screen py-4 sm:py-8 bg-white dark:bg-black">
     <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
       <!-- Header -->
-      <div class="mb-5 sm:mb-8">
+      <div v-scroll-reveal class="mb-5 sm:mb-8">
         <h1
           class="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent mb-2"
         >
@@ -14,7 +14,7 @@
       </div>
 
       <!-- Actions Bar -->
-      <div class="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-between">
+      <div v-scroll-reveal class="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center justify-between">
         <VocabularySearchBar
           v-model="state.searchQuery.value"
           :placeholder="'Search vocabularies...'"
@@ -43,7 +43,7 @@
       </div>
 
       <!-- No Data State -->
-      <div v-else-if="handle.filteredVocabularies.value.length === 0" class="text-center py-12 sm:py-20">
+      <div v-scroll-reveal v-else-if="handle.filteredVocabularies.value.length === 0" class="text-center py-12 sm:py-20">
         <div class="text-5xl sm:text-6xl mb-4">📅</div>
         <h3 class="text-2xl font-bold text-black dark:text-white mb-2">
           {{ tr("noData") }}

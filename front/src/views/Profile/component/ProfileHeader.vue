@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-10 relative">
+  <div v-scroll-reveal class="mb-10 relative">
     <!-- Decorative background element -->
     <div
       class="absolute -top-10 -left-10 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl -z-10"

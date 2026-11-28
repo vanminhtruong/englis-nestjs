@@ -25,7 +25,7 @@
     </div>
 
     <!-- Main Settings Card -->
-    <div class="settings-card">
+    <div v-scroll-reveal class="settings-card">
       <!-- Language Selection -->
       <div class="form-group">
         <label class="form-label">
@@ -235,7 +235,7 @@
 
     <!-- Browser Voices Section -->
     <div class="browser-voices-section">
-      <div class="section-header">
+      <div v-scroll-reveal class="section-header">
         <div class="section-icon">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -272,7 +272,7 @@
       </div>
 
       <div v-else class="voices-grid scrollbar-thin">
-        <div
+        <div v-scroll-reveal
           v-for="voice in browserVoices"
           :key="voice.voiceURI"
           class="voice-card"

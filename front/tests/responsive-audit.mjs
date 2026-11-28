@@ -363,7 +363,7 @@ try {
               const frame=document.querySelector('.seasonal-frame');
               const edges=[...document.querySelectorAll('.seasonal-frame-edge')];
               const logos=[...document.querySelectorAll('.seasonal-header .app-brand-link,.seasonal-footer .app-brand-link')];
-              const frameOk=!!frame&&getComputedStyle(frame).pointerEvents==='none'&&edges.length===4&&edges.every(e=>getComputedStyle(e).backgroundImage!=='none'&&e.getBoundingClientRect().width>0&&e.getBoundingClientRect().height>0);
+              const frameOk=!!frame&&getComputedStyle(frame).pointerEvents==='none'&&edges.length===4&&edges.every(e=>getComputedStyle(e,'::before').backgroundImage!=='none'&&e.getBoundingClientRect().width>0&&e.getBoundingClientRect().height>0);
               const shell=document.querySelector('.app-shell');
               const header=document.querySelector('.seasonal-header');
               const shellStyle=getComputedStyle(shell);
@@ -371,7 +371,7 @@ try {
               const near=(a,b)=>Math.abs(a-b)<1.1;
               const edgeRects=edges.map(e=>e.getBoundingClientRect());
               const flush=!!frameRect&&[shellStyle.paddingTop,shellStyle.paddingRight,shellStyle.paddingBottom,shellStyle.paddingLeft,getComputedStyle(header).top].every(v=>v==='0px')&&near(frameRect.left,0)&&near(frameRect.top,0)&&near(frameRect.right,innerWidth)&&near(frameRect.bottom,innerHeight)&&near(edgeRects[0]?.top,0)&&near(edgeRects[0]?.left,0)&&near(edgeRects[0]?.right,innerWidth)&&near(edgeRects[1]?.right,innerWidth)&&near(edgeRects[2]?.bottom,innerHeight)&&near(edgeRects[3]?.left,0)&&near(header.getBoundingClientRect().left,0)&&near(footer.getBoundingClientRect().left,0)&&near(header.getBoundingClientRect().width,innerWidth)&&near(footer.getBoundingClientRect().width,innerWidth);
-              const artworkOnly=edges.every(e=>{const s=getComputedStyle(e);return s.backgroundColor==='rgba(0, 0, 0, 0)'&&s.backgroundImage.startsWith('url(')&&s.backgroundPosition.includes('85%')&&s.backgroundPosition.includes('100%')});
+              const artworkOnly=edges.every(e=>{const s=getComputedStyle(e,'::before');return s.backgroundColor==='rgba(0, 0, 0, 0)'&&s.backgroundImage.startsWith('url(')&&s.backgroundPosition.includes('85%')&&s.backgroundPosition.includes('100%')});
               const headerInner=header.querySelector('.seasonal-header-inner');
               const headBox=headerInner.getBoundingClientRect();
               const brandBox=logos[0]?.getBoundingClientRect();

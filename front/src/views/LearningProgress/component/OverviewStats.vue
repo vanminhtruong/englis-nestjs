@@ -2,7 +2,7 @@
   <div>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-8">
       <!-- Total Words -->
-      <div class="stats-card group">
+      <div v-scroll-reveal class="stats-card group">
         <div class="stats-icon bg-gradient-to-br from-blue-500 to-blue-600">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -29,7 +29,7 @@
       </div>
 
       <!-- Mastered Words -->
-      <div class="stats-card group">
+      <div v-scroll-reveal class="stats-card group">
         <div
           class="stats-icon bg-gradient-to-br from-emerald-500 to-emerald-600"
         >
@@ -56,7 +56,7 @@
       </div>
 
       <!-- Learning Words -->
-      <div class="stats-card group">
+      <div v-scroll-reveal class="stats-card group">
         <div class="stats-icon bg-gradient-to-br from-amber-500 to-amber-600">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -81,7 +81,7 @@
       </div>
 
       <!-- New Words -->
-      <div class="stats-card group">
+      <div v-scroll-reveal class="stats-card group">
         <div class="stats-icon bg-gradient-to-br from-purple-500 to-purple-600">
           <svg
             xmlns="http://www.w3.org/2000/svg"

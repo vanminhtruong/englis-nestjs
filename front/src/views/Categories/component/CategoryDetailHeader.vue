@@ -4,7 +4,7 @@
       <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m7 7-7-7 7-7"/></svg>
       {{ t('categories.title') }}
     </RouterLink>
-    <div data-category-detail-hero :style="style" class="detail-hero relative min-w-0 overflow-hidden rounded-2xl border border-black/10 bg-white dark:border-white/10 dark:bg-black sm:rounded-3xl">
+    <div v-scroll-reveal data-category-detail-hero :style="style" class="detail-hero relative min-w-0 overflow-hidden rounded-2xl border border-black/10 bg-white dark:border-white/10 dark:bg-black sm:rounded-3xl">
       <div class="detail-hero__accent h-1 w-full" aria-hidden="true" />
       <div class="relative flex min-w-0 flex-col gap-4 p-4 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
         <div class="flex min-w-0 flex-1 items-start gap-3 sm:items-center sm:gap-5">

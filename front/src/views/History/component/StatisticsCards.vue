@@ -1,5 +1,5 @@
 <template>
-  <div v-if="statistics" data-seasonal-metrics class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-8">
+  <div v-scroll-reveal v-if="statistics" data-seasonal-metrics class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-8">
     <div class="bg-gradient-to-br from-blue-500/10 to-blue-600/10 dark:from-blue-500/20 dark:to-blue-600/20 border border-blue-500/20 dark:border-blue-500/30 rounded-xl p-4">
       <div class="text-sm text-blue-600 dark:text-blue-400 mb-1">Total Activities</div>
       <div class="text-2xl font-bold text-blue-700 dark:text-blue-300">{{ statistics.totalActivities }}</div>

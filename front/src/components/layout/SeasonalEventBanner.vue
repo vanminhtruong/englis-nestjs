@@ -1,5 +1,5 @@
 <template>
-  <section class="px-3 pt-3 sm:px-6 sm:pt-4 lg:px-8" aria-labelledby="seasonal-event-title">
+  <section v-scroll-reveal class="px-3 pt-3 sm:px-6 sm:pt-4 lg:px-8" aria-labelledby="seasonal-event-title">
     <div class="seasonal-banner seasonal-hero mx-auto max-w-[1400px] rounded-[1.4rem] border">
       <div class="seasonal-hero-copy">
         <div class="mb-3 flex flex-wrap items-center gap-2">

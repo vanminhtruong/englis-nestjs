@@ -44,7 +44,7 @@
     </div>
 
     <div v-else-if="availableDates.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <button
+      <button v-scroll-reveal
         v-for="dateOption in availableDates"
         :key="dateOption.date"
         @click="emit('date-select', dateOption.date)"
@@ -79,7 +79,7 @@
       </p>
     </div>
 
-    <div v-if="selectedDate" data-seasonal-practice-options class="space-y-4 pt-6 border-t border-black/10 dark:border-white/10">
+    <div v-scroll-reveal v-if="selectedDate" data-seasonal-practice-options class="space-y-4 pt-6 border-t border-black/10 dark:border-white/10">
       <h3 class="text-xl font-bold text-black dark:text-white mb-4">
         {{ t("practice.selectModeForDate") || "Select practice mode" }}
       </h3>

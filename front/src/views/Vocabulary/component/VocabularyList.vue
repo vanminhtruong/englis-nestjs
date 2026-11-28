@@ -56,7 +56,7 @@
                 })
               "
             >
-              <img
+              <img loading="lazy" decoding="async"
                 :src="resolveImageSrc(vocab.image)"
                 :alt="vocab.word"
                 class="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
@@ -70,7 +70,7 @@
               class="w-full h-full focus:outline-none focus:ring-2 focus:ring-primary-400 relative overflow-hidden"
               @click="emit('open-video', { src: vocab.video, title: vocab.word })"
             >
-              <img
+              <img loading="lazy" decoding="async"
                 v-if="getVideoThumbnail(vocab.video)"
                 :src="getVideoThumbnail(vocab.video)"
                 :alt="vocab.word"

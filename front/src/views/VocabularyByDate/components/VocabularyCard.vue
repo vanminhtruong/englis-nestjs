@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2.5 sm:p-3 rounded-lg bg-black/5 dark:bg-white/5">
+  <div v-scroll-reveal.paint class="p-2.5 sm:p-3 rounded-lg bg-black/5 dark:bg-white/5">
     <div class="flex flex-col gap-3 xs:flex-row xs:gap-4">
       <!-- Media Display -->
       <div v-if="vocabulary.image || vocabulary.video" class="w-full xs:w-auto xs:flex-shrink-0">

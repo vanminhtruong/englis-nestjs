@@ -1,6 +1,6 @@
 <template>
   <div class="practice-modes-container">
-    <div class="modes-header">
+    <div v-scroll-reveal class="modes-header">
       <h2 class="modes-title">
         <span class="title-icon">🎯</span>
         {{ t("practice.modes") }}
@@ -24,7 +24,7 @@
 
     <!-- Practice Modes Grid -->
     <div v-else-if="practiceModes.length > 0" class="modes-grid">
-      <button
+      <button v-scroll-reveal
         v-for="(mode, index) in practiceModes"
         :key="mode.id"
         @click="handleModeClick(mode)"
@@ -307,8 +307,7 @@ function getModeDescription(descKey: string): string {
   min-height: 100px;
   transform: translateY(0);
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  animation: slideIn 0.6s ease-out backwards;
-  animation-delay: var(--delay);
+  /* Entry motion is handled by the shared scroll-reveal directive. */
 }
 
 @keyframes slideIn {

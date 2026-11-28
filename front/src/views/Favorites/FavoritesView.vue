@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-white dark:bg-black px-3 py-4 sm:p-4 md:p-8">
     <div class="max-w-7xl mx-auto">
       <!-- Header -->
-      <div class="mb-8">
+      <div v-scroll-reveal class="mb-8">
         <h1
           class="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-primary-500 to-secondary-500 bg-clip-text text-transparent mb-4"
         >
@@ -26,7 +26,7 @@
       <AppLoading v-if="loading" />
 
       <!-- Empty State -->
-      <div v-else-if="!hasFavorites" class="text-center py-12">
+      <div v-scroll-reveal v-else-if="!hasFavorites" class="text-center py-12">
         <div class="text-5xl sm:text-6xl mb-4">⭐</div>
         <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
           {{ t("favorites.noFavorites") }}

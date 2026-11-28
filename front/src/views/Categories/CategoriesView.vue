@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-white px-3 py-4 dark:bg-black sm:p-4 md:p-8">
     <div class="mx-auto max-w-7xl" :class="selection.selectedIds.value.length ? 'pb-64 sm:pb-52 xl:pb-28' : ''">
-      <div ref="controlsRef">
+      <div v-scroll-reveal ref="controlsRef">
         <CategoriesHeader :categories-count="query.totalCategories.value" @open-create-modal="state.openCreateModal" />
         <CategoriesFilters :filters="query.filters" :smart-summary="query.smartSummary.value" :has-filters="query.hasFilters.value" @change="query.updateFilters" @reset="query.resetFilters" />
       </div>
